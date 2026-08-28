@@ -25,6 +25,22 @@ CLV is reported in probability points: `closing_implied − card_implied`. A
 positive number means the price you took implied a lower probability than the
 close did, which is the direction that pays.
 
+## The window has to be wide enough for a line to move
+
+Measured on the first three seasons bought: **55.7% of wagers had an identical
+price at T-60 and T-5**, and among the 44% that moved, the model's selections
+went **exactly 50/50**.
+
+That is a real null over that window and it is also a weak test, because the
+window is 55 minutes. A prop line mostly does not move in the last hour; the
+argument the market is having about it happens over days. Reading a near-zero
+mean CLV across a 55-minute window as "the model has no information" would be
+reading the window rather than the model.
+
+So CLV is measured against the **earliest** snapshot bought, not merely an
+earlier one, and the gap is printed beside the number. A CLV figure without
+its window is not a result.
+
 ## What it cannot do
 
 CLV cannot make a losing model profitable, and a market with no closing
@@ -50,6 +66,14 @@ from football_betting_lab.reports.props_backtest import (
 #: The columns that make two rows the same wager at two moments.
 MATCH_KEYS = ("event_id", "market", "player", "selection", "line")
 
+#: Below this, a mean CLV is not "positive" or "negative" — it is nothing.
+#: Half a probability point. With a hundred thousand bets almost any
+#: departure from zero is *statistically* distinguishable, and two hundredths
+#: of a point still cannot matter to anyone. The first version of this report
+#: called +0.02% "positive CLV, consistent with the return", which is a
+#: sentence that reads like a confirmation and contains none.
+MATERIAL_CLV = 0.005
+
 
 @dataclass
 class MarketCLV:
@@ -71,6 +95,14 @@ class MarketCLV:
                 f"**not enough evidence** — {self.matched} matched bets, below "
                 f"the {MINIMUM_BETS} declared in advance"
             )
+        if abs(self.mean_clv) < MATERIAL_CLV:
+            if self.roi > 0.02:
+                return (
+                    f"**no measurable CLV** ({self.mean_clv:+.2%}) beside a "
+                    f"{self.roi:+.1%} return — the market did not move toward "
+                    "these bets"
+                )
+            return f"**no measurable CLV** ({self.mean_clv:+.2%})"
         if self.roi > 0 and self.mean_clv < 0:
             return (
                 "**a winning record with negative CLV is variance** — the "
@@ -146,8 +178,9 @@ def measure(bets: pd.DataFrame, prices: pd.DataFrame) -> CLVResult:
         for row in frame.itertuples()
     ]
     matched = frame.dropna(subset=["closing_odds"]).copy()
-    result.matched = len(matched)
-    result.unmatched = len(frame) - len(matched)
+    staked_all = frame[frame["outcome"] != "void"]
+    result.matched = int((matched["outcome"] != "void").sum())
+    result.unmatched = len(staked_all) - result.matched
     if matched.empty:
         return result
 
@@ -156,9 +189,14 @@ def measure(bets: pd.DataFrame, prices: pd.DataFrame) -> CLVResult:
     matched["clv"] = matched["closing_implied"] - matched["card_implied"]
 
     for market in sorted(frame["market"].unique()):
-        subset = matched[matched["market"] == market]
-        staked = frame[
-            (frame["market"] == market) & (frame["outcome"] != "void")
+        # Counted on the same population, or the table reports more matches
+        # than bets — which it did, in every row, because `matched` included
+        # voided bets and `bets` did not. A number larger than its own
+        # denominator is the kind of thing a reader spots and then stops
+        # trusting the rest of the table.
+        staked = frame[(frame["market"] == market) & (frame["outcome"] != "void")]
+        subset = matched[
+            (matched["market"] == market) & (matched["outcome"] != "void")
         ]
         entry = MarketCLV(market=market, bets=len(staked), matched=len(subset))
         if len(subset):
@@ -230,5 +268,12 @@ def render(result: CLVResult) -> str:
         "implied a lower probability than the close did, which is the "
         "direction that pays. **CLV cannot make a losing model profitable**, "
         "and it is reported beside the return rather than instead of it."
+    )
+    add("")
+    add(
+        f"A mean below **{MATERIAL_CLV:.1%}** reads as *no measurable CLV*, "
+        "not as positive or negative. With this many bets almost any "
+        "departure from zero is statistically distinguishable and two "
+        "hundredths of a point still cannot matter to anyone."
     )
     return "\n".join(lines) + "\n"

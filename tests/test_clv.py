@@ -158,3 +158,23 @@ def test_clv_and_return_are_reported_side_by_side_never_instead() -> None:
     assert "ROI" in text
     assert "Mean CLV" in text
     assert "cannot make a losing model profitable" in text
+
+
+def test_a_trivially_small_clv_reads_as_none_rather_than_positive() -> None:
+    """With a hundred thousand bets almost any departure from zero is
+    statistically distinguishable, and two hundredths of a probability point
+    still cannot matter. The first version of this report called +0.02%
+    "positive CLV, consistent with the return" — a sentence that reads like a
+    confirmation and contains none."""
+    entry = MarketCLV(market="x", bets=6_812, matched=6_568, mean_clv=0.0002, roi=0.163)
+
+    reading = entry.reading()
+
+    assert "no measurable CLV" in reading
+    assert "did not move toward these bets" in reading
+
+
+def test_a_material_clv_still_reads_as_positive() -> None:
+    entry = MarketCLV(market="x", bets=1000, matched=1000, mean_clv=0.02, roi=0.08)
+
+    assert "positive CLV" in entry.reading()
