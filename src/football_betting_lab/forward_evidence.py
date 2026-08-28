@@ -102,6 +102,19 @@ TEAM_SETTLEMENT = frozenset(
 )
 
 
+def _is_empty(path: Path) -> bool:
+    """Whether a snapshot holds no frozen opinions.
+
+    Rows, not existence. A header-only CSV exists and is worth nothing.
+    """
+    try:
+        return len(pd.read_csv(path)) == 0
+    except (OSError, UnicodeError, pd.errors.EmptyDataError, pd.errors.ParserError):
+        # An unreadable snapshot is not evidence either, and refusing to
+        # overwrite it would lock the day on a corrupt file.
+        return True
+
+
 def snapshots_dir(archive_dir: Path) -> Path:
     return Path(archive_dir) / SNAPSHOT_DIRNAME
 
@@ -137,10 +150,18 @@ def write_snapshot(
     directory = snapshots_dir(archive_dir)
     directory.mkdir(parents=True, exist_ok=True)
     target = directory / f"{snapshot_date}.csv"
-    if target.exists():
+    if target.exists() and not _is_empty(target):
         # The first opinion of the day stands. Two snapshots for one day would
         # let the flattering one be the one that settles.
         return None
+    # ...but the first *opinion*, not the first *file*. An empty snapshot is
+    # not an opinion. The first live workflow run wrote one on a day with no
+    # games, and on a real game day the same thing would happen whenever the
+    # early run fetched nothing — a failed provider call, a slate the books
+    # had not posted yet — and the day would be locked empty. Every real
+    # opinion for that week would then be silently unrecordable, which is the
+    # one failure this organ cannot survive, because the evidence cannot be
+    # created later.
 
     rows: list[dict[str, object]] = []
     for row in prices.itertuples():

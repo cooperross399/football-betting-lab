@@ -393,3 +393,65 @@ def test_voids_and_unsettleables_are_excluded_from_the_return() -> None:
     )
 
     assert interval_by_game(with_void)[3] == 1
+
+
+def _write(tmp_path: Path, probabilities: dict) -> Path | None:
+    prices = pd.DataFrame(
+        [
+            {
+                "market": "moneyline",
+                "selection": "home",
+                "line": None,
+                "american_odds": -150,
+                "home_team": "Seattle Seahawks",
+                "away_team": "New England Patriots",
+                "commence_time": "2026-09-10T00:20:00Z",
+                "player": "",
+                "book": "dk",
+            }
+        ]
+    )
+    return write_snapshot(
+        prices,
+        probabilities,
+        key_for=lambda row, *, market, selection, line: (market, selection),
+        gates_in_force="test",
+        snapshot_date="2026-09-09",
+        archive_dir=tmp_path,
+    )
+
+
+def test_an_empty_snapshot_does_not_lock_the_day(tmp_path: Path) -> None:
+    """The first *opinion* stands, not the first *file*.
+
+    The first live workflow run wrote an empty snapshot on a day with no
+    games. On a real game day the same thing happens whenever the early run
+    fetched nothing — a failed provider call, a slate the books had not posted
+    — and the day would be locked empty. Every real opinion for that week
+    would then be silently unrecordable, and forward evidence cannot be
+    created later.
+    """
+    first = _write(tmp_path, {})
+    assert first is not None and pd.read_csv(first).empty
+
+    second = _write(tmp_path, {("moneyline", "home"): 0.6})
+
+    assert second is not None
+    assert len(pd.read_csv(second)) == 1
+
+
+def test_a_snapshot_with_opinions_still_stands(tmp_path: Path) -> None:
+    """The rule that matters is unchanged: a repriced snapshot is not the
+    card's opinion any more."""
+    _write(tmp_path, {("moneyline", "home"): 0.6})
+
+    assert _write(tmp_path, {("moneyline", "home"): 0.9}) is None
+
+
+def test_an_unreadable_snapshot_does_not_lock_the_day(tmp_path: Path) -> None:
+    """Refusing to overwrite a corrupt file locks the day on a corrupt file."""
+    directory = tmp_path / "priced_snapshots"
+    directory.mkdir(parents=True)
+    (directory / "2026-09-09.csv").write_text("", encoding="utf-8")
+
+    assert _write(tmp_path, {("moneyline", "home"): 0.6}) is not None
