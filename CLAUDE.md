@@ -337,6 +337,44 @@ Anything that sounds like a finding before Week 1 is a bug.
   that trade is worth making for the sake of forward evidence is Cooper's
   call, not a script's.
 
+- **Credits are no longer a constraint.** Cooper added 5,000,000 on
+  2026-08-28 and the month reset the same day (`x-requests-used` fell to 0,
+  which the free daily quota check observed rather than assumed). The
+  purchase programme is 2023, 2024 and 2025 at **two snapshots each** — card
+  time and the close — 1,632 season-events, ~752,000 credits pessimistic.
+  That buys **replication across seasons**, which is what the brief demands
+  and what the `tackles_assists` candidate needs, and **CLV on every
+  historical bet**.
+- **A broken run reaches a human.** Every run posts to the pinned issue
+  `Football Betting Lab — Claude Operating Home` (#1) — the card, or a loud
+  degraded notice. The posting step always runs, because the case that most
+  needs reporting is the one where an earlier step died. Verified by a real
+  failure, not a contrived one.
+- **The card refuses to fetch on a thin quota.** A run that starts with less
+  than its cap gets partway through the slate and stops, freezing a biased
+  subset into the ledger as though it were the day. An unreadable quota
+  header does not block the run.
+- **Rehearsals never touch the evidence.** `--rehearsal` writes to its own
+  archive, settles nothing, labels its output `REHEARSAL — not a card`, and
+  never publishes to `card-feed`. A live run pricing any date but today is
+  **refused** without it: freezing a snapshot for a future slate would make
+  the real run that day find one already standing and leave it there, and the
+  first opinion of Week 1 would be a rehearsal taken before the teams were
+  known.
+- **The rehearsal found the crash the first real run would have hit.** It
+  failed on exactly the branch state 2026-09-09 would have had — a card feed
+  with a card and no ledger yet. `git show ...forward_evidence.csv > file`
+  fails, the shell redirect creates the file anyway, and pandas refuses a
+  zero-byte CSV. Fixed on both sides: the workflow writes restores to a temp
+  and moves only on success (ledger **and** snapshots, which had the same
+  hole), and the card reads every CSV defensively.
+- **Card-time and closing prices are never mixed.** Each cached price carries
+  the snapshot it came from, derived from the filename stamp. Without it the
+  best-price collapse would take the better of a card-time price and a
+  closing price for one wager — not a price anyone could have taken, and it
+  would have inflated every measured edge. The backtest prices card time
+  only; the close is for CLV.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
