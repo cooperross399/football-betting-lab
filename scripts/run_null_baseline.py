@@ -18,6 +18,7 @@ without this is comparing two different questions.
 
 import pandas as pd
 from football_betting_lab.leagues import NFL
+from football_betting_lab.providers.historical import CACHE_DIRNAME
 from football_betting_lab.config import RAW_DIR, PROCESSED_DIR
 from football_betting_lab.reports.props_backtest import (load_bought_prices, label_snapshots,
     best_price_per_selection, _game_weeks, _game_id)
@@ -31,7 +32,7 @@ log_index={}
 for r in logs.itertuples():
     log_index.setdefault((str(r.game_id), str(r.player_name).casefold()), r)
 
-p=best_price_per_selection(label_snapshots(load_bought_prices(RAW_DIR/'nfl'/'historical_prices', NFL)))
+p=best_price_per_selection(label_snapshots(load_bought_prices(RAW_DIR / NFL.data_dir_segment / CACHE_DIRNAME, NFL)))
 p=p[p.phase=='card'].copy()
 props={k for k,v in MARKETS_BY_KEY.items() if v.kind=='player'}
 p=p[p.market.isin(props)]
@@ -62,7 +63,7 @@ for season in (2023,2024,2025):
 n=pd.DataFrame(rows)
 import sys
 from football_betting_lab.config import OUTPUTS_DIR
-n.to_csv(OUTPUTS_DIR / "nfl_null_baseline_bets.csv", index=False)
+n.to_csv(OUTPUTS_DIR / NFL.output_name("null_baseline_bets", ".csv"), index=False)
 lines = ["# The null baseline: betting everything, with no model", ""]
 lines.append(
     "A sound harness returns roughly the vig here. If betting everything makes "
@@ -90,7 +91,7 @@ for (season, market), group in n.groupby(["season", "market"]):
     lines.append(
         f"| {season} | `{market}` | {len(group):,} | {group['profit'].mean():+.2%} |"
     )
-(OUTPUTS_DIR / "nfl_null_baseline.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+(OUTPUTS_DIR / NFL.output_name("null_baseline", ".md")).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 print("NULL MODEL — every priced selection in range, no model at all:\n")
 print(n.groupby(['season','sel']).agg(bets=('profit','size'), roi=('profit','mean')).round(4).to_string())
