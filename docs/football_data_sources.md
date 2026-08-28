@@ -204,13 +204,26 @@ are excluded on outdoor games and the card says why. **Never silently price a
 There is a second, sharper problem the data surfaced. For the 2026 season,
 `roof` is blank for **43 of 272 games**, and they are not random: they are the
 retractable-roof venues — State Farm, NRG, Lucas Oil, Mercedes-Benz, AT&T —
-plus the two European neutral sites. nflverse leaves `roof` blank until the
-game is played **because whether the roof was open is a game-time fact**.
+plus the Maracana in Rio and the Bernabeu in Madrid, which are retractable
+too. nflverse leaves `roof` blank until the game is played **because whether
+the roof was open is a game-time fact**.
 
 So a weather gate cannot ask "is this a dome?" and get an answer for those
-five venues before kickoff. They are treated as **roof unknown**, which falls
-on the excluded side, the same way an unconfirmed start time falls on the
+venues before kickoff. They are treated as **roof unknown**, which falls on
+the excluded side, the same way an unconfirmed start time falls on the
 not-a-play side.
+
+**And `roof` is wrong for some games where it is populated.** Three of the
+2026 international fixtures are labelled `dome` at open-air stadiums: PIT-NO
+at the Stade de France, NE-DET at the Munich stadium, and SF-LA at the
+Melbourne Cricket Ground. A weather gate that trusted this column would skip
+the weather check on three outdoor games and never say so.
+
+This is the failure shape the whole lab is built against: not a missing
+value, which is visible, but a **confidently wrong** one. So the gate does not
+key on `roof` alone. A neutral-site or international fixture is roof-unknown
+regardless of what the column says, and the domestic venue list is asserted
+in a test rather than read from the feed.
 
 ### 4. Roster and role staleness
 
@@ -241,10 +254,17 @@ is played. For 2026 that gives, without any modelling: **33 team-games on a
 short week** (four days' rest or fewer), **30 coming off a bye** (thirteen or
 more), and **8 neutral-site games**, two of them in Europe.
 
+The eight neutral-site games are further from home than "international
+travel" suggests: Melbourne, Rio, London twice, Paris, Madrid, Munich and
+Mexico City. Six of them kick off at 09:30 ET, which is a body-clock story as
+much as a travel one.
+
 These are the analogue of the NHL's back-to-backs, where a measured adjustment
 shipped *because it won the priced test* while a better-calibrated correction
 was refused *because it lost*. They will be tested the same way and shipped
-only if they win.
+only if they win — and with eight games in a season, the honest expectation is
+that the international effect will be **unmeasurable**, and the report will say
+that rather than reporting a number over eight games.
 
 ## NCAAF — later, and what will need checking then
 

@@ -79,15 +79,26 @@ Anything that sounds like a finding before Week 1 is a bug.
   (`report_status == Out`) and cannot *confirm*. So player props for
   unconfirmed players are priced and tracked and **cannot produce a
   selection** — the exact analogue of goalie saves in the NHL lab.
-- **Retractable roofs are unknown before kickoff.** `roof` is blank for 43 of
-  272 2026 games; they are the five retractable venues plus two European
-  neutral sites, because whether the roof was open is a game-time fact. Those
-  games are treated as roof-unknown, which falls on the excluded side.
+- **Week 1 opens on a Wednesday because Thursday's game is in Australia.**
+  SF @ LA on 2026-09-10 is at the Melbourne Cricket Ground, so the domestic
+  opener moved to Wednesday 2026-09-09. This is recorded because it looks like
+  a data error and is not one; a future session must not "correct" it back.
+- **Retractable roofs are unknown before kickoff, and the `roof` column also
+  lies.** It is blank for 43 of 272 2026 games — the five retractable domestic
+  venues plus the Maracana and the Bernabeu — because whether the roof was open
+  is a game-time fact. Worse, it is populated and **wrong** for three open-air
+  international games (Stade de France, Munich, Melbourne), all labelled
+  `dome`. The weather gate never keys on `roof` alone: neutral-site and
+  international fixtures are roof-unknown regardless, and the domestic venue
+  list is asserted in a test rather than read from the feed.
 - **`nfl_data_py` is archived** (last push 2025-09-25). This lab fetches the
   nflverse release assets directly and caches them.
 - **Schedule states are free and leak-free**: `home_rest`/`away_rest` are
   populated for all 272 2026 games today. 33 team-games on a short week, 30
-  off a bye, 8 neutral-site games including two in Europe.
+  off a bye, and 8 neutral-site games — Melbourne, Rio, London twice, Paris,
+  Madrid, Munich, Mexico City — six of them kicking off at 09:30 ET. Eight
+  games is too few to measure an international effect, and the report will
+  say that rather than reporting a number over eight games.
 
 ## Contract strings — never change these
 
