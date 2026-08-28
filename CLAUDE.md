@@ -375,6 +375,44 @@ Anything that sounds like a finding before Week 1 is a bug.
   would have inflated every measured edge. The backtest prices card time
   only; the close is for CLV.
 
+## What three seasons of bought prices say
+
+**The purchase completed: 587,732 credits, 5.67M price rows, 816 events across
+2023-2025, both snapshots on 815 of them, 4,473,866 credits left.**
+
+- **The harness was validated before any result was believed.** Betting every
+  priced selection with no model at all returns **−9.28% over 385,495 bets**
+  (`scripts/run_null_baseline.py`). A sound harness returns roughly the vig
+  here; if betting everything made money, nothing computed on top of it would
+  mean anything.
+- **The null baseline is not flat across seasons**: 2023 −5.2%, 2024 −8.3%,
+  2025 −12.8%. The price samples differ in how soft they are, so **raw ROIs
+  compared across seasons are comparing two different questions.** The pooled
+  model results inherit that gradient almost exactly (+9.6%, +4.2%, −0.0%),
+  which is why the pooled number is not the interesting one.
+- **Two markets replicate positive on seasons they were not selected on.**
+  `tackles_assists` **+16.1% / +14.9% / +18.2%** and `rush_yards` **+14.8% /
+  +10.7% / +12.2%**, across 2023, 2024 and 2025. Held-out pooled, Bonferroni
+  across 20 markets: tackles **+15.5% over 4,849 bets**, rush yards **+12.5%
+  over 12,874**. `receptions` is positive in all three but decaying
+  (+12.6/+7.6/+5.0).
+- **This is the first thing in this lab that has cleared the bar the brief
+  sets**, and four wrong explanations were tested and discarded before it was
+  believed: settlement drift (Over hits ~50% at the featured line in every
+  season), a single soft book (DraftKings shows +16.5% in 2023 and −3.6% in
+  2025, and DraftKings does not misprice by 16%), best-of-N price selection
+  (measured at 0.5 probability points among selected bets and **flat** across
+  seasons, so it cannot explain a gradient), and a broken harness (the null
+  test).
+- **It is still not an edge that can be acted on.** No player prop can reach a
+  card — inactives are declared ninety minutes before kickoff and no available
+  feed publishes them. The model is also badly calibrated (overconfident in
+  every price bucket: it says 0.73 and gets 0.59, says 0.37 and gets 0.17),
+  so *why* it wins is not understood, and a miscalibrated model that wins is a
+  reason for more scrutiny rather than less.
+- **Nothing is allowlisted and nothing is bet.** The next step is the six-step
+  approval in `docs/provider_allowlist_approval.md`, and step six is Cooper's.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
