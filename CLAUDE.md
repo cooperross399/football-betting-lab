@@ -278,6 +278,36 @@ Anything that sounds like a finding before Week 1 is a bug.
 - **Still to buy**: the remaining 89 card-time events (~34,000) and the full
   close snapshot (~99,000). Roughly 133,000, or 1.3 months.
 
+- **The prop models lose against real prices, and the sample says so.**
+  767,947 bought rows over 183 events, collapsed to 188,045 distinct wagers
+  (one player, market, line and side is **one bet** quoted by up to nine
+  books; a card takes the best price). Under the shipped bars: **pooled −6.7%
+  over 24,470 bets, family-corrected interval −12.4% to −1.1% — the interval
+  excludes zero and it is negative.** `data/outputs/nfl_props_backtest.md`.
+  This measures the model, not a shippable policy: no player prop can reach a
+  card at all.
+- **Two markets have intervals excluding zero after correction**, and they
+  point opposite ways: `sacks` **−14.2% over 2,164 bets** (confirmed bad) and
+  `tackles_assists` **+16.2% over 941 bets**.
+- **`tackles_assists` is a candidate, not a finding, and must be read as
+  one.** It survives every free check: halves agree (+17.8% early, +14.5%
+  late), 223 distinct players, the best single game is 7% of the profit and
+  removing it leaves +15.1%. Settlement was checked against the books and
+  agrees — at the featured line the Over hits 47.7%, so nflverse's defensive
+  charting is not drifting from what the books settle. **None of that makes it
+  a finding.** It is one season, 67% sampled, one of eighteen markets tested.
+  The standard is replication on a season it was not selected on, and that
+  needs a second season bought — roughly 99,000 credits, Cooper's decision.
+- **Do not act on `tackles_assists`, and do not quietly drop it either.** It
+  is the strongest candidate this lab has produced and it is the reason to
+  prioritise a second season in the next purchase.
+- **The count-model markets were calibrated after the backtest, not before**,
+  because the props calibration only ever covered the three compound families.
+  They are roughly centred (mean PIT 0.51-0.54 across tackles, sacks,
+  interceptions, field goals, kicking points, passing touchdowns). That ruled
+  out the first explanation offered for the tackles result and is why the
+  second one had to be found.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

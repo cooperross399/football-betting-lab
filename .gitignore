@@ -17,3 +17,4 @@ data/raw/nfl/snap_counts/
 data/raw/nfl/rosters/
 data/raw/nfl/injuries/
 data/processed/*.csv
+data/raw/nfl/historical_prices/

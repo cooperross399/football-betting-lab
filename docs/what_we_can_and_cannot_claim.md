@@ -237,6 +237,46 @@ and the card says so in those words.
 
 An excluded market is never reported as a pass, an avoid, or a no-value call.
 
+## The first priced results, and how to read them
+
+Two priced tests have now run. Both say the same thing about the models as a
+whole, and one of them raises a question.
+
+**The team model does not beat the closing line.** Moneyline −6.2% over 1,923
+bets, spread −1.9% over 1,886, total −1.8% over 1,708, every interval
+including zero. Free, back to 2016, and conservative in two directions:
+it bets into the close and uses one consensus line rather than the best of
+nine books.
+
+**The prop models lose against real bought prices.** Pooled −6.7% over 24,470
+bets, family-corrected interval −12.4% to −1.1%. The interval excludes zero
+and it is **negative**. That is a result, not an absence of one.
+
+**`tackles_assists` returned +16.2% over 941 bets and is not a finding.**
+
+This document exists to make that last sentence stick, so the reasoning is
+spelled out rather than summarised:
+
+* It survives every check that can be run for free. The halves agree, 223
+  distinct players are involved, the best single game is 7% of the profit, and
+  removing that game leaves +15.1%.
+* Settlement was suspected first and cleared: at the featured line the Over
+  hits 47.7%, so what nflverse records and what the books settle are not
+  drifting apart.
+* The count model it uses was calibrated afterwards and is roughly centred.
+
+And none of that is replication. It is **one season, 67% sampled, one of
+eighteen markets tested**. A market selected because it looked good in a sample
+is exactly the market most likely to have looked good by chance, and the
+correction for that is not a wider interval — it is a season the market was
+not selected on. Until that exists, the honest word is **candidate**.
+
+The failure mode this guards against is specific and this repository has
+watched it happen elsewhere: a suggestive cell survives every test anyone
+thinks to run, gets described as "promising" once, and is a shipped policy
+three sessions later with nobody able to say when it stopped being a
+candidate.
+
 ## The one thing that is certain
 
 Every claim this project will ever make about the NFL rests on evidence that
