@@ -336,3 +336,68 @@ def test_a_cache_that_disagrees_with_the_record_is_reported_rather_than_hidden(
     rebuilt = rp.rebuild_from_record(payload, NFL, cache_dir=tmp_path)
 
     assert any("absent from the cached responses" in note for note in rebuilt.spend.notes)
+
+
+# -- the purchase order ------------------------------------------------------
+
+
+def test_every_prefix_of_the_buy_order_is_spread_across_the_whole_set() -> None:
+    """A purchase that stops halfway must leave a sample, not a prefix.
+
+    Buying weeks 1 to 10 and stopping would measure early-season football and
+    call it football: healthier rosters, warmer weather, and prop markets that
+    are looser before the market learns the season.
+    """
+    from football_betting_lab.providers.historical import van_der_corput_order
+
+    order = van_der_corput_order(64)
+
+    for size in (8, 16, 32):
+        prefix = sorted(order[:size])
+        # An even spread over 64 positions puts each pick about 64/size apart.
+        gaps = [b - a for a, b in zip(prefix, prefix[1:])]
+        assert max(gaps) <= 2 * (64 // size), (size, max(gaps))
+
+
+def test_the_buy_order_holds_every_kickoff_window_at_its_true_share() -> None:
+    """The first real purchase covered every week at 62-73% and left Sunday
+    night at 50% against Monday at 76%. Book coverage differs by window, so a
+    sample light on national night games is light on exactly the fixtures the
+    books treat differently."""
+    import csv
+    from collections import Counter
+
+    from football_betting_lab.config import RAW_DIR
+    from football_betting_lab.providers.historical import stratified_order
+    from football_betting_lab.season import schedule_path
+
+    with schedule_path(NFL, RAW_DIR).open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    targets = rp.select_targets(rows, NFL, seasons=(2025,), count=10_000)
+    order = stratified_order(targets)
+
+    half = [targets[i] for i in order[: len(targets) // 2]]
+    bought = Counter(t.window for t in half)
+    total = Counter(t.window for t in targets)
+    shares = [bought[w] / total[w] for w in total]
+
+    assert min(shares) > 0.40, dict(bought)
+    assert max(shares) < 0.60, dict(bought)
+
+
+def test_the_buy_order_visits_every_event_exactly_once() -> None:
+    """An ordering that dropped or repeated an event would buy the wrong
+    season and the manifest would not notice."""
+    import csv
+
+    from football_betting_lab.config import RAW_DIR
+    from football_betting_lab.providers.historical import stratified_order
+    from football_betting_lab.season import schedule_path
+
+    with schedule_path(NFL, RAW_DIR).open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    targets = rp.select_targets(rows, NFL, seasons=(2025,), count=10_000)
+
+    order = stratified_order(targets)
+
+    assert sorted(order) == list(range(len(targets)))

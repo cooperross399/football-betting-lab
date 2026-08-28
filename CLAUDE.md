@@ -263,6 +263,21 @@ Anything that sounds like a finding before Week 1 is a bug.
   `getattr(..., None)` default turned a missing column into a quietly skipped
   market. A missing price column is now an error.
 
+- **The historical purchase is under way and 67% of the 2025 card-time
+  snapshot is bought.** 183 of 272 events, **69,964 credits** against a 70,000
+  cap, zero failures, stopped cleanly at the cap. **9,874 credits remain this
+  month**; the rest waits for the reset, which the free daily quota check will
+  observe rather than assume.
+- **A partial purchase is a sample, not a prefix.** Events are bought in an
+  order whose every prefix is spread across the season, so the 67% covers
+  every week at 62-73%. The first ordering left the kickoff *windows* uneven
+  (Sunday night 50%, Monday 76%), which matters because book coverage differs
+  by window; the order is now stratified by window, measured against three
+  alternatives, and the residual week imbalance is structural — 21 Thursday
+  games across 18 weeks cannot be two-thirds sampled evenly.
+- **Still to buy**: the remaining 89 card-time events (~34,000) and the full
+  close snapshot (~99,000). Roughly 133,000, or 1.3 months.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

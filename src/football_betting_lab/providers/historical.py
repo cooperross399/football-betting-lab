@@ -74,6 +74,68 @@ CARD_TIME_LEAD_MINUTES = 60
 CLOSING_LEAD_MINUTES = 5
 
 
+def stratified_order(targets: Sequence[ProbeTarget]) -> list[int]:
+    """Buy order whose every prefix is spread across weeks **and windows**.
+
+    `van_der_corput_order` alone spreads by position in the schedule, and on
+    the first real purchase that gave even coverage by week — 62% to 73%
+    across all eighteen — while leaving the kickoff windows uneven: Sunday
+    night at 50% against Monday night at 76%.
+
+    That matters. The retention probe found book coverage differs by window,
+    so a sample light on national night games is light on exactly the fixtures
+    the books treat differently. Even coverage in one dimension is not the
+    same as a representative sample.
+
+    So the sequence is built per window and then interleaved in proportion to
+    each window's size: within a window the order is van der Corput, and
+    across windows every prefix holds each window at roughly its true share.
+
+    **This is a trade-off, measured rather than assumed.** Three orderings
+    were compared on the 2025 season, reporting the spread of coverage at a
+    third and at two thirds bought (standard deviation, in percentage points):
+
+    | Ordering | Week sd | Window sd |
+    |:---------|--------:|----------:|
+    | by position only (the first purchase) | 3.5 | ~9 |
+    | **by window** (this one) | 8.6 | **3.1** |
+    | by week | **2.2** | 20.8 |
+    | by week x window | 6.2 | 15.0 |
+
+    Stratifying by week gives the evenest week coverage and the worst window
+    coverage — Sunday night at 28% against another window at 90% — which is
+    precisely the bias the probe warned about. Week-by-window is worst of
+    both, because the cells are tiny.
+
+    The residual week imbalance here is **structural, not a flaw in the
+    ordering**: there are 21 Thursday games across 18 weeks, so taking two
+    thirds of them leaves several weeks with none, and no ordering can fix
+    that. It is recorded rather than smoothed over.
+    """
+    by_window: dict[str, list[int]] = {}
+    for index, target in enumerate(targets):
+        by_window.setdefault(target.window, []).append(index)
+
+    queues: dict[str, list[int]] = {}
+    for window, indices in by_window.items():
+        indices.sort(key=lambda i: (targets[i].kickoff_utc, targets[i].game_id))
+        queues[window] = [indices[j] for j in van_der_corput_order(len(indices))]
+
+    total = len(targets)
+    # Emit the window that is furthest behind its share, repeatedly. That
+    # keeps every prefix proportional rather than only the whole.
+    taken = {window: 0 for window in queues}
+    order: list[int] = []
+    while len(order) < total:
+        window = min(
+            (w for w in queues if taken[w] < len(queues[w])),
+            key=lambda w: (taken[w] / len(by_window[w]), w),
+        )
+        order.append(queues[window][taken[window]])
+        taken[window] += 1
+    return order
+
+
 def van_der_corput_order(count: int) -> list[int]:
     """Indices ordered so that **every prefix is spread across the whole set**.
 
@@ -185,7 +247,7 @@ def buy_season(
     key = f"{season}:{lead_minutes}"
     done: dict[str, Any] = dict(manifest.get(key, {}))
 
-    for index in van_der_corput_order(len(targets)):
+    for index in stratified_order(targets):
         target = targets[index]
         snapshot = snapshot_for(target, lead_minutes)
         record = done.get(target.game_id)
