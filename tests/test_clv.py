@@ -1,0 +1,160 @@
+"""A winning record with negative CLV is variance, and it says so.
+
+CLV is the fastest honest signal at these sample sizes — an NFL season is 272
+games, and roughly six hundred bets separate a real +8% edge from zero. It is
+also the check that stops a good run being mistaken for a good model.
+"""
+
+from __future__ import annotations
+
+import pandas as pd
+import pytest
+
+from football_betting_lab.reports.clv import MarketCLV, closing_prices, measure, render
+from football_betting_lab.reports.props_backtest import MINIMUM_BETS
+
+
+def _prices(rows: list[dict]) -> pd.DataFrame:
+    base = {
+        "event_id": "e1",
+        "market": "receptions",
+        "player": "A Player",
+        "selection": "over",
+        "line": 4.5,
+        "american_odds": -110,
+        "book": "dk",
+        "snapshot": "20250907T170000Z",
+        "home_team": "Seattle Seahawks",
+        "away_team": "New England Patriots",
+    }
+    return pd.DataFrame([{**base, **row} for row in rows])
+
+
+def _bets(rows: list[dict]) -> pd.DataFrame:
+    base = {
+        "event_id": "e1",
+        "market": "receptions",
+        "player": "A Player",
+        "selection": "over",
+        "line": 4.5,
+        "odds": -110,
+        "outcome": "won",
+        "profit": 0.91,
+    }
+    return pd.DataFrame([{**base, **row} for row in rows])
+
+
+def test_no_closing_snapshot_is_an_absence_not_a_zero() -> None:
+    result = measure(_bets([{}]), _prices([{}]))
+
+    assert not result.closing_available
+    assert result.unmatched == 1
+    assert "not a zero" in render(result)
+
+
+def test_a_price_that_shortened_is_positive_clv() -> None:
+    """The bet was taken at +150 and the market closed at -110, so the price
+    moved toward it."""
+    prices = _prices(
+        [
+            {"american_odds": 150, "snapshot": "20250907T170000Z"},
+            {"american_odds": -110, "snapshot": "20250907T175500Z"},
+        ]
+    )
+
+    result = measure(_bets([{"odds": 150}]), prices)
+
+    assert result.matched == 1
+    assert result.markets[0].mean_clv > 0
+
+
+def test_a_price_that_drifted_is_negative_clv() -> None:
+    prices = _prices(
+        [
+            {"american_odds": -110, "snapshot": "20250907T170000Z"},
+            {"american_odds": 150, "snapshot": "20250907T175500Z"},
+        ]
+    )
+
+    result = measure(_bets([{"odds": -110}]), prices)
+
+    assert result.markets[0].mean_clv < 0
+
+
+def test_a_bet_with_no_closing_price_is_excluded_rather_than_counted_as_zero() -> None:
+    """Counting it zero would drag every mean toward nothing and hide how much
+    of the board could not be judged at all."""
+    prices = _prices(
+        [
+            {"american_odds": -110, "snapshot": "20250907T170000Z"},
+            {"american_odds": -110, "snapshot": "20250907T175500Z"},
+        ]
+    )
+    bets = _bets([{}, {"player": "Nobody", "event_id": "e1"}])
+
+    result = measure(bets, prices)
+
+    assert result.matched == 1
+    assert result.unmatched == 1
+
+
+def test_the_closing_price_taken_is_the_best_available() -> None:
+    """Comparing a best-of-nine entry against a single book's close would
+    manufacture CLV out of shopping."""
+    prices = _prices(
+        [
+            {"american_odds": -110, "snapshot": "20250907T170000Z"},
+            {"american_odds": -130, "snapshot": "20250907T175500Z", "book": "a"},
+            {"american_odds": 120, "snapshot": "20250907T175500Z", "book": "b"},
+        ]
+    )
+
+    closes = closing_prices(prices)
+
+    assert len(closes) == 1
+    assert closes["american_odds"].iloc[0] == 120
+
+
+# -- the readings the brief fixes --------------------------------------------
+
+
+def test_a_winning_record_with_negative_clv_is_called_variance() -> None:
+    entry = MarketCLV(
+        market="x", bets=1000, matched=1000, mean_clv=-0.02, roi=0.08
+    )
+
+    assert "is variance" in entry.reading()
+
+
+def test_a_losing_record_with_positive_clv_is_called_out_too() -> None:
+    entry = MarketCLV(
+        market="x", bets=1000, matched=1000, mean_clv=0.02, roi=-0.05
+    )
+
+    reading = entry.reading()
+
+    assert "right side of the move" in reading
+    assert "variance" not in reading
+
+
+def test_below_the_declared_minimum_no_reading_is_offered() -> None:
+    entry = MarketCLV(
+        market="x", bets=10, matched=MINIMUM_BETS - 1, mean_clv=0.05, roi=0.40
+    )
+
+    assert "not enough evidence" in entry.reading()
+
+
+def test_clv_and_return_are_reported_side_by_side_never_instead() -> None:
+    prices = _prices(
+        [
+            {"american_odds": 150, "snapshot": "20250907T170000Z"},
+            {"american_odds": -110, "snapshot": "20250907T175500Z"},
+        ]
+    )
+
+    text = render(measure(_bets([{"odds": 150}]), prices))
+
+    assert "ROI" in text
+    assert "Mean CLV" in text
+    assert "cannot make a losing model profitable" in text
