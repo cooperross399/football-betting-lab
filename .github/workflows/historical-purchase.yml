@@ -1,0 +1,119 @@
+name: Historical Purchase
+
+# Buys a season of historical prices. THIS SPENDS A LOT OF CREDITS.
+#
+# Approved by Cooper on 2026-08-28: one season, two snapshots (card time and
+# the close), giving a priced backtest and closing-line value on every
+# historical bet. Roughly 198,000 credits against a 100,000-a-month quota, so
+# it is deliberately several capped runs rather than one.
+#
+# Manual dispatch only, a required cap with no unlimited option, and a
+# pre-flight quota check that refuses to start when there is less left than
+# the run intends to spend. Every run resumes from the manifest; a cached
+# event costs nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Season to buy"
+        required: true
+        default: "2025"
+      lead_minutes:
+        description: "Minutes before kickoff. 60 = card time, 5 = the close."
+        required: true
+        default: "60"
+      credit_cap:
+        description: "Hard cap for THIS run. Enforced before every request."
+        required: true
+        default: "70000"
+      tier:
+        description: "Market tier"
+        required: true
+        default: "1"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Two purchases at once would spend twice and could race past the cap, which
+  # is per-run and cannot see another run's spending.
+  group: historical-purchase
+  cancel-in-progress: false
+
+jobs:
+  buy:
+    name: Historical Purchase
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt && python -m pip install -e .
+
+      - name: Restore what previous runs already bought
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: historical-prices-${{ inputs.season }}-t${{ inputs.lead_minutes }}
+          path: data/raw/nfl/historical_prices
+
+      - name: Refuse to start without the credits this run intends to spend
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          if [ -z "${FOOTBALL_ODDS_API_KEY}" ]; then
+            echo "::error::FOOTBALL_ODDS_API_KEY is not set. Nothing was requested."
+            exit 1
+          fi
+          # Free. Starting a 70,000-credit run with 5,000 left would burn the
+          # remainder and stop, which is a worse outcome than not starting.
+          python scripts/check_provider_quota.py \
+            --fail-under "${{ inputs.credit_cap }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: State the cost before spending it
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/buy_historical_prices.py \
+            --season "${{ inputs.season }}" \
+            --tier "${{ inputs.tier }}" \
+            --lead-minutes "${{ inputs.lead_minutes }}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Buy
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          python scripts/buy_historical_prices.py \
+            --live \
+            --season "${{ inputs.season }}" \
+            --tier "${{ inputs.tier }}" \
+            --lead-minutes "${{ inputs.lead_minutes }}" \
+            --credit-cap "${{ inputs.credit_cap }}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Check what is left
+        if: always()
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: python scripts/check_provider_quota.py | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep what was bought
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Bought evidence. Historical prices never change, so this is a
+          # permanent record and every later run resumes from it.
+          name: historical-prices-${{ inputs.season }}-t${{ inputs.lead_minutes }}
+          path: data/raw/nfl/historical_prices
+          if-no-files-found: warn
+          retention-days: 90
+          overwrite: true
