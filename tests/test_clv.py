@@ -178,3 +178,36 @@ def test_a_material_clv_still_reads_as_positive() -> None:
     entry = MarketCLV(market="x", bets=1000, matched=1000, mean_clv=0.02, roi=0.08)
 
     assert "positive CLV" in entry.reading()
+
+
+def test_a_market_that_moves_both_ways_equally_is_called_indifferent() -> None:
+    """Over a six-hour window 70% of prices moved and 51% moved toward the
+    bet. A mean CLV of +0.06 probability points is hard to read; "the line
+    moved toward these bets 51% of the time" is not."""
+    entry = MarketCLV(
+        market="rush_yards", bets=16_829, matched=13_518, mean_clv=0.0004,
+        roi=0.13, movers=10_072, moved_toward=0.48,
+    )
+
+    reading = entry.reading()
+
+    assert "market is indifferent" in reading
+    assert "48% moved toward" in reading
+
+
+def test_a_market_that_moves_toward_the_bet_is_not_called_indifferent() -> None:
+    entry = MarketCLV(
+        market="x", bets=5_000, matched=5_000, mean_clv=0.02, roi=0.05,
+        movers=4_000, moved_toward=0.62,
+    )
+
+    assert "indifferent" not in entry.reading()
+
+
+def test_too_few_movers_to_judge_does_not_claim_indifference() -> None:
+    entry = MarketCLV(
+        market="x", bets=300, matched=300, mean_clv=0.0, roi=0.05,
+        movers=10, moved_toward=0.50,
+    )
+
+    assert "indifferent" not in entry.reading()

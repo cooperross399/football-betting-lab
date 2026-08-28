@@ -316,6 +316,29 @@ one-sided model against a measured +12.4%. Five of those points are
 settlement. Seven are not yet explained, and that is the whole of what this
 lab currently has.
 
+## Where this actually stands
+
+**No demonstrated edge anywhere**, and for the first time that sentence rests
+on priced evidence rather than on an absence of it.
+
+Four instruments, each built to catch a different failure, and they agree:
+
+* **The null baseline.** Betting every priced selection with no model returns
+  −9.28% over 385,495 bets. A harness that made money here would invalidate
+  everything computed on it.
+* **The settlement screen.** `tackles_assists` is priced 50% over and lands
+  over 42% of the time. Worth 16% to a one-sided model; the measured edge was
+  +16.3%.
+* **Closing-line value**, over a six-hour window: 70% of prices move, and the
+  model's selections split 51/49. `rush_yards` — the last survivor — moves
+  toward the bet 48% of the time against a +13.0% return.
+* **Replication**, which passed, and which this document now records as
+  insufficient on its own.
+
+The honest summary is the one this document opened with, now earned rather
+than assumed: **the evidence says no edge has been demonstrated, on samples
+large enough to mean it.**
+
 ## The one thing that is certain
 
 Every claim this project will ever make about the NFL rests on evidence that

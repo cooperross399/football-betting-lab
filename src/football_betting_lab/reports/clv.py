@@ -83,6 +83,12 @@ class MarketCLV:
     mean_clv: float = 0.0
     positive_share: float = 0.0
     roi: float = 0.0
+    #: Wagers whose price actually changed between the two snapshots, and the
+    #: share of those that moved **toward** the bet. This is the legible
+    #: number: a mean CLV of +0.06 probability points is hard to read, and
+    #: "the line moved toward these bets 51% of the time" is not.
+    movers: int = 0
+    moved_toward: float = 0.0
 
     @property
     def unmatched(self) -> int:
@@ -90,6 +96,17 @@ class MarketCLV:
 
     def reading(self) -> str:
         """The sentence the numbers support, in the words the brief fixes."""
+        # Three points either side of a half. With ten thousand movers, 48%
+        # is statistically distinguishable from 50% and still is not a
+        # direction anyone should read anything into — the same trap the
+        # material-CLV threshold exists for, one level up.
+        if self.movers >= MINIMUM_BETS and abs(self.moved_toward - 0.5) <= 0.03:
+            return (
+                f"**the market is indifferent** — of {self.movers:,} prices "
+                f"that moved, {self.moved_toward:.0%} moved toward the bet. "
+                "A model with information moves the line toward it more than "
+                "half the time"
+            )
         if self.matched < MINIMUM_BETS:
             return (
                 f"**not enough evidence** — {self.matched} matched bets, below "
@@ -131,6 +148,11 @@ class CLVResult:
         for entry in self.markets:
             pooled.bets += entry.bets
             pooled.matched += entry.matched
+        pooled.movers = sum(e.movers for e in self.markets)
+        if pooled.movers:
+            pooled.moved_toward = (
+                sum(e.moved_toward * e.movers for e in self.markets) / pooled.movers
+            )
         if pooled.matched:
             weighted = sum(e.mean_clv * e.matched for e in self.markets)
             pooled.mean_clv = weighted / pooled.matched
@@ -202,6 +224,10 @@ def measure(bets: pd.DataFrame, prices: pd.DataFrame) -> CLVResult:
         if len(subset):
             entry.mean_clv = float(subset["clv"].mean())
             entry.positive_share = float((subset["clv"] > 0).mean())
+            moved = subset[subset["clv"] != 0]
+            entry.movers = len(moved)
+            if entry.movers:
+                entry.moved_toward = float((moved["clv"] > 0).mean())
         if len(staked):
             entry.roi = float(staked["profit"].sum() / len(staked))
         result.markets.append(entry)
@@ -242,8 +268,8 @@ def render(result: CLVResult) -> str:
         "as zero CLV."
     )
     add("")
-    add("| Market | Bets | Matched | Mean CLV | Positive | ROI | Reading |")
-    add("|:-------|-----:|--------:|---------:|---------:|----:|:--------|")
+    add("| Market | Bets | Matched | Moved | Toward | Mean CLV | ROI | Reading |")
+    add("|:-------|-----:|--------:|------:|-------:|---------:|----:|:--------|")
     for entry in sorted(result.markets, key=lambda m: -m.matched):
         if not entry.matched:
             add(
@@ -253,14 +279,14 @@ def render(result: CLVResult) -> str:
             continue
         add(
             f"| `{entry.market}` | {entry.bets:,} | {entry.matched:,} | "
-            f"{entry.mean_clv:+.2%} | {entry.positive_share:.0%} | "
-            f"{entry.roi:+.1%} | {entry.reading()} |"
+            f"{entry.movers:,} | {entry.moved_toward:.0%} | "
+            f"{entry.mean_clv:+.2%} | {entry.roi:+.1%} | {entry.reading()} |"
         )
     pooled = result.pooled
     add(
         f"| **pooled** | {pooled.bets:,} | {pooled.matched:,} | "
-        f"{pooled.mean_clv:+.2%} | {pooled.positive_share:.0%} | "
-        f"{pooled.roi:+.1%} | {pooled.reading()} |"
+        f"{pooled.movers:,} | {pooled.moved_toward:.0%} | "
+        f"{pooled.mean_clv:+.2%} | {pooled.roi:+.1%} | {pooled.reading()} |"
     )
     add("")
     add(
@@ -268,6 +294,13 @@ def render(result: CLVResult) -> str:
         "implied a lower probability than the close did, which is the "
         "direction that pays. **CLV cannot make a losing model profitable**, "
         "and it is reported beside the return rather than instead of it."
+    )
+    add("")
+    add(
+        "**`Moved` and `Toward` are the numbers to read.** A price that did "
+        "not change carries no information either way, so the question is "
+        "what the ones that did change did. A model with information moves "
+        "the line toward it more than half the time."
     )
     add("")
     add(

@@ -455,6 +455,32 @@ every test that only looks at returns. The question that broke it was not
 "is this result robust" — it was **"what would betting one side with no model
 at all return?"** For tackles, that is +10.2%.
 
+## The verdict, on three seasons of bought prices at two snapshots
+
+**No demonstrated edge anywhere.** Every instrument now agrees, and each was
+built to catch a different failure.
+
+| Instrument | What it says |
+|:---|:---|
+| Null baseline | Betting everything returns **−9.28%** over 385,495 bets. The harness is sound. |
+| Settlement screen | `tackles_assists` is priced 50% over and lands 42%. That gap is worth **16%** to a one-sided model; the "edge" was **+16.3%**. |
+| Closing-line value | Over a **six-hour** window, 70% of prices moved and **51% moved toward the bet**. Pooled mean CLV **+0.06 probability points**. |
+| Replication | Replicates — and a constant settlement offset replicates by construction, so this proves nothing on its own. |
+
+- **CLV is now a real test, not an inconclusive one.** The first window was 55
+  minutes, which was a purchasing mistake; at six hours, 70% of prices move
+  and the model's selections split **51/49**. `rush_yards` moves toward the
+  bet **48%** of the time against a measured +13.0% return. **The market has
+  no idea the model exists.**
+- **`rush_yards` is the last thing standing and it does not stand.** A
+  two-to-three point settlement gap is worth 4-5% of its 13%, and the residual
+  has no market confirmation at all. A return with zero CLV and a partial
+  settlement explanation is a residual, not an edge.
+- **Nothing here is a failure of the lab.** Establishing that a model has no
+  edge, on 8.4 million bought price rows across three seasons at two
+  snapshots, with four independent instruments agreeing, **is the result.**
+  The machinery that produced it is the product.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
