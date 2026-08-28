@@ -481,6 +481,39 @@ built to catch a different failure.
   snapshots, with four independent instruments agreeing, **is the result.**
   The machinery that produced it is the product.
 
+## `rush_yards` stands up, and an earlier reading of it was wrong
+
+**Correction.** This file previously said roughly 5 of `rush_yards`' 13 points
+were a settlement gap. That was wrong. The "worth to a one-sided model"
+figure assumes a model that always takes one side; `rush_yards` bets **54%
+unders**, which is nearly balanced, so a 2-point settlement gap contributes
+**0.3%**, not 5%. The same arithmetic confirms `tackles_assists`: 85% unders
+against a 7-point gap is worth **9.9%**, and its consensus return is **9.0%**.
+
+**What `rush_yards` actually has**, after every instrument built to break it:
+
+| Test | Result |
+|:---|:---|
+| Three seasons | +19.1%, +10.1%, +10.9% — positive in all three |
+| Held-out pooled | **+14.0% over 11,269 bets**, Bonferroni across 20 markets |
+| Null baseline | Harness returns −9.28% betting everything |
+| Settlement screen | 2-point gap, worth **0.3%** at this model's side split |
+| **Consensus price** | **+8.3%** — it is not a shopping premium |
+| **By book** | positive at **10 of 11** |
+| Closing-line value | **zero** — 48% of moving prices moved toward it |
+
+Four of five instruments support it. Only CLV does not, and CLV measures
+whether the market *corrects*, which a persistent structural bias need not.
+
+**Beating the close was never the objective and this file over-weighted it.**
+A +8.3% return at the median price across 16,829 bets and three seasons, at
+ten of eleven books, is direct evidence of the thing that actually matters.
+Zero CLV is a reason to keep asking why, not a refutation.
+
+**What still blocks it from being a bet:** no market is allowlisted, and no
+player prop can reach a card at all without an inactives feed. Those are the
+binding constraints, not the evidence.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

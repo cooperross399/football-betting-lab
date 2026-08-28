@@ -339,6 +339,30 @@ The honest summary is the one this document opened with, now earned rather
 than assumed: **the evidence says no edge has been demonstrated, on samples
 large enough to mean it.**
 
+## Where `rush_yards` actually stands
+
+It survives everything built to break it except one thing.
+
+* Positive in all three seasons: +19.1%, +10.1%, +10.9%.
+* Held-out pooled **+14.0% over 11,269 bets**, family-corrected.
+* **+8.3% at the consensus price** — the median quote, which line-shopping
+  cannot improve. It is not a shopping premium.
+* **Positive at 10 of 11 books.** It is not one soft book.
+* Settlement contributes **0.3%**: the gap is 2 points and this model bets
+  54% unders, so it is nearly balanced and the gap nearly cancels.
+* **Closing-line value is zero.** 48% of the prices that moved went toward it.
+
+That last line is the only thing against it, and it is not decisive. CLV
+measures whether the market comes round to a view. A structural bias the
+market never corrects produces exactly this pattern: consistent profit, no
+movement. The honest statement is that **the profit evidence is substantial
+and the mechanism is not understood.**
+
+This document's standing rule still applies: an interval including zero is no
+demonstrated edge. `rush_yards` does not include zero. What it lacks is not
+sample size — it is an explanation, and a single out-of-sample season that
+nobody chose it on. The forward ledger provides the second from 2026-09-09.
+
 ## The one thing that is certain
 
 Every claim this project will ever make about the NFL rests on evidence that
