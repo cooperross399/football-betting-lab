@@ -76,17 +76,39 @@ def _known_provider_event_ids() -> set[str]:
                 walk(item)
 
     for path in _tracked_files():
-        if path.suffix != ".json":
-            continue
         relative = path.relative_to(PROJECT_ROOT).as_posix()
         if not (
             relative.startswith("data/raw/") or relative.startswith("data/outputs/")
         ):
             continue
-        try:
-            walk(json.loads(path.read_text(encoding="utf-8")))
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            continue
+        if path.suffix == ".json":
+            try:
+                walk(json.loads(path.read_text(encoding="utf-8")))
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                continue
+        elif path.suffix == ".csv":
+            # Bought-price and backtest tables carry the provider's event ids
+            # in a column. The first commit of the props backtest tripped this
+            # guard in CI and not locally, because the suite had been run
+            # before the file was staged — which is the guard working, and a
+            # reminder that `git ls-files` is what it reads.
+            try:
+                header, *rows = path.read_text(encoding="utf-8").splitlines()
+            except (OSError, UnicodeError):
+                continue
+            columns = [name.strip() for name in header.split(",")]
+            wanted = [
+                index
+                for index, name in enumerate(columns)
+                if name in _EVENT_ID_KEYS
+            ]
+            if not wanted:
+                continue
+            for row in rows:
+                cells = row.split(",")
+                for index in wanted:
+                    if index < len(cells) and HEX_KEY.fullmatch(cells[index].strip()):
+                        found.add(cells[index].strip())
     # A cached response is named after the event it holds, so the filename is
     # a second, independent record of the same id.
     for path in _tracked_files():
