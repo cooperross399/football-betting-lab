@@ -1,0 +1,73 @@
+{
+  "season": 2026,
+  "regions": 1,
+  "quota_remaining": 88527,
+  "nhl_committed_credits": 26091,
+  "as_of": "2026-08-26",
+  "estimates": [
+    {
+      "scenario": "featured only",
+      "detail": "Moneyline, spread and total from the bulk endpoint. No per-event call at all. The cheapest thing that can still freeze an opinion and settle it.",
+      "bulk_markets": 3,
+      "per_event_markets": 0,
+      "game_days": 57,
+      "games": 272,
+      "bulk_credits": 171,
+      "per_event_credits_pessimistic": 0,
+      "scores_credits": 114,
+      "season_credits_pessimistic": 285,
+      "season_credits_optimistic": 285,
+      "worst_day_games": 16,
+      "worst_day_credits_pessimistic": 5,
+      "daily_cap_needed": 100
+    },
+    {
+      "scenario": "tier 1",
+      "detail": "What a Week 1 fetch asks for: the bulk three, seven per-event team markets, twenty player props and their nineteen alternate ladders.",
+      "bulk_markets": 3,
+      "per_event_markets": 46,
+      "game_days": 57,
+      "games": 272,
+      "bulk_credits": 171,
+      "per_event_credits_pessimistic": 12512,
+      "scores_credits": 114,
+      "season_credits_pessimistic": 12797,
+      "season_credits_optimistic": 285,
+      "worst_day_games": 16,
+      "worst_day_credits_pessimistic": 741,
+      "daily_cap_needed": 800
+    },
+    {
+      "scenario": "tier 1 + 2",
+      "detail": "Everything this lab has wired and can settle: adds the quarter ladder, the second-half markets, the tie, the touchdown-order props and the composite yardage props.",
+      "bulk_markets": 3,
+      "per_event_markets": 83,
+      "game_days": 57,
+      "games": 272,
+      "bulk_credits": 171,
+      "per_event_credits_pessimistic": 22576,
+      "scores_credits": 114,
+      "season_credits_pessimistic": 22861,
+      "season_credits_optimistic": 285,
+      "worst_day_games": 16,
+      "worst_day_credits_pessimistic": 1333,
+      "daily_cap_needed": 1400
+    },
+    {
+      "scenario": "full documented catalogue",
+      "detail": "Every NFL market the provider documents, including the quarter alternate ladders this lab has not wired. Printed as the ceiling, not as a plan.",
+      "bulk_markets": 3,
+      "per_event_markets": 111,
+      "game_days": 57,
+      "games": 272,
+      "bulk_credits": 171,
+      "per_event_credits_pessimistic": 30192,
+      "scores_credits": 114,
+      "season_credits_pessimistic": 30477,
+      "season_credits_optimistic": 285,
+      "worst_day_games": 16,
+      "worst_day_credits_pessimistic": 1781,
+      "daily_cap_needed": 1800
+    }
+  ]
+}
