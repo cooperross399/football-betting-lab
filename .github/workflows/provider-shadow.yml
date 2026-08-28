@@ -1,0 +1,93 @@
+name: Provider Shadow
+
+# A live fetch into `data/staging/`, which the card cannot read. It exists to
+# prove the adapter parses the provider's real responses before anything
+# depends on it.
+#
+# THIS SPENDS CREDITS, against a quota shared with the NHL lab. Manual dispatch
+# only, a required hard cap with no unlimited option, and the cap enforced
+# inside the adapter before every request rather than reported after it.
+#
+# The staged table comes back as an artifact rather than a commit: a workflow
+# that can push to the default branch is a workflow whose failure modes include
+# rewriting the evidence.
+
+on:
+  workflow_dispatch:
+    inputs:
+      credit_cap:
+        description: "Hard credit cap. Enforced before every request."
+        required: true
+        default: "300"
+      horizon_days:
+        description: "Days ahead to price. Wider windows starve the near slate."
+        required: true
+        default: "1"
+      tier:
+        description: "Market tier"
+        required: true
+        default: "1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-shadow
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    name: Provider Shadow
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: State the cost before spending it
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/run_provider_shadow.py \
+            --tier "${{ inputs.tier }}" \
+            --horizon-days "${{ inputs.horizon_days }}"
+
+      - name: Shadow fetch
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          if [ -z "${FOOTBALL_ODDS_API_KEY}" ]; then
+            echo "::error::FOOTBALL_ODDS_API_KEY is not set. Nothing was requested."
+            exit 1
+          fi
+          python scripts/run_provider_shadow.py \
+            --live \
+            --tier "${{ inputs.tier }}" \
+            --horizon-days "${{ inputs.horizon_days }}" \
+            --credit-cap "${{ inputs.credit_cap }}"
+
+      - name: Write the report to the run summary
+        if: always()
+        run: |
+          if [ -f data/outputs/nfl_provider_shadow.md ]; then
+            cat data/outputs/nfl_provider_shadow.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload staging and the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-shadow
+          path: |
+            data/outputs/nfl_provider_shadow.md
+            data/staging/
+          if-no-files-found: warn
+          retention-days: 30
