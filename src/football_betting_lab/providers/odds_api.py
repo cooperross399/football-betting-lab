@@ -496,6 +496,14 @@ STAGING_PRICES_FILENAME = "odds_api_prices_staging.csv"
 ROW_COLUMNS = (
     "fetched_at",
     "event_id",
+    # The provider key the row came from, kept alongside this lab's market
+    # name. The two are not the same thing: `player_tackles_assists` and
+    # `player_tackles_assists_alternate` are one market here and two very
+    # different products at a book — a featured line with both sides, and an
+    # Over-only ladder. Collapsing them lost the distinction, and diagnosing a
+    # suspicious return without it meant guessing at which product the rows
+    # came from.
+    "provider_key",
     "commence_time",
     "date",
     "home_team",
@@ -622,6 +630,7 @@ def normalize_event(
                     {
                         "fetched_at": fetched_at,
                         "event_id": str(event.get("id", "")).strip(),
+                        "provider_key": provider_key,
                         "commence_time": commence,
                         "date": day,
                         "home_team": home,

@@ -277,6 +277,45 @@ thinks to run, gets described as "promising" once, and is a shipped policy
 three sessions later with nobody able to say when it stopped being a
 candidate.
 
+## The rule this cost the most to learn
+
+**Replication does not protect against a systematic settlement offset**, and
+this repository has now proved it the expensive way.
+
+`tackles_assists` returned +16.1%, +14.9% and +18.2% across three seasons. It
+survived split-half, fragility, a 223-player spread, and a Bonferroni
+correction across twenty markets. Two seasons of it were held out from the
+selection. By every standard this document sets, it had replicated.
+
+It was an artefact. nflverse records about half a tackle per player-game fewer
+than the books settle on, the featured market is priced at 50% over and lands
+over 42% of the time, and that eight-point gap is worth 16% to a model that
+takes the under — which the model did, 86% of the time.
+
+**A constant offset replicates by construction.** It is the one defect that
+survives every check a backtest can run on itself, because every one of those
+checks asks whether the result is stable and a constant is perfectly stable.
+
+Two things caught it, and only two:
+
+1. **Closing-line value.** A +16% return with no market movement toward it at
+   all is the pattern this document names as variance. It was the first
+   signal and it was right; it was discounted because the snapshot window
+   bought was 55 minutes, which was a purchasing mistake.
+2. **The null model.** "What would betting one side with no model at all
+   return?" For tackles unders, +10.2%. A model that leans one way in a market
+   with a settlement offset is indistinguishable from an edge on any test that
+   only looks at returns.
+
+So both now run before any result is believed:
+`scripts/run_null_baseline.py` and `scripts/run_settlement_agreement.py`.
+
+**And passing the settlement screen is not a clean bill of health.**
+`rush_yards` sits three points inside the tolerance, which is worth 5% to a
+one-sided model against a measured +12.4%. Five of those points are
+settlement. Seven are not yet explained, and that is the whole of what this
+lab currently has.
+
 ## The one thing that is certain
 
 Every claim this project will ever make about the NFL rests on evidence that

@@ -413,6 +413,48 @@ Anything that sounds like a finding before Week 1 is a bug.
 - **Nothing is allowlisted and nothing is bet.** The next step is the six-step
   approval in `docs/provider_allowlist_approval.md`, and step six is Cooper's.
 
+## The tackles finding is dead, and how it died
+
+**`tackles_assists` is a settlement artefact, not an edge.** The screen is one
+number: the featured market is priced at **50% over** and the outcome lands
+over **42%** of the time. That eight-point gap is worth **16%** to a model
+that consistently takes the under — and the measured "edge" was **+16.3%**.
+Those are the same number.
+
+nflverse records about half a tackle per player-game fewer than whatever the
+books settle on. At a +0.5 offset the entire edge vanishes and both sides
+return the vig.
+
+**This is the defect a backtest cannot catch by checking itself.** A
+settlement offset is *constant*, so it replicated perfectly across three
+seasons, survived split-half, survived fragility, survived a Bonferroni
+correction across twenty markets, and had **no closing-line value** — which
+was the only signal that ever pointed at it, and which I read as inconclusive
+because I had bought too narrow a window.
+
+`scripts/run_settlement_agreement.py` now runs this screen before any result
+is believed. It compares the realised over rate to the **devigged price**, not
+to a half — the naive version flagged `anytime_td`, where 13% is exactly
+right, and the yardage markets on an absolute gap of 2.5 yards against a
+37-yard line.
+
+- **Sixteen of seventeen markets agree with their price** within three points.
+  `sacks` agrees too (33% priced, 31% realised), so the sacks result is the
+  model being on the wrong side, not a settlement fault.
+- **Passing the screen is not a clean bill of health.** `rush_yards` has a
+  three-point gap, inside tolerance, worth **5%** to a one-sided model against
+  a measured **+12.4%**. So roughly 5 of its 12.4 points are settlement and
+  **7 are unexplained** — it is now the only survivor, and a weaker one.
+- **`tackles_assists` cannot be measured at all** until an independent
+  settlement source exists. It joins goalie saves in the NHL lab: modelled,
+  priced, and structurally unmeasurable.
+
+**What made this findable:** the model bets 86% unders in tackles, and a
+one-sided model plus a settlement offset is indistinguishable from an edge on
+every test that only looks at returns. The question that broke it was not
+"is this result robust" — it was **"what would betting one side with no model
+at all return?"** For tackles, that is +10.2%.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
