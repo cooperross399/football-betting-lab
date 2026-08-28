@@ -5,3 +5,15 @@ __pycache__/
 *.egg-info/
 .env
 .DS_Store
+
+# nflverse feeds are large and reproducible from their release assets. The
+# schedule is committed because the credit arithmetic must be re-checkable,
+# and the probe cache because it is bought evidence.
+data/raw/nfl/pbp/
+data/raw/nfl/player_stats/
+data/raw/nfl/weekly_rosters/
+data/raw/nfl/depth_charts/
+data/raw/nfl/snap_counts/
+data/raw/nfl/rosters/
+data/raw/nfl/injuries/
+data/processed/*.csv

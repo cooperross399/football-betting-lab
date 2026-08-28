@@ -11,6 +11,12 @@ built for it from day one.** League is a first-class dimension everywhere, so
 adding college football is a new registry entry, a new adapter and a new set of
 fitted models — never a refactor. Do not build NCAAF now.
 
+**NCAAF player props are out of scope** (Cooper, 2026-08-28: not essential).
+College football is a team-markets league unless he says otherwise. That takes
+the transfer portal, opt-outs and a per-player college data join off the
+critical path entirely, and cuts a college Saturday's credit cost by roughly
+four fifths.
+
 The lab is modelled on `../nhl-betting-lab`, deliberately: the verdicts door,
 the forward-evidence ledger, the allowlist receipt and PR gate, the start-time
 guard, `selection_key()`, the accounting identity, the cache and shrink guards
@@ -112,10 +118,20 @@ Anything that sounds like a finding before Week 1 is a bug.
   feed publishes only after the post-season. Snap share (PFR, in season,
   lagged) and target share (from play-by-play, same lag) are available; routes
   run are not, and no report will imply otherwise.
-- **No feed publishes inactives.** The weekly injury report can *exclude*
-  (`report_status == Out`) and cannot *confirm*. So player props for
-  unconfirmed players are priced and tracked and **cannot produce a
-  selection** — the exact analogue of goalie saves in the NHL lab.
+- **No feed publishes inactives, so no player prop can produce a selection.**
+  The availability gate has five states and **nothing can reach `confirmed`**:
+  `excluded` (listed Out), `doubtful`, `questionable`, `undesignated` (a report
+  exists and the player is not on it — evidence, not confirmation), and
+  `no_report` (no report filed at all). The last two are kept apart because a
+  missing feed makes every player look healthy: there is no 2026 injury file
+  until Week 1's practice week, and a gate that read that as "nobody is
+  injured" would clear an entire slate. Player props are priced, frozen and
+  settled; they cannot be selected. The exact analogue of goalie saves.
+- **A quarterback change quarantines rather than reprices.** The model has no
+  fitted knowledge of the backup, so a repriced number would be an invention
+  that looks like an opinion. It quarantines the passing and receiving tree
+  only — not the kicker, not either defence. A depth chart older than 48 hours
+  cannot answer the question, and an unanswerable question quarantines.
 - **Week 1 opens on a Wednesday because Thursday's game is in Australia.**
   SF @ LA on 2026-09-10 is at the Melbourne Cricket Ground, so the domestic
   opener moved to Wednesday 2026-09-09. This is recorded because it looks like
@@ -130,6 +146,28 @@ Anything that sounds like a finding before Week 1 is a bug.
   list is asserted in a test rather than read from the feed.
 - **`nfl_data_py` is archived** (last push 2025-09-25). This lab fetches the
   nflverse release assets directly and caches them.
+- **The data layer is built and the processed tables exist**: 1,359 team-games
+  and 72,457 player-games over 2022-2026. Every tier-1 settlement column is
+  present and asserted by test.
+- **2022 has 271 regular-season games, not 272.** Buffalo-Cincinnati was
+  abandoned and never replayed. A build that "corrected" this to 272 would be
+  inventing a game; a test pins it.
+- **`anytime_td` settles on touchdowns SCORED, never `passing_tds`.** A
+  quarterback who throws four has scored none. Reading the passing column
+  would make every quarterback the likeliest scorer on the field. Of 105 QB
+  games with four or more passing touchdowns, five carry an anytime
+  touchdown, all from rushing or receiving.
+- **Yardage can be negative, so a maximum can exceed its total.** AJ Dillon
+  caught passes for 35 and −10 in 2023 week 14: total 25, longest 35. There are
+  262 such cases in four seasons. The obvious sanity check is false here and
+  "fixing" it would invent data.
+- **The weekly stats and play-by-play disagree on 0.21% of single-reception
+  games** (10 of 4,857; zero for rushes and completions) — laterals and
+  gamebook revisions, not a join fault. Bounded by a test at 1%, recorded, and
+  deliberately not reconciled: both sources describe the same play correctly.
+- **`roster_weekly_2026.csv` is byte-identical to `roster_2026.csv`** and holds
+  only week 1. Before a season starts the "weekly" roster is a single snapshot,
+  so anything expecting role history from it finds none — silently.
 - **Schedule states are free and leak-free**: `home_rest`/`away_rest` are
   populated for all 272 2026 games today. 33 team-games on a short week, 30
   off a bye, and 8 neutral-site games — Melbourne, Rio, London twice, Paris,

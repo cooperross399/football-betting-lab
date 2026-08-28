@@ -113,6 +113,15 @@ NFL = League(
 #: NCAAF is deliberately absent. Adding it is a `League(...)` here, an
 #: adapter module, a market registry, its own fitted models, its own
 #: measurements, its own verdicts and its own receipt — and nothing else.
+#:
+#: **When it comes, it comes without player props.** Cooper ruled them out of
+#: scope on 2026-08-28: college football props are not essential. That is a
+#: large simplification and it is recorded here rather than only in a document,
+#: because the registry is what a future session reads before building. It
+#: removes the transfer-portal and opt-out roster problem from the critical
+#: path, removes the need for a per-player college data join, and cuts the
+#: credit cost of a college Saturday by roughly four fifths. NCAAF is a
+#: team-markets league unless Cooper says otherwise.
 #: It is not added now — and the reason is *not* credits. All three labs fit
 #: the monthly quota comfortably (`docs/credit_cost.md`). It is that the NFL
 #: is not built yet, that FBS is a different distribution needing its own fits,

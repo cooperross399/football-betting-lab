@@ -146,26 +146,33 @@ measure the **team model** and nothing else. But it can measure it back to
 1999, which no purchase at any price can, and it is the right first priced
 test precisely because it is free and deep.
 
-## NCAAF now fits, which changes what "later" means
+## NCAAF: not a money question at all, and now a smaller one
 
-Order-of-magnitude arithmetic from a stated assumption, to be redone properly
+**Cooper ruled NCAAF player props out of scope on 2026-08-28** — not
+essential. College football is a team-markets league unless he says otherwise.
+That takes the transfer portal, opt-outs and a per-player college data join
+off the critical path entirely, and it changes the arithmetic below more than
+the monthly reset did.
+
+Order-of-magnitude figures from a stated assumption, to be redone properly
 from a real CFBD schedule before any NCAAF decision: roughly 136 FBS teams
 playing about 12 games each is **~816 games** across about 15 Saturdays.
 
 | Market set | Season credits | Per month over ~4 months |
 |:-----------|---------------:|-------------------------:|
-| tier 1 (46/event) | ~37,500 | ~9,400 |
+| **team markets only (~11/event)** | **~9,000** | **~2,300** |
+| tier 1 with props (46/event) | ~37,500 | ~9,400 |
 | full catalogue (111/event) | ~90,600 | ~22,700 |
 
-Added on top of the NFL and NHL peak month of 10,084, even the full catalogue
-lands around **33,000 of 100,000**. **All three labs fit comfortably.**
+Added on top of the NFL and NHL peak month of 10,084, college team markets
+land around **12,400 of 100,000**. Even the full catalogue would have fitted,
+at ~33,000. With props out of scope it is not close.
 
-Under the annual reading this was the one place the numbers said no. They do
-not. So the reason to defer NCAAF is no longer money — it is that the NFL has
-not been built yet, that 134 FBS teams with forty-point talent gaps are a
-different distribution needing their own fitted models and their own verdicts,
-and that **adding NCAAF must not move a single NFL number**.
+A single Saturday of 60 games at team markets only is about **700 credits** —
+smaller than one NFL Sunday. That is still a cap to set, computed from a real
+schedule, but it is not a budget to worry about.
 
-The single Saturday cap is still real and still needs its own figure: 60 games
-at 83 markets is about **5,000 credits in one day**, roughly four times the
-NFL's worst slate. That is a cap to set, not a budget to worry about.
+So nothing about NCAAF is deferred for money. What defers it is that the NFL
+is not built, that 134 FBS teams with forty-point talent gaps are a different
+distribution needing their own fitted models and their own verdicts, and that
+**adding NCAAF must not move a single NFL number**.

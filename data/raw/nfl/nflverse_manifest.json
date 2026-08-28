@@ -1,0 +1,167 @@
+{
+  "attribution": "Game, play-by-play, roster, depth chart, snap count and injury data from nflverse (https://github.com/nflverse/nflverse-data), used under CC-BY-4.0.",
+  "feeds": {
+    "depth_charts 2022": {
+      "bytes": 3467936,
+      "path": "nfl/depth_charts/depth_charts_2022.csv",
+      "status": "fetched"
+    },
+    "depth_charts 2023": {
+      "bytes": 3426502,
+      "path": "nfl/depth_charts/depth_charts_2023.csv",
+      "status": "fetched"
+    },
+    "depth_charts 2024": {
+      "bytes": 3391616,
+      "path": "nfl/depth_charts/depth_charts_2024.csv",
+      "status": "fetched"
+    },
+    "depth_charts 2025": {
+      "bytes": 52917870,
+      "path": "nfl/depth_charts/depth_charts_2025.csv",
+      "status": "fetched"
+    },
+    "depth_charts 2026": {
+      "bytes": 45429373,
+      "path": "nfl/depth_charts/depth_charts_2026.csv",
+      "status": "fetched"
+    },
+    "injuries 2022": {
+      "bytes": 752433,
+      "path": "nfl/injuries/injuries_2022.csv",
+      "status": "fetched"
+    },
+    "injuries 2023": {
+      "bytes": 738501,
+      "path": "nfl/injuries/injuries_2023.csv",
+      "status": "fetched"
+    },
+    "injuries 2024": {
+      "bytes": 816989,
+      "path": "nfl/injuries/injuries_2024.csv",
+      "status": "fetched"
+    },
+    "injuries 2025": {
+      "bytes": 695623,
+      "path": "nfl/injuries/injuries_2025.csv",
+      "status": "fetched"
+    },
+    "pbp 2022": {
+      "bytes": 19093961,
+      "path": "nfl/pbp/play_by_play_2022.csv.gz",
+      "status": "fetched"
+    },
+    "pbp 2023": {
+      "bytes": 19169807,
+      "path": "nfl/pbp/play_by_play_2023.csv.gz",
+      "status": "fetched"
+    },
+    "pbp 2024": {
+      "bytes": 19362351,
+      "path": "nfl/pbp/play_by_play_2024.csv.gz",
+      "status": "fetched"
+    },
+    "pbp 2025": {
+      "bytes": 19105296,
+      "path": "nfl/pbp/play_by_play_2025.csv.gz",
+      "status": "fetched"
+    },
+    "player_stats 2022": {
+      "bytes": 8408729,
+      "path": "nfl/player_stats/stats_player_week_2022.csv",
+      "status": "fetched"
+    },
+    "player_stats 2023": {
+      "bytes": 8332874,
+      "path": "nfl/player_stats/stats_player_week_2023.csv",
+      "status": "fetched"
+    },
+    "player_stats 2024": {
+      "bytes": 8470040,
+      "path": "nfl/player_stats/stats_player_week_2024.csv",
+      "status": "fetched"
+    },
+    "player_stats 2025": {
+      "bytes": 8656387,
+      "path": "nfl/player_stats/stats_player_week_2025.csv",
+      "status": "fetched"
+    },
+    "rosters 2022": {
+      "bytes": 980115,
+      "path": "nfl/rosters/roster_2022.csv",
+      "status": "fetched"
+    },
+    "rosters 2023": {
+      "bytes": 967354,
+      "path": "nfl/rosters/roster_2023.csv",
+      "status": "fetched"
+    },
+    "rosters 2024": {
+      "bytes": 1005701,
+      "path": "nfl/rosters/roster_2024.csv",
+      "status": "fetched"
+    },
+    "rosters 2025": {
+      "bytes": 1010039,
+      "path": "nfl/rosters/roster_2025.csv",
+      "status": "fetched"
+    },
+    "rosters 2026": {
+      "bytes": 927170,
+      "path": "nfl/rosters/roster_2026.csv",
+      "status": "fetched"
+    },
+    "schedules": {
+      "bytes": 2177169,
+      "path": "nfl/schedules/games.csv",
+      "status": "fetched"
+    },
+    "snap_counts 2022": {
+      "bytes": 2379719,
+      "path": "nfl/snap_counts/snap_counts_2022.csv",
+      "status": "fetched"
+    },
+    "snap_counts 2023": {
+      "bytes": 2394875,
+      "path": "nfl/snap_counts/snap_counts_2023.csv",
+      "status": "fetched"
+    },
+    "snap_counts 2024": {
+      "bytes": 2402841,
+      "path": "nfl/snap_counts/snap_counts_2024.csv",
+      "status": "fetched"
+    },
+    "snap_counts 2025": {
+      "bytes": 2401193,
+      "path": "nfl/snap_counts/snap_counts_2025.csv",
+      "status": "fetched"
+    },
+    "weekly_rosters 2022": {
+      "bytes": 14790824,
+      "path": "nfl/weekly_rosters/roster_weekly_2022.csv",
+      "status": "fetched"
+    },
+    "weekly_rosters 2023": {
+      "bytes": 14612235,
+      "path": "nfl/weekly_rosters/roster_weekly_2023.csv",
+      "status": "fetched"
+    },
+    "weekly_rosters 2024": {
+      "bytes": 14926918,
+      "path": "nfl/weekly_rosters/roster_weekly_2024.csv",
+      "status": "fetched"
+    },
+    "weekly_rosters 2025": {
+      "bytes": 15385661,
+      "path": "nfl/weekly_rosters/roster_weekly_2025.csv",
+      "status": "fetched"
+    },
+    "weekly_rosters 2026": {
+      "bytes": 927170,
+      "path": "nfl/weekly_rosters/roster_weekly_2026.csv",
+      "status": "fetched"
+    }
+  },
+  "fetched_at": "2026-08-28T17:10:40.532044+00:00",
+  "league": "nfl"
+}
