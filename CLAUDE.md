@@ -127,6 +127,22 @@ Anything that sounds like a finding before Week 1 is a bug.
   until Week 1's practice week, and a gate that read that as "nobody is
   injured" would clear an entire slate. Player props are priced, frozen and
   settled; they cannot be selected. The exact analogue of goalie saves.
+- **A player's club comes from the current roster, never his last logged
+  game — measured live, not argued.** The first shadow run priced 61 players
+  across the two Week 1 openers; **6 (9.8%) are on a different club than their
+  last logged game** (A.J. Brown PHI→NE, Romeo Doubs GB→NE, Mike Evans TB→SF,
+  Christian Kirk HOU→SF, Emanuel Wilson GB→SEA, Reggie Gilliam BUF→NE). Each
+  would have matched neither side of its fixture and produced no opinion at
+  all. The NHL lab's figure was 20.4% of 815; this one is 61 players over two
+  games and the sample is stated wherever the number is. 10 more were unknown
+  to the 2026 roster entirely.
+- **Names resolve by identity, never by string**: `A.J.`/`AJ`,
+  `Deebo Samuel Sr.`/`Deebo Samuel`, `D'Onta Foreman`. Disambiguated by the
+  clubs in the fixture, and **a lone candidate on the wrong team is a void,
+  not a match**. Clubs are validated against the league registry, because
+  passing the provider's club names where abbreviations belong resolves every
+  player to nothing and reads as a board full of unknown players — which is
+  what happened on the first real call.
 - **A quarterback change quarantines rather than reprices.** The model has no
   fitted knowledge of the backup, so a repriced number would be an invention
   that looks like an opinion. It quarantines the passing and receiving tree
@@ -146,6 +162,12 @@ Anything that sounds like a finding before Week 1 is a bug.
   list is asserted in a test rather than read from the feed.
 - **`nfl_data_py` is archived** (last push 2025-09-25). This lab fetches the
   nflverse release assets directly and caches them.
+- **The adapter is proven against real responses.** The first live shadow run
+  (2026-08-28, 41 credits against a 95 bound) staged **3,589 rows across 17
+  markets and 9 books** for the two Week 1 openers, with **zero unparseable**.
+  Books are pricing props twelve days out. `anytime_td` lands as touchdowns
+  over 0.5 with no `yes`/`no` leaking into a selection; team totals land as
+  `home_over`…`away_under`. Nothing staged can reach the card.
 - **The data layer is built and the processed tables exist**: 1,359 team-games
   and 72,457 player-games over 2022-2026. Every tier-1 settlement column is
   present and asserted by test.
