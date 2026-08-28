@@ -224,6 +224,21 @@ Anything that sounds like a finding before Week 1 is a bug.
   fits usage from recent volume, which prices a player's recent role rather
   than his current one. Stated wherever a prop number appears.
 
+- **The whole path runs, end to end.** `scripts/run_gameday_card.py` fetches,
+  fits, prices, gates, freezes and settles; `Football Gameday Refresh`
+  publishes the card to `card-feed`. Replayed against the real Week 1 board it
+  priced 2,000 rows into 1,903 frozen opinions with the identity reconciling
+  and **zero selections**, which is the correct output of a lab with no
+  allowlisted market.
+- **The ledger lives on the `card-feed` branch, not in an artifact.** A frozen
+  opinion is evidence precisely because it was written before the game, so it
+  cannot be rebuilt if it is lost to a retention window. Each run restores the
+  ledger and the snapshots from the branch before it starts.
+- **The card feed is built with git plumbing, never `git add -A`.** Only files
+  named one at a time reach the branch. A working tree holding `data/staging/`
+  and a `.env` staged wholesale is how a credential reaches a public ref, and
+  a test forbids it in every workflow.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

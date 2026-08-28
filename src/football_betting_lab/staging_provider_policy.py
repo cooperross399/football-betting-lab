@@ -178,10 +178,22 @@ class StagingProviderPolicy:
             )
         entry = self.entry_for(league)
         if entry is None:
+            if self.entries:
+                # There are approvals, just not for this league. Say which,
+                # because "no approval anywhere" and "approved next door"
+                # are different situations and only one of them is a
+                # question for Cooper.
+                return (
+                    f"No approval covers `{league.policy_key()}`. Other "
+                    f"entries exist ({', '.join(sorted(self.entries))}) and "
+                    "none carries across: the distributions, the roster churn "
+                    "and the books' coverage differ by league."
+                )
             return (
-                f"No allowlist entry for `{league.policy_key()}`. Approval in "
-                "another league never carries across: the distributions, the "
-                "roster churn and the books' coverage are all different."
+                "No market has a reviewed approval yet. Allowlisting takes "
+                "measurement against real prices and a signed human "
+                "acceptance receipt, and this is the correct state until "
+                "both exist."
             )
         if not entry.is_allowed:
             missing = [

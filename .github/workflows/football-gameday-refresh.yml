@@ -1,0 +1,222 @@
+name: Football Gameday Refresh
+
+# THE NAME IS A CONTRACT. Cooper's scheduled routines hard-code this workflow
+# name, the file name, and the `card-feed` branch. Renaming any of them
+# silently breaks his automation, and the breakage does not look like a
+# rename — it looks like the lab going quiet. `tests/test_contract_strings.py`
+# pins them.
+#
+# What this does, every run: fetch prices for today's slate, rebuild the
+# models, price every market, freeze the opinions into a dated snapshot,
+# settle the days that are final, render the card, and publish it to the
+# `card-feed` branch where the cloud routine reads it. No laptop, no terminal,
+# no email.
+#
+# What it never does: allowlist a market, sign a receipt, place a bet, or
+# spend beyond its cap. The cap is enforced inside the adapter before every
+# request, against the pessimistic bound.
+#
+# On a day with no games the fetch costs nothing: the events list is free and
+# the shadow run returns before the bulk call when nothing is in the window.
+# So a daily schedule through the season is free on the two thirds of days
+# that have no football.
+
+on:
+  schedule:
+    # Sunday's early games kick off 13:00 ET. This runs at 10:00 ET, late
+    # enough that books have posted their boards and early enough that the
+    # kickoff guard has nothing to quarantine.
+    - cron: "0 14 * 9-12,1 *"
+    # A second pass for the Thursday and Monday night windows, and a backup
+    # for a dropped first run. It stands down if the first published cleanly.
+    - cron: "0 21 * 9-12,1 *"
+  workflow_dispatch:
+    inputs:
+      credit_cap:
+        description: "Hard credit cap for this run"
+        required: true
+        default: "1400"
+      horizon_days:
+        description: "Days ahead to price"
+        required: true
+        default: "1"
+      tier:
+        description: "Market tier"
+        required: true
+        default: "1"
+
+permissions:
+  # Write for exactly one ref: the card-feed branch. Nothing here pushes to
+  # the default branch, and nothing here opens a pull request.
+  contents: write
+
+concurrency:
+  group: football-gameday-refresh
+  cancel-in-progress: false
+
+jobs:
+  already-published:
+    # The second scheduled trigger exists only to cover a dropped first one.
+    # GitHub documents that scheduled workflows may be delayed or dropped
+    # entirely under load, so a single daily trigger is not a schedule, it is
+    # a hope. But two runs a day is two fetches, so the second asks the
+    # card-feed branch whether today's card already published cleanly and
+    # stands down when it did.
+    name: Already published?
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          REMOTE: https://github.com/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          git init -q feed && cd feed
+          if ! git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
+            echo "No card-feed branch yet; running."
+            echo "run=yes" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          STATUS=$(git show refs/card-feed-tip:latest_status.json 2>/dev/null || echo '{}')
+          DAY=$(date -u +%F)
+          if echo "$STATUS" | grep -q "\"slate_date\": *\"$DAY\"" \
+             && ! echo "$STATUS" | grep -q '"decision": *"degraded"'; then
+            echo "Today's card already published cleanly; standing down."
+            echo "run=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+  card:
+    name: Football Gameday Refresh
+    needs: already-published
+    if: needs.already-published.outputs.run == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Restore the ledger and the snapshots from card-feed
+        # The ledger is the product of this whole lab and it cannot be
+        # rebuilt: a frozen opinion is evidence precisely because it was
+        # written before the game. So it lives on a branch rather than in an
+        # artifact with a retention window.
+        env:
+          REMOTE: https://github.com/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/processed data/archive/priced_snapshots
+          if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
+            git show refs/card-feed-tip:forward_evidence.csv \
+              > data/processed/forward_evidence.csv 2>/dev/null \
+              && echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows." \
+              || echo "No ledger on card-feed yet."
+            for path in $(git ls-tree -r --name-only refs/card-feed-tip snapshots/ 2>/dev/null); do
+              git show "refs/card-feed-tip:$path" > "data/archive/priced_snapshots/$(basename "$path")"
+            done
+            echo "Snapshots restored: $(ls data/archive/priced_snapshots | wc -l)."
+          else
+            echo "::warning::No card-feed branch. If this is not the first run, the season's ledger is gone."
+          fi
+
+      - name: Fetch results and rebuild the tables
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          SEASONS="2022 2023 2024 2025 2026"
+          python scripts/fetch_football_data.py --seasons $SEASONS
+          python scripts/build_datasets.py --seasons $SEASONS
+
+      - name: Render the card, freeze the opinions, settle what is final
+        id: card
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${FOOTBALL_ODDS_API_KEY}" ]; then
+            echo "::error::FOOTBALL_ODDS_API_KEY is not set. Nothing was requested."
+            exit 1
+          fi
+          python scripts/run_gameday_card.py \
+            --live \
+            --tier "${{ inputs.tier || '1' }}" \
+            --horizon-days "${{ inputs.horizon_days || '1' }}" \
+            --credit-cap "${{ inputs.credit_cap || '1400' }}" \
+            | tee card_run.txt
+          echo "decision=$(grep -oE 'decision=[a-z-]+' card_run.txt | tail -1 | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Record a degraded run rather than going quiet
+        if: failure()
+        run: |
+          # A run that fails silently looks exactly like a day with no games.
+          echo "::warning::The card did not complete. The card-feed status will say so."
+          mkdir -p data/outputs
+          printf '# NFL card\n\nThis run did not complete. No opinions were frozen and nothing was settled. This is a fault, not a day without football.\n' \
+            > data/outputs/nfl_gameday_card.md
+
+      - name: Write the card to the run summary
+        if: always()
+        run: cat data/outputs/nfl_gameday_card.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Publish to the card-feed branch
+        if: always()
+        env:
+          REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          DAY=$(date -u +%F)
+          DECISION="${{ steps.card.outputs.decision || 'degraded' }}"
+          # Built with plumbing rather than a checkout, so only the files named
+          # here can ever reach the branch. A `git add -A` on a working tree
+          # that holds a staged price file and a .env is how a credential
+          # reaches a public ref.
+          TREE_INPUT=$(mktemp)
+          add() {
+            [ -f "$2" ] || return 0
+            printf '100644 blob %s\t%s\n' "$(git hash-object -w "$2")" "$1" >> "$TREE_INPUT"
+          }
+          printf '{\n  "slate_date": "%s",\n  "decision": "%s",\n  "run": "%s"\n}\n' \
+            "$DAY" "$DECISION" "${{ github.run_id }}" > latest_status.json
+          add latest_status.json latest_status.json
+          add card.md data/outputs/nfl_gameday_card.md
+          add forward_evidence.csv data/processed/forward_evidence.csv
+          for snapshot in data/archive/priced_snapshots/*.csv; do
+            [ -f "$snapshot" ] || continue
+            add "snapshots/$(basename "$snapshot")" "$snapshot"
+          done
+          TREE=$(git mktree < "$TREE_INPUT")
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
+            PARENT=$(git rev-parse refs/card-feed-tip)
+            COMMIT=$(git commit-tree "$TREE" -p "$PARENT" -m "card $DAY ($DECISION)")
+          else
+            COMMIT=$(git commit-tree "$TREE" -m "card $DAY ($DECISION)")
+          fi
+          git push "$REMOTE" "$COMMIT:refs/heads/card-feed"
+          echo "card-feed updated for $DAY (decision: $DECISION)."
+
+      - name: Upload the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameday-card
+          path: |
+            data/outputs/
+            data/processed/forward_evidence.csv
+            data/archive/priced_snapshots/
+          if-no-files-found: warn
+          retention-days: 90

@@ -163,9 +163,12 @@ def test_approving_a_market_in_one_league_never_approves_it_in_another(
 
     assert policy.market_allowed(NFL, "moneyline")
     assert not policy.market_allowed(NCAAF, "moneyline")
-    assert "Approval in another league never carries across" in (
-        policy.refusal_reason(NCAAF, "moneyline")
-    )
+    reason = policy.refusal_reason(NCAAF, "moneyline")
+    assert "none carries across" in reason
+    # ...and it names the entry that does exist, because "nothing is approved
+    # anywhere" and "approved next door" are different situations and only one
+    # of them is a question for Cooper.
+    assert NFL.policy_key() in reason
 
 
 def test_every_refusal_gives_a_reason_a_card_can_print(tmp_path: Path) -> None:
@@ -194,3 +197,18 @@ def test_the_repositorys_own_policy_file_still_allowlists_nothing() -> None:
 
     assert policy.allowed_markets(NFL) == ()
     assert "No market is allowlisted" in policy.summary_line(NFL)
+
+
+def test_a_policy_with_no_entries_at_all_says_so_rather_than_blaming_a_league(
+    tmp_path: Path,
+) -> None:
+    """The state that ships. Telling a reader their approval "does not carry
+    across" when there is no approval anywhere points at the wrong problem."""
+    write_starter_policy(tmp_path / POLICY_FILENAME)
+
+    reason = StagingProviderPolicy.load(manual_dir=tmp_path).refusal_reason(
+        NFL, "moneyline"
+    )
+
+    assert "No market has a reviewed approval yet" in reason
+    assert "carries across" not in reason
