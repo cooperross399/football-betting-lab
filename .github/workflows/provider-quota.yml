@@ -1,0 +1,46 @@
+name: Provider Quota
+
+# Free. The `/v4/sports` listing is documented as costing nothing, and it
+# returns the headers that answer both "how much is left" and — by watching
+# `x-requests-used` fall between readings — "when does the month reset".
+#
+# The second question matters: a purchase that needs most of a month is a
+# plan if the reset day is known and a guess if it is not.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily, so the reset is observed rather than assumed. Costs nothing.
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  quota:
+    name: Provider Quota
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt && python -m pip install -e .
+      - name: Check
+        env:
+          PYTHONPATH: src
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          if [ -z "${FOOTBALL_ODDS_API_KEY}" ]; then
+            echo "::error::FOOTBALL_ODDS_API_KEY is not set."
+            exit 1
+          fi
+          python scripts/check_provider_quota.py | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quota
+          path: data/outputs/quota_history.json
+          if-no-files-found: warn
