@@ -1,9 +1,42 @@
 {
   "season": 2026,
   "regions": 1,
-  "quota_remaining": 88527,
-  "nhl_committed_credits": 26091,
-  "as_of": "2026-08-26",
+  "monthly_quota": 100000,
+  "nhl_season_by_month": {
+    "2026-09": {
+      "games": 8,
+      "days": 2
+    },
+    "2026-10": {
+      "games": 218,
+      "days": 31
+    },
+    "2026-11": {
+      "games": 209,
+      "days": 28
+    },
+    "2026-12": {
+      "games": 214,
+      "days": 28
+    },
+    "2027-01": {
+      "games": 231,
+      "days": 31
+    },
+    "2027-02": {
+      "games": 155,
+      "days": 24
+    },
+    "2027-03": {
+      "games": 227,
+      "days": 31
+    },
+    "2027-04": {
+      "games": 82,
+      "days": 10
+    }
+  },
+  "nhl_derived_as_of": "2026-08-28",
   "estimates": [
     {
       "scenario": "featured only",
@@ -12,30 +45,178 @@
       "per_event_markets": 0,
       "game_days": 57,
       "games": 272,
-      "bulk_credits": 171,
-      "per_event_credits_pessimistic": 0,
-      "scores_credits": 114,
-      "season_credits_pessimistic": 285,
-      "season_credits_optimistic": 285,
+      "season_credits": 285,
+      "months": [
+        {
+          "month": "2026-09",
+          "nfl_games": 48,
+          "nfl_days": 10,
+          "nfl_credits": 50,
+          "nhl_games": 8,
+          "nhl_days": 2,
+          "nhl_credits": 162
+        },
+        {
+          "month": "2026-10",
+          "nfl_games": 60,
+          "nfl_days": 13,
+          "nfl_credits": 65,
+          "nhl_games": 218,
+          "nhl_days": 31,
+          "nhl_credits": 4297
+        },
+        {
+          "month": "2026-11",
+          "nfl_games": 71,
+          "nfl_days": 16,
+          "nfl_credits": 80,
+          "nhl_games": 209,
+          "nhl_days": 28,
+          "nhl_credits": 4111
+        },
+        {
+          "month": "2026-12",
+          "nfl_games": 62,
+          "nfl_days": 15,
+          "nfl_credits": 75,
+          "nhl_games": 214,
+          "nhl_days": 28,
+          "nhl_credits": 4206
+        },
+        {
+          "month": "2027-01",
+          "nfl_games": 31,
+          "nfl_days": 3,
+          "nfl_credits": 15,
+          "nhl_games": 231,
+          "nhl_days": 31,
+          "nhl_credits": 4544
+        },
+        {
+          "month": "2027-02",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 155,
+          "nhl_days": 24,
+          "nhl_credits": 3065
+        },
+        {
+          "month": "2027-03",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 227,
+          "nhl_days": 31,
+          "nhl_credits": 4468
+        },
+        {
+          "month": "2027-04",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 82,
+          "nhl_days": 10,
+          "nhl_credits": 1608
+        }
+      ],
+      "worst_month": "2027-01",
+      "worst_month_credits": 4559,
       "worst_day_games": 16,
-      "worst_day_credits_pessimistic": 5,
-      "daily_cap_needed": 100
+      "worst_day_credits": 5,
+      "daily_cap_needed": 100,
+      "spare_in_worst_month": 95441,
+      "total_spare_over_the_overlap": 773254
     },
     {
       "scenario": "tier 1",
-      "detail": "What a Week 1 fetch asks for: the bulk three, seven per-event team markets, twenty player props and their nineteen alternate ladders.",
+      "detail": "The bulk three, seven per-event team markets, twenty player props and their nineteen alternate ladders.",
       "bulk_markets": 3,
       "per_event_markets": 46,
       "game_days": 57,
       "games": 272,
-      "bulk_credits": 171,
-      "per_event_credits_pessimistic": 12512,
-      "scores_credits": 114,
-      "season_credits_pessimistic": 12797,
-      "season_credits_optimistic": 285,
+      "season_credits": 12797,
+      "months": [
+        {
+          "month": "2026-09",
+          "nfl_games": 48,
+          "nfl_days": 10,
+          "nfl_credits": 2258,
+          "nhl_games": 8,
+          "nhl_days": 2,
+          "nhl_credits": 162
+        },
+        {
+          "month": "2026-10",
+          "nfl_games": 60,
+          "nfl_days": 13,
+          "nfl_credits": 2825,
+          "nhl_games": 218,
+          "nhl_days": 31,
+          "nhl_credits": 4297
+        },
+        {
+          "month": "2026-11",
+          "nfl_games": 71,
+          "nfl_days": 16,
+          "nfl_credits": 3346,
+          "nhl_games": 209,
+          "nhl_days": 28,
+          "nhl_credits": 4111
+        },
+        {
+          "month": "2026-12",
+          "nfl_games": 62,
+          "nfl_days": 15,
+          "nfl_credits": 2927,
+          "nhl_games": 214,
+          "nhl_days": 28,
+          "nhl_credits": 4206
+        },
+        {
+          "month": "2027-01",
+          "nfl_games": 31,
+          "nfl_days": 3,
+          "nfl_credits": 1441,
+          "nhl_games": 231,
+          "nhl_days": 31,
+          "nhl_credits": 4544
+        },
+        {
+          "month": "2027-02",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 155,
+          "nhl_days": 24,
+          "nhl_credits": 3065
+        },
+        {
+          "month": "2027-03",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 227,
+          "nhl_days": 31,
+          "nhl_credits": 4468
+        },
+        {
+          "month": "2027-04",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 82,
+          "nhl_days": 10,
+          "nhl_credits": 1608
+        }
+      ],
+      "worst_month": "2026-11",
+      "worst_month_credits": 7457,
       "worst_day_games": 16,
-      "worst_day_credits_pessimistic": 741,
-      "daily_cap_needed": 800
+      "worst_day_credits": 741,
+      "daily_cap_needed": 800,
+      "spare_in_worst_month": 92543,
+      "total_spare_over_the_overlap": 760742
     },
     {
       "scenario": "tier 1 + 2",
@@ -44,30 +225,178 @@
       "per_event_markets": 83,
       "game_days": 57,
       "games": 272,
-      "bulk_credits": 171,
-      "per_event_credits_pessimistic": 22576,
-      "scores_credits": 114,
-      "season_credits_pessimistic": 22861,
-      "season_credits_optimistic": 285,
+      "season_credits": 22861,
+      "months": [
+        {
+          "month": "2026-09",
+          "nfl_games": 48,
+          "nfl_days": 10,
+          "nfl_credits": 4034,
+          "nhl_games": 8,
+          "nhl_days": 2,
+          "nhl_credits": 162
+        },
+        {
+          "month": "2026-10",
+          "nfl_games": 60,
+          "nfl_days": 13,
+          "nfl_credits": 5045,
+          "nhl_games": 218,
+          "nhl_days": 31,
+          "nhl_credits": 4297
+        },
+        {
+          "month": "2026-11",
+          "nfl_games": 71,
+          "nfl_days": 16,
+          "nfl_credits": 5973,
+          "nhl_games": 209,
+          "nhl_days": 28,
+          "nhl_credits": 4111
+        },
+        {
+          "month": "2026-12",
+          "nfl_games": 62,
+          "nfl_days": 15,
+          "nfl_credits": 5221,
+          "nhl_games": 214,
+          "nhl_days": 28,
+          "nhl_credits": 4206
+        },
+        {
+          "month": "2027-01",
+          "nfl_games": 31,
+          "nfl_days": 3,
+          "nfl_credits": 2588,
+          "nhl_games": 231,
+          "nhl_days": 31,
+          "nhl_credits": 4544
+        },
+        {
+          "month": "2027-02",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 155,
+          "nhl_days": 24,
+          "nhl_credits": 3065
+        },
+        {
+          "month": "2027-03",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 227,
+          "nhl_days": 31,
+          "nhl_credits": 4468
+        },
+        {
+          "month": "2027-04",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 82,
+          "nhl_days": 10,
+          "nhl_credits": 1608
+        }
+      ],
+      "worst_month": "2026-11",
+      "worst_month_credits": 10084,
       "worst_day_games": 16,
-      "worst_day_credits_pessimistic": 1333,
-      "daily_cap_needed": 1400
+      "worst_day_credits": 1333,
+      "daily_cap_needed": 1400,
+      "spare_in_worst_month": 89916,
+      "total_spare_over_the_overlap": 750678
     },
     {
       "scenario": "full documented catalogue",
-      "detail": "Every NFL market the provider documents, including the quarter alternate ladders this lab has not wired. Printed as the ceiling, not as a plan.",
+      "detail": "Every NFL market the provider documents, including the quarter alternate ladders this lab has not wired.",
       "bulk_markets": 3,
       "per_event_markets": 111,
       "game_days": 57,
       "games": 272,
-      "bulk_credits": 171,
-      "per_event_credits_pessimistic": 30192,
-      "scores_credits": 114,
-      "season_credits_pessimistic": 30477,
-      "season_credits_optimistic": 285,
+      "season_credits": 30477,
+      "months": [
+        {
+          "month": "2026-09",
+          "nfl_games": 48,
+          "nfl_days": 10,
+          "nfl_credits": 5378,
+          "nhl_games": 8,
+          "nhl_days": 2,
+          "nhl_credits": 162
+        },
+        {
+          "month": "2026-10",
+          "nfl_games": 60,
+          "nfl_days": 13,
+          "nfl_credits": 6725,
+          "nhl_games": 218,
+          "nhl_days": 31,
+          "nhl_credits": 4297
+        },
+        {
+          "month": "2026-11",
+          "nfl_games": 71,
+          "nfl_days": 16,
+          "nfl_credits": 7961,
+          "nhl_games": 209,
+          "nhl_days": 28,
+          "nhl_credits": 4111
+        },
+        {
+          "month": "2026-12",
+          "nfl_games": 62,
+          "nfl_days": 15,
+          "nfl_credits": 6957,
+          "nhl_games": 214,
+          "nhl_days": 28,
+          "nhl_credits": 4206
+        },
+        {
+          "month": "2027-01",
+          "nfl_games": 31,
+          "nfl_days": 3,
+          "nfl_credits": 3456,
+          "nhl_games": 231,
+          "nhl_days": 31,
+          "nhl_credits": 4544
+        },
+        {
+          "month": "2027-02",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 155,
+          "nhl_days": 24,
+          "nhl_credits": 3065
+        },
+        {
+          "month": "2027-03",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 227,
+          "nhl_days": 31,
+          "nhl_credits": 4468
+        },
+        {
+          "month": "2027-04",
+          "nfl_games": 0,
+          "nfl_days": 0,
+          "nfl_credits": 0,
+          "nhl_games": 82,
+          "nhl_days": 10,
+          "nhl_credits": 1608
+        }
+      ],
+      "worst_month": "2026-11",
+      "worst_month_credits": 12072,
       "worst_day_games": 16,
-      "worst_day_credits_pessimistic": 1781,
-      "daily_cap_needed": 1800
+      "worst_day_credits": 1781,
+      "daily_cap_needed": 1800,
+      "spare_in_worst_month": 87928,
+      "total_spare_over_the_overlap": 743062
     }
   ]
 }

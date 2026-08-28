@@ -20,10 +20,14 @@ What is realistic, and matters far more:
 > back-dated.** Every week the pipeline is not freezing opinions and settling
 > them is a week of clean out-of-sample data that is gone permanently.
 
-That asymmetry is sharper here than it was in hockey, because the credit
-arithmetic says the historical purchase is not affordable at all
-(`docs/credit_cost.md`). Forward evidence is not the cheap option. It is very
-close to the only option.
+That asymmetry holds whatever the budget is. It is worth saying plainly that
+it held for the wrong reason for a few hours on 2026-08-28: the first version
+of this document argued that the historical purchase was unaffordable, which
+was an artefact of reading the quota as an annual pool rather than a monthly
+one. It is affordable — 1.25 months for a full season (`docs/credit_cost.md`).
+
+The order does not change. Bought history will still be there in November.
+The opinion the card would have held on 2026-09-09 will not.
 
 ## Phase 0 — before 2026-09-09: the evidence organ, running
 
@@ -75,7 +79,7 @@ evidence.md` reports what the ledger supports, with sample sizes, with
 intervals clustered by game because the selections inside one game are not
 independent, and with "no demonstrated edge" in those words while it is true.
 
-## Phase 2 — September into October: models, and the one priced test that is free
+## Phase 2 — September into October: models, and the priced tests
 
 1. **Walk-forward fits.** A game is priced only from games strictly earlier
    than it. In a sixteen-game week the temptation to use the rest of the week
@@ -83,15 +87,26 @@ independent, and with "no demonstrated edge" in those words while it is true.
 2. **Distributional validation.** Every fitted shape shown against the
    empirical distribution it claims to describe. A shape that has not been
    shown is an assertion.
-3. **The free closing-line backtest.** The nflverse schedule file carries a
-   closing spread, total and both moneylines for every game back to 1999,
-   complete for 2024 and 2025. This is a real priced test for the team model,
-   costing nothing, and it decides the team model the way the bought backtest
-   decides in the NHL lab. Its limits — one consensus line, no ladder, no
-   props, no book — are stated everywhere it is used.
-4. **Key-number accounting.** Pushes modelled exactly; every spread or total
+3. **The free closing-line backtest, first.** The nflverse schedule file
+   carries a closing spread, total and both moneylines for every game back to
+   1999, complete for 2024 and 2025. This is a real priced test for the team
+   model, costing nothing, going back twenty-seven seasons — deeper than any
+   purchase at any price — and it decides the team model the way the bought
+   backtest decides in the NHL lab. Its limits are stated everywhere it is
+   used: one consensus line, no ladder, no props, no book.
+4. **The retention probe, then the prop backtest.** Roughly 20 past events
+   across 2024 and 2025, tier-1 markets, one snapshot each — about 9,200
+   credits — to establish per market and per book whether any historical price
+   exists at all. The NHL lab found `player_hits` retained by nobody across
+   256 probed events, and the regulation three-way likewise; spending 125,120
+   credits to learn that about football would be an expensive way to find out
+   something a probe answers for a fraction of it. Then the purchase, sized
+   from what the probe finds and re-costed before it is spent.
+
+   Both are credit spends and therefore Cooper's.
+5. **Key-number accounting.** Pushes modelled exactly; every spread or total
    edge reported alongside how much of it is a half-point at 3 or 7.
-5. **Schedule states, tested the NHL way.** Short weeks, byes, international
+6. **Schedule states, tested the NHL way.** Short weeks, byes, international
    travel. Shipped only if they win the priced test, refused if they only
    improve calibration.
 
@@ -110,34 +125,52 @@ not.
 
 ## What I need from you, and when
 
-**Now — free, and it changes the plan most:**
+**Answered on 2026-08-28:**
 
-1. **Does the Odds API quota reset, and how often?** Everything in
-   `docs/credit_cost.md` treats 100,000 as a single annual pool, because that
-   is how the NHL lab's operating file treats it. If it is **monthly**, then
-   the NFL, the NHL and NCAAF all fit easily and the historical purchase
-   becomes affordable — and the "no bought backtest" conclusion that shapes
-   this whole build order is wrong. It is free to check: the
-   `x-requests-remaining` header on the free `/v4/sports` endpoint, or your
-   plan page.
+1. ~~Does the quota reset?~~ **Monthly.** This reversed the central conclusion
+   of the first draft: credits are not a constraint, buying history is
+   affordable, and NCAAF fits too. Every document carrying the old conclusion
+   has been corrected, and the reversal is recorded rather than deleted.
+2. ~~`FOOTBALL_ODDS_API_KEY` as a GitHub secret.~~ Set — **but not where the
+   workflow will look for it.** `cooperross399/football-betting-lab` reports
+   zero Actions secrets, while `nhl-betting-lab` shows its `NHL_ODDS_API_KEY`
+   as expected, so the read is working and the football repo genuinely has
+   none. Worth a check at **Settings → Secrets and variables → Actions** on
+   the football repo, named exactly `FOOTBALL_ODDS_API_KEY`. Nothing is
+   blocked until the first live fetch, around 2026-09-03.
 
-**Before 2026-09-03, so there is time to shadow-run before Week 1:**
+**Still open, and now a real choice rather than a constraint:**
 
-2. **`FOOTBALL_ODDS_API_KEY` as a GitHub secret** on the new repository. Same
-   account and same pool as the NHL lab. Never in a file.
+3. **The retention probe — about 9,200 credits.** Under a tenth of one
+   month's quota. It establishes which of the 111 documented markets are
+   retained historically, per market and per book, before anything larger is
+   spent. I would like to run this in early September.
 
-**Around Week 1, and this is a credit-spend decision:**
+4. **What history to buy, once the probe answers.** The shapes and their
+   costs, all against 100,000 a month:
 
-3. **Authorisation for an in-season market probe** — a few hundred credits, to
-   find out which of the 111 documented markets books actually quote for an
-   NFL game, per bookmaker, including the alternate ladders. Probing in August
-   establishes nothing. I will bring the exact number before spending it.
+   | Purchase | Credits | Months |
+   |:---------|--------:|-------:|
+   | Twelve core props, one season, one snapshot | 32,640 | 0.33 |
+   | Tier 1, one season, one snapshot | 125,120 | 1.25 |
+   | **Tier 1, one season, two snapshots (card-time and close)** | **250,240** | **2.5** |
+   | Tier 1, two seasons, one snapshot | 250,240 | 2.5 |
 
-**Whenever you want to answer it, and not before question 1:**
+   My recommendation is the two-snapshot version. A single snapshot gives one
+   price and no closing-line value; two — one at roughly the hour the card
+   would have been built, one within minutes of kickoff — give the model's
+   price, the closing price, and therefore **CLV on every historical bet**.
+   The brief makes CLV a first-class metric, and at 272 games a season it is
+   the fastest honest signal available. Given roughly 90,000 spare credits a
+   month, the doubling costs headroom nobody is using.
 
-4. **Whether to buy any historical prices at all**, and if so which markets.
-   At the current understanding of the quota the answer is probably no, and
-   the team model gets its priced test free from the schedule file regardless.
+   This is not urgent. It can wait until the probe reports and the models
+   exist to be tested.
+
+5. **The quota reset day**, if you happen to know it. Not blocking — the lab
+   detects it for free by watching `x-requests-used` fall in the response
+   headers — but a 2.5-month purchase is easier to schedule if it starts the
+   day after a reset rather than the day before one.
 
 Nothing is bet in the meantime. Nothing is allowlisted. The card says it is
 accumulating evidence, because that is what it is doing.

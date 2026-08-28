@@ -149,40 +149,44 @@ market **beside** ROI.
 that in those words. So is a losing record with positive CLV — in the other
 direction, and equally worth saying.
 
-## The historical price wall, and what it costs this lab
+## The priced instruments this lab has
 
 In the NHL lab, the price-based backtest is what decided everything: what
-ships, what does not, which corrections are real. That instrument is **not
-affordable here**.
+ships, what does not, which corrections are real. **That instrument is
+available here too**, and this section previously said the opposite.
 
-The Odds API bills historical odds at ten times the live rate. One NFL season
-of tier-1 markets at one snapshot per game is roughly **125,000 credits**,
-against about 62,000 remaining for football after the NHL lab's committed
-spend. See `docs/credit_cost.md`.
+The reversal is worth stating precisely, because it is the kind of mistake
+this document exists to catch. The first draft computed the historical
+purchase against a 100,000-credit **annual** pool, found it cost twice the
+entire football budget, and concluded there would be no bought-price backtest.
+The quota resets **monthly** (confirmed 2026-08-28). One season of tier-1
+markets is 125,120 credits — 1.25 months — against a season whose heaviest
+month uses about 10% of one. See `docs/credit_cost.md`.
 
-The consequences have to be stated rather than worked around:
+Three priced instruments, then, in the order they become available:
 
-1. **There will be no bought-price prop backtest before Week 1, and probably
-   not at all at the current quota.** Any report implying otherwise is wrong.
-2. **Forward evidence is not a cheaper substitute for it.** It is a different
-   and in one way stronger instrument — the opinion the card actually held,
-   frozen before kickoff, settled after, never repriced — and in another way a
-   much weaker one, because it accumulates at 272 games a season instead of
-   arriving all at once.
-3. **A limited, targeted historical purchase is possible** — a few markets,
-   one snapshot, one season — and would be a decision for Cooper with the
-   arithmetic in front of him. Nothing is bought without that.
-4. Until then, **calibration is the only instrument available for most
-   markets, and calibration can only rule out.** So the honest state of nearly
-   every market will be "modelled, calibrated, not priced" for some time, and
-   that is what the reports will say.
+1. **The free closing-line series.** `spread_line`, `total_line` and both
+   moneylines for every game back to 1999, in the nflverse schedule file,
+   complete for 2024 and 2025. One consensus closing line — no book, no
+   ladder, no props — so it measures the **team model** and nothing else. It
+   costs nothing and goes back twenty-seven seasons, which no purchase at any
+   price does.
+2. **Forward evidence.** The opinion the card actually held, frozen before
+   kickoff, settled after, never repriced. The only priced evidence for any
+   market the provider does not retain, and the accumulating out-of-sample
+   test for every market and every shipped policy at once. It arrives at 272
+   games a season, which is slow, and **it cannot be back-dated** — which is
+   why it is built first regardless of what else is affordable.
+3. **Bought historical prices.** A retention probe first (~9,200 credits, to
+   find out per market and per book whether any historical price exists at
+   all), then a purchase sized from what it finds. A credit spend, and
+   therefore Cooper's decision, and nothing is bought without the number
+   agreed first.
 
-There is one partial exception worth naming precisely: the nflverse schedule
-file carries a historical closing spread, total and moneyline per game, free.
-That is a real price series for three team markets, and it will be used. It is
-**one consensus line, not a book quote, with no alternate ladder and no
-props**, so it can measure the team model and nothing else, and it can never
-answer a question about the price actually available at a book.
+None of this changes what any of them can *establish*. A bought backtest on
+272 games a season is still 272 games a season, the family-wise correction
+still applies across sixty markets, and an interval including zero still means
+"no demonstrated edge" in those words.
 
 ## What cannot be measured at all
 

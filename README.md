@@ -18,12 +18,16 @@ Read `CLAUDE.md` first. Then:
 ## Where things stand
 
 The 2026 NFL regular season is **272 games across 57 game days**, opening
-**Wednesday 2026-09-09**. Live pricing fits the shared Odds API quota
-comfortably; **buying historical prices does not** — one season would cost
-twice the entire football budget. So the priced instrument that decided
-everything in the NHL lab is unavailable here, and the build order puts the
-forward-evidence organ first: historical prices can be bought later, forward
-evidence cannot be back-dated.
+**Wednesday 2026-09-09**.
+
+The Odds API quota resets monthly, and credits are not a constraint: the
+heaviest month of the NFL/NHL overlap uses about 10% of one month, running
+every wired market. Buying historical prices is affordable too — 1.25 months
+for a full season.
+
+The build order still puts the forward-evidence organ first, and for the one
+reason that has not changed: **historical prices can be bought later, forward
+evidence cannot be back-dated.**
 
 ## Setup
 

@@ -113,8 +113,11 @@ NFL = League(
 #: NCAAF is deliberately absent. Adding it is a `League(...)` here, an
 #: adapter module, a market registry, its own fitted models, its own
 #: measurements, its own verdicts and its own receipt — and nothing else.
-#: It is not added now because the credit arithmetic does not yet permit it
-#: (`docs/credit_cost.md`) and because no NFL number may move when it lands.
+#: It is not added now — and the reason is *not* credits. All three labs fit
+#: the monthly quota comfortably (`docs/credit_cost.md`). It is that the NFL
+#: is not built yet, that FBS is a different distribution needing its own fits,
+#: its own measurements and its own verdicts, and that no NFL number may move
+#: when it lands.
 LEAGUES: dict[str, League] = {NFL.key: NFL}
 
 #: The league this repository ships today. Anything defaulting to a league

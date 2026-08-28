@@ -45,17 +45,27 @@ Anything that sounds like a finding before Week 1 is a bug.
 - **The 2026 regular season is 272 games across 57 game days**, 2026-09-09 to
   2027-01-10, weeks 1-18. Largest slate: 16 games on 2027-01-10, all
   simultaneous.
-- **Live pricing fits the shared quota; buying history does not.** Tier 1 is
-  12,797 credits for the season against ~62,436 available to football after
-  the NHL lab's committed 26,091. One season of bought tier-1 history would be
-  **125,120** — twice the entire football budget, for one snapshot per game.
-  So the instrument that decided everything in the NHL lab is unavailable here,
-  and no report may present calibration as though it filled the gap.
+- **The quota resets monthly, and credits are not a constraint.** Confirmed by
+  Cooper 2026-08-28. The heaviest month of the NFL/NHL overlap is 2026-11 at
+  **10,084 of 100,000**, running every market this lab has wired. Tiers in the
+  market registry are now a *staging* decision, not a budget one.
   `docs/credit_cost.md`.
-- **Two priced instruments are available instead**: the free closing-line
-  series in the nflverse schedule file (complete for 2024 and 2025, 112 of 272
-  games already lined for 2026 — one consensus line, no ladder, no props, team
-  markets only), and forward evidence accumulating at 272 games a season.
+- **An earlier version of this file said buying history was impossible. That
+  was wrong**, and it was wrong because it read the quota as an annual pool.
+  One season of tier-1 historical prices is 125,120 credits — **1.25 months**.
+  The price-based backtest that decides everything in the NHL lab is available
+  here. The record of the reversal stays in `docs/credit_cost.md`.
+- **Three priced instruments**: the free closing-line series in the nflverse
+  schedule file (back to 1999, complete for 2024-25, 112 of 272 2026 games
+  already lined — one consensus line, no ladder, no props, team markets only);
+  forward evidence at 272 games a season, which **cannot be back-dated** and is
+  therefore built first regardless; and bought history, after a ~9,200-credit
+  retention probe and Cooper's approval.
+- **NCAAF now fits the quota too.** All three labs at the full catalogue land
+  around 33,000 of 100,000 in a peak month. The reason to defer college
+  football is no longer money — it is that the NFL is not built, that FBS is a
+  different distribution needing its own fits and verdicts, and that adding it
+  must not move a single NFL number.
 - **The league registry exists and the NFL is its only entry.**
   `src/football_betting_lab/leagues.py` holds every league-specific fact:
   sport key, adapter, market registry, timezone, credit cap, policy key,
