@@ -125,12 +125,31 @@ jobs:
           set -euo pipefail
           mkdir -p data/processed data/archive/priced_snapshots
           if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
-            git show refs/card-feed-tip:forward_evidence.csv \
-              > data/processed/forward_evidence.csv 2>/dev/null \
-              && echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows." \
-              || echo "No ledger on card-feed yet."
+            # Write to a temp and move only on success. `git show > file`
+            # creates the file even when git show fails, which leaves a
+            # zero-byte CSV that pandas refuses to parse — and that is exactly
+            # how the first rehearsal died, on the branch state the first real
+            # run would have had.
+            TMP=$(mktemp)
+            if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+               && [ -s "$TMP" ]; then
+              mv "$TMP" data/processed/forward_evidence.csv
+              echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows."
+            else
+              rm -f "$TMP"
+              echo "No ledger on card-feed yet."
+            fi
+            # Same temp-then-move as the ledger: a failed `git show` with a
+            # redirect leaves a zero-byte snapshot, and an empty snapshot for
+            # a day is indistinguishable from a day with no opinions.
             for path in $(git ls-tree -r --name-only refs/card-feed-tip snapshots/ 2>/dev/null); do
-              git show "refs/card-feed-tip:$path" > "data/archive/priced_snapshots/$(basename "$path")"
+              TMP=$(mktemp)
+              if git show "refs/card-feed-tip:$path" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
+                mv "$TMP" "data/archive/priced_snapshots/$(basename "$path")"
+              else
+                rm -f "$TMP"
+                echo "::warning::Could not restore $path from card-feed."
+              fi
             done
             echo "Snapshots restored: $(ls data/archive/priced_snapshots | wc -l)."
           else

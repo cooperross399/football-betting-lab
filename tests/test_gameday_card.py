@@ -196,3 +196,36 @@ def test_a_live_run_pricing_another_date_must_declare_itself_a_rehearsal() -> No
 
     assert result.returncode == 2
     assert "needs --rehearsal" in result.stderr
+
+
+def test_an_empty_or_unreadable_table_is_treated_as_empty_not_fatal(
+    tmp_path,
+) -> None:
+    """A zero-byte file is a real state, not a corruption.
+
+    `git show refs/...:file > file` creates the file even when the show
+    fails, and pandas raises on a zero-byte CSV. The first rehearsal died
+    exactly there, on the branch state the first real run would have had — a
+    card feed with a card on it and no ledger yet.
+    """
+    import sys
+
+    sys.path.insert(0, str((tmp_path / "..").resolve()))
+    from importlib import import_module, util
+
+    from football_betting_lab.config import PROJECT_ROOT
+
+    spec = util.spec_from_file_location(
+        "run_gameday_card", PROJECT_ROOT / "scripts" / "run_gameday_card.py"
+    )
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    empty = tmp_path / "empty.csv"
+    empty.write_text("", encoding="utf-8")
+    missing = tmp_path / "missing.csv"
+    junk = tmp_path / "junk.csv"
+    junk.write_bytes(b"\xff\xfe\x00not,a,csv\x00")
+
+    for path in (empty, missing, junk):
+        assert module._read(path).empty, path.name

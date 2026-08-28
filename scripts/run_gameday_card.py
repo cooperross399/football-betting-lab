@@ -152,11 +152,9 @@ def main(argv: list[str] | None = None) -> int:
         print(run.summary_line())
 
     staged = STAGING_DIR / STAGING_PRICES_FILENAME
-    prices = (
-        pd.read_csv(staged)
-        if staged.is_file()
-        else pd.DataFrame(columns=["market", "home_team", "away_team"])
-    )
+    prices = _read(staged)
+    if prices.empty:
+        prices = pd.DataFrame(columns=["market", "home_team", "away_team"])
     # Only today's slate reaches the card. The staged file legitimately spans
     # days, and pricing tomorrow's games into today's snapshot would freeze
     # opinions the card never held.
@@ -237,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
             "overwritten. The first opinion of the day is the one that settles."
         )
     else:
-        card.frozen_rows = len(pd.read_csv(frozen)) if frozen.is_file() else 0
+        card.frozen_rows = len(_read(frozen))
 
     ledger_path = PROCESSED_DIR / LEDGER_FILENAME
     settled_days = (
@@ -249,8 +247,7 @@ def main(argv: list[str] | None = None) -> int:
         card.notes.append(
             f"Settled {settled_days} snapshot day(s) into the ledger this run."
         )
-    if ledger_path.is_file():
-        card.ledger_rows = len(pd.read_csv(ledger_path))
+    card.ledger_rows = len(_read(ledger_path))
 
     if args.rehearsal:
         card.notes.append(
@@ -274,7 +271,21 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _read(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path, low_memory=False) if path.is_file() else pd.DataFrame()
+    """Read a CSV, treating an empty or unreadable one as empty.
+
+    Not defensive programming for its own sake. A zero-byte file is a real
+    state — `git show > file` creates one when the show fails — and pandas
+    raises on it. A card that dies because a table it was going to find empty
+    was empty in a slightly different way is a card that goes quiet on the
+    Sunday its restore step first misses.
+    """
+    if not path.is_file() or path.stat().st_size == 0:
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path, low_memory=False)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeError):
+        print(f"::warning::{path.name} could not be parsed; treating it as empty.")
+        return pd.DataFrame()
 
 
 def _settle_pending(
@@ -289,9 +300,12 @@ def _settle_pending(
     directory = snapshots_dir(ARCHIVE_DIR)
     if not directory.is_dir() or games.empty:
         return 0
-    already: set[str] = set()
-    if ledger_path.is_file():
-        already = set(pd.read_csv(ledger_path)["snapshot_date"].astype(str))
+    ledger = _read(ledger_path)
+    already: set[str] = (
+        set(ledger["snapshot_date"].astype(str))
+        if "snapshot_date" in ledger.columns
+        else set()
+    )
 
     team_lookup = {name: resolve_team(name, league, lookup) for name in lookup}
     settled_days = 0
@@ -299,7 +313,10 @@ def _settle_pending(
         day = path.stem
         if day in already or day >= as_of.isoformat():
             continue
-        snapshot = pd.read_csv(path)
+        # Snapshots are restored from the card-feed branch by the same
+        # `git show > file` pattern that can leave a zero-byte file, so they
+        # get the same defensive read.
+        snapshot = _read(path)
         if snapshot.empty:
             continue
         names = set(snapshot["home_team"].astype(str)) | set(
