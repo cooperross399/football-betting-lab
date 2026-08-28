@@ -1,0 +1,61 @@
+name: Tests
+
+# Every push and every pull request. Nothing merges with this red — that rule
+# is in CLAUDE.md and this workflow is what makes it enforceable rather than
+# aspirational.
+#
+# No secret is available to this workflow, deliberately. The tests must pass
+# without a credential, which is what keeps them runnable on a fork and proves
+# nothing here quietly depends on a live provider.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # The secrets guard runs `git ls-files`, so it needs a real
+          # repository rather than an export.
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Compile
+        run: python -m compileall -q src scripts
+
+      - name: Tests
+        env:
+          PYTHONPATH: src
+        run: python -m pytest -q
+
+      - name: The cost arithmetic still runs and still spends nothing
+        env:
+          PYTHONPATH: src
+        run: python scripts/estimate_credit_cost.py > /dev/null
+
+      - name: The probe refuses to spend without --live
+        env:
+          PYTHONPATH: src
+        run: |
+          # A dry run must stay a dry run. If this ever starts needing a
+          # credential, the default has stopped being safe.
+          python scripts/run_retention_probe.py | tail -1 | grep -q "no credit was spent"

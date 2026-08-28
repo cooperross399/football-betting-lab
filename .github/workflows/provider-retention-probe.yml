@@ -1,0 +1,120 @@
+name: Provider Retention Probe
+
+# Answers one question: which markets does the provider actually retain
+# historically? A market that cannot be bought historically cannot be measured
+# historically, and finding that out by spending 125,120 credits on a full
+# season would be an expensive way to learn something a probe answers for a
+# fraction of it.
+#
+# THIS SPENDS CREDITS, against a quota shared with the NHL lab. So:
+#
+#   * manual dispatch only — there is no schedule, and there must not be one;
+#   * a hard credit cap is a required input with no unlimited option;
+#   * the cap is enforced inside the adapter before every request, against the
+#     pessimistic bound, so it cannot be breached rather than merely reported;
+#   * the credential arrives as an environment variable, never as an argument,
+#     because a process list is world-readable and CI logs echo commands.
+#
+# The report comes back as an artifact rather than a commit. A workflow that
+# can push to the default branch is a workflow whose failure modes include
+# rewriting the evidence, and this one has no reason to need that.
+
+on:
+  workflow_dispatch:
+    inputs:
+      events:
+        description: "Events to probe (stratified across kickoff windows)"
+        required: true
+        default: "20"
+      credit_cap:
+        description: "Hard credit cap. Enforced before every request."
+        required: true
+        default: "9500"
+      tier:
+        description: "Market tier to probe (1 = launch set, 46 markets)"
+        required: true
+        default: "1"
+      seasons:
+        description: "Seasons to sample, space separated"
+        required: true
+        default: "2024 2025"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Two probes at once would spend twice and could race past the cap, which is
+  # per-run and cannot see another run's spending.
+  group: retention-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Provider Retention Probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: State the cost before spending it
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/run_retention_probe.py \
+            --events "${{ inputs.events }}" \
+            --tier "${{ inputs.tier }}" \
+            --seasons ${{ inputs.seasons }}
+
+      - name: Probe
+        env:
+          PYTHONPATH: src
+          # The one place the credential enters this workflow. It is never
+          # echoed, never passed as an argument, and never written to a file.
+          FOOTBALL_ODDS_API_KEY: ${{ secrets.FOOTBALL_ODDS_API_KEY }}
+        run: |
+          if [ -z "${FOOTBALL_ODDS_API_KEY}" ]; then
+            echo "::error::FOOTBALL_ODDS_API_KEY is not set on this repository. Nothing was requested and nothing was spent."
+            exit 1
+          fi
+          python scripts/run_retention_probe.py \
+            --live \
+            --events "${{ inputs.events }}" \
+            --tier "${{ inputs.tier }}" \
+            --seasons ${{ inputs.seasons }} \
+            --credit-cap "${{ inputs.credit_cap }}"
+
+      - name: Write the report to the run summary
+        if: always()
+        run: |
+          if [ -f data/outputs/nfl_retention_probe.md ]; then
+            cat data/outputs/nfl_retention_probe.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No report was produced. Nothing was written." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload the report and the raw snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retention-probe
+          # The raw responses are the evidence the report is derived from.
+          # Historical prices never change, so a cached snapshot is a
+          # permanent record and a re-run over the same window costs nothing.
+          path: |
+            data/outputs/nfl_retention_probe.md
+            data/outputs/nfl_retention_probe.json
+            data/raw/nfl/historical_probe/
+          if-no-files-found: warn
+          retention-days: 90
