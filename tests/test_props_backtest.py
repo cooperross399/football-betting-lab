@@ -233,3 +233,36 @@ def test_nine_books_still_collapse_within_one_snapshot() -> None:
     )
 
     assert len(best_price_per_selection(label_snapshots(prices))) == 1
+
+
+def test_three_snapshots_label_earliest_card_latest_close_and_the_rest_mid() -> None:
+    """The first version labelled every non-earliest snapshot `close`, which
+    was right for two snapshots and silently wrong for three: a T-60 and a T-5
+    price would have landed in the same bucket and the best-price collapse
+    would have chosen between two different moments."""
+    from football_betting_lab.reports.props_backtest import (
+        CARD_TIME,
+        CLOSING,
+        MID,
+        label_snapshots,
+    )
+
+    prices = _prices(
+        [
+            {"snapshot": "20250907T120000Z"},
+            {"snapshot": "20250907T170000Z"},
+            {"snapshot": "20250907T175500Z"},
+        ]
+    )
+
+    assert list(label_snapshots(prices)["phase"]) == [CARD_TIME, MID, CLOSING]
+
+
+def test_a_single_snapshot_is_card_not_close() -> None:
+    """Earliest and latest are the same row, and one purchase was a card-time
+    purchase — calling it the close would invent a closing price."""
+    from football_betting_lab.reports.props_backtest import CARD_TIME, label_snapshots
+
+    one = _prices([{"snapshot": "20250907T170000Z"}])
+
+    assert list(label_snapshots(one)["phase"]) == [CARD_TIME]

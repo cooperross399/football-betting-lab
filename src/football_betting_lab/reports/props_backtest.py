@@ -116,26 +116,34 @@ def load_bought_prices(cache_dir: Path, league: League) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-CARD_TIME, CLOSING = "card", "close"
+CARD_TIME, MID, CLOSING = "card", "mid", "close"
 
 
 def label_snapshots(prices: pd.DataFrame) -> pd.DataFrame:
-    """Label each event's earliest snapshot `card` and its latest `close`.
+    """Label each event's **earliest** snapshot `card` and its **latest** `close`.
 
     Derived from the stamps rather than from a lead-minutes argument, because
     the stamps are what the cache actually holds and an argument can disagree
-    with them. An event bought at only one snapshot is labelled `card`, which
-    is what a single purchase was.
+    with them. An event bought at one snapshot is all `card`, which is what a
+    single purchase was.
+
+    Anything between the two is `mid` and is used by nothing. The first
+    version labelled every non-earliest snapshot `close`, which was right for
+    two snapshots and silently wrong for three: it would have put a T-60 and a
+    T-5 price in the same bucket and let the best-price collapse choose
+    between two different moments.
     """
     if prices.empty or "snapshot" not in prices.columns:
         return prices.assign(phase=CARD_TIME) if not prices.empty else prices
     frame = prices.copy()
-    order = (
-        frame.groupby("event_id")["snapshot"].transform("min") == frame["snapshot"]
-    )
-    frame["phase"] = CLOSING
-    frame.loc[order, "phase"] = CARD_TIME
-    # An event with one snapshot has min == max, so every row is `card`.
+    grouped = frame.groupby("event_id")["snapshot"]
+    earliest = grouped.transform("min")
+    latest = grouped.transform("max")
+    frame["phase"] = MID
+    frame.loc[frame["snapshot"] == latest, "phase"] = CLOSING
+    # Card last, so an event with a single snapshot (earliest == latest) is
+    # `card` rather than `close`: one purchase was a card-time purchase.
+    frame.loc[frame["snapshot"] == earliest, "phase"] = CARD_TIME
     return frame
 
 

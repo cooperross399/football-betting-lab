@@ -56,11 +56,32 @@ jobs:
           python -m pip install -r requirements.txt && python -m pip install -e .
 
       - name: Restore what previous runs already bought
-        uses: actions/download-artifact@v4
+        # `actions/download-artifact` only sees the CURRENT run's artifacts,
+        # so the obvious spelling of this step silently restored nothing — and
+        # the run that followed uploaded only what it had just bought, which
+        # dropped every earlier snapshot from the artifact. Bought prices are
+        # paid-for evidence and they cannot be re-derived, so this reaches
+        # back through previous runs explicitly.
         continue-on-error: true
-        with:
-          name: historical-prices
-          path: data/raw/nfl/historical_prices
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/raw/nfl/historical_prices
+          for RUN in $(gh run list --workflow=historical-purchase.yml \
+                --status=success --limit 15 --json databaseId \
+                --jq '.[].databaseId'); do
+            if gh run download "$RUN" -n historical-prices \
+                 -D data/raw/nfl/historical_prices 2>/dev/null; then
+              echo "Restored from run $RUN."
+              break
+            fi
+          done
+          COUNT=$(find data/raw/nfl/historical_prices -name '*.json' | wc -l)
+          echo "$COUNT cached response file(s) available before this run."
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::warning::Nothing restored. This run will re-buy anything it needs, which costs credits that were already spent once."
+          fi
 
       - name: Refuse to start without the credits this run intends to spend
         env:

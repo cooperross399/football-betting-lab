@@ -219,3 +219,21 @@ def test_a_rehearsal_never_publishes_to_the_card_feed() -> None:
     publish = text[text.index("Publish to the card-feed branch") :]
 
     assert "rehearsal_slate_date == ''" in publish[:200]
+
+
+def test_the_purchase_reaches_back_through_previous_runs_for_its_cache() -> None:
+    """`actions/download-artifact` only sees the current run's artifacts, so
+    the obvious spelling restored nothing — and the next run then uploaded
+    only what it had just bought, dropping every earlier snapshot. Bought
+    prices are paid-for evidence and cannot be re-derived."""
+    text = _without_comments(WORKFLOW_DIR / "historical-purchase.yml")
+
+    assert "gh run download" in text
+    assert "actions/download-artifact" not in text
+
+
+def test_the_purchase_says_so_loudly_when_it_restored_nothing() -> None:
+    """Silently re-buying is spending credits that were already spent once."""
+    text = _without_comments(WORKFLOW_DIR / "historical-purchase.yml")
+
+    assert "Nothing restored" in text
