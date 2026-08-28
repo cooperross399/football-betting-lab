@@ -172,3 +172,64 @@ def test_an_interval_including_zero_is_no_demonstrated_edge_in_those_words() -> 
     assert entry.verdict(corrected_low=-0.02, corrected_high=0.12) == (
         "**no demonstrated edge**"
     )
+
+
+# -- two snapshots of one event are not one wager ----------------------------
+
+
+def _two_snapshots() -> pd.DataFrame:
+    """The same wager at card time and at the close, with a better close."""
+    return _prices(
+        [
+            {"snapshot": "20250907T170000Z", "american_odds": -110, "book": "dk"},
+            {"snapshot": "20250907T175500Z", "american_odds": 150, "book": "dk"},
+        ]
+    )
+
+
+def test_the_two_snapshots_of_one_event_are_labelled_card_and_close() -> None:
+    from football_betting_lab.reports.props_backtest import (
+        CARD_TIME,
+        CLOSING,
+        label_snapshots,
+    )
+
+    labelled = label_snapshots(_two_snapshots())
+
+    assert list(labelled["phase"]) == [CARD_TIME, CLOSING]
+
+
+def test_an_event_with_one_snapshot_is_all_card_time() -> None:
+    """A single purchase was a card-time purchase, and calling half of it the
+    close would invent a closing price."""
+    from football_betting_lab.reports.props_backtest import CARD_TIME, label_snapshots
+
+    one = _prices([{"snapshot": "20250907T170000Z"}])
+
+    assert list(label_snapshots(one)["phase"]) == [CARD_TIME]
+
+
+def test_the_best_price_is_never_taken_across_two_snapshots() -> None:
+    """The better of a card-time price and a closing price is not a price
+    anyone could have taken. It is the best of two moments, and collapsing
+    them would quietly inflate every measured edge."""
+    from football_betting_lab.reports.props_backtest import label_snapshots
+
+    collapsed = best_price_per_selection(label_snapshots(_two_snapshots()))
+
+    assert len(collapsed) == 2
+    assert set(collapsed["american_odds"]) == {-110, 150}
+
+
+def test_nine_books_still_collapse_within_one_snapshot() -> None:
+    """The snapshot joins the key; it does not replace it."""
+    from football_betting_lab.reports.props_backtest import label_snapshots
+
+    prices = _prices(
+        [
+            {"snapshot": "20250907T170000Z", "book": f"b{i}", "american_odds": -120 + i}
+            for i in range(9)
+        ]
+    )
+
+    assert len(best_price_per_selection(label_snapshots(prices))) == 1

@@ -47,6 +47,7 @@ from __future__ import annotations
 import glob
 import json
 import math
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import NormalDist
@@ -83,23 +84,68 @@ MINIMUM_BETS = 200
 FRAGILITY_TOP_GAMES = (1, 3, 5, 10)
 
 
+#: Cached responses are named `{event}_{stamp}_{fingerprint}.json`, and the
+#: stamp is the snapshot instant. Two snapshots of one event differ only by
+#: that stamp.
+_CACHE_NAME = re.compile(r"^(?P<event>[0-9a-f]+)_(?P<stamp>\d{8}T\d{6}Z)_")
+
+
 def load_bought_prices(cache_dir: Path, league: League) -> pd.DataFrame:
-    """Every bought response, normalised. Free: the prices are already paid for."""
+    """Every bought response, normalised and **tagged with its snapshot**.
+
+    The tag is not decoration. Once a season is bought at two snapshots — card
+    time and the close — the cache holds both for every event, and a loader
+    that ignored which was which would let `best_price_per_selection` pick the
+    better of a card-time price and a closing price for the same wager. That
+    is not a price anyone could have taken; it is the best of two moments,
+    and it would have quietly inflated every measured edge.
+    """
     rows: list[dict] = []
     for path in sorted(glob.glob(str(Path(cache_dir) / "*.json"))):
+        name = Path(path).name
+        match = _CACHE_NAME.match(name)
         try:
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError):
             continue
-        rows.extend(normalize_event(payload, league, fetched_at="historical").rows)
+        parsed = normalize_event(payload, league, fetched_at="historical").rows
+        stamp = match.group("stamp") if match else ""
+        for row in parsed:
+            row["snapshot"] = stamp
+        rows.extend(parsed)
     return pd.DataFrame(rows)
+
+
+CARD_TIME, CLOSING = "card", "close"
+
+
+def label_snapshots(prices: pd.DataFrame) -> pd.DataFrame:
+    """Label each event's earliest snapshot `card` and its latest `close`.
+
+    Derived from the stamps rather than from a lead-minutes argument, because
+    the stamps are what the cache actually holds and an argument can disagree
+    with them. An event bought at only one snapshot is labelled `card`, which
+    is what a single purchase was.
+    """
+    if prices.empty or "snapshot" not in prices.columns:
+        return prices.assign(phase=CARD_TIME) if not prices.empty else prices
+    frame = prices.copy()
+    order = (
+        frame.groupby("event_id")["snapshot"].transform("min") == frame["snapshot"]
+    )
+    frame["phase"] = CLOSING
+    frame.loc[order, "phase"] = CARD_TIME
+    # An event with one snapshot has min == max, so every row is `card`.
+    return frame
 
 
 def best_price_per_selection(prices: pd.DataFrame) -> pd.DataFrame:
     """Collapse nine books' quotes on one wager into the one a card would take.
 
     Keyed on everything that makes a bet a different bet — game, market,
-    player, side and line — and **not** on the book, which is the whole point.
+    player, side, line **and snapshot** — and not on the book, which is the
+    whole point. The snapshot is in the key because the best of a card-time
+    price and a closing price is not a price anyone could have taken.
     """
     if prices.empty:
         return prices
@@ -110,9 +156,10 @@ def best_price_per_selection(prices: pd.DataFrame) -> pd.DataFrame:
     # "Best" is the largest payout, which for American odds is the largest
     # signed number: +150 beats +120 beats -110 beats -200.
     frame = frame.sort_values("american_odds", ascending=False)
-    return frame.drop_duplicates(
-        subset=["event_id", "market", "player", "selection", "line"], keep="first"
-    ).reset_index(drop=True)
+    subset = ["event_id", "market", "player", "selection", "line"]
+    if "snapshot" in frame.columns:
+        subset.append("snapshot")
+    return frame.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
 
 
 @dataclass
@@ -205,7 +252,12 @@ def run(
     if prices.empty:
         return result
     result.priced_rows = len(prices)
-    collapsed = best_price_per_selection(prices)
+    collapsed = best_price_per_selection(label_snapshots(prices))
+    if "phase" in collapsed.columns:
+        # A backtest bets into the price a card could have taken, which is the
+        # card-time snapshot. The close is bought for closing-line value and
+        # is never what a bet is placed at.
+        collapsed = collapsed[collapsed["phase"] == CARD_TIME]
     collapsed = collapsed[
         collapsed["market"].map(lambda key: key in MARKET_SOURCES)
     ].copy()
