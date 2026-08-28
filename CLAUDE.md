@@ -240,6 +240,29 @@ Anything that sounds like a finding before Week 1 is a bug.
   and a `.env` staged wholesale is how a credential reaches a public ref, and
   a test forbids it in every workflow.
 
+- **The team model does not beat the closing line, and that is now measured.**
+  Walk-forward 2016-2025, 2,639 games, betting only where the model disagrees
+  with the close by 3.5%+ at a price no worse than -160:
+  moneyline **-6.2% over 1,923 bets**, spread **-1.9% over 1,886**, total
+  **-1.8% over 1,708**. Every interval includes zero before and after the
+  family correction. **No demonstrated edge**, on samples large enough to mean
+  it. `data/outputs/nfl_closing_line_backtest.md`.
+- **That test is conservative in two directions at once** and the report says
+  so: it bets into the close, which is the sharpest price of the week, and it
+  uses one consensus line rather than the best of the nine books quoting these
+  games. A card does neither. CLV cannot be measured there at all, because the
+  bet is placed at the close.
+- **Two defects in that backtest were caught by disbelieving a good result.**
+  It first reported **+21.6% on the spread over 1,695 bets**, an interval
+  excluding zero even after correction. The cover rate was 61.5%, which is not
+  a thing that happens. Both sides of a spread were being derived from one
+  `spread_line` without negating for the away side, so **both sides could win
+  the same game** — 147 of the 402 games where both were bet. And before that,
+  the spread and total reported **zero bets**, which read as "the model never
+  disagrees enough"; in fact their price columns had never been built, and a
+  `getattr(..., None)` default turned a missing column into a quietly skipped
+  market. A missing price column is now an error.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

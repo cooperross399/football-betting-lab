@@ -208,7 +208,11 @@ def build_team_games(league: League, raw_dir: Path, seasons: tuple[int, ...]) ->
         "wind",
         "stadium",
         "spread_line",
+        "home_spread_odds",
+        "away_spread_odds",
         "total_line",
+        "over_odds",
+        "under_odds",
         "home_moneyline",
         "away_moneyline",
     ]
@@ -287,9 +291,17 @@ def build_player_logs(
             nflverse.FEEDS_BY_NAME["player_stats"], league, raw_dir, season
         )
         if not path.is_file():
+            # Say what is known, not what is guessed. "Not cached" and "not
+            # published" are different facts, and the first draft of this
+            # message asserted the second for 2020 and 2021 — seasons that
+            # were played in full and simply had not been fetched. A report
+            # that explains an absence it has not checked is worse than one
+            # that says it does not know.
             report.notes.append(
-                f"No weekly player stats for {season}. That is an absence — "
-                "the season has not been played — not a fault."
+                f"No weekly player stats cached for {season}. Fetch it with "
+                f"`scripts/fetch_football_data.py --seasons {season}`, or, if "
+                "the season has not been played yet, this is an absence "
+                "rather than a fault."
             )
             continue
         stats = pd.read_csv(path, low_memory=False)
