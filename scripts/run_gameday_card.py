@@ -75,9 +75,17 @@ def main(argv: list[str] | None = None) -> int:
         "--slate-date",
         default="",
         help=(
-            "Price a specific league date from what is already staged, rather "
-            "than today. For replaying a board and for exercising the whole "
-            "path offline; it never changes what a live run does."
+            "Price a specific league date rather than today. For replaying a "
+            "board and for rehearsing the whole path; it never changes what a "
+            "scheduled run does."
+        ),
+    )
+    parser.add_argument(
+        "--rehearsal",
+        action="store_true",
+        help=(
+            "Exercise the whole path without touching the evidence. Required "
+            "with --slate-date on a live run: see below."
         ),
     )
     args = parser.parse_args(argv)
@@ -86,6 +94,28 @@ def main(argv: list[str] | None = None) -> int:
     now = datetime.now(timezone.utc)
     slate_date = args.slate_date or game_date(now.isoformat(), league)
     preseason: list[str] = []
+
+    # A rehearsal must not touch the evidence, and the sharp edge is not
+    # obvious: pricing Week 1 twelve days early would freeze a snapshot dated
+    # for the real slate, and on the day itself `write_snapshot` would find one
+    # already standing and decline to overwrite it. The first opinion of the
+    # day would be a rehearsal taken before the teams were known — and forward
+    # evidence cannot be re-made.
+    #
+    # So a rehearsal writes to its own archive, and a live run that prices a
+    # date other than today must say it is a rehearsal.
+    if args.live and args.slate_date and not args.rehearsal:
+        print(
+            "::error::--slate-date on a live run needs --rehearsal. Pricing a "
+            "future date would freeze a snapshot for a slate that has not "
+            "happened, and the real run that day would find it already "
+            "standing and leave it there.",
+            file=sys.stderr,
+        )
+        return 2
+    archive_dir = (
+        ARCHIVE_DIR.parent / "rehearsal_archive" if args.rehearsal else ARCHIVE_DIR
+    )
 
     # -- prices ----------------------------------------------------------
     if args.live:
@@ -199,7 +229,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
         gates_in_force=policy.summary_line(league),
         snapshot_date=slate_date,
-        archive_dir=ARCHIVE_DIR,
+        archive_dir=archive_dir,
     )
     if frozen is None:
         card.notes.append(
@@ -210,8 +240,10 @@ def main(argv: list[str] | None = None) -> int:
         card.frozen_rows = len(pd.read_csv(frozen)) if frozen.is_file() else 0
 
     ledger_path = PROCESSED_DIR / LEDGER_FILENAME
-    settled_days = _settle_pending(
-        league, games, logs, lookup, ledger_path, as_of=now.date()
+    settled_days = (
+        0
+        if args.rehearsal
+        else _settle_pending(league, games, logs, lookup, ledger_path, as_of=now.date())
     )
     if settled_days:
         card.notes.append(
@@ -220,14 +252,24 @@ def main(argv: list[str] | None = None) -> int:
     if ledger_path.is_file():
         card.ledger_rows = len(pd.read_csv(ledger_path))
 
+    if args.rehearsal:
+        card.notes.append(
+            "**This is a rehearsal.** The whole path ran — fetch, fit, price, "
+            "gate, freeze — against a real board, and nothing it wrote touches "
+            "the evidence: the snapshot went to a rehearsal archive and no "
+            "day was claimed."
+        )
+
     report = gameday_card.render(card)
+    if args.rehearsal:
+        report = "> **REHEARSAL — not a card.**\n\n" + report
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
     (OUTPUTS_DIR / league.output_name("gameday_card", ".md")).write_text(
         report, encoding="utf-8"
     )
     print()
     print(report)
-    print(f"decision={card.decision}")
+    print(f"decision={'rehearsal' if args.rehearsal else card.decision}")
     return 0
 
 

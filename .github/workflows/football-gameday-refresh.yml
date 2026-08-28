@@ -44,6 +44,10 @@ on:
         description: "Market tier"
         required: true
         default: "1"
+      rehearsal_slate_date:
+        description: "Rehearse a specific league date (YYYY-MM-DD). Leave blank for a real run. A rehearsal never touches the ledger or the card feed."
+        required: false
+        default: ""
 
 permissions:
   # Write for exactly one ref: the card-feed branch. Nothing here pushes to
@@ -153,11 +157,16 @@ jobs:
             echo "::error::FOOTBALL_ODDS_API_KEY is not set. Nothing was requested."
             exit 1
           fi
+          REHEARSAL=""
+          if [ -n "${{ inputs.rehearsal_slate_date }}" ]; then
+            REHEARSAL="--rehearsal --slate-date ${{ inputs.rehearsal_slate_date }}"
+          fi
           python scripts/run_gameday_card.py \
             --live \
             --tier "${{ inputs.tier || '1' }}" \
             --horizon-days "${{ inputs.horizon_days || '1' }}" \
             --credit-cap "${{ inputs.credit_cap || '1400' }}" \
+            $REHEARSAL \
             | tee card_run.txt
           echo "decision=$(grep -oE 'decision=[a-z-]+' card_run.txt | tail -1 | cut -d= -f2)" >> "$GITHUB_OUTPUT"
 
@@ -214,7 +223,10 @@ jobs:
           echo "Posted to operating home #$NUMBER (decision: $DECISION)."
 
       - name: Publish to the card-feed branch
-        if: always()
+        # Never on a rehearsal. Publishing a rehearsal would set the feed's
+        # slate_date to the rehearsed day, and the "already published?" guard
+        # would stand the real run down on the day it matters.
+        if: always() && inputs.rehearsal_slate_date == ''
         env:
           REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         run: |

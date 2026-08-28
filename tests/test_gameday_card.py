@@ -162,3 +162,37 @@ def test_the_card_states_the_forward_ledger_position() -> None:
 
     assert "1,903 opinion(s) frozen" in text
     assert "cannot be back-dated" in text
+
+
+def test_a_live_run_pricing_another_date_must_declare_itself_a_rehearsal() -> None:
+    """The sharp edge that makes rehearsing dangerous.
+
+    Pricing Week 1 twelve days early would freeze a snapshot dated for the
+    real slate. On the day itself `write_snapshot` finds one already standing
+    and declines to overwrite it, so the first opinion of the day would be a
+    rehearsal taken before the teams were known — and forward evidence cannot
+    be re-made.
+    """
+    import subprocess
+    import sys
+
+    from football_betting_lab.config import PROJECT_ROOT
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "scripts" / "run_gameday_card.py"),
+            "--live",
+            "--slate-date",
+            "2026-09-09",
+            "--credit-cap",
+            "100",
+        ],
+        capture_output=True,
+        text=True,
+        env={"PYTHONPATH": str(PROJECT_ROOT / "src"), "PATH": "/usr/bin:/bin"},
+        cwd=PROJECT_ROOT,
+    )
+
+    assert result.returncode == 2
+    assert "needs --rehearsal" in result.stderr

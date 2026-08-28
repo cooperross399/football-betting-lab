@@ -209,3 +209,13 @@ def test_the_degraded_path_runs_even_when_the_card_step_failed() -> None:
     posting = text[text.index("Post to the operating home") :]
 
     assert "if: always()" in posting[:200]
+
+
+def test_a_rehearsal_never_publishes_to_the_card_feed() -> None:
+    """Publishing a rehearsal would set the feed's slate_date to the rehearsed
+    day, and the "already published?" guard would then stand the real run down
+    on the day it matters."""
+    text = _without_comments(WORKFLOW_DIR / "football-gameday-refresh.yml")
+    publish = text[text.index("Publish to the card-feed branch") :]
+
+    assert "rehearsal_slate_date == ''" in publish[:200]
