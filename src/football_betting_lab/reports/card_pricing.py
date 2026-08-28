@@ -114,6 +114,16 @@ MODELLED_TEAM_MARKETS: frozenset[str] = frozenset(
     }
 )
 
+#: First-half markets, priced from the half model when one is supplied and
+#: the recorded verdict says it ships. Absent either, they stay `no_opinion`
+#: with the reason stated — never `unparseable`, which would read as an
+#: adapter fault.
+HALF_MARKETS: dict[str, str] = {
+    "moneyline_h1": "moneyline",
+    "spread_h1": "spread",
+    "total_points_h1": "total_points",
+}
+
 ProbabilityMap = dict[tuple, float]
 
 
@@ -157,10 +167,15 @@ class PlayerBook:
         before: str,
         draws: int = 20_000,
         seed: int = 0,
+        recency_half_life: float | None = None,
     ) -> None:
         self.per_play = per_play
         self.draws = draws
         self.seed = seed
+        # Off unless a recorded verdict turns it on. The caller reads the
+        # verdict; this class does not, so a model cannot quietly enable a
+        # policy the card did not consult the door about.
+        self.recency_half_life = recency_half_life
         self.rates: dict[str, dict[str, PlayerRates]] = {}
         for family, (opportunity, yards, touchdowns) in FAMILY_COLUMNS.items():
             self.rates[family] = fit_rates(
@@ -169,8 +184,11 @@ class PlayerBook:
                 opportunity_column=opportunity,
                 yards_column=yards,
                 touchdown_column=touchdowns,
+                recency_half_life=recency_half_life,
             )
-        self.counts = _fit_counts(logs, before=before)
+        self.counts = _fit_counts(
+            logs, before=before, recency_half_life=recency_half_life
+        )
         self._cache: dict[tuple[str, str], Simulation | None] = {}
 
     def simulation(self, player_id: str, family: str) -> Simulation | None:
@@ -219,7 +237,9 @@ class PlayerBook:
         return float((total > 0).mean())
 
 
-def _fit_counts(logs: pd.DataFrame, *, before: str) -> dict[str, dict[str, PlayerRates]]:
+def _fit_counts(
+    logs: pd.DataFrame, *, before: str, recency_half_life: float | None = None
+) -> dict[str, dict[str, PlayerRates]]:
     """Direct count rates for the markets with nothing to compound."""
     columns = sorted(
         {column for kind, _, column in MARKET_SOURCES.values() if kind == COUNT}
@@ -234,6 +254,7 @@ def _fit_counts(logs: pd.DataFrame, *, before: str) -> dict[str, dict[str, Playe
             opportunity_column=column,
             yards_column=column,
             touchdown_column=column,
+            recency_half_life=recency_half_life,
         )
     return fitted
 
@@ -245,6 +266,7 @@ def price_slate(
     distributions: dict[tuple[str, str], GameDistribution],
     book: PlayerBook,
     player_ids: dict[str, str],
+    half_distributions: dict[tuple[str, str], GameDistribution] | None = None,
 ) -> tuple[ProbabilityMap, PricingDiagnostics]:
     """A probability for every staged row this lab has an opinion on.
 
@@ -275,6 +297,34 @@ def price_slate(
             distribution = distributions.get((home, away))
             if distribution is None:
                 diagnostics.note("no_opinion", f"no fitted game for {away} @ {home}")
+                continue
+            if market.key in HALF_MARKETS:
+                half = (half_distributions or {}).get((home, away))
+                if half is None:
+                    diagnostics.note(
+                        "no_opinion",
+                        f"`{market.key}` needs the first-half model, which is "
+                        "not in force — see the recorded verdict",
+                    )
+                    continue
+                probability = _team_probability(
+                    half, HALF_MARKETS[market.key], selection, line
+                )
+                if probability is None:
+                    diagnostics.note(
+                        "unparseable", f"`{market.key}` selection `{selection}`"
+                    )
+                    continue
+                probabilities[
+                    selection_key(
+                        row,
+                        market=market.key,
+                        selection=selection,
+                        line=line,
+                        league=league,
+                    )
+                ] = probability
+                diagnostics.opinions += 1
                 continue
             if market.key not in MODELLED_TEAM_MARKETS:
                 diagnostics.note(

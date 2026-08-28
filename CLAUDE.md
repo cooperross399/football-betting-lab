@@ -308,6 +308,35 @@ Anything that sounds like a finding before Week 1 is a bug.
   out the first explanation offered for the tackles result and is why the
   second one had to be found.
 
+- **The verdicts door exists and nothing ships through it.**
+  `verdicts.py`: an experiment measures a policy, records its verdict as a
+  file under `data/outputs/`, and the model reads that file rather than a
+  constant. A missing or unreadable verdict ships nothing. Each verdict
+  records `variants_tested`, because every variant tried against the same
+  bought season spends a degree of freedom.
+- **Recency weighting: measured, does not ship.** Half-life 8 games returned
+  −5.2% against the baseline's −6.6%. The **paired** difference over the 172
+  games both arms bet is **+1.4% per bet, interval −1.0% to +3.9% — not
+  distinguishable from zero.** The first decision rule was `roi_variant >
+  roi_baseline` and would have shipped it; comparing two overlapping intervals
+  and taking the larger number is how a lab ships noise, and the arms' own
+  intervals span several times the gap between them.
+- **The first-half model exists and does not ship either.** Pooled **−16.5%
+  over 619 bets**, interval −29.5% to −3.5%. It is the crudest thing that
+  could work — each side's full-game expectation scaled by the league's
+  first-half share (0.506, measured) with the shape from the empirical
+  first-half distribution — and the priced test says no.
+- **A half does not go to overtime, and that had to be fixed.**
+  `GameDistribution` hardcoded the full-game rule, so the half model priced a
+  level half at 0.4%. Measured over 1,087 games, **7.4% of first halves end
+  level against 0.35% of full games** — a factor of twenty-one. Segments now
+  carry `resolves_ties=False`.
+- **The half markets stay `no_opinion` until a verdict says otherwise.** They
+  are wired, settleable and retained on 20 of 20 probed events, and pricing
+  them would fill the ledger with opinions already measured to lose. Whether
+  that trade is worth making for the sake of forward evidence is Cooper's
+  call, not a script's.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

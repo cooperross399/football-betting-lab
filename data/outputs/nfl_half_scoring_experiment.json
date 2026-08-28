@@ -1,0 +1,8 @@
+{
+  "policy": "half_scoring_model",
+  "league": "nfl",
+  "ships": [],
+  "measured_on": "2025 bought first-half prices",
+  "variants_tested": 1,
+  "summary": "Pooled -16.5% over 619 bets (-102.2u), interval -29.5% to -3.5%."
+}

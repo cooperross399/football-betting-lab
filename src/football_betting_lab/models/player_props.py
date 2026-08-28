@@ -68,6 +68,14 @@ from football_betting_lab.models.scoring import tilt_to_mean
 #: parametric tail nobody measured.
 DEFAULT_DRAWS = 20_000
 
+#: Half-life, in games, for the optional recency weighting. Eight games is
+#: about half a season: a role from last November counts half as much as one
+#: from last week, and a role from two seasons ago counts almost nothing.
+#:
+#: Off unless the recorded verdict says otherwise. Nothing here ships a
+#: modelling policy by assertion — see `verdicts.py`.
+RECENCY_HALF_LIFE_GAMES = 8.0
+
 #: Games of a player's own history before his rate stops being shrunk toward
 #: his position's. Football seasons are 17 games, so this is deliberately
 #: heavy: a receiver with three games is mostly his position.
@@ -152,12 +160,19 @@ def fit_rates(
     opportunity_column: str,
     yards_column: str,
     touchdown_column: str,
+    recency_half_life: float | None = None,
 ) -> dict[str, PlayerRates]:
     """Fit every player from games strictly earlier than `before`.
 
     `before` is a season-week ordering key, not a date, because the logs are
     weekly. Same-week data never touches its own fit: in a sixteen-game week
     the rest of the week is not history.
+
+    `recency_half_life` weights each game by `0.5 ** (games_ago / half_life)`,
+    so a role from last November counts half as much as one from last week.
+    **It is off unless a recorded verdict turns it on.** The motivation is
+    obvious — a receiver's target share moves between seasons — and obvious
+    motivation is exactly what a priced test exists to check.
     """
     if logs.empty:
         return {}
@@ -177,29 +192,54 @@ def fit_rates(
 
     rates: dict[str, PlayerRates] = {}
     for player_id, frame in history.groupby("player_id"):
-        opportunities = frame[opportunity_column].astype(float)
-        played = opportunities[opportunities > 0]
+        ordered_frame = frame.sort_values("_key")
+        opportunities = ordered_frame[opportunity_column].astype(float)
+        appeared = opportunities > 0
+        played = opportunities[appeared]
         if played.empty:
             continue
         games = len(played)
         weight = games / (games + PRIOR_GAMES)
-        total_opportunities = max(played.sum(), 1.0)
+
+        if recency_half_life and recency_half_life > 0:
+            # Most recent game is 0 games ago.
+            ago = np.arange(len(played) - 1, -1, -1, dtype=float)
+            w = np.power(0.5, ago / float(recency_half_life))
+        else:
+            w = np.ones(len(played), dtype=float)
+        w = w / w.sum()
+        values = played.to_numpy(dtype=float)
+        mean = float((w * values).sum())
+        # Weighted variance with the reliability correction, so a heavily
+        # concentrated weight vector does not report a variance of nearly zero
+        # and turn a negative binomial into a spike.
+        effective = 1.0 / float((w**2).sum())
+        variance = (
+            float((w * (values - mean) ** 2).sum()) * effective / max(effective - 1, 1)
+            if effective > 1
+            else mean
+        )
+
+        yards = ordered_frame.loc[appeared.values, yards_column].to_numpy(dtype=float)
+        touchdowns = ordered_frame.loc[
+            appeared.values, touchdown_column
+        ].to_numpy(dtype=float)
+        opportunity_mass = max(float((w * values).sum()), 1e-9)
+
         rates[str(player_id)] = PlayerRates(
             player_id=str(player_id),
-            name=str(frame["player_name"].iloc[-1]),
+            name=str(ordered_frame["player_name"].iloc[-1]),
             games=games,
-            opportunities_mean=float(played.mean()),
+            opportunities_mean=mean,
             # A single game has no variance; fall back to the mean, which is
             # the Poisson assumption and the least confident one available.
-            opportunities_variance=float(
-                played.var(ddof=1) if games > 1 else played.mean()
-            ),
+            opportunities_variance=float(variance if games > 1 else mean),
             yards_per_opportunity=float(
-                weight * (frame[yards_column].sum() / total_opportunities)
+                weight * (float((w * yards).sum()) / opportunity_mass)
                 + (1 - weight) * league_yards_per
             ),
             touchdown_rate=float(
-                weight * (frame[touchdown_column].sum() / total_opportunities)
+                weight * (float((w * touchdowns).sum()) / opportunity_mass)
                 + (1 - weight) * league_td_rate
             ),
         )

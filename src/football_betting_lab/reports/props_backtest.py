@@ -199,6 +199,7 @@ def run(
     processed_dir: Path,
     min_edge: float = MIN_PROP_EDGE,
     draws: int = 8_000,
+    recency_half_life: float | None = None,
 ) -> BacktestResult:
     result = BacktestResult(season=season, min_edge=min_edge)
     if prices.empty:
@@ -231,7 +232,11 @@ def run(
             continue
         if week not in books:
             books[week] = PlayerBook(
-                logs, per_play, before=f"{season}{week:02d}", draws=draws
+                logs,
+                per_play,
+                before=f"{season}{week:02d}",
+                draws=draws,
+                recency_half_life=recency_half_life,
             )
         book = books[week]
         first = frame.iloc[0]

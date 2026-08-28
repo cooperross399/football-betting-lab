@@ -226,10 +226,19 @@ def fit_ratings(games: pd.DataFrame, *, before: str) -> TeamRatings:
 
 @dataclass(frozen=True)
 class GameDistribution:
-    """The joint distribution of a game's two scores."""
+    """The joint distribution of a segment's two scores.
+
+    `resolves_ties` is what makes a full game a full game. A regulation tie
+    goes to overtime and is broken 95.2% of the time; **a half does not go to
+    overtime and a level half simply stands.** Measured over 1,087 games,
+    7.4% of first halves end level against 0.35% of full games — a factor of
+    twenty-one, and hardcoding the full-game rule made the half model price a
+    level half at 0.4%.
+    """
 
     home: dict[int, float]
     away: dict[int, float]
+    resolves_ties: bool = True
 
     def joint(self) -> dict[tuple[int, int], float]:
         return {
@@ -255,7 +264,7 @@ class GameDistribution:
                 away += p
             else:
                 level += p
-        if not resolve_overtime:
+        if not resolve_overtime or not self.resolves_ties:
             return {"home": home, "away": away, "draw": level}
         resolved = level * OVERTIME_RESOLUTION_RATE
         return {
@@ -316,5 +325,82 @@ def distribution_for(
         ),
         away=tilt_to_mean(
             pmf, ratings.expected_points(away_team, home_team, at_home=False)
+        ),
+    )
+
+
+# -- the first half ----------------------------------------------------------
+#
+# The half and quarter markets are wired, settleable and, until now, priced by
+# nothing — every row of them lands in `no_opinion`. The retention probe found
+# them retained on 20 of 20 events across eight or nine books, so they are also
+# measurable, which is why they are worth a model rather than a shrug.
+
+
+#: The share of a game's points scored in the first half, measured over the
+#: cached seasons rather than assumed to be a half. Football is not
+#: time-symmetric: clock management, two-minute drills and trailing teams
+#: throwing all push scoring later.
+def half_share(full_mean: float, half_mean: float) -> float:
+    return half_mean / full_mean if full_mean else 0.5
+
+
+@dataclass(frozen=True)
+class HalfModel:
+    """First-half scoring, built from the same device as the full game.
+
+    The shape comes from the empirical distribution of first-half team scores
+    and only the mean is fitted — the same exponential tilting the full-game
+    model uses, and for the same reason: first-half scores are lumpier than
+    full-game ones, not smoother, because there are fewer scoring events to
+    average over. A normal fitted to a mean of eleven would price a 0-0 half
+    as impossible and a 3 as ordinary, and both are wrong.
+
+    The mean is the side's full-game expectation scaled by the league's
+    first-half share. That is deliberately the crudest thing that could work:
+    it assumes every team splits its scoring the same way. Whether that is
+    good enough is a question for the priced test, not for this docstring.
+    """
+
+    pmf: dict[int, float]
+    share: float
+    home_advantage_share: float
+
+    def distribution(
+        self, ratings: TeamRatings, *, home_team: str, away_team: str
+    ) -> GameDistribution:
+        home_full = ratings.expected_points(home_team, away_team, at_home=True)
+        away_full = ratings.expected_points(away_team, home_team, at_home=False)
+        return GameDistribution(
+            home=tilt_to_mean(self.pmf, max(home_full * self.share, 0.5)),
+            away=tilt_to_mean(self.pmf, max(away_full * self.share, 0.5)),
+            # No overtime at half time. A level half stands, and it happens
+            # 7.4% of the time.
+            resolves_ties=False,
+        )
+
+
+def fit_half_model(halves: pd.DataFrame, games: pd.DataFrame) -> HalfModel | None:
+    """Fit the first-half share and shape from the cached half-time scores."""
+    if halves.empty or games.empty:
+        return None
+    merged = halves.merge(
+        games[["game_id", "home_score", "away_score"]], on="game_id", how="inner"
+    ).dropna()
+    if merged.empty:
+        return None
+    half_mean = float(
+        (merged["home_h1"].sum() + merged["away_h1"].sum()) / (2 * len(merged))
+    )
+    full_mean = float(
+        (merged["home_score"].sum() + merged["away_score"].sum()) / (2 * len(merged))
+    )
+    return HalfModel(
+        pmf=empirical_pmf(
+            list(merged["home_h1"].astype(int)) + list(merged["away_h1"].astype(int))
+        ),
+        share=half_share(full_mean, half_mean),
+        home_advantage_share=float(
+            (merged["home_h1"] - merged["away_h1"]).mean()
         ),
     )

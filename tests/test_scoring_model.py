@@ -237,3 +237,57 @@ def test_the_two_sides_price_differently_when_the_ratings_differ() -> None:
     moneyline = distribution.moneyline()
 
     assert moneyline["home"] > moneyline["away"]
+
+
+# -- the first half ----------------------------------------------------------
+
+
+def test_a_half_does_not_resolve_ties_because_there_is_no_overtime() -> None:
+    """Measured over 1,087 games: 7.4% of first halves end level against
+    0.35% of full games. Hardcoding the full-game rule priced a level half at
+    0.4%, which is wrong by a factor of twenty."""
+    level = {20: 1.0}
+    full = GameDistribution(home=level, away=level, resolves_ties=True)
+    half = GameDistribution(home=level, away=level, resolves_ties=False)
+
+    assert full.moneyline()["draw"] == pytest.approx(1 - OVERTIME_RESOLUTION_RATE)
+    assert half.moneyline()["draw"] == pytest.approx(1.0)
+
+
+def test_a_half_still_conserves_probability() -> None:
+    half = GameDistribution(
+        home={10: 0.5, 14: 0.5}, away={10: 0.5, 7: 0.5}, resolves_ties=False
+    )
+
+    assert sum(half.moneyline().values()) == pytest.approx(1.0)
+
+
+def test_a_full_game_resolves_ties_by_default() -> None:
+    """The default must be the full-game rule: a segment is the special case,
+    and a distribution built without thinking about it should be a game."""
+    assert GameDistribution(home={20: 1.0}, away={20: 1.0}).resolves_ties
+
+
+def test_the_half_model_scales_the_full_game_expectation() -> None:
+    from football_betting_lab.models.scoring import HalfModel
+
+    model = HalfModel(
+        pmf=empirical_pmf([0, 3, 7, 10, 14, 17, 21]),
+        share=0.5,
+        home_advantage_share=1.5,
+    )
+    ratings = fit_ratings(
+        _games([("2025-09-07", "KC", "DEN", 30, 10)] * 6), before="2025-09-14"
+    )
+
+    distribution = model.distribution(ratings, home_team="KC", away_team="DEN")
+    home_mean = sum(x * p for x, p in distribution.home.items())
+    full_mean = ratings.expected_points("KC", "DEN", at_home=True)
+
+    assert home_mean == pytest.approx(full_mean * 0.5, rel=0.05)
+
+
+def test_the_half_model_declines_to_fit_on_nothing() -> None:
+    from football_betting_lab.models.scoring import fit_half_model
+
+    assert fit_half_model(pd.DataFrame(), pd.DataFrame()) is None

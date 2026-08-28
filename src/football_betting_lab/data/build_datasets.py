@@ -95,6 +95,7 @@ from football_betting_lab.season import game_date
 TEAM_GAMES_FILENAME = "team_games.csv"
 PLAYER_LOGS_FILENAME = "player_game_logs.csv"
 PLAY_YARDAGE_FILENAME = "play_yardage.json"
+HALF_SCORES_FILENAME = "half_scores.csv"
 
 #: A rebuild that loses more than this fraction of an existing table is
 #: refused. Rows, not existence: an empty fetch still produces a file.
@@ -108,6 +109,11 @@ PBP_COLUMNS = (
     "play_id",
     "season_type",
     "qtr",
+    "posteam",
+    "home_team",
+    "away_team",
+    "total_home_score",
+    "total_away_score",
     "complete_pass",
     "touchdown",
     "td_player_id",
@@ -381,6 +387,53 @@ def build_player_logs(
     )
 
 
+def build_half_scores(
+    league: League, raw_dir: Path, seasons: tuple[int, ...]
+) -> pd.DataFrame:
+    """Each game's score at half time, from play-by-play.
+
+    The half and quarter markets are wired and settleable and have had no
+    model, so every one of their rows lands in `no_opinion`. This is the table
+    a within-game model needs, and it is the only thing play-by-play can
+    supply that the weekly aggregates cannot.
+
+    Taken from the running score on the **last play of the second quarter**
+    rather than by summing scoring plays. The running totals are the league's
+    own arithmetic; re-deriving them from play descriptions would be a second
+    copy of a sum that already exists, and two copies of a sum is how they
+    start disagreeing.
+    """
+    frames: list[pd.DataFrame] = []
+    for season in seasons:
+        path = nflverse.feed_path(nflverse.FEEDS_BY_NAME["pbp"], league, raw_dir, season)
+        if not path.is_file():
+            continue
+        plays = pd.read_csv(
+            path, compression="gzip", usecols=list(PBP_COLUMNS), low_memory=False
+        )
+        plays = plays[(plays["season_type"] == "REG") & (plays["qtr"] <= 2)]
+        if plays.empty:
+            continue
+        last = plays.sort_values("play_id").groupby("game_id").tail(1)
+        frames.append(
+            pd.DataFrame(
+                {
+                    "game_id": last["game_id"],
+                    "season": season,
+                    "home_h1": pd.to_numeric(
+                        last["total_home_score"], errors="coerce"
+                    ),
+                    "away_h1": pd.to_numeric(
+                        last["total_away_score"], errors="coerce"
+                    ),
+                }
+            )
+        )
+    if not frames:
+        return pd.DataFrame(columns=["game_id", "season", "home_h1", "away_h1"])
+    return pd.concat(frames, ignore_index=True).dropna()
+
+
 def build_play_yardage(
     league: League, raw_dir: Path, seasons: tuple[int, ...]
 ) -> dict[str, dict[str, float]]:
@@ -460,6 +513,13 @@ def build(
         report.notes.append(
             "Per-play yardage distributions: "
             + ", ".join(f"{kind} ({len(pmf)} values)" for kind, pmf in yardage.items())
+        )
+
+    halves = build_half_scores(league, raw_dir, report.seasons)
+    if not halves.empty:
+        halves.to_csv(processed_dir / HALF_SCORES_FILENAME, index=False)
+        report.notes.append(
+            f"Half-time scores for {len(halves):,} games, from play-by-play."
         )
 
     logs = build_player_logs(league, raw_dir, report.seasons, report)
