@@ -34,8 +34,9 @@ Every session, in this order. These replace chat history as project memory.
    source cannot tell us, and its licence.
 4. `docs/credit_cost.md` — what this costs against a quota shared with the NHL
    lab, and the one unanswered question that moves the answer.
-5. `docs/build_order.md` — what is being built, in what order, and why.
-6. Latest `data/outputs/` reports, then PRs and Actions runs.
+5. `docs/project_status.md` — where the lab is and what to do next.
+6. `docs/build_order.md` — what was built, in what order, and why.
+7. Latest `data/outputs/` reports, then PRs and Actions runs.
 
 ## Current operating state
 
