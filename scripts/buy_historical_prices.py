@@ -53,13 +53,22 @@ from football_betting_lab.season import schedule_path
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--league", default=DEFAULT_LEAGUE_KEY)
-    parser.add_argument("--season", type=int, required=True)
+    parser.add_argument(
+        "--seasons",
+        type=int,
+        nargs="+",
+        required=True,
+        help="Seasons to buy. Never earlier than 2023 — historical props, "
+        "alternate lines and period markets exist only after 2023-05-03.",
+    )
     parser.add_argument("--tier", type=int, default=1)
     parser.add_argument(
-        "--lead-minutes",
+        "--leads",
         type=int,
-        default=CARD_TIME_LEAD_MINUTES,
-        help="Minutes before kickoff. 60 is card time; 5 is the close.",
+        nargs="+",
+        default=[CARD_TIME_LEAD_MINUTES],
+        help="Minutes before kickoff. 60 is card time; 5 is the close. Both "
+        "together give closing-line value on every historical bet.",
     )
     parser.add_argument("--credit-cap", type=int, default=0)
     parser.add_argument("--live", action="store_true")
@@ -74,24 +83,35 @@ def main(argv: list[str] | None = None) -> int:
     with path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
 
-    # Every regular-season game of the season, in schedule order. `count`
-    # equal to the season size means no sampling here — the van der Corput
-    # order inside the buyer is what makes a partial run representative.
-    targets = select_targets(rows, league, seasons=(args.season,), count=10_000)
-    if not targets:
-        print(f"No {args.season} events to buy.", file=sys.stderr)
+    per_event = HISTORICAL_MULTIPLIER * len(markets) + HISTORICAL_EVENTS_LIST_COST
+    jobs: list[tuple[int, int, list]] = []
+    for season in args.seasons:
+        # `count` equal to the season size means no sampling here — the
+        # stratified order inside the buyer is what makes a partial run
+        # representative.
+        targets = select_targets(rows, league, seasons=(season,), count=10_000)
+        if not targets:
+            print(f"No {season} events to buy; skipping.", file=sys.stderr)
+            continue
+        for lead in args.leads:
+            jobs.append((season, lead, targets))
+
+    if not jobs:
+        print("Nothing to buy.", file=sys.stderr)
         return 2
 
-    per_event = HISTORICAL_MULTIPLIER * len(markets) + HISTORICAL_EVENTS_LIST_COST
+    total_events = sum(len(targets) for _, _, targets in jobs)
     print(
-        f"{league.title} {args.season}: {len(targets)} events x {len(markets)} "
-        f"markets at T-{args.lead_minutes}min.\n"
-        f"At most **{len(targets) * per_event:,} credits** ({per_event:,} per "
-        f"event). The endpoint bills per market *returned*, and the retention "
+        f"{league.title}: {len(jobs)} season-snapshot(s), {total_events} "
+        f"events, {len(markets)} markets each.\n"
+        f"At most **{total_events * per_event:,} credits** ({per_event:,} per "
+        "event). The endpoint bills per market *returned*, and the retention "
         "probe measured actual spend at 79% of this bound, so expect nearer "
-        f"{int(len(targets) * per_event * 0.79):,}. The cap is enforced "
+        f"{int(total_events * per_event * 0.79):,}. The cap is enforced "
         "against the bound, so it cannot be breached."
     )
+    for season, lead, targets in jobs:
+        print(f"  {season} at T-{lead}min: {len(targets)} events")
     if not args.live:
         print("\nDry run: nothing was requested and no credit was spent.")
         return 0
@@ -101,48 +121,50 @@ def main(argv: list[str] | None = None) -> int:
 
     load_provider_env()
     cache_dir = RAW_DIR / league.data_dir_segment / CACHE_DIRNAME
-    try:
-        progress = buy_season(
-            OddsApiProvider(league),
-            league,
-            targets,
-            markets,
-            lead_minutes=args.lead_minutes,
-            credit_cap=args.credit_cap,
-            cache_dir=cache_dir,
-            season=args.season,
-        )
-    except ProviderError as exc:
-        print(redact(f"The purchase could not start: {exc}"), file=sys.stderr)
-        return 2
-
-    print()
-    print(progress.summary_line())
-    if progress.stopped_early:
-        print(f"\nStopped early: {progress.stopped_early}")
-        print(
-            "This is the expected way a capped run ends. Re-run to continue; "
-            "everything already bought is cached and costs nothing."
-        )
-    if progress.failures:
-        print(f"\n{len(progress.failures)} event(s) produced nothing:")
-        for failure in progress.failures[:20]:
-            print(f"  - {failure}")
+    provider = OddsApiProvider(league)
+    spent = 0
+    summaries: list[str] = []
+    for season, lead, targets in jobs:
+        remaining_cap = args.credit_cap - spent
+        if remaining_cap <= 0:
+            summaries.append(
+                f"{season} T-{lead}min: not started — the run's cap was "
+                "already spent. Re-run to continue; everything bought is "
+                "cached and costs nothing."
+            )
+            continue
+        print(f"\n--- {season} at T-{lead}min (cap left {remaining_cap:,}) ---")
+        try:
+            progress = buy_season(
+                provider, league, targets, markets,
+                lead_minutes=lead, credit_cap=remaining_cap,
+                cache_dir=cache_dir, season=season,
+            )
+        except ProviderError as exc:
+            print(redact(f"{season} T-{lead}min failed: {exc}"), file=sys.stderr)
+            summaries.append(f"{season} T-{lead}min: failed — {exc}")
+            continue
+        spent += progress.spend.credits_spent
+        print(progress.summary_line())
+        summaries.append(f"{season} T-{lead}min: {progress.summary_line()}")
+        if progress.failures:
+            print(f"  {len(progress.failures)} event(s) produced nothing.")
+        if progress.stopped_early:
+            print(f"  Stopped early: {progress.stopped_early}")
 
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
-    report = OUTPUTS_DIR / league.output_name(
-        f"historical_purchase_{args.season}_t{args.lead_minutes}", ".md"
-    )
+    report = OUTPUTS_DIR / league.output_name("historical_purchase", ".md")
     report.write_text(
-        f"# Historical purchase — {league.title} {args.season}, "
-        f"T-{args.lead_minutes}min\n\n"
-        f"{progress.summary_line()}\n\n"
-        f"Events are bought in an order whose every prefix is spread across "
-        f"the whole season, so this **{progress.fraction_done:.0%} is a sample "
-        "of the season rather than the first "
-        f"{progress.fraction_done:.0%} of it**.\n",
+        "# Historical purchase\n\n"
+        + f"{spent:,} credits spent across {len(jobs)} season-snapshot(s).\n\n"
+        + "Events are bought in an order whose every prefix is spread across "
+        "the season **and** holds each kickoff window at its true share, so a "
+        "run that stops early leaves a sample rather than a prefix.\n\n"
+        + "\n".join(f"- {line}" for line in summaries)
+        + "\n",
         encoding="utf-8",
     )
+    print(f"\nTotal: {spent:,} credits. Wrote {report}.")
     return 0
 
 

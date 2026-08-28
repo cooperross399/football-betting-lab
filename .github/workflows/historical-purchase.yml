@@ -15,18 +15,18 @@ name: Historical Purchase
 on:
   workflow_dispatch:
     inputs:
-      season:
-        description: "Season to buy"
+      seasons:
+        description: "Seasons to buy, space separated. Never before 2023."
         required: true
-        default: "2025"
-      lead_minutes:
-        description: "Minutes before kickoff. 60 = card time, 5 = the close."
+        default: "2023 2024 2025"
+      leads:
+        description: "Minutes before kickoff, space separated. 60 = card time, 5 = the close."
         required: true
-        default: "60"
+        default: "60 5"
       credit_cap:
         description: "Hard cap for THIS run. Enforced before every request."
         required: true
-        default: "70000"
+        default: "800000"
       tier:
         description: "Market tier"
         required: true
@@ -59,7 +59,7 @@ jobs:
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: historical-prices-${{ inputs.season }}-t${{ inputs.lead_minutes }}
+          name: historical-prices
           path: data/raw/nfl/historical_prices
 
       - name: Refuse to start without the credits this run intends to spend
@@ -81,9 +81,9 @@ jobs:
           PYTHONPATH: src
         run: |
           python scripts/buy_historical_prices.py \
-            --season "${{ inputs.season }}" \
+            --seasons ${{ inputs.seasons }} \
             --tier "${{ inputs.tier }}" \
-            --lead-minutes "${{ inputs.lead_minutes }}" \
+            --leads ${{ inputs.leads }} \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Buy
@@ -93,9 +93,9 @@ jobs:
         run: |
           python scripts/buy_historical_prices.py \
             --live \
-            --season "${{ inputs.season }}" \
+            --seasons ${{ inputs.seasons }} \
             --tier "${{ inputs.tier }}" \
-            --lead-minutes "${{ inputs.lead_minutes }}" \
+            --leads ${{ inputs.leads }} \
             --credit-cap "${{ inputs.credit_cap }}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -112,7 +112,7 @@ jobs:
         with:
           # Bought evidence. Historical prices never change, so this is a
           # permanent record and every later run resumes from it.
-          name: historical-prices-${{ inputs.season }}-t${{ inputs.lead_minutes }}
+          name: historical-prices
           path: data/raw/nfl/historical_prices
           if-no-files-found: warn
           retention-days: 90
