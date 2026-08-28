@@ -183,21 +183,31 @@ jobs:
           # here can ever reach the branch. A `git add -A` on a working tree
           # that holds a staged price file and a .env is how a credential
           # reaches a public ref.
-          TREE_INPUT=$(mktemp)
+          # `git mktree` builds ONE flat level and refuses a path containing a
+          # slash, so the snapshots directory is built as its own tree object
+          # and referenced from the root. Flattening the names instead would
+          # have worked and would have made the feed a heap of files.
+          ROOT_INPUT=$(mktemp)
+          SNAP_INPUT=$(mktemp)
+          blob() { git hash-object -w "$1"; }
           add() {
             [ -f "$2" ] || return 0
-            printf '100644 blob %s\t%s\n' "$(git hash-object -w "$2")" "$1" >> "$TREE_INPUT"
+            printf '100644 blob %s\t%s\n' "$(blob "$2")" "$1" >> "$3"
           }
           printf '{\n  "slate_date": "%s",\n  "decision": "%s",\n  "run": "%s"\n}\n' \
             "$DAY" "$DECISION" "${{ github.run_id }}" > latest_status.json
-          add latest_status.json latest_status.json
-          add card.md data/outputs/nfl_gameday_card.md
-          add forward_evidence.csv data/processed/forward_evidence.csv
+          add latest_status.json latest_status.json "$ROOT_INPUT"
+          add card.md data/outputs/nfl_gameday_card.md "$ROOT_INPUT"
+          add forward_evidence.csv data/processed/forward_evidence.csv "$ROOT_INPUT"
           for snapshot in data/archive/priced_snapshots/*.csv; do
             [ -f "$snapshot" ] || continue
-            add "snapshots/$(basename "$snapshot")" "$snapshot"
+            add "$(basename "$snapshot")" "$snapshot" "$SNAP_INPUT"
           done
-          TREE=$(git mktree < "$TREE_INPUT")
+          if [ -s "$SNAP_INPUT" ]; then
+            SNAP_TREE=$(git mktree < "$SNAP_INPUT")
+            printf '040000 tree %s\tsnapshots\n' "$SNAP_TREE" >> "$ROOT_INPUT"
+          fi
+          TREE=$(git mktree < "$ROOT_INPUT")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
