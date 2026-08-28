@@ -1,0 +1,680 @@
+{
+  "away_team": "Seattle Seahawks",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2025-09-14T15:55:12Z",
+      "markets": [
+        {
+          "key": "player_field_goals_alternate",
+          "last_update": "2025-09-14T15:56:02Z",
+          "outcomes": [
+            {
+              "description": "Chris Boswell",
+              "name": "Over",
+              "point": 0.5,
+              "price": -650
+            },
+            {
+              "description": "Chris Boswell",
+              "name": "Over",
+              "point": 1.5,
+              "price": -146
+            },
+            {
+              "description": "Chris Boswell",
+              "name": "Over",
+              "point": 2.5,
+              "price": 206
+            },
+            {
+              "description": "Chris Boswell",
+              "name": "Over",
+              "point": 3.5,
+              "price": 548
+            },
+            {
+              "description": "Jason Myers",
+              "name": "Over",
+              "point": 0.5,
+              "price": -450
+            },
+            {
+              "description": "Jason Myers",
+              "name": "Over",
+              "point": 1.5,
+              "price": -106
+            },
+            {
+              "description": "Jason Myers",
+              "name": "Over",
+              "point": 2.5,
+              "price": 283
+            },
+            {
+              "description": "Jason Myers",
+              "name": "Over",
+              "point": 3.5,
+              "price": 780
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-14T15:56:02Z",
+          "outcomes": [
+            {
+              "description": "Alex Highsmith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 116
+            },
+            {
+              "description": "Alex Highsmith",
+              "name": "Over",
+              "point": 1.5,
+              "price": 650
+            },
+            {
+              "description": "Byron Murphy II",
+              "name": "Over",
+              "point": 0.5,
+              "price": 216
+            },
+            {
+              "description": "Byron Murphy II",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1500
+            },
+            {
+              "description": "Cameron Heyward",
+              "name": "Over",
+              "point": 0.5,
+              "price": 199
+            },
+            {
+              "description": "Cameron Heyward",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1300
+            },
+            {
+              "description": "DeMarcus Lawrence",
+              "name": "Over",
+              "point": 0.5,
+              "price": 255
+            },
+            {
+              "description": "DeMarcus Lawrence",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1740
+            },
+            {
+              "description": "Leonard Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": 115
+            },
+            {
+              "description": "Leonard Williams",
+              "name": "Over",
+              "point": 1.5,
+              "price": 630
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 0.5,
+              "price": -114
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 1.5,
+              "price": 450
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 2.5,
+              "price": 1800
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2025-09-14T15:55:12Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-14T15:56:11Z",
+          "outcomes": [
+            {
+              "description": "Payton Wilson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Payton Wilson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 546
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 0.5,
+              "price": -101
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 1.5,
+              "price": 250
+            },
+            {
+              "description": "DeMarcus Lawrence",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "DeMarcus Lawrence",
+              "name": "Over",
+              "point": 0.5,
+              "price": 220
+            },
+            {
+              "description": "Leonard Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": -108
+            },
+            {
+              "description": "Leonard Williams",
+              "name": "Over",
+              "point": 1.5,
+              "price": 250
+            },
+            {
+              "description": "Ernest Jones",
+              "name": "Over",
+              "point": 0.5,
+              "price": 435
+            },
+            {
+              "description": "Ernest Jones",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Patrick Queen",
+              "name": "Over",
+              "point": 0.5,
+              "price": 484
+            },
+            {
+              "description": "Patrick Queen",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Boye Mafe",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Boye Mafe",
+              "name": "Over",
+              "point": 0.5,
+              "price": 199
+            },
+            {
+              "description": "Alex Highsmith",
+              "name": "Over",
+              "point": 1.5,
+              "price": 700
+            },
+            {
+              "description": "Alex Highsmith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 124
+            },
+            {
+              "description": "Jarran Reed",
+              "name": "Over",
+              "point": 0.5,
+              "price": 239
+            },
+            {
+              "description": "Jarran Reed",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Derick Hall",
+              "name": "Over",
+              "point": 0.5,
+              "price": 484
+            },
+            {
+              "description": "Derick Hall",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Keeanu Benton",
+              "name": "Over",
+              "point": 0.5,
+              "price": 347
+            },
+            {
+              "description": "Keeanu Benton",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Byron Murphy II",
+              "name": "Over",
+              "point": 0.5,
+              "price": 246
+            },
+            {
+              "description": "Byron Murphy II",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Cameron Heyward",
+              "name": "Over",
+              "point": 0.5,
+              "price": 220
+            },
+            {
+              "description": "Cameron Heyward",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2025-09-14T15:55:12Z",
+      "markets": [
+        {
+          "key": "player_reception_longest_alternate",
+          "last_update": "2025-09-14T15:56:06Z",
+          "outcomes": [
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 29.5,
+              "price": 135
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 29.5,
+              "price": 175
+            },
+            {
+              "description": "Calvin Austin III",
+              "name": "Over",
+              "point": 29.5,
+              "price": 300
+            },
+            {
+              "description": "Cooper Kupp",
+              "name": "Over",
+              "point": 29.5,
+              "price": 480
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 19.5,
+              "price": -260
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 19.5,
+              "price": -220
+            },
+            {
+              "description": "Calvin Austin III",
+              "name": "Over",
+              "point": 19.5,
+              "price": -105
+            },
+            {
+              "description": "Cooper Kupp",
+              "name": "Over",
+              "point": 19.5,
+              "price": 150
+            },
+            {
+              "description": "Jonnu Smith",
+              "name": "Over",
+              "point": 19.5,
+              "price": 250
+            },
+            {
+              "description": "Pat Freiermuth",
+              "name": "Over",
+              "point": 19.5,
+              "price": 290
+            },
+            {
+              "description": "AJ Barner",
+              "name": "Over",
+              "point": 19.5,
+              "price": 340
+            },
+            {
+              "description": "Jaylen Warren",
+              "name": "Over",
+              "point": 19.5,
+              "price": 390
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 14.5,
+              "price": -700
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 14.5,
+              "price": -650
+            },
+            {
+              "description": "Calvin Austin III",
+              "name": "Over",
+              "point": 14.5,
+              "price": -230
+            },
+            {
+              "description": "Cooper Kupp",
+              "name": "Over",
+              "point": 14.5,
+              "price": -155
+            },
+            {
+              "description": "Jonnu Smith",
+              "name": "Over",
+              "point": 14.5,
+              "price": -110
+            },
+            {
+              "description": "Pat Freiermuth",
+              "name": "Over",
+              "point": 14.5,
+              "price": 110
+            },
+            {
+              "description": "AJ Barner",
+              "name": "Over",
+              "point": 14.5,
+              "price": 150
+            },
+            {
+              "description": "Jaylen Warren",
+              "name": "Over",
+              "point": 14.5,
+              "price": 200
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 14.5,
+              "price": 280
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 9.5,
+              "price": -4000
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 9.5,
+              "price": -4000
+            },
+            {
+              "description": "Calvin Austin III",
+              "name": "Over",
+              "point": 9.5,
+              "price": -650
+            },
+            {
+              "description": "Cooper Kupp",
+              "name": "Over",
+              "point": 9.5,
+              "price": -450
+            },
+            {
+              "description": "Jonnu Smith",
+              "name": "Over",
+              "point": 9.5,
+              "price": -370
+            },
+            {
+              "description": "Pat Freiermuth",
+              "name": "Over",
+              "point": 9.5,
+              "price": -270
+            },
+            {
+              "description": "AJ Barner",
+              "name": "Over",
+              "point": 9.5,
+              "price": -190
+            },
+            {
+              "description": "Jaylen Warren",
+              "name": "Over",
+              "point": 9.5,
+              "price": -120
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 9.5,
+              "price": -105
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betrivers",
+      "last_update": "2025-09-14T15:53:54Z",
+      "markets": [
+        {
+          "key": "player_defensive_interceptions_alternate",
+          "last_update": "2025-09-14T15:56:17Z",
+          "outcomes": [
+            {
+              "description": "Julian Love",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Josh Jobe",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Darius Slay",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Payton Wilson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1050
+            },
+            {
+              "description": "Juan Thornhill",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Riq Woolen",
+              "name": "Over",
+              "point": 0.5,
+              "price": 540
+            },
+            {
+              "description": "Jalen Ramsey",
+              "name": "Over",
+              "point": 0.5,
+              "price": 510
+            },
+            {
+              "description": "Coby Bryant",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Julian Love",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Josh Jobe",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Darius Slay",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Payton Wilson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1050
+            },
+            {
+              "description": "Juan Thornhill",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Riq Woolen",
+              "name": "Over",
+              "point": 0.5,
+              "price": 540
+            },
+            {
+              "description": "Jalen Ramsey",
+              "name": "Over",
+              "point": 0.5,
+              "price": 510
+            },
+            {
+              "description": "Coby Bryant",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-14T15:56:17Z",
+          "outcomes": [
+            {
+              "description": "Cameron Heyward",
+              "name": "Over",
+              "point": 0.5,
+              "price": 155
+            },
+            {
+              "description": "T.J. Watt",
+              "name": "Over",
+              "point": 0.5,
+              "price": -125
+            },
+            {
+              "description": "Jarran Reed",
+              "name": "Over",
+              "point": 0.5,
+              "price": 170
+            },
+            {
+              "description": "Keeanu Benton",
+              "name": "Over",
+              "point": 0.5,
+              "price": 340
+            },
+            {
+              "description": "Boye Mafe",
+              "name": "Over",
+              "point": 0.5,
+              "price": 160
+            },
+            {
+              "description": "Alex Highsmith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 105
+            },
+            {
+              "description": "Leonard Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": -118
+            },
+            {
+              "description": "Byron Murphy II",
+              "name": "Over",
+              "point": 0.5,
+              "price": 170
+            }
+          ]
+        }
+      ],
+      "title": "BetRivers"
+    }
+  ],
+  "commence_time": "2025-09-14T17:01:00Z",
+  "home_team": "Pittsburgh Steelers",
+  "id": "82f9fd7001598d5cf9c1bdd57c66cae4",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

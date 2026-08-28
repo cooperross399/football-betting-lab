@@ -1,0 +1,660 @@
+{
+  "away_team": "Cleveland Browns",
+  "bookmakers": [
+    {
+      "key": "betonlineag",
+      "last_update": "2025-01-04T20:25:16Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-01-04T20:26:03Z",
+          "outcomes": [
+            {
+              "description": "Kyle Van Noy",
+              "name": "Over",
+              "point": 0.5,
+              "price": -222
+            },
+            {
+              "description": "Kyle Van Noy",
+              "name": "Over",
+              "point": 1.5,
+              "price": 250
+            },
+            {
+              "description": "Odafe Oweh",
+              "name": "Over",
+              "point": 0.5,
+              "price": 120
+            },
+            {
+              "description": "Odafe Oweh",
+              "name": "Over",
+              "point": 1.5,
+              "price": 600
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 350
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Isaiah McGuire",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Isaiah McGuire",
+              "name": "Over",
+              "point": 0.5,
+              "price": 400
+            },
+            {
+              "description": "Myles Garrett",
+              "name": "Over",
+              "point": 1.5,
+              "price": 400
+            },
+            {
+              "description": "Myles Garrett",
+              "name": "Over",
+              "point": 0.5,
+              "price": 100
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "williamhill_us",
+      "last_update": "2025-01-04T20:24:09Z",
+      "markets": [
+        {
+          "key": "player_defensive_interceptions_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 0.5,
+              "price": 450
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 550
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 0.5,
+              "price": 450
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 0.5,
+              "price": 410
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 0.5,
+              "price": 350
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 0.5,
+              "price": 600
+            },
+            {
+              "description": "Juan Thornhill",
+              "name": "Over",
+              "point": 0.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_field_goals_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 1.5,
+              "price": -170
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 2.5,
+              "price": 220
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 3.5,
+              "price": 750
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 0.5,
+              "price": -295
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 1.5,
+              "price": 200
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_kicking_points_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 9.5,
+              "price": 1000
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 1.5,
+              "price": -540
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 3.5,
+              "price": -150
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 5.5,
+              "price": 180
+            },
+            {
+              "description": "Dustin Hopkins",
+              "name": "Over",
+              "point": 7.5,
+              "price": 500
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 9.5,
+              "price": 115
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 11.5,
+              "price": 280
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 13.5,
+              "price": 625
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 5.5,
+              "price": -1100
+            },
+            {
+              "description": "Justin Tucker",
+              "name": "Over",
+              "point": 7.5,
+              "price": -235
+            }
+          ]
+        },
+        {
+          "key": "player_reception_longest_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Isaiah Likely",
+              "name": "Over",
+              "point": 19.5,
+              "price": 195
+            },
+            {
+              "description": "Isaiah Likely",
+              "name": "Over",
+              "point": 29.5,
+              "price": 600
+            },
+            {
+              "description": "Zay Flowers",
+              "name": "Over",
+              "point": 19.5,
+              "price": -250
+            },
+            {
+              "description": "Zay Flowers",
+              "name": "Over",
+              "point": 29.5,
+              "price": 145
+            },
+            {
+              "description": "Zay Flowers",
+              "name": "Over",
+              "point": 39.5,
+              "price": 370
+            },
+            {
+              "description": "Zay Flowers",
+              "name": "Over",
+              "point": 49.5,
+              "price": 750
+            },
+            {
+              "description": "Jordan Akins",
+              "name": "Over",
+              "point": 19.5,
+              "price": 240
+            },
+            {
+              "description": "Jordan Akins",
+              "name": "Over",
+              "point": 29.5,
+              "price": 800
+            },
+            {
+              "description": "Jerry Jeudy",
+              "name": "Over",
+              "point": 19.5,
+              "price": -145
+            },
+            {
+              "description": "Jerry Jeudy",
+              "name": "Over",
+              "point": 29.5,
+              "price": 260
+            },
+            {
+              "description": "Jerry Jeudy",
+              "name": "Over",
+              "point": 39.5,
+              "price": 575
+            },
+            {
+              "description": "Derrick Henry",
+              "name": "Over",
+              "point": 19.5,
+              "price": 525
+            },
+            {
+              "description": "Elijah Moore",
+              "name": "Over",
+              "point": 19.5,
+              "price": 205
+            },
+            {
+              "description": "Elijah Moore",
+              "name": "Over",
+              "point": 29.5,
+              "price": 575
+            },
+            {
+              "description": "D'Onta Foreman",
+              "name": "Over",
+              "point": 19.5,
+              "price": 420
+            },
+            {
+              "description": "Rashod Bateman",
+              "name": "Over",
+              "point": 19.5,
+              "price": 104
+            },
+            {
+              "description": "Rashod Bateman",
+              "name": "Over",
+              "point": 29.5,
+              "price": 290
+            },
+            {
+              "description": "Rashod Bateman",
+              "name": "Over",
+              "point": 39.5,
+              "price": 625
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Justin Madubuike",
+              "name": "Over",
+              "point": 0.5,
+              "price": 140
+            },
+            {
+              "description": "Justin Madubuike",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1000
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 330
+            },
+            {
+              "description": "Kyle Van Noy",
+              "name": "Over",
+              "point": 0.5,
+              "price": -155
+            },
+            {
+              "description": "Kyle Van Noy",
+              "name": "Over",
+              "point": 1.5,
+              "price": 400
+            },
+            {
+              "description": "Myles Garrett",
+              "name": "Over",
+              "point": 0.5,
+              "price": -105
+            },
+            {
+              "description": "Myles Garrett",
+              "name": "Over",
+              "point": 1.5,
+              "price": 750
+            },
+            {
+              "description": "Odafe Oweh",
+              "name": "Over",
+              "point": 0.5,
+              "price": 106
+            },
+            {
+              "description": "Odafe Oweh",
+              "name": "Over",
+              "point": 1.5,
+              "price": 675
+            }
+          ]
+        },
+        {
+          "key": "player_tackles_assists_alternate",
+          "last_update": "2025-01-04T20:24:53Z",
+          "outcomes": [
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 3.5,
+              "price": -470
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 4.5,
+              "price": -185
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 5.5,
+              "price": 107
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 6.5,
+              "price": 200
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 7.5,
+              "price": 380
+            },
+            {
+              "description": "Kyle Hamilton",
+              "name": "Over",
+              "point": 8.5,
+              "price": 650
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 2.5,
+              "price": -500
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 3.5,
+              "price": -170
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 4.5,
+              "price": 135
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 5.5,
+              "price": 280
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 6.5,
+              "price": 525
+            },
+            {
+              "description": "Marlon Humphrey",
+              "name": "Over",
+              "point": 7.5,
+              "price": 1000
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 9.5,
+              "price": 285
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 10.5,
+              "price": 480
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 11.5,
+              "price": 800
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 5.5,
+              "price": -430
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 6.5,
+              "price": -205
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 7.5,
+              "price": -108
+            },
+            {
+              "description": "Grant Delpit",
+              "name": "Over",
+              "point": 8.5,
+              "price": 165
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 2.5,
+              "price": -355
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 3.5,
+              "price": -126
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 4.5,
+              "price": 180
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 5.5,
+              "price": 375
+            },
+            {
+              "description": "Brandon Stephens",
+              "name": "Over",
+              "point": 6.5,
+              "price": 750
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 2.5,
+              "price": -550
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 3.5,
+              "price": -185
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 4.5,
+              "price": 122
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 5.5,
+              "price": 250
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 6.5,
+              "price": 470
+            },
+            {
+              "description": "Ar'Darius Washington",
+              "name": "Over",
+              "point": 7.5,
+              "price": 850
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 9.5,
+              "price": -103
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 10.5,
+              "price": 155
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 11.5,
+              "price": 255
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 12.5,
+              "price": 400
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 13.5,
+              "price": 625
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 14.5,
+              "price": 950
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 6.5,
+              "price": -650
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 7.5,
+              "price": -310
+            },
+            {
+              "description": "Roquan Smith",
+              "name": "Over",
+              "point": 8.5,
+              "price": -175
+            }
+          ]
+        }
+      ],
+      "title": "Caesars"
+    }
+  ],
+  "commence_time": "2025-01-04T21:30:00Z",
+  "home_team": "Baltimore Ravens",
+  "id": "15a56f0e44d8fdb660a6a0aed2449e4b",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

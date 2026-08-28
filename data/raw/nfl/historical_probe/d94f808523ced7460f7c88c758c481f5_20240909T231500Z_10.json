@@ -1,0 +1,1080 @@
+{
+  "away_team": "New York Jets",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2024-09-09T23:09:48Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-09T23:10:11Z",
+          "outcomes": [
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 24.5,
+              "price": 130
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 39.5,
+              "price": 360
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 49.5,
+              "price": 600
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1100
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -165
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 39.5,
+              "price": 165
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 290
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 800
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -3000
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -600
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -295
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 59.5,
+              "price": -170
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 69.5,
+              "price": -110
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 140
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 210
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 300
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 425
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 119.5,
+              "price": 600
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 24.5,
+              "price": -140
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 39.5,
+              "price": 190
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 49.5,
+              "price": 330
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 59.5,
+              "price": 550
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 69.5,
+              "price": 900
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 180
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 49.5,
+              "price": 310
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 69.5,
+              "price": 850
+            },
+            {
+              "description": "Xavier Gipson",
+              "name": "Over",
+              "point": 24.5,
+              "price": 285
+            },
+            {
+              "description": "Xavier Gipson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 750
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 9.5,
+              "price": -750
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 9.5,
+              "price": 500
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 18.5,
+              "price": -255
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 18.5,
+              "price": 200
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 23.5,
+              "price": -170
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 23.5,
+              "price": 135
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 35.5,
+              "price": 135
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 35.5,
+              "price": -170
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 42.5,
+              "price": 200
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 42.5,
+              "price": -260
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 58.5,
+              "price": 500
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 58.5,
+              "price": -700
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 37.5,
+              "price": -700
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 37.5,
+              "price": 500
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 51.5,
+              "price": -260
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 51.5,
+              "price": 200
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 59.5,
+              "price": -170
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 59.5,
+              "price": 135
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 78.5,
+              "price": 135
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 78.5,
+              "price": -170
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 88.5,
+              "price": 205
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 88.5,
+              "price": -265
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 111.5,
+              "price": 475
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Under",
+              "point": 111.5,
+              "price": -700
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 9.5,
+              "price": -700
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 9.5,
+              "price": 475
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 17.5,
+              "price": -270
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 17.5,
+              "price": 210
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 22.5,
+              "price": -170
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 22.5,
+              "price": 135
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 34.5,
+              "price": 135
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 34.5,
+              "price": -170
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 41.5,
+              "price": 205
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 41.5,
+              "price": -265
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 57.5,
+              "price": 500
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Under",
+              "point": 57.5,
+              "price": -700
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-09T23:10:11Z",
+          "outcomes": [
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -3500
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 39.5,
+              "price": -525
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 49.5,
+              "price": -255
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 59.5,
+              "price": -140
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 115
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 200
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 89.5,
+              "price": 285
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 109.5,
+              "price": 700
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1000
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 37.5,
+              "price": -700
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 37.5,
+              "price": 475
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 48.5,
+              "price": -270
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 48.5,
+              "price": 210
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 56.5,
+              "price": -165
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 56.5,
+              "price": 130
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 71.5,
+              "price": 130
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 71.5,
+              "price": -165
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 80.5,
+              "price": 210
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 80.5,
+              "price": -270
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 99.5,
+              "price": 475
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Under",
+              "point": 99.5,
+              "price": -700
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2024-09-09T23:10:28Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-09-09T23:10:20Z",
+          "outcomes": [
+            {
+              "description": "Aaron Rodgers",
+              "name": "Over",
+              "point": 0.5,
+              "price": -460
+            },
+            {
+              "description": "Aaron Rodgers",
+              "name": "Over",
+              "point": 1.5,
+              "price": 116
+            },
+            {
+              "description": "Aaron Rodgers",
+              "name": "Over",
+              "point": 2.5,
+              "price": 460
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-09T23:10:20Z",
+          "outcomes": [
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -144
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 39.5,
+              "price": 180
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 59.5,
+              "price": 490
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 820
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1500
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 24.5,
+              "price": -152
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 172
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 59.5,
+              "price": 490
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 69.5,
+              "price": 820
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1500
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 24.5,
+              "price": 136
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 39.5,
+              "price": 285
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 49.5,
+              "price": 440
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 59.5,
+              "price": 680
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 69.5,
+              "price": 920
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1260
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1600
+            },
+            {
+              "description": "Xavier Gipson",
+              "name": "Over",
+              "point": 24.5,
+              "price": 320
+            },
+            {
+              "description": "Xavier Gipson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 880
+            },
+            {
+              "description": "Xavier Gipson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1300
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1500
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -420
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -245
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 59.5,
+              "price": -158
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 69.5,
+              "price": -104
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 142
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 205
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 270
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 390
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 124.5,
+              "price": 630
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1200
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-09-09T23:10:20Z",
+          "outcomes": [
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1450
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 1.5,
+              "price": -260
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 2.5,
+              "price": 106
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 3.5,
+              "price": 235
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 4.5,
+              "price": 450
+            },
+            {
+              "description": "Mike Williams",
+              "name": "Over",
+              "point": 5.5,
+              "price": 850
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 1.5,
+              "price": -600
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 2.5,
+              "price": -225
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 3.5,
+              "price": 104
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 4.5,
+              "price": 220
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 5.5,
+              "price": 390
+            },
+            {
+              "description": "Tyler Conklin",
+              "name": "Over",
+              "point": 6.5,
+              "price": 640
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 0.5,
+              "price": -650
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 1.5,
+              "price": -144
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 2.5,
+              "price": 198
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 3.5,
+              "price": 430
+            },
+            {
+              "description": "Allen Lazard",
+              "name": "Over",
+              "point": 4.5,
+              "price": 850
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 3.5,
+              "price": -700
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 4.5,
+              "price": -320
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 5.5,
+              "price": -166
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 6.5,
+              "price": 110
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 7.5,
+              "price": 188
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 8.5,
+              "price": 290
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 9.5,
+              "price": 450
+            },
+            {
+              "description": "Garrett Wilson",
+              "name": "Over",
+              "point": 10.5,
+              "price": 640
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1400
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 2.5,
+              "price": -400
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 3.5,
+              "price": -180
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 4.5,
+              "price": 110
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 5.5,
+              "price": 188
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 6.5,
+              "price": 310
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 7.5,
+              "price": 490
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 8.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-09T23:10:20Z",
+          "outcomes": [
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 39.5,
+              "price": -480
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 49.5,
+              "price": -245
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 59.5,
+              "price": -142
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 116
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 176
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 89.5,
+              "price": 265
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 99.5,
+              "price": 410
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 109.5,
+              "price": 610
+            },
+            {
+              "description": "Breece Hall",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1120
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    }
+  ],
+  "commence_time": "2024-09-10T00:20:00Z",
+  "home_team": "San Francisco 49ers",
+  "id": "d94f808523ced7460f7c88c758c481f5",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

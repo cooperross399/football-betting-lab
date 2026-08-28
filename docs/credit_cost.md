@@ -85,22 +85,39 @@ calibration plus forward evidence.** That reverses the earlier conclusion.
 Forward evidence is still built first and still cannot be back-dated; it is
 simply no longer the only priced evidence this lab will ever have.
 
-### What to buy is not obvious, and should not be guessed
+### What to buy — now informed by the probe rather than guessed
 
 Retention differs by market and by book, and the NHL lab discovered that the
 hard way twice — `player_hits` returned zero rows from every book across 256
 probed events, and the regulation three-way was retained by nobody. Spending
-125,120 credits to find that out about football would be an expensive way to
-learn something a probe answers for a fraction of it.
+125,120 credits to find that out about football would have been an expensive
+way to learn something the probe answered for 7,280.
 
-So the proposal is two steps, and the first is small:
+What it found changes the sizing in one useful direction: because the
+endpoint bills per market **returned**, the pessimistic 125,120 for a full
+tier-1 season is an overestimate by roughly the same 21% the probe observed.
+A full season of tier-1 markets at one snapshot should land nearer
+**99,000 credits** — still about a month, and now a measured figure rather
+than a bound. The two thin markets add almost nothing to that either way.
 
-1. **A retention probe**: roughly 20 past events spread across the 2024 and
-   2025 seasons, tier-1 markets, one snapshot each.
-   `20 x 46 x 10 = 9,200 credits` — under a tenth of one month. It answers,
-   per market and per book, whether any historical price exists at all.
-2. **The purchase**, sized from what step 1 finds, and re-costed before it is
-   spent.
+So the proposal was two steps, and the first is now done.
+
+**Step 1 — the retention probe, run 2026-08-28.** 20 events, stratified across
+kickoff windows, split evenly between 2024 and 2025, 46 provider keys each, at
+a snapshot 60 minutes before kickoff.
+
+* **Cost: 7,280 credits** against a pessimistic bound of 9,220. The 21%
+  shortfall is not slack — the endpoint bills per market *returned*, so it is
+  exactly the keys no book retained.
+* **The documented 10x historical rate is confirmed by measurement**: 7,260
+  credits over 696 market-events, plus 20 slate listings — about 10.4 per
+  market returned. Nothing in this repository assumes the rate any more.
+* **All 27 tier-1 markets have historical prices; 25 have enough to measure
+  against.** Nine books. `data/outputs/nfl_retention_probe.md`.
+* Quota after the probe: **79,659 remaining of this month's 100,000.**
+
+**Step 2 — the purchase**, now sizeable with real numbers rather than a
+pessimistic bound. See "What to buy" below.
 
 Both are credit spends and therefore Cooper's decision. Nothing is bought
 without the number agreed first.

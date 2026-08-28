@@ -1,0 +1,2682 @@
+{
+  "away_team": "Arizona Cardinals",
+  "bookmakers": [
+    {
+      "key": "fanduel",
+      "last_update": "2024-09-08T15:54:40Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-09-08T15:55:15Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 0.5,
+              "price": -410
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 126
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 2.5,
+              "price": 480
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1000
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 1.5,
+              "price": -150
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 2.5,
+              "price": 280
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1060
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-08T15:55:15Z",
+          "outcomes": [
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 24.5,
+              "price": -180
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 39.5,
+              "price": 130
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 49.5,
+              "price": 205
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 59.5,
+              "price": 310
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 69.5,
+              "price": 440
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 79.5,
+              "price": 630
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 89.5,
+              "price": 920
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1260
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1600
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 24.5,
+              "price": -108
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 39.5,
+              "price": 235
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 49.5,
+              "price": 390
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 59.5,
+              "price": 610
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 69.5,
+              "price": 980
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 24.5,
+              "price": 330
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 39.5,
+              "price": 980
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1600
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 24.5,
+              "price": -355
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 39.5,
+              "price": -150
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 49.5,
+              "price": 110
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 59.5,
+              "price": 164
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 69.5,
+              "price": 240
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 79.5,
+              "price": 340
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 89.5,
+              "price": 490
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 99.5,
+              "price": 710
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 109.5,
+              "price": 980
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1400
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 24.5,
+              "price": -520
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 39.5,
+              "price": -178
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -105
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": 152
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": 240
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 370
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 570
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 820
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1200
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 24.5,
+              "price": -160
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 39.5,
+              "price": 168
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 49.5,
+              "price": 285
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 59.5,
+              "price": 470
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 69.5,
+              "price": 790
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1500
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 24.5,
+              "price": 240
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 39.5,
+              "price": 610
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1120
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1600
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1050
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -375
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -220
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": -142
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 106
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 148
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 210
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 290
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 410
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 124.5,
+              "price": 630
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1260
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 142
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 235
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 340
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 520
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 790
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1040
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1300
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 24.5,
+              "price": 140
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 39.5,
+              "price": 360
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 49.5,
+              "price": 630
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1040
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1500
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 39.5,
+              "price": -180
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 49.5,
+              "price": -106
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 59.5,
+              "price": 152
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 69.5,
+              "price": 240
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 79.5,
+              "price": 360
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 89.5,
+              "price": 570
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 99.5,
+              "price": 880
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1200
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 24.5,
+              "price": 730
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-09-08T15:55:15Z",
+          "outcomes": [
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 1.5,
+              "price": -380
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 2.5,
+              "price": -138
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 3.5,
+              "price": 168
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 4.5,
+              "price": 320
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 5.5,
+              "price": 580
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 2.5,
+              "price": -900
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 3.5,
+              "price": -340
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 4.5,
+              "price": -166
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 5.5,
+              "price": 118
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 6.5,
+              "price": 200
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 7.5,
+              "price": 320
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 8.5,
+              "price": 550
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 9.5,
+              "price": 880
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -1400
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -420
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": -200
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 100
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 178
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 290
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 8.5,
+              "price": 470
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 9.5,
+              "price": 700
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 1.5,
+              "price": -390
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 2.5,
+              "price": -138
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 3.5,
+              "price": 172
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 4.5,
+              "price": 320
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 5.5,
+              "price": 630
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1800
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 1.5,
+              "price": -300
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 2.5,
+              "price": -102
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 3.5,
+              "price": 220
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 4.5,
+              "price": 430
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 5.5,
+              "price": 800
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 1.5,
+              "price": -850
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 2.5,
+              "price": -270
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 3.5,
+              "price": -114
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 4.5,
+              "price": 178
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 5.5,
+              "price": 320
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 6.5,
+              "price": 580
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 2.5,
+              "price": -1100
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 3.5,
+              "price": -390
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 4.5,
+              "price": -188
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 5.5,
+              "price": 102
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 6.5,
+              "price": 178
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 7.5,
+              "price": 290
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 8.5,
+              "price": 450
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 9.5,
+              "price": 680
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 1.5,
+              "price": -580
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 2.5,
+              "price": -198
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 3.5,
+              "price": 116
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 4.5,
+              "price": 225
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 5.5,
+              "price": 410
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 6.5,
+              "price": 750
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1800
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 1.5,
+              "price": -320
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 2.5,
+              "price": -125
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 3.5,
+              "price": 174
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 4.5,
+              "price": 320
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 5.5,
+              "price": 580
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-08T15:55:15Z",
+          "outcomes": [
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 24.5,
+              "price": 164
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 39.5,
+              "price": 390
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 49.5,
+              "price": 630
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 59.5,
+              "price": 920
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1200
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1600
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 24.5,
+              "price": -900
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 39.5,
+              "price": -265
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 49.5,
+              "price": -150
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 59.5,
+              "price": 110
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 69.5,
+              "price": 168
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 79.5,
+              "price": 245
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 89.5,
+              "price": 360
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 99.5,
+              "price": 520
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 109.5,
+              "price": 760
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1200
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1000
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 39.5,
+              "price": -310
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 49.5,
+              "price": -184
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 59.5,
+              "price": -115
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 69.5,
+              "price": 134
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 79.5,
+              "price": 198
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 89.5,
+              "price": 285
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 99.5,
+              "price": 390
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 109.5,
+              "price": 540
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 124.5,
+              "price": 920
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 24.5,
+              "price": -184
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": 158
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 285
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 59.5,
+              "price": 470
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 69.5,
+              "price": 760
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1600
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 24.5,
+              "price": -205
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 39.5,
+              "price": 140
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 49.5,
+              "price": 245
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 59.5,
+              "price": 390
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 69.5,
+              "price": 630
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 79.5,
+              "price": 980
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1300
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1600
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "draftkings",
+      "last_update": "2024-09-08T15:55:33Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-08T15:55:04Z",
+          "outcomes": [
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 24.5,
+              "price": -155
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 39.5,
+              "price": 175
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 69.5,
+              "price": 800
+            },
+            {
+              "description": "Curtis Samuel",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 24.5,
+              "price": -650
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 39.5,
+              "price": -195
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 49.5,
+              "price": -110
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 59.5,
+              "price": 150
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 69.5,
+              "price": 235
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 79.5,
+              "price": 360
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 89.5,
+              "price": 500
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 99.5,
+              "price": 800
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1100
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 24.5,
+              "price": 200
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 39.5,
+              "price": 550
+            },
+            {
+              "description": "Dawson Knox",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1000
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 24.5,
+              "price": -130
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 39.5,
+              "price": 210
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 49.5,
+              "price": 360
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 59.5,
+              "price": 600
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1000
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 24.5,
+              "price": 250
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 39.5,
+              "price": 650
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1200
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 24.5,
+              "price": 145
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 39.5,
+              "price": 380
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 49.5,
+              "price": 700
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1200
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 24.5,
+              "price": -200
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 39.5,
+              "price": 140
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 49.5,
+              "price": 245
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 59.5,
+              "price": 400
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 69.5,
+              "price": 600
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1000
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 24.5,
+              "price": -525
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 39.5,
+              "price": -170
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 49.5,
+              "price": 105
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 59.5,
+              "price": 170
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 69.5,
+              "price": 270
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 79.5,
+              "price": 400
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 89.5,
+              "price": 550
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 99.5,
+              "price": 700
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1300
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -2500
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -500
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -260
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": -155
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 105
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 155
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 230
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 330
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 475
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 119.5,
+              "price": 650
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -140
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 190
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 340
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 550
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 950
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 24.5,
+              "price": -650
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 39.5,
+              "price": -195
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -110
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": 150
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": 235
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 360
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 550
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 800
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1200
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 24.5,
+              "price": -700
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 24.5,
+              "price": 475
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 34.5,
+              "price": -270
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 34.5,
+              "price": 210
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 41.5,
+              "price": -170
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 41.5,
+              "price": 135
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 56.5,
+              "price": 130
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 56.5,
+              "price": -170
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 65.5,
+              "price": 205
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 65.5,
+              "price": -260
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Over",
+              "point": 86.5,
+              "price": 500
+            },
+            {
+              "description": "Dalton Kincaid",
+              "name": "Under",
+              "point": 86.5,
+              "price": -700
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 12.5,
+              "price": -700
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 12.5,
+              "price": 475
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 21.5,
+              "price": -255
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 21.5,
+              "price": 200
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 26.5,
+              "price": -170
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 26.5,
+              "price": 130
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 38.5,
+              "price": 130
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 38.5,
+              "price": -170
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 46.5,
+              "price": 210
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 46.5,
+              "price": -270
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Over",
+              "point": 62.5,
+              "price": 475
+            },
+            {
+              "description": "Keon Coleman",
+              "name": "Under",
+              "point": 62.5,
+              "price": -700
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 22.5,
+              "price": -650
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 22.5,
+              "price": 475
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 32.5,
+              "price": -270
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 32.5,
+              "price": 210
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 39.5,
+              "price": -165
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 39.5,
+              "price": 130
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 53.5,
+              "price": 130
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 53.5,
+              "price": -165
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 62.5,
+              "price": 200
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 62.5,
+              "price": -260
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Over",
+              "point": 82.5,
+              "price": 475
+            },
+            {
+              "description": "Khalil Shakir",
+              "name": "Under",
+              "point": 82.5,
+              "price": -700
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 35.5,
+              "price": -700
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 35.5,
+              "price": 500
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -235
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 49.5,
+              "price": 185
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 57.5,
+              "price": -150
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 57.5,
+              "price": 115
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 75.5,
+              "price": 140
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 75.5,
+              "price": -175
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 85.5,
+              "price": 200
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 85.5,
+              "price": -260
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 475
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Under",
+              "point": 109.5,
+              "price": -700
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 8.5,
+              "price": -700
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 8.5,
+              "price": 475
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 16.5,
+              "price": -275
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 16.5,
+              "price": 215
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 22.5,
+              "price": -165
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 22.5,
+              "price": 130
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 33.5,
+              "price": 135
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 33.5,
+              "price": -175
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 40.5,
+              "price": 205
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 40.5,
+              "price": -265
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Over",
+              "point": 55.5,
+              "price": 500
+            },
+            {
+              "description": "Michael Wilson",
+              "name": "Under",
+              "point": 55.5,
+              "price": -700
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 23.5,
+              "price": -750
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 23.5,
+              "price": 500
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 35.5,
+              "price": -255
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 35.5,
+              "price": 200
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 41.5,
+              "price": -170
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 41.5,
+              "price": 135
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 56.5,
+              "price": 130
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 56.5,
+              "price": -165
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 66.5,
+              "price": 210
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 66.5,
+              "price": -270
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 85.5,
+              "price": 475
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Under",
+              "point": 85.5,
+              "price": -700
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-08T15:55:04Z",
+          "outcomes": [
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1800
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 39.5,
+              "price": -360
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 49.5,
+              "price": -180
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 59.5,
+              "price": 100
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 69.5,
+              "price": 165
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 79.5,
+              "price": 270
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 89.5,
+              "price": 450
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 99.5,
+              "price": 650
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1000
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 24.5,
+              "price": -2500
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 39.5,
+              "price": -450
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 49.5,
+              "price": -215
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 59.5,
+              "price": -120
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 69.5,
+              "price": 145
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 79.5,
+              "price": 225
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 89.5,
+              "price": 330
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 99.5,
+              "price": 500
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 109.5,
+              "price": 700
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1300
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 24.5,
+              "price": -235
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 39.5,
+              "price": 140
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 49.5,
+              "price": 260
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 59.5,
+              "price": 450
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 69.5,
+              "price": 800
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 24.5,
+              "price": -205
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": 160
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 69.5,
+              "price": 950
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 24.5,
+              "price": 190
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 39.5,
+              "price": 600
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1200
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 24.5,
+              "price": 165
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 550
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1000
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 32.5,
+              "price": -700
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 32.5,
+              "price": 500
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 43.5,
+              "price": -270
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 43.5,
+              "price": 210
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 50.5,
+              "price": -170
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 50.5,
+              "price": 130
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 64.5,
+              "price": 130
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 64.5,
+              "price": -165
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 73.5,
+              "price": 205
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 73.5,
+              "price": -265
+            },
+            {
+              "description": "James Conner",
+              "name": "Over",
+              "point": 90.5,
+              "price": 475
+            },
+            {
+              "description": "James Conner",
+              "name": "Under",
+              "point": 90.5,
+              "price": -700
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 34.5,
+              "price": -700
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 34.5,
+              "price": 500
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 46.5,
+              "price": -260
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 46.5,
+              "price": 205
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 53.5,
+              "price": -165
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 53.5,
+              "price": 130
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 67.5,
+              "price": 130
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 67.5,
+              "price": -170
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 76.5,
+              "price": 205
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 76.5,
+              "price": -265
+            },
+            {
+              "description": "James Cook",
+              "name": "Over",
+              "point": 95.5,
+              "price": 500
+            },
+            {
+              "description": "James Cook",
+              "name": "Under",
+              "point": 95.5,
+              "price": -700
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 15.5,
+              "price": -750
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 15.5,
+              "price": 500
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 23.5,
+              "price": -260
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 23.5,
+              "price": 205
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 28.5,
+              "price": -165
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 28.5,
+              "price": 130
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 38.5,
+              "price": 130
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 38.5,
+              "price": -165
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 45.5,
+              "price": 210
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 45.5,
+              "price": -270
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Over",
+              "point": 60.5,
+              "price": 500
+            },
+            {
+              "description": "Josh Allen",
+              "name": "Under",
+              "point": 60.5,
+              "price": -700
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 14.5,
+              "price": -750
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 14.5,
+              "price": 500
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 21.5,
+              "price": -275
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 21.5,
+              "price": 215
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 26.5,
+              "price": -165
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 26.5,
+              "price": 130
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 36.5,
+              "price": 130
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 36.5,
+              "price": -165
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 43.5,
+              "price": 210
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 43.5,
+              "price": -270
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 57.5,
+              "price": 500
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Under",
+              "point": 57.5,
+              "price": -700
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 5.5,
+              "price": -750
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 5.5,
+              "price": 500
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 10.5,
+              "price": -255
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 10.5,
+              "price": 195
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 13.5,
+              "price": -165
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 13.5,
+              "price": 130
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 20.5,
+              "price": 135
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 20.5,
+              "price": -170
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 25.5,
+              "price": 210
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 25.5,
+              "price": -275
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Over",
+              "point": 35.5,
+              "price": 475
+            },
+            {
+              "description": "Ray Davis",
+              "name": "Under",
+              "point": 35.5,
+              "price": -700
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 6.5,
+              "price": -650
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 6.5,
+              "price": 450
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 11.5,
+              "price": -245
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 11.5,
+              "price": 190
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 14.5,
+              "price": -165
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 14.5,
+              "price": 130
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 21.5,
+              "price": 130
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 21.5,
+              "price": -165
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 26.5,
+              "price": 200
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 26.5,
+              "price": -260
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Over",
+              "point": 37.5,
+              "price": 475
+            },
+            {
+              "description": "Trey Benson",
+              "name": "Under",
+              "point": 37.5,
+              "price": -700
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    }
+  ],
+  "commence_time": "2024-09-08T17:00:00Z",
+  "home_team": "Buffalo Bills",
+  "id": "7a5e353202d40a844491fa5753bc3097",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

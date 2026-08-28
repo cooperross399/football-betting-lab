@@ -1,0 +1,2931 @@
+{
+  "away_team": "San Francisco 49ers",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2025-01-05T20:20:34Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 2.5,
+              "price": 450
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 110
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 0.5,
+              "price": -500
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 2.5,
+              "price": 850
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 0.5,
+              "price": -285
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 1.5,
+              "price": 190
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 24.5,
+              "price": -5000
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 79.5,
+              "price": -115
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 109.5,
+              "price": 250
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 59.5,
+              "price": -275
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 99.5,
+              "price": 180
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 69.5,
+              "price": -175
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 119.5,
+              "price": 340
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 49.5,
+              "price": -475
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 89.5,
+              "price": 125
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 39.5,
+              "price": -1000
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 180
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 119.5,
+              "price": 500
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": -180
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 39.5,
+              "price": -575
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": -120
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 360
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -310
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 24.5,
+              "price": -2500
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 260
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 125
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 700
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 170
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1000
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 255
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -250
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -145
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 110
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -800
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 500
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 360
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -255
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 89.5,
+              "price": 900
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 39.5,
+              "price": 105
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 175
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 600
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 59.5,
+              "price": 275
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 425
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 59.5,
+              "price": -120
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 49.5,
+              "price": -200
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 109.5,
+              "price": 550
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 69.5,
+              "price": 125
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 79.5,
+              "price": 190
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 89.5,
+              "price": 280
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 119.5,
+              "price": 750
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 39.5,
+              "price": -370
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": -160
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 24.5,
+              "price": -425
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 69.5,
+              "price": 320
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 59.5,
+              "price": 210
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 89.5,
+              "price": 700
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1000
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 130
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 79.5,
+              "price": 475
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 39.5,
+              "price": 190
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 850
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -140
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2025-01-05T20:20:12Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 0.5,
+              "price": -500
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 116
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 2.5,
+              "price": 450
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 0.5,
+              "price": -290
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 1.5,
+              "price": 186
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 39.5,
+              "price": -950
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 49.5,
+              "price": -500
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 59.5,
+              "price": -290
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 69.5,
+              "price": -184
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 79.5,
+              "price": -122
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 89.5,
+              "price": 120
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 99.5,
+              "price": 172
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 109.5,
+              "price": 235
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 124.5,
+              "price": 370
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 149.5,
+              "price": 880
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 174.5,
+              "price": 1600
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -590
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -220
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -138
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 114
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 172
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 245
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 360
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 490
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 710
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1200
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 39.5,
+              "price": -550
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -300
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": -178
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": -114
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 134
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 198
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 285
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 410
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 124.5,
+              "price": 710
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1400
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 24.5,
+              "price": -700
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 39.5,
+              "price": -235
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 49.5,
+              "price": -134
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 59.5,
+              "price": 124
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 69.5,
+              "price": 198
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 79.5,
+              "price": 300
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 89.5,
+              "price": 470
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 99.5,
+              "price": 710
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 109.5,
+              "price": 980
+            },
+            {
+              "description": "George Kittle",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1500
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -205
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 39.5,
+              "price": 128
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 220
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 59.5,
+              "price": 340
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 540
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 880
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1200
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1600
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 3.5,
+              "price": -1400
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 4.5,
+              "price": -470
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 5.5,
+              "price": -240
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 6.5,
+              "price": -128
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 7.5,
+              "price": 144
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 8.5,
+              "price": 230
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 9.5,
+              "price": 370
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 10.5,
+              "price": 630
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -500
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -198
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 118
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 230
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 430
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2025-01-05T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 39.5,
+              "price": -370
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 49.5,
+              "price": -188
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 59.5,
+              "price": -110
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 69.5,
+              "price": 148
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 79.5,
+              "price": 235
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 89.5,
+              "price": 360
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 99.5,
+              "price": 540
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 109.5,
+              "price": 820
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1300
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": -160
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 116
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 59.5,
+              "price": 194
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 69.5,
+              "price": 310
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 79.5,
+              "price": 490
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 89.5,
+              "price": 760
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1120
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1500
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "williamhill_us",
+      "last_update": "2025-01-05T20:18:58Z",
+      "markets": [
+        {
+          "key": "player_pass_interceptions_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 0.5,
+              "price": -129
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 1.5,
+              "price": 410
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 0.5,
+              "price": -108
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 470
+            }
+          ]
+        },
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 1.5,
+              "price": 140
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 2.5,
+              "price": 600
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": -101
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 2.5,
+              "price": 430
+            }
+          ]
+        },
+        {
+          "key": "player_reception_tds_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 1.5,
+              "price": 800
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 1.5,
+              "price": 700
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 1.5,
+              "price": 650
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 19.5,
+              "price": -335
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 29.5,
+              "price": -145
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 39.5,
+              "price": -105
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 170
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 59.5,
+              "price": 285
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 69.5,
+              "price": 400
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 79.5,
+              "price": 600
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 19.5,
+              "price": 102
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 29.5,
+              "price": 200
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 39.5,
+              "price": 360
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 49.5,
+              "price": 600
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 59.5,
+              "price": 950
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 39.5,
+              "price": -1250
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 49.5,
+              "price": -500
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 59.5,
+              "price": -275
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 69.5,
+              "price": -220
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 79.5,
+              "price": -135
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 89.5,
+              "price": 140
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 99.5,
+              "price": 210
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 109.5,
+              "price": 300
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 119.5,
+              "price": 430
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 129.5,
+              "price": 575
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 139.5,
+              "price": 800
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1100
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 19.5,
+              "price": -225
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 29.5,
+              "price": -101
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 39.5,
+              "price": 185
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 49.5,
+              "price": 330
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 59.5,
+              "price": 550
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 69.5,
+              "price": 850
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 39.5,
+              "price": -750
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -320
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": -170
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": -103
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 155
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 235
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 350
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 440
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 119.5,
+              "price": 625
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 129.5,
+              "price": 900
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 19.5,
+              "price": -109
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 29.5,
+              "price": 210
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 39.5,
+              "price": 420
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 49.5,
+              "price": 750
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 29.5,
+              "price": -700
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -320
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -170
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": -104
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 145
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 220
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 330
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 480
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 675
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1000
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 1.5,
+              "price": -700
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 2.5,
+              "price": -170
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 3.5,
+              "price": 155
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 4.5,
+              "price": 360
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 5.5,
+              "price": 800
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 4.5,
+              "price": -590
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 5.5,
+              "price": -240
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 6.5,
+              "price": -116
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 7.5,
+              "price": 160
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 8.5,
+              "price": 295
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 9.5,
+              "price": 525
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 10.5,
+              "price": 900
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -750
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -225
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 104
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 220
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 440
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 850
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 3.5,
+              "price": -950
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 4.5,
+              "price": -310
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 5.5,
+              "price": -140
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 6.5,
+              "price": 145
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 7.5,
+              "price": 270
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 8.5,
+              "price": 490
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 9.5,
+              "price": 850
+            }
+          ]
+        },
+        {
+          "key": "player_rush_attempts_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 10.5,
+              "price": 1100
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 4.5,
+              "price": -370
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 6.5,
+              "price": 112
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 8.5,
+              "price": 380
+            }
+          ]
+        },
+        {
+          "key": "player_rush_longest_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 19.5,
+              "price": 215
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 29.5,
+              "price": 550
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": 1000
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 19.5,
+              "price": 175
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 29.5,
+              "price": 480
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 39.5,
+              "price": 850
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 19.5,
+              "price": 340
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 29.5,
+              "price": 850
+            }
+          ]
+        },
+        {
+          "key": "player_rush_tds_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 1.5,
+              "price": 625
+            },
+            {
+              "description": "Isaac Guerendo",
+              "name": "Over",
+              "point": 1.5,
+              "price": 600
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2025-01-05T20:17:56Z",
+          "outcomes": [
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 19.5,
+              "price": -295
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 29.5,
+              "price": -103
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 39.5,
+              "price": 210
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 49.5,
+              "price": 325
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 750
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 19.5,
+              "price": -700
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 29.5,
+              "price": -250
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 39.5,
+              "price": -159
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 105
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 59.5,
+              "price": 235
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 69.5,
+              "price": 450
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 79.5,
+              "price": 700
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 39.5,
+              "price": -560
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 49.5,
+              "price": -250
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 59.5,
+              "price": -135
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 69.5,
+              "price": 135
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 79.5,
+              "price": 220
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 89.5,
+              "price": 380
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 99.5,
+              "price": 525
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 109.5,
+              "price": 750
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1000
+            }
+          ]
+        }
+      ],
+      "title": "Caesars"
+    },
+    {
+      "key": "betmgm",
+      "last_update": "2025-01-05T20:20:12Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2025-01-05T20:18:00Z",
+          "outcomes": [
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 49.5,
+              "price": -350
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 74.5,
+              "price": 110
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 450
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 124.5,
+              "price": 700
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 74.5,
+              "price": 188
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -800
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 300
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -155
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 49.5,
+              "price": -600
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 74.5,
+              "price": -160
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 124.5,
+              "price": 360
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 99.5,
+              "price": 160
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 74.5,
+              "price": 550
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 24.5,
+              "price": -250
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 49.5,
+              "price": 185
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2025-01-05T20:18:00Z",
+          "outcomes": [
+            {
+              "description": "Isaac Guerendo",
+              "name": "Over",
+              "point": 124.5,
+              "price": 600
+            },
+            {
+              "description": "Isaac Guerendo",
+              "name": "Over",
+              "point": 49.5,
+              "price": -400
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 49.5,
+              "price": 135
+            },
+            {
+              "description": "Isaac Guerendo",
+              "name": "Over",
+              "point": 99.5,
+              "price": 260
+            },
+            {
+              "description": "Isaac Guerendo",
+              "name": "Over",
+              "point": 74.5,
+              "price": 100
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 24.5,
+              "price": -500
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 74.5,
+              "price": 135
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 124.5,
+              "price": 775
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 74.5,
+              "price": 425
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 49.5,
+              "price": -275
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 99.5,
+              "price": 360
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -165
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 74.5,
+              "price": 825
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 99.5,
+              "price": 950
+            }
+          ]
+        }
+      ],
+      "title": "BetMGM"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2025-01-05T20:20:11Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2025-01-05T20:19:53Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 1.5,
+              "price": 113
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 0.5,
+              "price": -625
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1103
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 2.5,
+              "price": 334
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1486
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 0.5,
+              "price": -323
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 1.5,
+              "price": 171
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 2.5,
+              "price": 451
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2025-01-05T20:19:53Z",
+          "outcomes": [
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 109.5,
+              "price": 327
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 69.5,
+              "price": -118
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 129.5,
+              "price": 669
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 59.5,
+              "price": -200
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 119.5,
+              "price": 464
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1468
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 139.5,
+              "price": 981
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 89.5,
+              "price": 166
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 79.5,
+              "price": 120
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 99.5,
+              "price": 232
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 55.5,
+              "price": -114
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 135.5,
+              "price": 1093
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 65.5,
+              "price": 119
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 75.5,
+              "price": 160
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 85.5,
+              "price": 216
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 95.5,
+              "price": 292
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 125.5,
+              "price": 770
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 105.5,
+              "price": 399
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 45.5,
+              "price": -213
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 115.5,
+              "price": 551
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 56.5,
+              "price": 151
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 66.5,
+              "price": 198
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 26.5,
+              "price": -196
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 86.5,
+              "price": 343
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 116.5,
+              "price": 831
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 46.5,
+              "price": 115
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 76.5,
+              "price": 260
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 106.5,
+              "price": 612
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 96.5,
+              "price": 456
+            },
+            {
+              "description": "Ricky Pearsall",
+              "name": "Over",
+              "point": 36.5,
+              "price": -114
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 131.5,
+              "price": 457
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 71.5,
+              "price": -196
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 91.5,
+              "price": 122
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 161.5,
+              "price": 1399
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 151.5,
+              "price": 946
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 111.5,
+              "price": 233
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 141.5,
+              "price": 652
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 101.5,
+              "price": 168
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 121.5,
+              "price": 325
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 81.5,
+              "price": -114
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 15.5,
+              "price": -114
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 55.5,
+              "price": 509
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 45.5,
+              "price": 323
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 85.5,
+              "price": 2376
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 25.5,
+              "price": 135
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 95.5,
+              "price": 4291
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 65.5,
+              "price": 823
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 75.5,
+              "price": 1372
+            },
+            {
+              "description": "Zay Jones",
+              "name": "Over",
+              "point": 35.5,
+              "price": 208
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 86.5,
+              "price": 1026
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 26.5,
+              "price": -111
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 106.5,
+              "price": 2736
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 76.5,
+              "price": 657
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 96.5,
+              "price": 1649
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 36.5,
+              "price": 132
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 56.5,
+              "price": 287
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 46.5,
+              "price": 194
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 16.5,
+              "price": -270
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 66.5,
+              "price": 430
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 76.5,
+              "price": 2308
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 36.5,
+              "price": 235
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 16.5,
+              "price": -118
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 56.5,
+              "price": 680
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 86.5,
+              "price": 4614
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 46.5,
+              "price": 394
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 26.5,
+              "price": 142
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 66.5,
+              "price": 1222
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2025-01-05T20:19:53Z",
+          "outcomes": [
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 7.5,
+              "price": 129
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 9.5,
+              "price": 287
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 11.5,
+              "price": 657
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 6.5,
+              "price": -116
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 8.5,
+              "price": 192
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 10.5,
+              "price": 431
+            },
+            {
+              "description": "Trey McBride",
+              "name": "Over",
+              "point": 5.5,
+              "price": -256
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 115
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 213
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 836
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -250
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 416
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 9.5,
+              "price": 3723
+            },
+            {
+              "description": "Marvin Harrison Jr.",
+              "name": "Over",
+              "point": 8.5,
+              "price": 1735
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 8.5,
+              "price": 316
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 4.5,
+              "price": -278
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 6.5,
+              "price": 130
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 7.5,
+              "price": 202
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 9.5,
+              "price": 498
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 5.5,
+              "price": -122
+            },
+            {
+              "description": "Jauan Jennings",
+              "name": "Over",
+              "point": 10.5,
+              "price": 801
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1061
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 2.5,
+              "price": -154
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 7.5,
+              "price": 2227
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 3.5,
+              "price": 136
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 4.5,
+              "price": 265
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 1.5,
+              "price": -625
+            },
+            {
+              "description": "Greg Dortch",
+              "name": "Over",
+              "point": 5.5,
+              "price": 523
+            }
+          ]
+        },
+        {
+          "key": "player_rush_attempts_alternate",
+          "last_update": "2025-01-05T20:19:53Z",
+          "outcomes": [
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 6.5,
+              "price": -110
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 13.5,
+              "price": 647
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 5.5,
+              "price": -149
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 9.5,
+              "price": 206
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 8.5,
+              "price": 157
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 4.5,
+              "price": -250
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 10.5,
+              "price": 271
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 12.5,
+              "price": 480
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 7.5,
+              "price": 120
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 3.5,
+              "price": -400
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 11.5,
+              "price": 359
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2025-01-05T20:19:53Z",
+          "outcomes": [
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 42.5,
+              "price": -400
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 122.5,
+              "price": 634
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 82.5,
+              "price": 156
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 102.5,
+              "price": 308
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 62.5,
+              "price": -130
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 72.5,
+              "price": 111
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 92.5,
+              "price": 218
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 52.5,
+              "price": -227
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 132.5,
+              "price": 932
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 112.5,
+              "price": 438
+            },
+            {
+              "description": "Michael Carter",
+              "name": "Over",
+              "point": 142.5,
+              "price": 1401
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 45.5,
+              "price": -130
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 55.5,
+              "price": 114
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 35.5,
+              "price": -278
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 95.5,
+              "price": 477
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 65.5,
+              "price": 161
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 25.5,
+              "price": -625
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 105.5,
+              "price": 703
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 85.5,
+              "price": 329
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 75.5,
+              "price": 230
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 115.5,
+              "price": 1056
+            },
+            {
+              "description": "Kyler Murray",
+              "name": "Over",
+              "point": 125.5,
+              "price": 1626
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 49.5,
+              "price": 202
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 307
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 9.5,
+              "price": -625
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 29.5,
+              "price": -114
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 79.5,
+              "price": 752
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 19.5,
+              "price": -250
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 475
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 109.5,
+              "price": 3606
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1223
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 39.5,
+              "price": 133
+            },
+            {
+              "description": "Joshua Dobbs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 2060
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    }
+  ],
+  "commence_time": "2025-01-05T21:25:00Z",
+  "home_team": "Arizona Cardinals",
+  "id": "ebda13c375e6e6bb69822f91bce86756",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

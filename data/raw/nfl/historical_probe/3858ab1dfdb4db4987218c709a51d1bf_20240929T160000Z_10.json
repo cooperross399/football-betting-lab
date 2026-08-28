@@ -1,0 +1,2335 @@
+{
+  "away_team": "New Orleans Saints",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2024-09-29T15:54:43Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-09-29T15:55:56Z",
+          "outcomes": [
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 0.5,
+              "price": -330
+            },
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 1.5,
+              "price": 170
+            },
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 0.5,
+              "price": -475
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 1.5,
+              "price": 120
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 2.5,
+              "price": 500
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-29T15:55:56Z",
+          "outcomes": [
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 24.5,
+              "price": -160
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 39.5,
+              "price": 170
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": 295
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 69.5,
+              "price": 800
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -120
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 220
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 390
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 650
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1000
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 39.5,
+              "price": -370
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 49.5,
+              "price": -195
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 59.5,
+              "price": -115
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 69.5,
+              "price": 135
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 79.5,
+              "price": 205
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 89.5,
+              "price": 300
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 99.5,
+              "price": 450
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 109.5,
+              "price": 650
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 119.5,
+              "price": 900
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 24.5,
+              "price": -380
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 39.5,
+              "price": -130
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 49.5,
+              "price": 135
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 59.5,
+              "price": 225
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 69.5,
+              "price": 350
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 79.5,
+              "price": 500
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 89.5,
+              "price": 800
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1200
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 39.5,
+              "price": -360
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 49.5,
+              "price": -195
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 59.5,
+              "price": -115
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 69.5,
+              "price": 140
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 79.5,
+              "price": 210
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 89.5,
+              "price": 310
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 99.5,
+              "price": 450
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 109.5,
+              "price": 650
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 119.5,
+              "price": 950
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 24.5,
+              "price": -285
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 39.5,
+              "price": 100
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 49.5,
+              "price": 170
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 59.5,
+              "price": 280
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 69.5,
+              "price": 425
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 79.5,
+              "price": 700
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1000
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 24.5,
+              "price": -525
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 39.5,
+              "price": -170
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 49.5,
+              "price": 110
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 59.5,
+              "price": 175
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 69.5,
+              "price": 280
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 79.5,
+              "price": 425
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 89.5,
+              "price": 650
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 99.5,
+              "price": 950
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1400
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 24.5,
+              "price": -165
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 39.5,
+              "price": 165
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 49.5,
+              "price": 290
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 59.5,
+              "price": 475
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 69.5,
+              "price": 750
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 10.5,
+              "price": -650
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 10.5,
+              "price": 450
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 15.5,
+              "price": -360
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 15.5,
+              "price": 275
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 20.5,
+              "price": -220
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 20.5,
+              "price": 170
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 35.5,
+              "price": 135
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 35.5,
+              "price": -170
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 40.5,
+              "price": 180
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 40.5,
+              "price": -230
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 30.5,
+              "price": -800
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 30.5,
+              "price": 550
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 40.5,
+              "price": -340
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 40.5,
+              "price": 260
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 50.5,
+              "price": -185
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 50.5,
+              "price": 145
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 65.5,
+              "price": 115
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 65.5,
+              "price": -145
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 75.5,
+              "price": 175
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 75.5,
+              "price": -225
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 100.5,
+              "price": 475
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Under",
+              "point": 100.5,
+              "price": -700
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 25.5,
+              "price": -320
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Under",
+              "point": 25.5,
+              "price": 245
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 35.5,
+              "price": -160
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Under",
+              "point": 35.5,
+              "price": 125
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 45.5,
+              "price": 110
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Under",
+              "point": 45.5,
+              "price": -140
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 55.5,
+              "price": 185
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Under",
+              "point": 55.5,
+              "price": -240
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 75.5,
+              "price": 475
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Under",
+              "point": 75.5,
+              "price": -650
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 40.5,
+              "price": -340
+            },
+            {
+              "description": "Drake London",
+              "name": "Under",
+              "point": 40.5,
+              "price": 255
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 50.5,
+              "price": -180
+            },
+            {
+              "description": "Drake London",
+              "name": "Under",
+              "point": 50.5,
+              "price": 140
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 65.5,
+              "price": 120
+            },
+            {
+              "description": "Drake London",
+              "name": "Under",
+              "point": 65.5,
+              "price": -150
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 75.5,
+              "price": 180
+            },
+            {
+              "description": "Drake London",
+              "name": "Under",
+              "point": 75.5,
+              "price": -235
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 15.5,
+              "price": -700
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 15.5,
+              "price": 500
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 25.5,
+              "price": -260
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 25.5,
+              "price": 200
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 30.5,
+              "price": -180
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 30.5,
+              "price": 140
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 45.5,
+              "price": 140
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 45.5,
+              "price": -180
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 50.5,
+              "price": 180
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 50.5,
+              "price": -235
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 70.5,
+              "price": 475
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Under",
+              "point": 70.5,
+              "price": -700
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 30.5,
+              "price": -310
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Under",
+              "point": 30.5,
+              "price": 240
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 35.5,
+              "price": -215
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Under",
+              "point": 35.5,
+              "price": 170
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 50.5,
+              "price": 105
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Under",
+              "point": 50.5,
+              "price": -135
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 60.5,
+              "price": 185
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Under",
+              "point": 60.5,
+              "price": -235
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-29T15:55:56Z",
+          "outcomes": [
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 24.5,
+              "price": -4000
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 39.5,
+              "price": -600
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": -295
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 59.5,
+              "price": -160
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 69.5,
+              "price": 105
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 79.5,
+              "price": 170
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 89.5,
+              "price": 265
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 109.5,
+              "price": 600
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 119.5,
+              "price": 900
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -1000
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -450
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 59.5,
+              "price": -225
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 69.5,
+              "price": -135
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 120
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 185
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 280
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 425
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 119.5,
+              "price": 600
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 24.5,
+              "price": -145
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 39.5,
+              "price": 225
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 49.5,
+              "price": 425
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 59.5,
+              "price": 750
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1300
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 50.5,
+              "price": -270
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 50.5,
+              "price": 210
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 55.5,
+              "price": -200
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 55.5,
+              "price": 155
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 70.5,
+              "price": 110
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 70.5,
+              "price": -140
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 80.5,
+              "price": 180
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Under",
+              "point": 80.5,
+              "price": -235
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 55.5,
+              "price": -280
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Under",
+              "point": 55.5,
+              "price": 215
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 65.5,
+              "price": -160
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Under",
+              "point": 65.5,
+              "price": 125
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 80.5,
+              "price": 130
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Under",
+              "point": 80.5,
+              "price": -160
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 90.5,
+              "price": 195
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Under",
+              "point": 90.5,
+              "price": -250
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 110.5,
+              "price": 450
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Under",
+              "point": 110.5,
+              "price": -650
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 0.5,
+              "price": -110
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Under",
+              "point": 0.5,
+              "price": -115
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 5.5,
+              "price": 400
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Under",
+              "point": 5.5,
+              "price": -575
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 10.5,
+              "price": -1000
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 10.5,
+              "price": 650
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 15.5,
+              "price": -390
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 15.5,
+              "price": 300
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 20.5,
+              "price": -210
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 20.5,
+              "price": 165
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 30.5,
+              "price": 115
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 30.5,
+              "price": -145
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 35.5,
+              "price": 170
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 35.5,
+              "price": -215
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 50.5,
+              "price": 450
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Under",
+              "point": 50.5,
+              "price": -650
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2024-09-29T15:54:44Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-09-29T15:55:39Z",
+          "outcomes": [
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 0.5,
+              "price": -480
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 1.5,
+              "price": 114
+            },
+            {
+              "description": "Kirk Cousins",
+              "name": "Over",
+              "point": 2.5,
+              "price": 470
+            },
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 0.5,
+              "price": -350
+            },
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 1.5,
+              "price": 154
+            },
+            {
+              "description": "Derek Carr",
+              "name": "Over",
+              "point": 2.5,
+              "price": 630
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-29T15:55:39Z",
+          "outcomes": [
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -128
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 210
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 350
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 24.5,
+              "price": -144
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 39.5,
+              "price": 186
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 24.5,
+              "price": -750
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 39.5,
+              "price": -280
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 49.5,
+              "price": -170
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 59.5,
+              "price": -110
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 69.5,
+              "price": 136
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 79.5,
+              "price": 194
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 89.5,
+              "price": 265
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 99.5,
+              "price": 370
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 109.5,
+              "price": 520
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 124.5,
+              "price": 820
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1500
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 24.5,
+              "price": -355
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 39.5,
+              "price": -154
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 49.5,
+              "price": 102
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 59.5,
+              "price": 154
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 69.5,
+              "price": 225
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 79.5,
+              "price": 320
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 89.5,
+              "price": 470
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 99.5,
+              "price": 650
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 109.5,
+              "price": 920
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1300
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 24.5,
+              "price": -800
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 39.5,
+              "price": -310
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 49.5,
+              "price": -188
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 59.5,
+              "price": -115
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 69.5,
+              "price": 128
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 79.5,
+              "price": 190
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 89.5,
+              "price": 270
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 99.5,
+              "price": 370
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 109.5,
+              "price": 520
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 124.5,
+              "price": 880
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1600
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 24.5,
+              "price": -230
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 39.5,
+              "price": 106
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 49.5,
+              "price": 172
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 59.5,
+              "price": 265
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 69.5,
+              "price": 410
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 79.5,
+              "price": 590
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 89.5,
+              "price": 880
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1200
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1500
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 24.5,
+              "price": -265
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 39.5,
+              "price": -114
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 49.5,
+              "price": 140
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 59.5,
+              "price": 210
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 69.5,
+              "price": 310
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 79.5,
+              "price": 440
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 89.5,
+              "price": 650
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 99.5,
+              "price": 920
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1200
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-09-29T15:55:39Z",
+          "outcomes": [
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 1.5,
+              "price": -670
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 2.5,
+              "price": -230
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 3.5,
+              "price": 104
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 4.5,
+              "price": 205
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 5.5,
+              "price": 370
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 6.5,
+              "price": 640
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1200
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 2.5,
+              "price": -360
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 3.5,
+              "price": -160
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 4.5,
+              "price": 122
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 5.5,
+              "price": 220
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 6.5,
+              "price": 370
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 7.5,
+              "price": 580
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 8.5,
+              "price": 880
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 2.5,
+              "price": -1000
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 3.5,
+              "price": -350
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 4.5,
+              "price": -166
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 5.5,
+              "price": 116
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 6.5,
+              "price": 198
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 7.5,
+              "price": 320
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 8.5,
+              "price": 580
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 9.5,
+              "price": 880
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 2.5,
+              "price": -670
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 3.5,
+              "price": -260
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 4.5,
+              "price": -122
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 5.5,
+              "price": 158
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 6.5,
+              "price": 270
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 7.5,
+              "price": 450
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 8.5,
+              "price": 750
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 1.5,
+              "price": -900
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 2.5,
+              "price": -300
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 3.5,
+              "price": -136
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 4.5,
+              "price": 142
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 5.5,
+              "price": 250
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 6.5,
+              "price": 410
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 7.5,
+              "price": 640
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 1.5,
+              "price": -800
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 2.5,
+              "price": -260
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 3.5,
+              "price": -110
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 4.5,
+              "price": 188
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 5.5,
+              "price": 350
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 6.5,
+              "price": 580
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 7.5,
+              "price": 880
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 1.5,
+              "price": -580
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 2.5,
+              "price": -200
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 3.5,
+              "price": 118
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 4.5,
+              "price": 230
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 5.5,
+              "price": 410
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 6.5,
+              "price": 700
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 1.5,
+              "price": -850
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 2.5,
+              "price": -250
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 3.5,
+              "price": -106
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 4.5,
+              "price": 198
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 5.5,
+              "price": 370
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 6.5,
+              "price": 640
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-29T15:55:39Z",
+          "outcomes": [
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -590
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -300
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 59.5,
+              "price": -180
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 69.5,
+              "price": -114
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 134
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 198
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 285
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 410
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 124.5,
+              "price": 710
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1300
+            },
+            {
+              "description": "Taysom Hill",
+              "name": "Over",
+              "point": 24.5,
+              "price": 146
+            },
+            {
+              "description": "Taysom Hill",
+              "name": "Over",
+              "point": 39.5,
+              "price": 360
+            },
+            {
+              "description": "Taysom Hill",
+              "name": "Over",
+              "point": 49.5,
+              "price": 610
+            },
+            {
+              "description": "Taysom Hill",
+              "name": "Over",
+              "point": 59.5,
+              "price": 980
+            },
+            {
+              "description": "Taysom Hill",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1300
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 39.5,
+              "price": -430
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": -240
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 59.5,
+              "price": -144
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 69.5,
+              "price": 110
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 79.5,
+              "price": 164
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 89.5,
+              "price": 240
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 99.5,
+              "price": 350
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 109.5,
+              "price": 490
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 124.5,
+              "price": 880
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1600
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 24.5,
+              "price": -138
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 39.5,
+              "price": 184
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 49.5,
+              "price": 310
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 59.5,
+              "price": 470
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 69.5,
+              "price": 730
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1040
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1300
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betmgm",
+      "last_update": "2024-09-29T15:53:25Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-29T15:55:14Z",
+          "outcomes": [
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 74.5,
+              "price": 900
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1100
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 99.5,
+              "price": 825
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 124.5,
+              "price": 800
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 99.5,
+              "price": 900
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 49.5,
+              "price": -105
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 99.5,
+              "price": 450
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 74.5,
+              "price": 700
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 74.5,
+              "price": 160
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 74.5,
+              "price": 180
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 49.5,
+              "price": 130
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 74.5,
+              "price": 525
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 49.5,
+              "price": 180
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -165
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 99.5,
+              "price": 575
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 74.5,
+              "price": 425
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 24.5,
+              "price": -210
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 24.5,
+              "price": -450
+            },
+            {
+              "description": "Ray-Ray McCloud III",
+              "name": "Over",
+              "point": 49.5,
+              "price": 250
+            },
+            {
+              "description": "Kyle Pitts",
+              "name": "Over",
+              "point": 24.5,
+              "price": -275
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 24.5,
+              "price": -155
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 24.5,
+              "price": -2500
+            },
+            {
+              "description": "Darnell Mooney",
+              "name": "Over",
+              "point": 24.5,
+              "price": -400
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 99.5,
+              "price": 425
+            },
+            {
+              "description": "Rashid Shaheed",
+              "name": "Over",
+              "point": 74.5,
+              "price": 275
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 74.5,
+              "price": 875
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": 380
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 350
+            },
+            {
+              "description": "Drake London",
+              "name": "Over",
+              "point": 49.5,
+              "price": -225
+            },
+            {
+              "description": "Chris Olave",
+              "name": "Over",
+              "point": 49.5,
+              "price": -175
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-29T15:55:14Z",
+          "outcomes": [
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 49.5,
+              "price": 325
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 99.5,
+              "price": 380
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 230
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 74.5,
+              "price": -120
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 49.5,
+              "price": -350
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -550
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 24.5,
+              "price": -185
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 124.5,
+              "price": 750
+            },
+            {
+              "description": "Bijan Robinson",
+              "name": "Over",
+              "point": 124.5,
+              "price": 525
+            },
+            {
+              "description": "Tyler Allgeier",
+              "name": "Over",
+              "point": 74.5,
+              "price": 800
+            },
+            {
+              "description": "Alvin Kamara",
+              "name": "Over",
+              "point": 74.5,
+              "price": 130
+            }
+          ]
+        }
+      ],
+      "title": "BetMGM"
+    }
+  ],
+  "commence_time": "2024-09-29T17:00:00Z",
+  "home_team": "Atlanta Falcons",
+  "id": "3858ab1dfdb4db4987218c709a51d1bf",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

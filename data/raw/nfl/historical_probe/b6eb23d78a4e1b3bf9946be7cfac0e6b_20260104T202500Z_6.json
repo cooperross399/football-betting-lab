@@ -1,0 +1,282 @@
+{
+  "away_team": "Washington Commanders",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2026-01-04T20:20:05Z",
+      "markets": [
+        {
+          "key": "player_field_goals_alternate",
+          "last_update": "2026-01-04T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Jake Elliott",
+              "name": "Over",
+              "point": 0.5,
+              "price": -502
+            },
+            {
+              "description": "Jake Elliott",
+              "name": "Over",
+              "point": 1.5,
+              "price": -117
+            },
+            {
+              "description": "Jake Elliott",
+              "name": "Over",
+              "point": 2.5,
+              "price": 251
+            },
+            {
+              "description": "Jake Elliott",
+              "name": "Over",
+              "point": 3.5,
+              "price": 690
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 0.5,
+              "price": -587
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 1.5,
+              "price": -124
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 2.5,
+              "price": 264
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 3.5,
+              "price": 850
+            }
+          ]
+        },
+        {
+          "key": "player_kicking_points_alternate",
+          "last_update": "2026-01-04T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 3.5,
+              "price": -458
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 5.5,
+              "price": -162
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 7.5,
+              "price": 142
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 9.5,
+              "price": 294
+            },
+            {
+              "description": "Jake Moody",
+              "name": "Over",
+              "point": 12.5,
+              "price": 990
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2026-01-04T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 0.5,
+              "price": 207
+            },
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1720
+            },
+            {
+              "description": "Jacob Martin",
+              "name": "Over",
+              "point": 0.5,
+              "price": 281
+            },
+            {
+              "description": "Jacob Martin",
+              "name": "Over",
+              "point": 1.5,
+              "price": 2000
+            },
+            {
+              "description": "Moro Ojomo",
+              "name": "Over",
+              "point": 0.5,
+              "price": 292
+            },
+            {
+              "description": "Moro Ojomo",
+              "name": "Over",
+              "point": 1.5,
+              "price": 2100
+            },
+            {
+              "description": "Nolan Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 318
+            },
+            {
+              "description": "Nolan Smith",
+              "name": "Over",
+              "point": 1.5,
+              "price": 2200
+            },
+            {
+              "description": "Jalyx Hunt",
+              "name": "Over",
+              "point": 0.5,
+              "price": 301
+            },
+            {
+              "description": "Jalyx Hunt",
+              "name": "Over",
+              "point": 1.5,
+              "price": 2300
+            },
+            {
+              "description": "Jer'Zhan Newton",
+              "name": "Over",
+              "point": 0.5,
+              "price": 373
+            },
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 0.5,
+              "price": 411
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2026-01-04T20:20:31Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2026-01-04T20:20:44Z",
+          "outcomes": [
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 0.5,
+              "price": 500
+            },
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Moro Ojomo",
+              "name": "Over",
+              "point": 0.5,
+              "price": 300
+            },
+            {
+              "description": "Moro Ojomo",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jer'Zhan Newton",
+              "name": "Over",
+              "point": 0.5,
+              "price": 475
+            },
+            {
+              "description": "Jer'Zhan Newton",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 0.5,
+              "price": 175
+            },
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Nolan Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": 335
+            },
+            {
+              "description": "Nolan Smith",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jalyx Hunt",
+              "name": "Over",
+              "point": 0.5,
+              "price": 300
+            },
+            {
+              "description": "Jalyx Hunt",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jacob Martin",
+              "name": "Over",
+              "point": 0.5,
+              "price": 290
+            },
+            {
+              "description": "Jacob Martin",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    }
+  ],
+  "commence_time": "2026-01-04T21:25:00Z",
+  "home_team": "Philadelphia Eagles",
+  "id": "b6eb23d78a4e1b3bf9946be7cfac0e6b",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

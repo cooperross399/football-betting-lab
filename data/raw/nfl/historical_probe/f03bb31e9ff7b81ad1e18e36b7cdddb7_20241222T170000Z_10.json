@@ -1,0 +1,4335 @@
+{
+  "away_team": "Tennessee Titans",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2024-12-22T16:55:12Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-12-22T16:55:05Z",
+          "outcomes": [
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 1.5,
+              "price": 165
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 0.5,
+              "price": -340
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -295
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 185
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 850
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-12-22T16:55:05Z",
+          "outcomes": [
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 119.5,
+              "price": 800
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 59.5,
+              "price": -120
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 49.5,
+              "price": -185
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 89.5,
+              "price": 275
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 109.5,
+              "price": 550
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1200
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 79.5,
+              "price": 195
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 39.5,
+              "price": -340
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 69.5,
+              "price": 130
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1300
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 49.5,
+              "price": -115
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 140
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 109.5,
+              "price": 950
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 79.5,
+              "price": 320
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -575
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 650
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 39.5,
+              "price": -190
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 215
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 89.5,
+              "price": 450
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 950
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -105
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 650
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 150
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -180
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 475
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 230
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1400
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 340
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 59.5,
+              "price": 425
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 69.5,
+              "price": 650
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 49.5,
+              "price": 275
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1000
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 39.5,
+              "price": 165
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 24.5,
+              "price": -160
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 69.5,
+              "price": 650
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 59.5,
+              "price": 425
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1000
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 39.5,
+              "price": 160
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 24.5,
+              "price": -160
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 49.5,
+              "price": 270
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 39.5,
+              "price": 240
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 59.5,
+              "price": 650
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 24.5,
+              "price": -105
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 49.5,
+              "price": 400
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1000
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 59.5,
+              "price": 750
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 49.5,
+              "price": 475
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 24.5,
+              "price": 110
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1200
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 39.5,
+              "price": 285
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 49.5,
+              "price": 900
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 39.5,
+              "price": 500
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 24.5,
+              "price": 195
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 24.5,
+              "price": 260
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1200
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 39.5,
+              "price": 650
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 24.5,
+              "price": 290
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 39.5,
+              "price": 750
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 39.5,
+              "price": 950
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 24.5,
+              "price": 340
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-12-22T16:55:05Z",
+          "outcomes": [
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 49.5,
+              "price": -800
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 79.5,
+              "price": -165
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 109.5,
+              "price": 175
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 119.5,
+              "price": 240
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 39.5,
+              "price": -1800
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 99.5,
+              "price": 125
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 59.5,
+              "price": -425
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 89.5,
+              "price": -110
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 69.5,
+              "price": -255
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 99.5,
+              "price": 425
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 59.5,
+              "price": -110
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 109.5,
+              "price": 600
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 39.5,
+              "price": -330
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 119.5,
+              "price": 850
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 89.5,
+              "price": 300
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1400
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 69.5,
+              "price": 140
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 79.5,
+              "price": 210
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 49.5,
+              "price": -185
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 150
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 750
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -185
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 235
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1000
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 500
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -600
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 49.5,
+              "price": -105
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 360
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 59.5,
+              "price": 750
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1100
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 49.5,
+              "price": 425
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 39.5,
+              "price": 245
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 24.5,
+              "price": -110
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 24.5,
+              "price": 320
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 39.5,
+              "price": 850
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2024-12-22T16:54:41Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-12-22T16:55:35Z",
+          "outcomes": [
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 0.5,
+              "price": -295
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 1.5,
+              "price": 180
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -280
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 215
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 900
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-12-22T16:55:35Z",
+          "outcomes": [
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 24.5,
+              "price": 122
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 39.5,
+              "price": 320
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 49.5,
+              "price": 590
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 59.5,
+              "price": 920
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1300
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 24.5,
+              "price": -110
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 39.5,
+              "price": 205
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 59.5,
+              "price": 490
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 69.5,
+              "price": 790
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1120
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1500
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 24.5,
+              "price": -144
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 39.5,
+              "price": 180
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 49.5,
+              "price": 310
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 59.5,
+              "price": 540
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 69.5,
+              "price": 880
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1260
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -400
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 39.5,
+              "price": -152
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 49.5,
+              "price": 112
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 176
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 280
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 79.5,
+              "price": 420
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 89.5,
+              "price": 610
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 920
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1260
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 24.5,
+              "price": 440
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -420
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -168
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -102
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 156
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 235
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 360
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 520
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 790
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1120
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1600
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 24.5,
+              "price": -800
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 39.5,
+              "price": -290
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 49.5,
+              "price": -172
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 59.5,
+              "price": -110
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 69.5,
+              "price": 136
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 79.5,
+              "price": 198
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 89.5,
+              "price": 290
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 99.5,
+              "price": 410
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 109.5,
+              "price": 570
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 124.5,
+              "price": 980
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 39.5,
+              "price": 154
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 49.5,
+              "price": 240
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 59.5,
+              "price": 390
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 69.5,
+              "price": 590
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 79.5,
+              "price": 880
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1200
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1600
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-12-22T16:55:35Z",
+          "outcomes": [
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 1.5,
+              "price": -320
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 2.5,
+              "price": -108
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 3.5,
+              "price": 220
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 4.5,
+              "price": 470
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 5.5,
+              "price": 880
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 2.5,
+              "price": -450
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 3.5,
+              "price": -186
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 4.5,
+              "price": 118
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 5.5,
+              "price": 230
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 6.5,
+              "price": 410
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 7.5,
+              "price": 750
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 0.5,
+              "price": -400
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 1.5,
+              "price": 116
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 2.5,
+              "price": 310
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 3.5,
+              "price": 700
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 2.5,
+              "price": -750
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 3.5,
+              "price": -280
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 4.5,
+              "price": -132
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 5.5,
+              "price": 154
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 6.5,
+              "price": 280
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 7.5,
+              "price": 520
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 8.5,
+              "price": 850
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 1.5,
+              "price": -550
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 2.5,
+              "price": -182
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 3.5,
+              "price": 132
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 4.5,
+              "price": 270
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 5.5,
+              "price": 550
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1450
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 1.5,
+              "price": -270
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 2.5,
+              "price": 116
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 3.5,
+              "price": 270
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 4.5,
+              "price": 580
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 0.5,
+              "price": -900
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 1.5,
+              "price": -174
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 2.5,
+              "price": 168
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 3.5,
+              "price": 400
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 4.5,
+              "price": 880
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1800
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -420
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -178
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 124
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 240
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 430
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 750
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-12-22T16:55:35Z",
+          "outcomes": [
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 39.5,
+              "price": -385
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 49.5,
+              "price": -210
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 59.5,
+              "price": -122
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 69.5,
+              "price": 130
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 79.5,
+              "price": 198
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 89.5,
+              "price": 300
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 99.5,
+              "price": 440
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 109.5,
+              "price": 650
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1040
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -500
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -154
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 120
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 205
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 320
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 520
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 820
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1120
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1600
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 39.5,
+              "price": -1800
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 49.5,
+              "price": -750
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 59.5,
+              "price": -400
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 69.5,
+              "price": -245
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 79.5,
+              "price": -160
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 89.5,
+              "price": -106
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 99.5,
+              "price": 138
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 109.5,
+              "price": 198
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 124.5,
+              "price": 330
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 149.5,
+              "price": 760
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 174.5,
+              "price": 1400
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 24.5,
+              "price": -110
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 39.5,
+              "price": 250
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 49.5,
+              "price": 440
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 59.5,
+              "price": 760
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1120
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1600
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 24.5,
+              "price": 440
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2024-12-22T16:55:26Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1524
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -270
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 481
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 199
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1000
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1502
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 1.5,
+              "price": 182
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 2.5,
+              "price": 463
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 119.5,
+              "price": 1459
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 109.5,
+              "price": 931
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 190
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 39.5,
+              "price": -204
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 609
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 89.5,
+              "price": 407
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 129.5,
+              "price": 2353
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 49.5,
+              "price": -110
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 79.5,
+              "price": 276
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 131
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 30.5,
+              "price": 223
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 10.5,
+              "price": -114
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 60.5,
+              "price": 999
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 50.5,
+              "price": 589
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 20.5,
+              "price": 140
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 40.5,
+              "price": 358
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 70.5,
+              "price": 1764
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 80.5,
+              "price": 3261
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 59.5,
+              "price": -115
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 109.5,
+              "price": 517
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 79.5,
+              "price": 175
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 49.5,
+              "price": -204
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 69.5,
+              "price": 124
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 139.5,
+              "price": 1771
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 99.5,
+              "price": 356
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 129.5,
+              "price": 1148
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 89.5,
+              "price": 249
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 119.5,
+              "price": 763
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 47.5,
+              "price": 539
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 37.5,
+              "price": 337
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 57.5,
+              "price": 887
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 77.5,
+              "price": 2673
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 27.5,
+              "price": 215
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 67.5,
+              "price": 1509
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 17.5,
+              "price": 138
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 58.5,
+              "price": 118
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 78.5,
+              "price": 217
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 118.5,
+              "price": 791
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 98.5,
+              "price": 405
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 38.5,
+              "price": -213
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 108.5,
+              "price": 562
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 88.5,
+              "price": 295
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 48.5,
+              "price": -115
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 128.5,
+              "price": 1129
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 68.5,
+              "price": 160
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 11.5,
+              "price": -294
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 81.5,
+              "price": 2375
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 21.5,
+              "price": -115
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 31.5,
+              "price": 144
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 51.5,
+              "price": 402
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 61.5,
+              "price": 696
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 41.5,
+              "price": 239
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 71.5,
+              "price": 1254
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 91.5,
+              "price": 4766
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 39.5,
+              "price": 131
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 69.5,
+              "price": 450
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 29.5,
+              "price": -115
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 19.5,
+              "price": -250
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 49.5,
+              "price": 196
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1124
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 59.5,
+              "price": 295
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 109.5,
+              "price": 3179
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 79.5,
+              "price": 702
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1856
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 35.5,
+              "price": 132
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 85.5,
+              "price": 1124
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 55.5,
+              "price": 296
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 65.5,
+              "price": 452
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 45.5,
+              "price": 197
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 25.5,
+              "price": -114
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 105.5,
+              "price": 3165
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 95.5,
+              "price": 1852
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 75.5,
+              "price": 703
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 15.5,
+              "price": -263
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 30.5,
+              "price": -114
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 50.5,
+              "price": 204
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 20.5,
+              "price": -244
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 110.5,
+              "price": 3887
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 90.5,
+              "price": 1284
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 40.5,
+              "price": 134
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 60.5,
+              "price": 313
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 70.5,
+              "price": 489
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 80.5,
+              "price": 781
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 100.5,
+              "price": 2190
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 58.5,
+              "price": 773
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 88.5,
+              "price": 3768
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 18.5,
+              "price": 135
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 38.5,
+              "price": 313
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 68.5,
+              "price": 1264
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 48.5,
+              "price": 486
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 78.5,
+              "price": 2141
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 28.5,
+              "price": 204
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 63.5,
+              "price": 1211
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 83.5,
+              "price": 4417
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 13.5,
+              "price": -110
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 43.5,
+              "price": 400
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 53.5,
+              "price": 683
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 33.5,
+              "price": 241
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 73.5,
+              "price": 2251
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 23.5,
+              "price": 147
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 41.5,
+              "price": 278
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 31.5,
+              "price": 190
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 81.5,
+              "price": 1487
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 71.5,
+              "price": 945
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 61.5,
+              "price": 616
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 51.5,
+              "price": 410
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 21.5,
+              "price": 131
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 91.5,
+              "price": 2408
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 11.5,
+              "price": -110
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 293
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 488
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 8.5,
+              "price": 828
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 108
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -172
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 178
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -714
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 6.5,
+              "price": 277
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 5.5,
+              "price": 171
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 4.5,
+              "price": 106
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 8.5,
+              "price": 755
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 2.5,
+              "price": -667
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 7.5,
+              "price": 454
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 3.5,
+              "price": -172
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 5.5,
+              "price": 600
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 4.5,
+              "price": 308
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1202
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 7.5,
+              "price": 2489
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 3.5,
+              "price": 161
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 2.5,
+              "price": -122
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 1.5,
+              "price": -435
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 4.5,
+              "price": -149
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 5.5,
+              "price": 120
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 6.5,
+              "price": 200
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 9.5,
+              "price": 985
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 8.5,
+              "price": 568
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 7.5,
+              "price": 335
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 3.5,
+              "price": -500
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 1.5,
+              "price": -833
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 5.5,
+              "price": 452
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 3.5,
+              "price": 125
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 2.5,
+              "price": -169
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 7.5,
+              "price": 1780
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 6.5,
+              "price": 883
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 4.5,
+              "price": 237
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 4.5,
+              "price": 381
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 5.5,
+              "price": 731
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 1.5,
+              "price": -263
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1441
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 3.5,
+              "price": 202
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 2.5,
+              "price": 115
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 7.5,
+              "price": 2924
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 1.5,
+              "price": 115
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 5.5,
+              "price": 1146
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 3.5,
+              "price": 341
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 4.5,
+              "price": 618
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 2.5,
+              "price": 190
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 6.5,
+              "price": 2171
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 1.5,
+              "price": 120
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 2.5,
+              "price": 244
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 3.5,
+              "price": 538
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 4.5,
+              "price": 1217
+            },
+            {
+              "description": "Josh Whyle",
+              "name": "Over",
+              "point": 5.5,
+              "price": 2824
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 4.5,
+              "price": 411
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 1.5,
+              "price": -164
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 5.5,
+              "price": 774
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 2.5,
+              "price": 122
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1501
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 3.5,
+              "price": 223
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 5.5,
+              "price": 3205
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 4.5,
+              "price": 1340
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 114
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 255
+            },
+            {
+              "description": "Kylen Granson",
+              "name": "Over",
+              "point": 3.5,
+              "price": 576
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 5.5,
+              "price": 667
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1270
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 2.5,
+              "price": 115
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 4.5,
+              "price": 358
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 3.5,
+              "price": 196
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 1.5,
+              "price": -286
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 7.5,
+              "price": 2482
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 3.5,
+              "price": 204
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 2.5,
+              "price": 115
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 6.5,
+              "price": 1260
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 4.5,
+              "price": 367
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 1.5,
+              "price": -172
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 5.5,
+              "price": 670
+            }
+          ]
+        },
+        {
+          "key": "player_rush_attempts_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 21.5,
+              "price": 107
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 27.5,
+              "price": 399
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 28.5,
+              "price": 504
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 25.5,
+              "price": 255
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 20.5,
+              "price": -116
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 24.5,
+              "price": 205
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 26.5,
+              "price": 318
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 22.5,
+              "price": 133
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 18.5,
+              "price": -227
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 23.5,
+              "price": 165
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 19.5,
+              "price": -161
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 9.5,
+              "price": 104
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 11.5,
+              "price": 174
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 10.5,
+              "price": 133
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 12.5,
+              "price": 228
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 8.5,
+              "price": -137
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 15.5,
+              "price": 529
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 7.5,
+              "price": -213
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 14.5,
+              "price": 396
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 13.5,
+              "price": 300
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 16.5,
+              "price": 714
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 17.5,
+              "price": 975
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 10.5,
+              "price": 1451
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 5.5,
+              "price": 228
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 9.5,
+              "price": 966
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 2.5,
+              "price": -125
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 6.5,
+              "price": 320
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 4.5,
+              "price": 163
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 8.5,
+              "price": 658
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 7.5,
+              "price": 456
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 3.5,
+              "price": 126
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 11.5,
+              "price": 2231
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 17.5,
+              "price": 112
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 23.5,
+              "price": 473
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 14.5,
+              "price": -256
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 21.5,
+              "price": 288
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 15.5,
+              "price": -169
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 18.5,
+              "price": 141
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 19.5,
+              "price": 179
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 20.5,
+              "price": 226
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 22.5,
+              "price": 368
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 16.5,
+              "price": -114
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 24.5,
+              "price": 613
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 117.5,
+              "price": 242
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 157.5,
+              "price": 1054
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 137.5,
+              "price": 490
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 127.5,
+              "price": 343
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 147.5,
+              "price": 712
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 67.5,
+              "price": -333
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 97.5,
+              "price": 123
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 77.5,
+              "price": -189
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 107.5,
+              "price": 173
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 87.5,
+              "price": -114
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 167.5,
+              "price": 1594
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 10.5,
+              "price": -111
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 40.5,
+              "price": 1021
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 20.5,
+              "price": 194
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 50.5,
+              "price": 2693
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 30.5,
+              "price": 430
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 108.5,
+              "price": 859
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 58.5,
+              "price": 127
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 68.5,
+              "price": 182
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 88.5,
+              "price": 384
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 78.5,
+              "price": 263
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 128.5,
+              "price": 2107
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 48.5,
+              "price": -114
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 118.5,
+              "price": 1327
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 28.5,
+              "price": -455
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 98.5,
+              "price": 569
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 38.5,
+              "price": -217
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 53.5,
+              "price": 399
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 43.5,
+              "price": 237
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 13.5,
+              "price": -303
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 23.5,
+              "price": -118
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 63.5,
+              "price": 693
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 83.5,
+              "price": 2388
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 73.5,
+              "price": 1255
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 33.5,
+              "price": 142
+            },
+            {
+              "description": "Tyjae Spears",
+              "name": "Over",
+              "point": 93.5,
+              "price": 4820
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 109.5,
+              "price": 430
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 69.5,
+              "price": 122
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 99.5,
+              "price": 311
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 129.5,
+              "price": 856
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 59.5,
+              "price": -111
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 119.5,
+              "price": 602
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 139.5,
+              "price": 1237
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 39.5,
+              "price": -370
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 89.5,
+              "price": 227
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 79.5,
+              "price": 166
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 49.5,
+              "price": -196
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "betmgm",
+      "last_update": "2024-12-22T16:54:41Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-12-22T16:55:09Z",
+          "outcomes": [
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 74.5,
+              "price": 140
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 49.5,
+              "price": -210
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 99.5,
+              "price": 333
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 24.5,
+              "price": -155
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 74.5,
+              "price": 950
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 49.5,
+              "price": 195
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 24.5,
+              "price": -250
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 124.5,
+              "price": 700
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 74.5,
+              "price": 550
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1200
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -140
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -700
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 74.5,
+              "price": 210
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 525
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 49.5,
+              "price": -120
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 74.5,
+              "price": 260
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -650
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 625
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 74.5,
+              "price": 650
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 24.5,
+              "price": -140
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 49.5,
+              "price": 250
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-12-22T16:55:09Z",
+          "outcomes": [
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 105
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 850
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -700
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 49.5,
+              "price": -250
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 74.5,
+              "price": 360
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 74.5,
+              "price": 155
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Tony Pollard",
+              "name": "Over",
+              "point": 124.5,
+              "price": 900
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 74.5,
+              "price": -250
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 49.5,
+              "price": -1600
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 99.5,
+              "price": 125
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 124.5,
+              "price": 310
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 149.5,
+              "price": 675
+            }
+          ]
+        }
+      ],
+      "title": "BetMGM"
+    },
+    {
+      "key": "bovada",
+      "last_update": "2024-12-22T16:55:14Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-12-22T16:55:24Z",
+          "outcomes": [
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -250
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 200
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 850
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 0.5,
+              "price": -330
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 1.5,
+              "price": 175
+            },
+            {
+              "description": "Mason Rudolph",
+              "name": "Over",
+              "point": 2.5,
+              "price": 700
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-12-22T16:55:24Z",
+          "outcomes": [
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 24.5,
+              "price": -120
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 39.5,
+              "price": 200
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 69.5,
+              "price": 700
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1000
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1400
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1600
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1000
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 39.5,
+              "price": -330
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 49.5,
+              "price": -200
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 59.5,
+              "price": -120
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 69.5,
+              "price": 130
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 79.5,
+              "price": 200
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 89.5,
+              "price": 275
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 109.5,
+              "price": 550
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 124.5,
+              "price": 900
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1800
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 39.5,
+              "price": 185
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 49.5,
+              "price": 300
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 59.5,
+              "price": 550
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 69.5,
+              "price": 900
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1200
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1800
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 24.5,
+              "price": 400
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 24.5,
+              "price": -600
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 39.5,
+              "price": -220
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 49.5,
+              "price": -125
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 59.5,
+              "price": 125
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 69.5,
+              "price": 200
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 79.5,
+              "price": 275
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 89.5,
+              "price": 430
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 99.5,
+              "price": 550
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 109.5,
+              "price": 850
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1200
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": -200
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": -120
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 130
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 200
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 79.5,
+              "price": 300
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 89.5,
+              "price": 450
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 99.5,
+              "price": 650
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 109.5,
+              "price": 900
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1400
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 39.5,
+              "price": 150
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 49.5,
+              "price": 250
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 59.5,
+              "price": 350
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 69.5,
+              "price": 500
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 79.5,
+              "price": 800
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1000
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1400
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1800
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 24.5,
+              "price": 120
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 39.5,
+              "price": 300
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 49.5,
+              "price": 500
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 59.5,
+              "price": 850
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1200
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1600
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-12-22T16:55:24Z",
+          "outcomes": [
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1000
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 1.5,
+              "price": -185
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 2.5,
+              "price": 170
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 3.5,
+              "price": 400
+            },
+            {
+              "description": "Adonai Mitchell",
+              "name": "Over",
+              "point": 4.5,
+              "price": 850
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 2.5,
+              "price": -1200
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 3.5,
+              "price": -400
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 4.5,
+              "price": -175
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 5.5,
+              "price": 120
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 6.5,
+              "price": 220
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 7.5,
+              "price": 400
+            },
+            {
+              "description": "Calvin Ridley",
+              "name": "Over",
+              "point": 8.5,
+              "price": 700
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 1.5,
+              "price": -600
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 2.5,
+              "price": -175
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 3.5,
+              "price": 130
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 4.5,
+              "price": 275
+            },
+            {
+              "description": "Chigoziem Okonkwo",
+              "name": "Over",
+              "point": 5.5,
+              "price": 550
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 0.5,
+              "price": -400
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 1.5,
+              "price": 115
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 2.5,
+              "price": 300
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 3.5,
+              "price": 750
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 0.5,
+              "price": -20000
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 1.5,
+              "price": -10000
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 2.5,
+              "price": -500
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 3.5,
+              "price": -200
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 4.5,
+              "price": 115
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 5.5,
+              "price": 225
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 6.5,
+              "price": 400
+            },
+            {
+              "description": "Josh Downs",
+              "name": "Over",
+              "point": 7.5,
+              "price": 750
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 2.5,
+              "price": -500
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 3.5,
+              "price": -200
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": 110
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": 220
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": 400
+            },
+            {
+              "description": "Michael Pittman Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 700
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 1.5,
+              "price": -330
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 2.5,
+              "price": -110
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 3.5,
+              "price": 220
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 4.5,
+              "price": 475
+            },
+            {
+              "description": "Nick Westbrook-Ikhine",
+              "name": "Over",
+              "point": 5.5,
+              "price": 900
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1400
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 1.5,
+              "price": -250
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 2.5,
+              "price": 115
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 3.5,
+              "price": 275
+            },
+            {
+              "description": "Tyler Boyd",
+              "name": "Over",
+              "point": 4.5,
+              "price": 650
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-12-22T16:55:24Z",
+          "outcomes": [
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 24.5,
+              "price": -500
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 39.5,
+              "price": -150
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 49.5,
+              "price": 120
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 59.5,
+              "price": 200
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 69.5,
+              "price": 330
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 79.5,
+              "price": 500
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 89.5,
+              "price": 750
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1000
+            },
+            {
+              "description": "Anthony Richardson",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1600
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 49.5,
+              "price": -800
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 59.5,
+              "price": -450
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 69.5,
+              "price": -265
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 79.5,
+              "price": -165
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 89.5,
+              "price": -110
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 99.5,
+              "price": 140
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 109.5,
+              "price": 200
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 124.5,
+              "price": 3300
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 149.5,
+              "price": 750
+            },
+            {
+              "description": "Jonathan Taylor",
+              "name": "Over",
+              "point": 174.5,
+              "price": 1400
+            }
+          ]
+        }
+      ],
+      "title": "Bovada"
+    }
+  ],
+  "commence_time": "2024-12-22T18:01:00Z",
+  "home_team": "Indianapolis Colts",
+  "id": "f03bb31e9ff7b81ad1e18e36b7cdddb7",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

@@ -1,0 +1,2136 @@
+{
+  "league": "nfl",
+  "snapshot_lead_minutes": 60,
+  "events_probed": 20,
+  "events_returned": 20,
+  "credits_spent": 7280,
+  "credits_estimated": 9220,
+  "quota_remaining": "79659",
+  "quota_used": "20341",
+  "requests_made": 120,
+  "stopped_early": "",
+  "notes": [
+    "A response carried no `x-requests-last`; charged the pessimistic estimate of 60 against the cap instead.",
+    "A response carried no `x-requests-last`; charged the pessimistic estimate of 60 against the cap instead.",
+    "A response carried no `x-requests-last`; charged the pessimistic estimate of 60 against the cap instead.",
+    "A response carried no `x-requests-last`; charged the pessimistic estimate of 60 against the cap instead.",
+    "A response carried no `x-requests-last`; charged the pessimistic estimate of 60 against the cap instead.",
+    "27 market(s) present in the run record are absent from the cached responses in historical_probe: the chunk cache of that run collided on filename and kept only the last chunk of each size. The record is complete and is what this report is built from; the cache is not, and a later probe will be.",
+    "27 market(s) present in the run record are absent from the cached responses in historical_probe: the chunk cache of that run collided on filename and kept only the last chunk of each size. The record is complete and is what this report is built from; the cache is not, and a later probe will be."
+  ],
+  "markets": {
+    "alternate_spreads": {
+      "project_key": "alternate_spread",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 10641,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "alternate_totals": {
+      "project_key": "alternate_total_points",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 11936,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "team_totals": {
+      "project_key": "team_total",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 830,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "alternate_team_totals": {
+      "project_key": "alternate_team_total",
+      "events_seen": 17,
+      "books": [
+        "betmgm",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel"
+      ],
+      "outcomes": 4056,
+      "verdict": "retained \u2014 priced in 17 of 20 events"
+    },
+    "h2h_h1": {
+      "project_key": "moneyline_h1",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 296,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "spreads_h1": {
+      "project_key": "spread_h1",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 286,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "totals_h1": {
+      "project_key": "total_points_h1",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 286,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_yds": {
+      "project_key": "pass_yards",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 826,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_attempts": {
+      "project_key": "pass_attempts",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 450,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_completions": {
+      "project_key": "pass_completions",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 430,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_tds": {
+      "project_key": "pass_tds",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 574,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_interceptions": {
+      "project_key": "pass_interceptions",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 438,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_longest_completion": {
+      "project_key": "pass_longest_completion",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 348,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_rush_yds": {
+      "project_key": "rush_yards",
+      "events_seen": 19,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 1620,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_rush_attempts": {
+      "project_key": "rush_attempts",
+      "events_seen": 19,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 631,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_rush_tds": {
+      "project_key": "rush_tds",
+      "events_seen": 0,
+      "books": [],
+      "outcomes": 0,
+      "verdict": "not seen in any of 20 events \u2014 no historical price to test against"
+    },
+    "player_rush_longest": {
+      "project_key": "rush_longest",
+      "events_seen": 19,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel"
+      ],
+      "outcomes": 600,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_receptions": {
+      "project_key": "receptions",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 2884,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_reception_yds": {
+      "project_key": "reception_yards",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 3732,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_reception_tds": {
+      "project_key": "reception_tds",
+      "events_seen": 0,
+      "books": [],
+      "outcomes": 0,
+      "verdict": "not seen in any of 20 events \u2014 no historical price to test against"
+    },
+    "player_reception_longest": {
+      "project_key": "reception_longest",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 1672,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_anytime_td": {
+      "project_key": "anytime_td",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 3734,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_kicking_points": {
+      "project_key": "kicking_points",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "williamhill_us"
+      ],
+      "outcomes": 267,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_field_goals": {
+      "project_key": "field_goals",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "draftkings",
+        "fanatics",
+        "williamhill_us"
+      ],
+      "outcomes": 190,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_tackles_assists": {
+      "project_key": "tackles_assists",
+      "events_seen": 18,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 1051,
+      "verdict": "retained \u2014 priced in 18 of 20 events"
+    },
+    "player_sacks": {
+      "project_key": "sacks",
+      "events_seen": 19,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "draftkings",
+        "fanduel"
+      ],
+      "outcomes": 659,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_defensive_interceptions": {
+      "project_key": "defensive_interceptions",
+      "events_seen": 0,
+      "books": [],
+      "outcomes": 0,
+      "verdict": "not seen in any of 20 events \u2014 no historical price to test against"
+    },
+    "player_pass_yds_alternate": {
+      "project_key": "pass_yards",
+      "events_seen": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 2147,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_attempts_alternate": {
+      "project_key": "pass_attempts",
+      "events_seen": 10,
+      "books": [
+        "draftkings",
+        "fanatics"
+      ],
+      "outcomes": 354,
+      "verdict": "retained \u2014 priced in 10 of 20 events"
+    },
+    "player_pass_completions_alternate": {
+      "project_key": "pass_completions",
+      "events_seen": 14,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "draftkings"
+      ],
+      "outcomes": 414,
+      "verdict": "retained \u2014 priced in 14 of 20 events"
+    },
+    "player_pass_tds_alternate": {
+      "project_key": "pass_tds",
+      "events_seen": 20,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 616,
+      "verdict": "retained \u2014 priced in 20 of 20 events"
+    },
+    "player_pass_interceptions_alternate": {
+      "project_key": "pass_interceptions",
+      "events_seen": 12,
+      "books": [
+        "betrivers",
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 97,
+      "verdict": "retained \u2014 priced in 12 of 20 events"
+    },
+    "player_pass_longest_completion_alternate": {
+      "project_key": "pass_longest_completion",
+      "events_seen": 0,
+      "books": [],
+      "outcomes": 0,
+      "verdict": "not seen in any of 20 events \u2014 no historical price to test against"
+    },
+    "player_rush_yds_alternate": {
+      "project_key": "rush_yards",
+      "events_seen": 19,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 3355,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_rush_attempts_alternate": {
+      "project_key": "rush_attempts",
+      "events_seen": 14,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "draftkings",
+        "fanatics",
+        "williamhill_us"
+      ],
+      "outcomes": 824,
+      "verdict": "retained \u2014 priced in 14 of 20 events"
+    },
+    "player_rush_tds_alternate": {
+      "project_key": "rush_tds",
+      "events_seen": 2,
+      "books": [
+        "williamhill_us"
+      ],
+      "outcomes": 6,
+      "verdict": "retained \u2014 priced in 2 of 20 events"
+    },
+    "player_rush_longest_alternate": {
+      "project_key": "rush_longest",
+      "events_seen": 4,
+      "books": [
+        "williamhill_us"
+      ],
+      "outcomes": 36,
+      "verdict": "retained \u2014 priced in 4 of 20 events"
+    },
+    "player_receptions_alternate": {
+      "project_key": "receptions",
+      "events_seen": 19,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 3785,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_reception_yds_alternate": {
+      "project_key": "reception_yards",
+      "events_seen": 19,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 7100,
+      "verdict": "retained \u2014 priced in 19 of 20 events"
+    },
+    "player_reception_tds_alternate": {
+      "project_key": "reception_tds",
+      "events_seen": 2,
+      "books": [
+        "williamhill_us"
+      ],
+      "outcomes": 4,
+      "verdict": "retained \u2014 priced in 2 of 20 events"
+    },
+    "player_reception_longest_alternate": {
+      "project_key": "reception_longest",
+      "events_seen": 13,
+      "books": [
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 423,
+      "verdict": "retained \u2014 priced in 13 of 20 events"
+    },
+    "player_kicking_points_alternate": {
+      "project_key": "kicking_points",
+      "events_seen": 11,
+      "books": [
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 105,
+      "verdict": "retained \u2014 priced in 11 of 20 events"
+    },
+    "player_field_goals_alternate": {
+      "project_key": "field_goals",
+      "events_seen": 14,
+      "books": [
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 107,
+      "verdict": "retained \u2014 priced in 14 of 20 events"
+    },
+    "player_tackles_assists_alternate": {
+      "project_key": "tackles_assists",
+      "events_seen": 9,
+      "books": [
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 489,
+      "verdict": "retained \u2014 priced in 9 of 20 events"
+    },
+    "player_sacks_alternate": {
+      "project_key": "sacks",
+      "events_seen": 14,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 381,
+      "verdict": "retained \u2014 priced in 14 of 20 events"
+    },
+    "player_defensive_interceptions_alternate": {
+      "project_key": "defensive_interceptions",
+      "events_seen": 9,
+      "books": [
+        "betrivers",
+        "williamhill_us"
+      ],
+      "outcomes": 145,
+      "verdict": "retained \u2014 priced in 9 of 20 events"
+    }
+  },
+  "rollup": {
+    "alternate_spread": {
+      "provider_keys": [
+        "alternate_spreads"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 10641,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "alternate_total_points": {
+      "provider_keys": [
+        "alternate_totals"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 11936,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "anytime_td": {
+      "provider_keys": [
+        "player_anytime_td"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 3734,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "field_goals": {
+      "provider_keys": [
+        "player_field_goals",
+        "player_field_goals_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "draftkings",
+        "fanatics",
+        "williamhill_us"
+      ],
+      "outcomes": 297,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "kicking_points": {
+      "provider_keys": [
+        "player_kicking_points",
+        "player_kicking_points_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "williamhill_us"
+      ],
+      "outcomes": 372,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "moneyline_h1": {
+      "provider_keys": [
+        "h2h_h1"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 296,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_attempts": {
+      "provider_keys": [
+        "player_pass_attempts",
+        "player_pass_attempts_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 804,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_completions": {
+      "provider_keys": [
+        "player_pass_completions",
+        "player_pass_completions_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 844,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_interceptions": {
+      "provider_keys": [
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 535,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_longest_completion": {
+      "provider_keys": [
+        "player_pass_longest_completion",
+        "player_pass_longest_completion_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 348,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_tds": {
+      "provider_keys": [
+        "player_pass_tds",
+        "player_pass_tds_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 1190,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "pass_yards": {
+      "provider_keys": [
+        "player_pass_yds",
+        "player_pass_yds_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 2973,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "reception_longest": {
+      "provider_keys": [
+        "player_reception_longest",
+        "player_reception_longest_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 2095,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "reception_yards": {
+      "provider_keys": [
+        "player_reception_yds",
+        "player_reception_yds_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 10832,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "receptions": {
+      "provider_keys": [
+        "player_receptions",
+        "player_receptions_alternate"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 6669,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "spread_h1": {
+      "provider_keys": [
+        "spreads_h1"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 286,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "team_total": {
+      "provider_keys": [
+        "team_totals"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 830,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "total_points_h1": {
+      "provider_keys": [
+        "totals_h1"
+      ],
+      "events_seen": 20,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "betus",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 286,
+      "verdict": "retained \u2014 priced in 20 of 20 events",
+      "thin": false
+    },
+    "rush_attempts": {
+      "provider_keys": [
+        "player_rush_attempts",
+        "player_rush_attempts_alternate"
+      ],
+      "events_seen": 19,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 1455,
+      "verdict": "retained \u2014 priced in 19 of 20 events",
+      "thin": false
+    },
+    "rush_longest": {
+      "provider_keys": [
+        "player_rush_longest",
+        "player_rush_longest_alternate"
+      ],
+      "events_seen": 19,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 636,
+      "verdict": "retained \u2014 priced in 19 of 20 events",
+      "thin": false
+    },
+    "rush_yards": {
+      "provider_keys": [
+        "player_rush_yds",
+        "player_rush_yds_alternate"
+      ],
+      "events_seen": 19,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 4975,
+      "verdict": "retained \u2014 priced in 19 of 20 events",
+      "thin": false
+    },
+    "sacks": {
+      "provider_keys": [
+        "player_sacks",
+        "player_sacks_alternate"
+      ],
+      "events_seen": 19,
+      "events_probed": 20,
+      "books": [
+        "betonlineag",
+        "betrivers",
+        "draftkings",
+        "fanduel",
+        "williamhill_us"
+      ],
+      "outcomes": 1040,
+      "verdict": "retained \u2014 priced in 19 of 20 events",
+      "thin": false
+    },
+    "tackles_assists": {
+      "provider_keys": [
+        "player_tackles_assists",
+        "player_tackles_assists_alternate"
+      ],
+      "events_seen": 18,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "betonlineag",
+        "betrivers",
+        "bovada",
+        "draftkings",
+        "williamhill_us"
+      ],
+      "outcomes": 1540,
+      "verdict": "retained \u2014 priced in 18 of 20 events",
+      "thin": false
+    },
+    "alternate_team_total": {
+      "provider_keys": [
+        "alternate_team_totals"
+      ],
+      "events_seen": 17,
+      "events_probed": 20,
+      "books": [
+        "betmgm",
+        "bovada",
+        "draftkings",
+        "fanatics",
+        "fanduel"
+      ],
+      "outcomes": 4056,
+      "verdict": "retained \u2014 priced in 17 of 20 events",
+      "thin": false
+    },
+    "defensive_interceptions": {
+      "provider_keys": [
+        "player_defensive_interceptions",
+        "player_defensive_interceptions_alternate"
+      ],
+      "events_seen": 9,
+      "events_probed": 20,
+      "books": [
+        "betrivers",
+        "williamhill_us"
+      ],
+      "outcomes": 145,
+      "verdict": "retained \u2014 priced in 9 of 20 events",
+      "thin": false
+    },
+    "reception_tds": {
+      "provider_keys": [
+        "player_reception_tds",
+        "player_reception_tds_alternate"
+      ],
+      "events_seen": 2,
+      "events_probed": 20,
+      "books": [
+        "williamhill_us"
+      ],
+      "outcomes": 4,
+      "verdict": "retained but thin \u2014 priced in only 2 of 20 events across 1 book(s)",
+      "thin": true
+    },
+    "rush_tds": {
+      "provider_keys": [
+        "player_rush_tds",
+        "player_rush_tds_alternate"
+      ],
+      "events_seen": 2,
+      "events_probed": 20,
+      "books": [
+        "williamhill_us"
+      ],
+      "outcomes": 6,
+      "verdict": "retained but thin \u2014 priced in only 2 of 20 events across 1 book(s)",
+      "thin": true
+    }
+  },
+  "events": [
+    {
+      "label": "2024 wk1 ARI@BUF (sunday early)",
+      "season": 2024,
+      "week": 1,
+      "window": "sunday early",
+      "home": "BUF",
+      "away": "ARI",
+      "snapshot": "2024-09-08T16:00:00Z",
+      "event_id": "7a5e353202d40a844491fa5753bc3097",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 341,
+      "error": ""
+    },
+    {
+      "label": "2024 wk1 DEN@SEA (sunday late)",
+      "season": 2024,
+      "week": 1,
+      "window": "sunday late",
+      "home": "SEA",
+      "away": "DEN",
+      "snapshot": "2024-09-08T19:05:00Z",
+      "event_id": "afb7e137dbb2a3de38d2d3cb68897e3b",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 341,
+      "error": ""
+    },
+    {
+      "label": "2024 wk1 NYJ@SF (monday night)",
+      "season": 2024,
+      "week": 1,
+      "window": "monday night",
+      "home": "SF",
+      "away": "NYJ",
+      "snapshot": "2024-09-09T23:15:00Z",
+      "event_id": "d94f808523ced7460f7c88c758c481f5",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 341,
+      "error": ""
+    },
+    {
+      "label": "2024 wk4 NO@ATL (sunday early)",
+      "season": 2024,
+      "week": 4,
+      "window": "sunday early",
+      "home": "ATL",
+      "away": "NO",
+      "snapshot": "2024-09-29T16:00:00Z",
+      "event_id": "3858ab1dfdb4db4987218c709a51d1bf",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 351,
+      "error": ""
+    },
+    {
+      "label": "2024 wk8 NYJ@NE (sunday early)",
+      "season": 2024,
+      "week": 8,
+      "window": "sunday early",
+      "home": "NE",
+      "away": "NYJ",
+      "snapshot": "2024-10-27T16:00:00Z",
+      "event_id": "7679451910267ad5cd8620cf63870aaa",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 351,
+      "error": ""
+    },
+    {
+      "label": "2024 wk9 JAX@PHI (sunday late)",
+      "season": 2024,
+      "week": 9,
+      "window": "sunday late",
+      "home": "PHI",
+      "away": "JAX",
+      "snapshot": "2024-11-03T20:05:00Z",
+      "event_id": "ef026bf62bfb6cda42ee983680eda2d4",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_longest_alternate",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 361,
+      "error": ""
+    },
+    {
+      "label": "2024 wk12 NE@MIA (sunday early)",
+      "season": 2024,
+      "week": 12,
+      "window": "sunday early",
+      "home": "MIA",
+      "away": "NE",
+      "snapshot": "2024-11-24T17:00:00Z",
+      "event_id": "366a8618003ac848eac5144aebbeace4",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_longest_alternate",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 371,
+      "error": ""
+    },
+    {
+      "label": "2024 wk16 TEN@IND (sunday early)",
+      "season": 2024,
+      "week": 16,
+      "window": "sunday early",
+      "home": "IND",
+      "away": "TEN",
+      "snapshot": "2024-12-22T17:00:00Z",
+      "event_id": "f03bb31e9ff7b81ad1e18e36b7cdddb7",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 321,
+      "error": ""
+    },
+    {
+      "label": "2024 wk18 CLE@BAL (other)",
+      "season": 2024,
+      "week": 18,
+      "window": "other",
+      "home": "BAL",
+      "away": "CLE",
+      "snapshot": "2025-01-04T20:30:00Z",
+      "event_id": "15a56f0e44d8fdb660a6a0aed2449e4b",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_tds_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_longest_alternate",
+        "player_rush_tds_alternate",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 411,
+      "error": ""
+    },
+    {
+      "label": "2024 wk18 SF@ARI (sunday late)",
+      "season": 2024,
+      "week": 18,
+      "window": "sunday late",
+      "home": "ARI",
+      "away": "SF",
+      "snapshot": "2025-01-05T20:25:00Z",
+      "event_id": "ebda13c375e6e6bb69822f91bce86756",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_tds_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_longest_alternate",
+        "player_rush_tds_alternate",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 361,
+      "error": ""
+    },
+    {
+      "label": "2025 wk1 BAL@BUF (sunday night)",
+      "season": 2025,
+      "week": 1,
+      "window": "sunday night",
+      "home": "BUF",
+      "away": "BAL",
+      "snapshot": "2025-09-07T23:20:00Z",
+      "event_id": "dee0a41ed5e8201a96d457899adbe918",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 371,
+      "error": ""
+    },
+    {
+      "label": "2025 wk2 WAS@GB (thursday night)",
+      "season": 2025,
+      "week": 2,
+      "window": "thursday night",
+      "home": "GB",
+      "away": "WAS",
+      "snapshot": "2025-09-11T23:15:00Z",
+      "event_id": "0c6e5d9821ce0d3e82f3e792879776a6",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 371,
+      "error": ""
+    },
+    {
+      "label": "2025 wk2 SEA@PIT (sunday early)",
+      "season": 2025,
+      "week": 2,
+      "window": "sunday early",
+      "home": "PIT",
+      "away": "SEA",
+      "snapshot": "2025-09-14T16:00:00Z",
+      "event_id": "82f9fd7001598d5cf9c1bdd57c66cae4",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 371,
+      "error": ""
+    },
+    {
+      "label": "2025 wk6 LAC@MIA (sunday early)",
+      "season": 2025,
+      "week": 6,
+      "window": "sunday early",
+      "home": "MIA",
+      "away": "LAC",
+      "snapshot": "2025-10-12T16:00:00Z",
+      "event_id": "a7211a87bbd5fb2ee473eb9c93ee2e68",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 391,
+      "error": ""
+    },
+    {
+      "label": "2025 wk10 NE@TB (sunday early)",
+      "season": 2025,
+      "week": 10,
+      "window": "sunday early",
+      "home": "TB",
+      "away": "NE",
+      "snapshot": "2025-11-09T17:00:00Z",
+      "event_id": "39e7c1f6e36d5bc4d2613ebf7bb83c10",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 391,
+      "error": ""
+    },
+    {
+      "label": "2025 wk10 DET@WAS (sunday late)",
+      "season": 2025,
+      "week": 10,
+      "window": "sunday late",
+      "home": "WAS",
+      "away": "DET",
+      "snapshot": "2025-11-09T20:25:00Z",
+      "event_id": "93365f943b3aa23705bc9e1c7b47d7f8",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 391,
+      "error": ""
+    },
+    {
+      "label": "2025 wk14 SEA@ATL (sunday early)",
+      "season": 2025,
+      "week": 14,
+      "window": "sunday early",
+      "home": "ATL",
+      "away": "SEA",
+      "snapshot": "2025-12-07T17:00:00Z",
+      "event_id": "f0bdd27bbed46dfc3d0657500c95a96c",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 391,
+      "error": ""
+    },
+    {
+      "label": "2025 wk17 LA@ATL (monday night)",
+      "season": 2025,
+      "week": 17,
+      "window": "monday night",
+      "home": "ATL",
+      "away": "LA",
+      "snapshot": "2025-12-30T00:15:00Z",
+      "event_id": "ea5fe5f603483c8d46f83081cf780397",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_defensive_interceptions_alternate",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 391,
+      "error": ""
+    },
+    {
+      "label": "2025 wk18 TEN@JAX (sunday early)",
+      "season": 2025,
+      "week": 18,
+      "window": "sunday early",
+      "home": "JAX",
+      "away": "TEN",
+      "snapshot": "2026-01-04T17:00:00Z",
+      "event_id": "623e9172767ca231241e2313bbee095e",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_longest_alternate",
+        "player_reception_yds",
+        "player_reception_yds_alternate",
+        "player_receptions",
+        "player_receptions_alternate",
+        "player_rush_attempts",
+        "player_rush_attempts_alternate",
+        "player_rush_longest",
+        "player_rush_yds",
+        "player_rush_yds_alternate",
+        "player_sacks",
+        "player_sacks_alternate",
+        "player_tackles_assists",
+        "player_tackles_assists_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 381,
+      "error": ""
+    },
+    {
+      "label": "2025 wk18 WAS@PHI (sunday late)",
+      "season": 2025,
+      "week": 18,
+      "window": "sunday late",
+      "home": "PHI",
+      "away": "WAS",
+      "snapshot": "2026-01-04T20:25:00Z",
+      "event_id": "b6eb23d78a4e1b3bf9946be7cfac0e6b",
+      "markets_returned": [
+        "alternate_spreads",
+        "alternate_team_totals",
+        "alternate_totals",
+        "h2h_h1",
+        "player_anytime_td",
+        "player_field_goals",
+        "player_field_goals_alternate",
+        "player_kicking_points",
+        "player_kicking_points_alternate",
+        "player_pass_attempts",
+        "player_pass_attempts_alternate",
+        "player_pass_completions",
+        "player_pass_completions_alternate",
+        "player_pass_interceptions",
+        "player_pass_interceptions_alternate",
+        "player_pass_longest_completion",
+        "player_pass_tds",
+        "player_pass_tds_alternate",
+        "player_pass_yds",
+        "player_pass_yds_alternate",
+        "player_reception_longest",
+        "player_reception_yds",
+        "player_receptions",
+        "player_sacks",
+        "player_sacks_alternate",
+        "spreads_h1",
+        "team_totals",
+        "totals_h1"
+      ],
+      "refused": [],
+      "credits_spent": 281,
+      "error": ""
+    }
+  ]
+}

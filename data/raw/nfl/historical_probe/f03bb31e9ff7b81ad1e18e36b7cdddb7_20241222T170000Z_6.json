@@ -1,0 +1,167 @@
+{
+  "away_team": "Tennessee Titans",
+  "bookmakers": [
+    {
+      "key": "betonlineag",
+      "last_update": "2024-12-22T16:55:26Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2024-12-22T16:55:48Z",
+          "outcomes": [
+            {
+              "description": "Jeffery Simmons",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jeffery Simmons",
+              "name": "Over",
+              "point": 0.5,
+              "price": 225
+            },
+            {
+              "description": "T'Vondre Sweat",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "T'Vondre Sweat",
+              "name": "Over",
+              "point": 0.5,
+              "price": 400
+            },
+            {
+              "description": "Arden Key",
+              "name": "Over",
+              "point": 0.5,
+              "price": 240
+            },
+            {
+              "description": "Arden Key",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Harold Landry III",
+              "name": "Over",
+              "point": 0.5,
+              "price": 225
+            },
+            {
+              "description": "Harold Landry III",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Zaire Franklin",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Zaire Franklin",
+              "name": "Over",
+              "point": 0.5,
+              "price": 400
+            },
+            {
+              "description": "Laiatu Latu",
+              "name": "Over",
+              "point": 0.5,
+              "price": 225
+            },
+            {
+              "description": "Laiatu Latu",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Dayo Odeyingbo",
+              "name": "Over",
+              "point": 1.5,
+              "price": 700
+            },
+            {
+              "description": "Dayo Odeyingbo",
+              "name": "Over",
+              "point": 0.5,
+              "price": 200
+            },
+            {
+              "description": "Kwity Paye",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Kwity Paye",
+              "name": "Over",
+              "point": 0.5,
+              "price": 175
+            },
+            {
+              "description": "DeForest Buckner",
+              "name": "Over",
+              "point": 0.5,
+              "price": 140
+            },
+            {
+              "description": "DeForest Buckner",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Tyquan Lewis",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Tyquan Lewis",
+              "name": "Over",
+              "point": 0.5,
+              "price": 330
+            },
+            {
+              "description": "Grover Stewart",
+              "name": "Over",
+              "point": 0.5,
+              "price": 340
+            },
+            {
+              "description": "Grover Stewart",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Kenneth Murray Jr.",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Kenneth Murray Jr.",
+              "name": "Over",
+              "point": 0.5,
+              "price": 175
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    }
+  ],
+  "commence_time": "2024-12-22T18:01:00Z",
+  "home_team": "Indianapolis Colts",
+  "id": "f03bb31e9ff7b81ad1e18e36b7cdddb7",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

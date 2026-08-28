@@ -1,0 +1,920 @@
+{
+  "away_team": "Los Angeles Chargers",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2025-10-12T15:55:22Z",
+      "markets": [
+        {
+          "key": "player_field_goals_alternate",
+          "last_update": "2025-10-12T15:55:19Z",
+          "outcomes": [
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 0.5,
+              "price": -670
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 1.5,
+              "price": -152
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 2.5,
+              "price": 194
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 3.5,
+              "price": 524
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 4.5,
+              "price": 1380
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -561
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 1.5,
+              "price": -126
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 236
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 3.5,
+              "price": 640
+            }
+          ]
+        },
+        {
+          "key": "player_kicking_points_alternate",
+          "last_update": "2025-10-12T15:55:19Z",
+          "outcomes": [
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 3.5,
+              "price": -990
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 5.5,
+              "price": -310
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 7.5,
+              "price": -134
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 9.5,
+              "price": 163
+            },
+            {
+              "description": "Cameron Dicker",
+              "name": "Over",
+              "point": 12.5,
+              "price": 463
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 3.5,
+              "price": -561
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 5.5,
+              "price": -199
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 7.5,
+              "price": 109
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 9.5,
+              "price": 227
+            },
+            {
+              "description": "Riley Patterson",
+              "name": "Over",
+              "point": 12.5,
+              "price": 630
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-10-12T15:55:19Z",
+          "outcomes": [
+            {
+              "description": "Bradley Chubb",
+              "name": "Over",
+              "point": 0.5,
+              "price": 135
+            },
+            {
+              "description": "Bradley Chubb",
+              "name": "Over",
+              "point": 1.5,
+              "price": 830
+            },
+            {
+              "description": "Demeioun Robinson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 391
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 0.5,
+              "price": 197
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1400
+            },
+            {
+              "description": "Tuli Tuipulotu",
+              "name": "Over",
+              "point": 0.5,
+              "price": 126
+            },
+            {
+              "description": "Tuli Tuipulotu",
+              "name": "Over",
+              "point": 1.5,
+              "price": 700
+            },
+            {
+              "description": "Zach Sieler",
+              "name": "Over",
+              "point": 0.5,
+              "price": 170
+            },
+            {
+              "description": "Zach Sieler",
+              "name": "Over",
+              "point": 1.5,
+              "price": 1100
+            }
+          ]
+        },
+        {
+          "key": "player_tackles_assists_alternate",
+          "last_update": "2025-10-12T15:55:19Z",
+          "outcomes": [
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 6.5,
+              "price": -1120
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 7.5,
+              "price": -553
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 8.5,
+              "price": -304
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 9.5,
+              "price": -176
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 10.5,
+              "price": -107
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 11.5,
+              "price": 154
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 12.5,
+              "price": 245
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 13.5,
+              "price": 390
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 14.5,
+              "price": 620
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 15.5,
+              "price": 990
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 5.5,
+              "price": -570
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 6.5,
+              "price": -286
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 7.5,
+              "price": -155
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 8.5,
+              "price": 109
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 9.5,
+              "price": 185
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 10.5,
+              "price": 323
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 11.5,
+              "price": 539
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 12.5,
+              "price": 920
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 13.5,
+              "price": 1620
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 4.5,
+              "price": -472
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 5.5,
+              "price": -221
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 6.5,
+              "price": -120
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 7.5,
+              "price": 150
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 8.5,
+              "price": 271
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 9.5,
+              "price": 484
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 10.5,
+              "price": 870
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 11.5,
+              "price": 1520
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 3.5,
+              "price": -890
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 4.5,
+              "price": -370
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 5.5,
+              "price": -182
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 6.5,
+              "price": 104
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 7.5,
+              "price": 187
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 8.5,
+              "price": 336
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 9.5,
+              "price": 596
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 10.5,
+              "price": 1100
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 11.5,
+              "price": 2000
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 2.5,
+              "price": -650
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 3.5,
+              "price": -257
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 4.5,
+              "price": -113
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 5.5,
+              "price": 179
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 6.5,
+              "price": 350
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 7.5,
+              "price": 700
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 8.5,
+              "price": 1440
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 2.5,
+              "price": -507
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 3.5,
+              "price": -199
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 4.5,
+              "price": 111
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 5.5,
+              "price": 227
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 6.5,
+              "price": 460
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 7.5,
+              "price": 930
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 8.5,
+              "price": 2000
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 1.5,
+              "price": -314
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 2.5,
+              "price": -107
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 3.5,
+              "price": 239
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 4.5,
+              "price": 577
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 5.5,
+              "price": 1380
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2025-10-12T15:55:33Z",
+      "markets": [
+        {
+          "key": "player_reception_longest_alternate",
+          "last_update": "2025-10-12T15:55:14Z",
+          "outcomes": [
+            {
+              "description": "Jaylen Waddle",
+              "name": "Over",
+              "point": 14.5,
+              "price": -600
+            },
+            {
+              "description": "Ladd McConkey",
+              "name": "Over",
+              "point": 14.5,
+              "price": -600
+            },
+            {
+              "description": "Keenan Allen",
+              "name": "Over",
+              "point": 14.5,
+              "price": -425
+            },
+            {
+              "description": "Darren Waller",
+              "name": "Over",
+              "point": 14.5,
+              "price": -230
+            },
+            {
+              "description": "Oronde Gadsden II",
+              "name": "Over",
+              "point": 14.5,
+              "price": 100
+            },
+            {
+              "description": "De'Von Achane",
+              "name": "Over",
+              "point": 14.5,
+              "price": 110
+            },
+            {
+              "description": "Malik Washington",
+              "name": "Over",
+              "point": 14.5,
+              "price": 120
+            },
+            {
+              "description": "Jaylen Waddle",
+              "name": "Over",
+              "point": 9.5,
+              "price": -4000
+            },
+            {
+              "description": "Ladd McConkey",
+              "name": "Over",
+              "point": 9.5,
+              "price": -4000
+            },
+            {
+              "description": "Keenan Allen",
+              "name": "Over",
+              "point": 9.5,
+              "price": -2000
+            },
+            {
+              "description": "Darren Waller",
+              "name": "Over",
+              "point": 9.5,
+              "price": -700
+            },
+            {
+              "description": "De'Von Achane",
+              "name": "Over",
+              "point": 9.5,
+              "price": -330
+            },
+            {
+              "description": "Oronde Gadsden II",
+              "name": "Over",
+              "point": 9.5,
+              "price": -270
+            },
+            {
+              "description": "Malik Washington",
+              "name": "Over",
+              "point": 9.5,
+              "price": -240
+            },
+            {
+              "description": "Jaylen Waddle",
+              "name": "Over",
+              "point": 29.5,
+              "price": 180
+            },
+            {
+              "description": "Ladd McConkey",
+              "name": "Over",
+              "point": 29.5,
+              "price": 180
+            },
+            {
+              "description": "Keenan Allen",
+              "name": "Over",
+              "point": 29.5,
+              "price": 240
+            },
+            {
+              "description": "Darren Waller",
+              "name": "Over",
+              "point": 29.5,
+              "price": 360
+            },
+            {
+              "description": "Jaylen Waddle",
+              "name": "Over",
+              "point": 19.5,
+              "price": -210
+            },
+            {
+              "description": "Ladd McConkey",
+              "name": "Over",
+              "point": 19.5,
+              "price": -210
+            },
+            {
+              "description": "Keenan Allen",
+              "name": "Over",
+              "point": 19.5,
+              "price": -155
+            },
+            {
+              "description": "Darren Waller",
+              "name": "Over",
+              "point": 19.5,
+              "price": -105
+            },
+            {
+              "description": "Oronde Gadsden II",
+              "name": "Over",
+              "point": 19.5,
+              "price": 250
+            },
+            {
+              "description": "De'Von Achane",
+              "name": "Over",
+              "point": 19.5,
+              "price": 280
+            },
+            {
+              "description": "Malik Washington",
+              "name": "Over",
+              "point": 19.5,
+              "price": 290
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2025-10-12T15:55:22Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-10-12T15:55:34Z",
+          "outcomes": [
+            {
+              "description": "Demeioun Robinson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 321
+            },
+            {
+              "description": "Demeioun Robinson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Zach Sieler",
+              "name": "Over",
+              "point": 0.5,
+              "price": 150
+            },
+            {
+              "description": "Zach Sieler",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Jaelan Phillips",
+              "name": "Over",
+              "point": 0.5,
+              "price": 158
+            },
+            {
+              "description": "Bradley Chubb",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Bradley Chubb",
+              "name": "Over",
+              "point": 0.5,
+              "price": 113
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 0.5,
+              "price": 375
+            },
+            {
+              "description": "Tuli Tuipulotu",
+              "name": "Over",
+              "point": 0.5,
+              "price": 110
+            },
+            {
+              "description": "Tuli Tuipulotu",
+              "name": "Over",
+              "point": 1.5,
+              "price": 250
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "betrivers",
+      "last_update": "2025-10-12T15:54:31Z",
+      "markets": [
+        {
+          "key": "player_defensive_interceptions_alternate",
+          "last_update": "2025-10-12T15:55:02Z",
+          "outcomes": [
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Donte Jackson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Rasul Douglas",
+              "name": "Over",
+              "point": 0.5,
+              "price": 750
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 0.5,
+              "price": 950
+            },
+            {
+              "description": "Ashtyn Davis",
+              "name": "Over",
+              "point": 0.5,
+              "price": 600
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 0.5,
+              "price": 550
+            },
+            {
+              "description": "Elijah Molden",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1000
+            },
+            {
+              "description": "Jack Jones",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Donte Jackson",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Derwin James Jr.",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Minkah Fitzpatrick",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Rasul Douglas",
+              "name": "Over",
+              "point": 0.5,
+              "price": 750
+            },
+            {
+              "description": "Daiyan Henley",
+              "name": "Over",
+              "point": 0.5,
+              "price": 950
+            },
+            {
+              "description": "Ashtyn Davis",
+              "name": "Over",
+              "point": 0.5,
+              "price": 600
+            },
+            {
+              "description": "Tarheeb Still",
+              "name": "Over",
+              "point": 0.5,
+              "price": 550
+            },
+            {
+              "description": "Elijah Molden",
+              "name": "Over",
+              "point": 0.5,
+              "price": 700
+            },
+            {
+              "description": "Jordyn Brooks",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1000
+            }
+          ]
+        }
+      ],
+      "title": "BetRivers"
+    }
+  ],
+  "commence_time": "2025-10-12T17:01:00Z",
+  "home_team": "Miami Dolphins",
+  "id": "a7211a87bbd5fb2ee473eb9c93ee2e68",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

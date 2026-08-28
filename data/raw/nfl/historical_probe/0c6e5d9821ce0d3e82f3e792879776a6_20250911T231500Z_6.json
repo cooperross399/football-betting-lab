@@ -1,0 +1,926 @@
+{
+  "away_team": "Washington Commanders",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2025-09-11T23:10:19Z",
+      "markets": [
+        {
+          "key": "player_field_goals_alternate",
+          "last_update": "2025-09-11T23:06:30Z",
+          "outcomes": [
+            {
+              "description": "Brandon McManus",
+              "name": "Over",
+              "point": 0.5,
+              "price": -507
+            },
+            {
+              "description": "Brandon McManus",
+              "name": "Over",
+              "point": 1.5,
+              "price": -116
+            },
+            {
+              "description": "Brandon McManus",
+              "name": "Over",
+              "point": 2.5,
+              "price": 263
+            },
+            {
+              "description": "Brandon McManus",
+              "name": "Over",
+              "point": 3.5,
+              "price": 720
+            },
+            {
+              "description": "Matt Gay",
+              "name": "Over",
+              "point": 0.5,
+              "price": -454
+            },
+            {
+              "description": "Matt Gay",
+              "name": "Over",
+              "point": 1.5,
+              "price": -109
+            },
+            {
+              "description": "Matt Gay",
+              "name": "Over",
+              "point": 2.5,
+              "price": 277
+            },
+            {
+              "description": "Matt Gay",
+              "name": "Over",
+              "point": 3.5,
+              "price": 780
+            }
+          ]
+        },
+        {
+          "key": "player_reception_longest_alternate",
+          "last_update": "2025-09-11T23:09:56Z",
+          "outcomes": [
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 19.5,
+              "price": -170
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 19.5,
+              "price": -140
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 19.5,
+              "price": -120
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 19.5,
+              "price": -105
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 19.5,
+              "price": 100
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 19.5,
+              "price": 115
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 19.5,
+              "price": 180
+            },
+            {
+              "description": "Zach Ertz",
+              "name": "Over",
+              "point": 19.5,
+              "price": 220
+            },
+            {
+              "description": "Austin Ekeler",
+              "name": "Over",
+              "point": 19.5,
+              "price": 250
+            },
+            {
+              "description": "Josh Jacobs",
+              "name": "Over",
+              "point": 19.5,
+              "price": 400
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 29.5,
+              "price": 220
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 29.5,
+              "price": 250
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 29.5,
+              "price": 300
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 29.5,
+              "price": 300
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 29.5,
+              "price": 370
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 29.5,
+              "price": 380
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 29.5,
+              "price": 500
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 9.5,
+              "price": -2000
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 9.5,
+              "price": -2000
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 9.5,
+              "price": -800
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 9.5,
+              "price": -750
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 9.5,
+              "price": -700
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 9.5,
+              "price": -550
+            },
+            {
+              "description": "Zach Ertz",
+              "name": "Over",
+              "point": 9.5,
+              "price": -425
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 9.5,
+              "price": -270
+            },
+            {
+              "description": "Austin Ekeler",
+              "name": "Over",
+              "point": 9.5,
+              "price": -230
+            },
+            {
+              "description": "Josh Jacobs",
+              "name": "Over",
+              "point": 9.5,
+              "price": -120
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 450
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 39.5,
+              "price": 600
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": 650
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 39.5,
+              "price": 650
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 39.5,
+              "price": 850
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 39.5,
+              "price": 1100
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 39.5,
+              "price": 1400
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-11T23:09:56Z",
+          "outcomes": [
+            {
+              "description": "Devonte Wyatt",
+              "name": "Over",
+              "point": 0.5,
+              "price": 307
+            },
+            {
+              "description": "Edgerrin Cooper",
+              "name": "Over",
+              "point": 0.5,
+              "price": 670
+            },
+            {
+              "description": "Karl Brooks",
+              "name": "Over",
+              "point": 0.5,
+              "price": 478
+            },
+            {
+              "description": "Keisean Nixon",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1520
+            },
+            {
+              "description": "Lukas Van Ness",
+              "name": "Over",
+              "point": 0.5,
+              "price": 345
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 0.5,
+              "price": -122
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 1.5,
+              "price": 497
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 2.5,
+              "price": 2100
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Rashan Gary",
+              "name": "Over",
+              "point": 0.5,
+              "price": 151
+            },
+            {
+              "description": "Rashan Gary",
+              "name": "Over",
+              "point": 1.5,
+              "price": 910
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2025-09-11T23:10:18Z",
+      "markets": [
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-11T23:10:01Z",
+          "outcomes": [
+            {
+              "description": "Rashan Gary",
+              "name": "Over",
+              "point": 1.5,
+              "price": 600
+            },
+            {
+              "description": "Rashan Gary",
+              "name": "Over",
+              "point": 0.5,
+              "price": 120
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 0.5,
+              "price": 500
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Edgerrin Cooper",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Edgerrin Cooper",
+              "name": "Over",
+              "point": 0.5,
+              "price": 500
+            },
+            {
+              "description": "Devonte Wyatt",
+              "name": "Over",
+              "point": 0.5,
+              "price": 220
+            },
+            {
+              "description": "Devonte Wyatt",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Karl Brooks",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Karl Brooks",
+              "name": "Over",
+              "point": 0.5,
+              "price": 250
+            },
+            {
+              "description": "Lukas Van Ness",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Lukas Van Ness",
+              "name": "Over",
+              "point": 0.5,
+              "price": 200
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 0.5,
+              "price": -135
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 1.5,
+              "price": 225
+            },
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 0.5,
+              "price": 200
+            },
+            {
+              "description": "Dorance Armstrong",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Dorance Armstrong",
+              "name": "Over",
+              "point": 0.5,
+              "price": 200
+            },
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 0.5,
+              "price": 400
+            },
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Daron Payne",
+              "name": "Over",
+              "point": 1.5,
+              "price": 900
+            },
+            {
+              "description": "Daron Payne",
+              "name": "Over",
+              "point": 0.5,
+              "price": 320
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2025-09-11T23:10:19Z",
+      "markets": [
+        {
+          "key": "player_reception_longest_alternate",
+          "last_update": "2025-09-11T23:09:57Z",
+          "outcomes": [
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 9.5,
+              "price": -1500
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 9.5,
+              "price": -1100
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 9.5,
+              "price": -900
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 9.5,
+              "price": -800
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 9.5,
+              "price": -650
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 9.5,
+              "price": -550
+            },
+            {
+              "description": "Zach Ertz",
+              "name": "Over",
+              "point": 9.5,
+              "price": -500
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 9.5,
+              "price": -230
+            },
+            {
+              "description": "Austin Ekeler",
+              "name": "Over",
+              "point": 9.5,
+              "price": -230
+            },
+            {
+              "description": "Josh Jacobs",
+              "name": "Over",
+              "point": 9.5,
+              "price": -130
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 29.5,
+              "price": 210
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 29.5,
+              "price": 290
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 29.5,
+              "price": 300
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 29.5,
+              "price": 300
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 29.5,
+              "price": 370
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 29.5,
+              "price": 380
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 14.5,
+              "price": -380
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 14.5,
+              "price": -310
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 14.5,
+              "price": -270
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 14.5,
+              "price": -250
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 14.5,
+              "price": -240
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 14.5,
+              "price": -195
+            },
+            {
+              "description": "Zach Ertz",
+              "name": "Over",
+              "point": 14.5,
+              "price": -155
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 14.5,
+              "price": 100
+            },
+            {
+              "description": "Austin Ekeler",
+              "name": "Over",
+              "point": 14.5,
+              "price": 125
+            },
+            {
+              "description": "Josh Jacobs",
+              "name": "Over",
+              "point": 14.5,
+              "price": 200
+            },
+            {
+              "description": "Terry McLaurin",
+              "name": "Over",
+              "point": 19.5,
+              "price": -160
+            },
+            {
+              "description": "Deebo Samuel Sr.",
+              "name": "Over",
+              "point": 19.5,
+              "price": -125
+            },
+            {
+              "description": "Romeo Doubs",
+              "name": "Over",
+              "point": 19.5,
+              "price": -115
+            },
+            {
+              "description": "Jayden Reed",
+              "name": "Over",
+              "point": 19.5,
+              "price": -110
+            },
+            {
+              "description": "Tucker Kraft",
+              "name": "Over",
+              "point": 19.5,
+              "price": -105
+            },
+            {
+              "description": "Matthew Golden",
+              "name": "Over",
+              "point": 19.5,
+              "price": 110
+            },
+            {
+              "description": "Zach Ertz",
+              "name": "Over",
+              "point": 19.5,
+              "price": 180
+            },
+            {
+              "description": "Noah Brown",
+              "name": "Over",
+              "point": 19.5,
+              "price": 200
+            },
+            {
+              "description": "Austin Ekeler",
+              "name": "Over",
+              "point": 19.5,
+              "price": 260
+            },
+            {
+              "description": "Josh Jacobs",
+              "name": "Over",
+              "point": 19.5,
+              "price": 390
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betrivers",
+      "last_update": "2025-09-11T23:10:20Z",
+      "markets": [
+        {
+          "key": "player_defensive_interceptions_alternate",
+          "last_update": "2025-09-11T23:10:04Z",
+          "outcomes": [
+            {
+              "description": "Carrington Valentine",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Will Harris",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Mike Sainristil",
+              "name": "Over",
+              "point": 0.5,
+              "price": 510
+            },
+            {
+              "description": "Marshon Lattimore",
+              "name": "Over",
+              "point": 0.5,
+              "price": 750
+            },
+            {
+              "description": "Trey Amos",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Xavier McKinney",
+              "name": "Over",
+              "point": 0.5,
+              "price": 525
+            },
+            {
+              "description": "Keisean Nixon",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Evan Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1000
+            },
+            {
+              "description": "Jartavius Martin",
+              "name": "Over",
+              "point": 0.5,
+              "price": 575
+            },
+            {
+              "description": "Carrington Valentine",
+              "name": "Over",
+              "point": 0.5,
+              "price": 900
+            },
+            {
+              "description": "Will Harris",
+              "name": "Over",
+              "point": 0.5,
+              "price": 650
+            },
+            {
+              "description": "Mike Sainristil",
+              "name": "Over",
+              "point": 0.5,
+              "price": 510
+            },
+            {
+              "description": "Marshon Lattimore",
+              "name": "Over",
+              "point": 0.5,
+              "price": 750
+            },
+            {
+              "description": "Trey Amos",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Xavier McKinney",
+              "name": "Over",
+              "point": 0.5,
+              "price": 525
+            },
+            {
+              "description": "Keisean Nixon",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Evan Williams",
+              "name": "Over",
+              "point": 0.5,
+              "price": 850
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 0.5,
+              "price": 1000
+            },
+            {
+              "description": "Jartavius Martin",
+              "name": "Over",
+              "point": 0.5,
+              "price": 575
+            }
+          ]
+        },
+        {
+          "key": "player_sacks_alternate",
+          "last_update": "2025-09-11T23:10:04Z",
+          "outcomes": [
+            {
+              "description": "Von Miller",
+              "name": "Over",
+              "point": 0.5,
+              "price": 185
+            },
+            {
+              "description": "Dorance Armstrong",
+              "name": "Over",
+              "point": 0.5,
+              "price": 188
+            },
+            {
+              "description": "Quay Walker",
+              "name": "Over",
+              "point": 0.5,
+              "price": 475
+            },
+            {
+              "description": "Edgerrin Cooper",
+              "name": "Over",
+              "point": 0.5,
+              "price": 475
+            },
+            {
+              "description": "Rashan Gary",
+              "name": "Over",
+              "point": 0.5,
+              "price": -107
+            },
+            {
+              "description": "Micah Parsons",
+              "name": "Over",
+              "point": 0.5,
+              "price": -134
+            },
+            {
+              "description": "Devonte Wyatt",
+              "name": "Over",
+              "point": 0.5,
+              "price": 160
+            },
+            {
+              "description": "Javon Kinlaw",
+              "name": "Over",
+              "point": 0.5,
+              "price": 340
+            },
+            {
+              "description": "Daron Payne",
+              "name": "Over",
+              "point": 0.5,
+              "price": 340
+            },
+            {
+              "description": "Lukas Van Ness",
+              "name": "Over",
+              "point": 0.5,
+              "price": 170
+            }
+          ]
+        }
+      ],
+      "title": "BetRivers"
+    }
+  ],
+  "commence_time": "2025-09-12T00:16:00Z",
+  "home_team": "Green Bay Packers",
+  "id": "0c6e5d9821ce0d3e82f3e792879776a6",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

@@ -42,6 +42,7 @@ NHL lab a market for a season.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
@@ -138,6 +139,18 @@ class ProbeResult:
     probes: list[EventProbe] = field(default_factory=list)
     spend: Spend = field(default_factory=Spend)
     stopped_early: str = ""
+    #: provider market key -> every book that quoted it, and how many priced
+    #: outcomes it carried. Held here rather than recomputed from `probes` so
+    #: a result rebuilt from the recorded run has one place to fill, and so
+    #: the two paths cannot disagree about what the numbers mean.
+    book_index: dict[str, set[str]] = field(default_factory=dict)
+    outcome_index: dict[str, int] = field(default_factory=dict)
+
+    def absorb_probe(self, probe: "EventProbe") -> None:
+        for market, books in probe.books_by_market.items():
+            self.book_index.setdefault(market, set()).update(books)
+        for market, count in probe.outcomes_by_market.items():
+            self.outcome_index[market] = self.outcome_index.get(market, 0) + count
 
     @property
     def successful(self) -> list[EventProbe]:
@@ -147,15 +160,10 @@ class ProbeResult:
         return sum(1 for probe in self.successful if market in probe.books_by_market)
 
     def books(self, market: str) -> tuple[str, ...]:
-        found: set[str] = set()
-        for probe in self.successful:
-            found |= probe.books_by_market.get(market, set())
-        return tuple(sorted(found))
+        return tuple(sorted(self.book_index.get(market, set())))
 
     def outcomes(self, market: str) -> int:
-        return sum(
-            probe.outcomes_by_market.get(market, 0) for probe in self.successful
-        )
+        return int(self.outcome_index.get(market, 0))
 
     def refused_everywhere(self) -> tuple[str, ...]:
         """Markets the provider refused by name in every probe that asked."""
@@ -307,9 +315,30 @@ def select_targets(
 # -- running the probe ------------------------------------------------------
 
 
-def _cache_path(cache_dir: Path, event_id: str, snapshot: str, tag: str) -> Path:
+def markets_fingerprint(markets: Sequence[str]) -> str:
+    """A short, stable tag for the market list a response was bought with.
+
+    The cache key needs it, and the first version of this module did not have
+    it: chunks were tagged with their *length*, so the four ten-market chunks
+    of a forty-six-market request all wrote to one filename and three of them
+    were lost. The live report was computed in memory and was correct; the
+    cache it left behind held two chunks of five, and re-rendering from it
+    reported thirty-one retained markets as absent.
+
+    That is the NHL lab's own warning, ignored: a response holds the markets
+    it was asked for and nothing else, so a key that does not name them will
+    serve the wrong file and answer, quite confidently, that a market is not
+    offered.
+    """
+    joined = ",".join(sorted(str(item) for item in markets))
+    return hashlib.sha256(joined.encode("utf-8")).hexdigest()[:12]
+
+
+def _cache_path(
+    cache_dir: Path, event_id: str, snapshot: str, markets: Sequence[str]
+) -> Path:
     stamp = str(snapshot).replace(":", "").replace("-", "")
-    return Path(cache_dir) / f"{event_id}_{stamp}_{tag}.json"
+    return Path(cache_dir) / f"{event_id}_{stamp}_{markets_fingerprint(markets)}.json"
 
 
 def _chunks(items: Sequence[str], size: int) -> list[tuple[str, ...]]:
@@ -451,7 +480,7 @@ def run_probe(
                 _absorb(probe, payload)
                 if payload:
                     _cache_path(
-                        cache_dir, event_id, target.snapshot, str(len(chunk))
+                        cache_dir, event_id, target.snapshot, chunk
                     ).write_text(
                         json.dumps(payload, indent=2, sort_keys=True) + "\n",
                         encoding="utf-8",
@@ -465,6 +494,7 @@ def run_probe(
         except ProviderError as exc:
             probe.error = str(exc)
         probe.credits_spent = result.spend.credits_spent - before
+        result.absorb_probe(probe)
         result.probes.append(probe)
 
     return result
@@ -494,6 +524,248 @@ def _absorb(probe: EventProbe, payload: Mapping[str, Any]) -> None:
             probe.outcomes_by_market[key] = (
                 probe.outcomes_by_market.get(key, 0) + len(outcomes)
             )
+
+
+# -- rebuilding the report from the evidence, without spending anything -----
+
+
+def rebuild_from_record(
+    payload: Mapping[str, Any], league: League, *, cache_dir: Path | None = None
+) -> ProbeResult:
+    """Reconstruct a probe result from the run's own recorded output.
+
+    Historical prices never change, so a probe is evidence that can be
+    re-read. That makes the *report* derived data: it can be improved — a
+    better roll-up, a distinction nobody had thought of — without spending a
+    credit and without trusting that a summary written by an older version of
+    this module still says what the evidence says.
+
+    That property is not a convenience. The first rendering of this report
+    rolled up by provider key alone and read as though three markets could not
+    be measured when their alternate ladders showed that they could. Fixing
+    the wording would have been worthless if fixing it meant re-spending
+    7,280 credits.
+
+    **The JSON record is the source, not the cached responses**, and the
+    reason is a bug this module shipped: chunks were cached under a filename
+    tagged with the chunk's *length*, so four ten-market chunks collided and
+    three were lost. The record was computed in memory and is complete; the
+    cache from that run is not. Passing `cache_dir` corroborates the two and
+    reports any disagreement rather than silently preferring either.
+    """
+    result = ProbeResult(
+        league_key=league.key,
+        snapshot_lead_minutes=int(
+            payload.get("snapshot_lead_minutes", SNAPSHOT_LEAD_MINUTES)
+        ),
+        markets_requested=tuple(payload.get("markets", {})),
+    )
+    spend = result.spend
+    spend.credits_spent = int(payload.get("credits_spent", 0) or 0)
+    spend.credits_estimated = int(payload.get("credits_estimated", 0) or 0)
+    spend.requests_made = int(payload.get("requests_made", 0) or 0)
+    spend.quota_remaining = str(payload.get("quota_remaining", ""))
+    spend.quota_used = str(payload.get("quota_used", ""))
+    spend.notes = list(payload.get("notes", []) or [])
+    result.stopped_early = str(payload.get("stopped_early", ""))
+
+    for market, record in (payload.get("markets") or {}).items():
+        if not isinstance(record, Mapping):
+            continue
+        books = {str(book) for book in (record.get("books") or [])}
+        if books:
+            result.book_index[str(market)] = books
+        outcomes = int(record.get("outcomes", 0) or 0)
+        if outcomes:
+            result.outcome_index[str(market)] = outcomes
+
+    for record in payload.get("events", []) or []:
+        snapshot = str(record.get("snapshot", ""))
+        try:
+            taken = datetime.strptime(snapshot, "%Y-%m-%dT%H:%M:%SZ").replace(
+                tzinfo=ZoneInfo("UTC")
+            )
+        except ValueError:
+            continue
+        home, away = str(record.get("home", "")), str(record.get("away", ""))
+        if not home or not away:
+            # Older records carry only the label: "2024 wk1 ARI@BUF (window)".
+            parts = str(record.get("label", "")).split(" ")
+            fixture = parts[2] if len(parts) > 2 else ""
+            away, _, home = fixture.partition("@")
+        probe = EventProbe(
+            target=ProbeTarget(
+                season=int(record.get("season", 0) or 0),
+                week=int(record.get("week", 0) or 0),
+                game_id=str(record.get("game_id", "")),
+                kickoff_utc=taken
+                + timedelta(minutes=result.snapshot_lead_minutes),
+                home=home,
+                away=away,
+                window=str(record.get("window", "other")),
+            ),
+            event_id=str(record.get("event_id", "")),
+            markets_requested=result.markets_requested,
+            refused_markets=tuple(record.get("refused", []) or []),
+            credits_spent=int(record.get("credits_spent", 0) or 0),
+            error=str(record.get("error", "")),
+        )
+        # Per-event membership only: which markets this snapshot carried. The
+        # book and outcome totals come from the market index above, so they
+        # are counted once rather than once per reconstruction path.
+        for market in record.get("markets_returned", []) or []:
+            probe.books_by_market.setdefault(str(market), set())
+        result.probes.append(probe)
+
+    if cache_dir is not None:
+        result.spend.notes.extend(_corroborate(result, Path(cache_dir)))
+    return result
+
+
+def _corroborate(result: ProbeResult, cache_dir: Path) -> list[str]:
+    """Check the cached responses against the record, and say so either way.
+
+    A cache that disagrees with the record is not a reason to prefer one
+    silently. It is a fact about the run, and the report prints it.
+    """
+    notes: list[str] = []
+    if not cache_dir.is_dir():
+        return [f"No cached responses at {cache_dir} to corroborate the record."]
+    from_cache: set[str] = set()
+    for path in sorted(cache_dir.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            continue
+        probe = EventProbe(target=result.probes[0].target if result.probes else None)  # type: ignore[arg-type]
+        _absorb(probe, payload)
+        from_cache |= set(probe.books_by_market)
+    recorded = {
+        market for market in result.markets_requested if result.events_seen(market)
+    }
+    missing = sorted(recorded - from_cache)
+    if missing:
+        notes.append(
+            f"{len(missing)} market(s) present in the run record are absent "
+            f"from the cached responses in {cache_dir.name}: the chunk cache "
+            "of that run collided on filename and kept only the last chunk of "
+            "each size. The record is complete and is what this report is "
+            "built from; the cache is not, and a later probe will be."
+        )
+    return notes
+
+
+# -- rolling up to the unit that actually gets approved ---------------------
+
+
+@dataclass(frozen=True)
+class MarketRollup:
+    """One project market's retention across every provider key that feeds it."""
+
+    project_key: str
+    provider_keys: tuple[str, ...]
+    events_seen: int
+    events_probed: int
+    books: tuple[str, ...]
+    outcomes: int
+
+    @property
+    def retained(self) -> bool:
+        return self.events_seen > 0
+
+    @property
+    def thin(self) -> bool:
+        """Retained, but on too little to measure anything with.
+
+        "Retained" and "measurable" are not the same claim, and collapsing
+        them is the same failure as reporting a number without its sample
+        size. In the first NFL probe `rush_tds` appeared on 2 of 20 events at
+        one book with six priced outcomes, and `pass_yards` on 20 of 20 at
+        eight books with 2,973. Both are "retained". Only one of them can
+        support a backtest.
+
+        Thin means either: the market appeared on fewer than a quarter of the
+        probed events, or only one book quoted it. One book is not a market —
+        it is a book, and a measurement against it measures that book's
+        pricing rather than the market's.
+        """
+        if not self.retained:
+            return False
+        return (
+            self.events_seen * 4 < self.events_probed or len(self.books) < 2
+        )
+
+    def verdict(self) -> str:
+        if self.thin:
+            return (
+                f"retained but thin — priced in only {self.events_seen} of "
+                f"{self.events_probed} events across {len(self.books)} book(s)"
+            )
+        if self.retained:
+            return (
+                f"retained — priced in {self.events_seen} of "
+                f"{self.events_probed} events"
+            )
+        if self.events_probed < MINIMUM_PROBES_FOR_ABSENCE:
+            return (
+                f"not seen in {self.events_probed} event(s) — below the "
+                f"{MINIMUM_PROBES_FOR_ABSENCE} needed before absence means "
+                "anything"
+            )
+        return (
+            f"not seen in any of {self.events_probed} events — no historical "
+            "price to test against"
+        )
+
+
+def rollup_by_project_market(result: "ProbeResult") -> list[MarketRollup]:
+    """Retention per market this lab prices, not per provider key.
+
+    This exists because the per-key table is misleading in exactly the way the
+    EPL lab's `total_2_5` mistake was. In the first NFL probe, three featured
+    keys returned nothing at all — `player_rush_tds`,
+    `player_reception_tds`, `player_defensive_interceptions` — while their
+    alternate ladders were retained on 2, 2 and 9 events respectively. Read
+    per key, that says three markets cannot be measured. Read per market,
+    which is the unit that gets modelled, measured and approved, it says all
+    three can.
+
+    The reverse case is in the same data: `player_pass_longest_completion`
+    is retained on all 20 events and its ladder on none. A rollup that only
+    looked at ladders would get that one backwards.
+
+    So the featured key and its ladder are one market here, because that is
+    what they are everywhere else in this repository.
+    """
+    keys_for: dict[str, list[str]] = defaultdict(list)
+    for provider_key in result.markets_requested:
+        market = market_for_provider_key(provider_key)
+        keys_for[market.key if market else provider_key].append(provider_key)
+
+    probed = len(result.successful)
+    rollups: list[MarketRollup] = []
+    for project_key, provider_keys in keys_for.items():
+        seen = sum(
+            1
+            for probe in result.successful
+            if any(key in probe.books_by_market for key in provider_keys)
+        )
+        books: set[str] = set()
+        outcomes = 0
+        for key in provider_keys:
+            books |= set(result.books(key))
+            outcomes += result.outcomes(key)
+        rollups.append(
+            MarketRollup(
+                project_key=project_key,
+                provider_keys=tuple(provider_keys),
+                events_seen=seen,
+                events_probed=probed,
+                books=tuple(sorted(books)),
+                outcomes=outcomes,
+            )
+        )
+    return sorted(rollups, key=lambda r: (-r.events_seen, r.project_key))
 
 
 # -- reporting --------------------------------------------------------------
@@ -556,7 +828,66 @@ def render(result: ProbeResult, league: League) -> str:
     )
     add("")
 
-    add("## Retention, market by market")
+    rollups = rollup_by_project_market(result)
+    measurable = [item for item in rollups if item.retained]
+    add("## Retention by market — the unit that actually gets approved")
+    add("")
+    add(
+        "A market and its alternate ladder are one market everywhere else in "
+        "this repository, so they are one row here. Reading the per-key table "
+        "below on its own is how the EPL lab wrote off `total_2_5` for a "
+        "season: the complete line was absent from the featured market and "
+        "present in the ladder the whole time."
+    )
+    add("")
+    add("| Market | Provider keys | Verdict | Books | Priced outcomes |")
+    add("|:-------|:--------------|:--------|------:|----------------:|")
+    for item in rollups:
+        keys = ", ".join(f"`{key}`" for key in item.provider_keys)
+        add(
+            f"| `{item.project_key}` | {keys} | {item.verdict()} | "
+            f"{len(item.books)} | {item.outcomes:,} |"
+        )
+    thin = [item for item in rollups if item.thin]
+    solid = [item for item in measurable if not item.thin]
+    add("")
+    add(
+        f"**{len(measurable)} of {len(rollups)} markets have historical "
+        f"prices at all, and {len(solid)} have enough to measure against.**"
+    )
+    if thin:
+        add("")
+        add(
+            f"{len(thin)} are retained but too thin to support a "
+            "measurement — fewer than a quarter of the probed events, or a "
+            "single book quoting them: "
+            + ", ".join(
+                f"`{item.project_key}` ({item.events_seen}/"
+                f"{item.events_probed} events, {len(item.books)} book(s), "
+                f"{item.outcomes:,} outcomes)"
+                for item in thin
+            )
+            + ". A measurement against one book measures that book's pricing, "
+            "not the market's. These are bought only if a purchase is buying "
+            "their neighbours anyway, and their evidence accumulates forward."
+        )
+    unmeasurable = [item for item in rollups if not item.retained]
+    if unmeasurable:
+        add("")
+        add(
+            f"{len(unmeasurable)} have no historical price at all: "
+            + ", ".join(f"`{item.project_key}`" for item in unmeasurable)
+            + ". Those accumulate forward evidence and nothing else."
+        )
+    add("")
+
+    add("## Retention, provider key by provider key")
+    add("")
+    add(
+        "The same data before the rollup. Useful for deciding what to *ask* "
+        "for — an unretained key is a key not worth buying — and misleading "
+        "for deciding what can be *measured*, which the table above answers."
+    )
     add("")
     add("| Provider market | This lab calls it | Verdict | Books | Priced outcomes |")
     add("|:----------------|:------------------|:--------|------:|----------------:|")
@@ -579,8 +910,11 @@ def render(result: ProbeResult, league: League) -> str:
     add("## What this supports")
     add("")
     add(
-        f"**{len(retained)} of {len(result.markets_requested)} markets are "
-        f"retained** and can be measured against real historical prices."
+        f"**{len(retained)} of {len(result.markets_requested)} provider keys "
+        f"returned prices**, covering "
+        f"**{len(measurable)} of {len(rollups)} markets**. The second number "
+        "is the one that matters: it is markets, not keys, that get modelled, "
+        "measured and approved."
     )
     if refused:
         add("")
@@ -604,13 +938,37 @@ def render(result: ProbeResult, league: League) -> str:
                 "the next 58 events."
             )
         else:
-            add(
-                f"**{len(absent)} were not seen in any of {n} events.** No "
-                "historical price exists to test them against, so they can "
-                "accumulate forward evidence and nothing else: "
-                + ", ".join(f"`{m}`" for m in sorted(absent))
-                + "."
+            covered = {
+                item.project_key for item in rollups if item.retained
+            }
+            rescued = sorted(
+                m
+                for m in absent
+                if (market_for_provider_key(m) or None)
+                and market_for_provider_key(m).key in covered
             )
+            stranded = [m for m in absent if m not in rescued]
+            add(
+                f"**{len(absent)} provider keys were not seen in any of {n} "
+                "events**: " + ", ".join(f"`{m}`" for m in sorted(absent)) + "."
+            )
+            if rescued:
+                add("")
+                add(
+                    f"**{len(rescued)} of those are still measurable**, "
+                    "because another key feeds the same market — "
+                    + ", ".join(f"`{m}`" for m in rescued)
+                    + ". This is the `total_2_5` lesson in a new costume, and "
+                    "it is why the rollup above is the table to read."
+                )
+            if stranded:
+                add("")
+                add(
+                    f"**{len(stranded)} leave their market with no historical "
+                    "price at all**: "
+                    + ", ".join(f"`{m}`" for m in sorted(stranded))
+                    + "."
+                )
     add("")
     add(
         "None of this is a statement about whether a market is worth betting. "
@@ -660,12 +1018,26 @@ def to_json(result: ProbeResult, league: League) -> dict[str, Any]:
             }
             for market in result.markets_requested
         },
+        "rollup": {
+            item.project_key: {
+                "provider_keys": list(item.provider_keys),
+                "events_seen": item.events_seen,
+                "events_probed": item.events_probed,
+                "books": list(item.books),
+                "outcomes": item.outcomes,
+                "verdict": item.verdict(),
+                "thin": item.thin,
+            }
+            for item in rollup_by_project_market(result)
+        },
         "events": [
             {
                 "label": probe.target.label,
                 "season": probe.target.season,
                 "week": probe.target.week,
                 "window": probe.target.window,
+                "home": probe.target.home,
+                "away": probe.target.away,
                 "snapshot": probe.target.snapshot,
                 "event_id": probe.event_id,
                 "markets_returned": list(probe.markets_returned),

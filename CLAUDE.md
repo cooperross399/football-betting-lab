@@ -59,8 +59,35 @@ Anything that sounds like a finding before Week 1 is a bug.
   schedule file (back to 1999, complete for 2024-25, 112 of 272 2026 games
   already lined — one consensus line, no ladder, no props, team markets only);
   forward evidence at 272 games a season, which **cannot be back-dated** and is
-  therefore built first regardless; and bought history, after a ~9,200-credit
-  retention probe and Cooper's approval.
+  therefore built first regardless; and bought history, now probed.
+- **The retention probe has run (2026-08-28, 7,280 credits, Cooper's
+  approval).** 20 events stratified across kickoff windows, split evenly
+  between 2024 and 2025, 46 provider keys each, 60 minutes before kickoff.
+  **All 27 tier-1 markets have historical prices; 25 have enough to measure
+  against**, across nine books. `reception_tds` and `rush_tds` are retained
+  but thin — 2 of 20 events, one book each — and "retained" is not "measurable".
+  Quota after: 79,659 of this month's 100,000.
+- **The documented 10x historical rate is now measured, not assumed**: about
+  10.4 credits per market returned. A full tier-1 season at one snapshot should
+  cost nearer 99,000 than the pessimistic 125,120.
+- **The probe reproduced the `total_2_5` mistake before it could be made.**
+  Three featured prop keys returned nothing across all 20 events while their
+  alternate ladders had them. Read per key that is three unmeasurable markets;
+  read per market — the unit that gets modelled, measured and approved — it is
+  none. Every retention conclusion rolls up to the market first. The reverse
+  case is in the same data: `pass_longest_completion` is retained on 20 of 20
+  and its ladder on none.
+- **Two defects were found and fixed by reproduction, each with a regression
+  test.** The probe cached chunk responses under a filename tagged with the
+  chunk's *length*, so four ten-market chunks collided and three were lost —
+  the NHL lab's `_markets_fingerprint` exists for exactly that and was not
+  ported. And the secrets guard flagged the provider's 32-hex **event ids**,
+  which are the same shape as an API key; the exemption is by recorded value,
+  never by directory, so a hex run that is not a known event id is still a
+  finding even under `data/raw/`.
+- **The report is derived data and rebuilds from the run record**
+  (`scripts/rerender_retention_probe.py`). Improving its wording must never
+  cost 7,280 credits again.
 - **NCAAF now fits the quota too.** All three labs at the full catalogue land
   around 33,000 of 100,000 in a peak month. The reason to defer college
   football is no longer money — it is that the NFL is not built, that FBS is a

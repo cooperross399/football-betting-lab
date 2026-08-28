@@ -1,0 +1,2556 @@
+{
+  "away_team": "Denver Broncos",
+  "bookmakers": [
+    {
+      "key": "fanduel",
+      "last_update": "2024-09-08T18:59:43Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2024-09-08T18:59:24Z",
+          "outcomes": [
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 0.5,
+              "price": -310
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 1.5,
+              "price": 172
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 2.5,
+              "price": 750
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 0.5,
+              "price": -670
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 1.5,
+              "price": -113
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 2.5,
+              "price": 360
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1400
+            }
+          ]
+        },
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-08T18:59:24Z",
+          "outcomes": [
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 24.5,
+              "price": 148
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 39.5,
+              "price": 370
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 49.5,
+              "price": 650
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1040
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1500
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 24.5,
+              "price": 220
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 24.5,
+              "price": 490
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 24.5,
+              "price": -138
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 39.5,
+              "price": 186
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 59.5,
+              "price": 520
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 69.5,
+              "price": 880
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1260
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 24.5,
+              "price": 180
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 24.5,
+              "price": -750
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 39.5,
+              "price": -300
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 49.5,
+              "price": -178
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 59.5,
+              "price": -114
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 69.5,
+              "price": 130
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 79.5,
+              "price": 184
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 89.5,
+              "price": 250
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 99.5,
+              "price": 350
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 109.5,
+              "price": 490
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 124.5,
+              "price": 790
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1300
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 24.5,
+              "price": -400
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 39.5,
+              "price": -168
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 49.5,
+              "price": 100
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 59.5,
+              "price": 154
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 69.5,
+              "price": 225
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 79.5,
+              "price": 330
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 89.5,
+              "price": 490
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 99.5,
+              "price": 680
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 109.5,
+              "price": 980
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1300
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 24.5,
+              "price": -340
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 39.5,
+              "price": -144
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 49.5,
+              "price": 112
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 59.5,
+              "price": 172
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 69.5,
+              "price": 250
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 79.5,
+              "price": 370
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 89.5,
+              "price": 540
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 99.5,
+              "price": 790
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1040
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1300
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 24.5,
+              "price": -152
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 39.5,
+              "price": 152
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 49.5,
+              "price": 240
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 59.5,
+              "price": 360
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 69.5,
+              "price": 540
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 79.5,
+              "price": 820
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1120
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1500
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 24.5,
+              "price": -400
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 39.5,
+              "price": -170
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 49.5,
+              "price": -106
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 59.5,
+              "price": 142
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 69.5,
+              "price": 205
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 79.5,
+              "price": 300
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 89.5,
+              "price": 440
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 99.5,
+              "price": 590
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 109.5,
+              "price": 880
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1260
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": 144
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": 360
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": 590
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 980
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 69.5,
+              "price": 1300
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 24.5,
+              "price": 340
+            }
+          ]
+        },
+        {
+          "key": "player_receptions_alternate",
+          "last_update": "2024-09-08T18:59:24Z",
+          "outcomes": [
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1450
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 2.5,
+              "price": -420
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 3.5,
+              "price": -180
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 4.5,
+              "price": 118
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 5.5,
+              "price": 220
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 6.5,
+              "price": 390
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 7.5,
+              "price": 640
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1100
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 1.5,
+              "price": -210
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 2.5,
+              "price": 136
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 3.5,
+              "price": 300
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 4.5,
+              "price": 580
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 0.5,
+              "price": -1000
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 1.5,
+              "price": -225
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 2.5,
+              "price": 118
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 3.5,
+              "price": 240
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 4.5,
+              "price": 490
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 5.5,
+              "price": 850
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 0.5,
+              "price": -670
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 1.5,
+              "price": -162
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 2.5,
+              "price": 168
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 3.5,
+              "price": 360
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 4.5,
+              "price": 680
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1400
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 2.5,
+              "price": -390
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 3.5,
+              "price": -172
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 4.5,
+              "price": 124
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 5.5,
+              "price": 235
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 6.5,
+              "price": 410
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 7.5,
+              "price": 680
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 1.5,
+              "price": -330
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 2.5,
+              "price": -118
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 3.5,
+              "price": 194
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 4.5,
+              "price": 390
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 5.5,
+              "price": 700
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 1.5,
+              "price": -1100
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 2.5,
+              "price": -320
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 3.5,
+              "price": -138
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 4.5,
+              "price": 152
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 5.5,
+              "price": 280
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 6.5,
+              "price": 470
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 7.5,
+              "price": 750
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 2.5,
+              "price": -600
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 3.5,
+              "price": -230
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 4.5,
+              "price": -108
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 5.5,
+              "price": 178
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 6.5,
+              "price": 310
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 7.5,
+              "price": 520
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 8.5,
+              "price": 850
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 1.5,
+              "price": -470
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 2.5,
+              "price": -168
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 3.5,
+              "price": 130
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 4.5,
+              "price": 240
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 5.5,
+              "price": 430
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 6.5,
+              "price": 750
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 1.5,
+              "price": -490
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 2.5,
+              "price": -174
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 3.5,
+              "price": 134
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 4.5,
+              "price": 265
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 5.5,
+              "price": 470
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 6.5,
+              "price": 800
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-08T18:59:24Z",
+          "outcomes": [
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 24.5,
+              "price": 490
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 39.5,
+              "price": 1500
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 24.5,
+              "price": -104
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 245
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 49.5,
+              "price": 410
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 59.5,
+              "price": 630
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 69.5,
+              "price": 980
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 24.5,
+              "price": 140
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 39.5,
+              "price": 440
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 49.5,
+              "price": 880
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1300
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 39.5,
+              "price": -470
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 49.5,
+              "price": -260
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 59.5,
+              "price": -160
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 69.5,
+              "price": -104
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 79.5,
+              "price": 146
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 89.5,
+              "price": 220
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 99.5,
+              "price": 320
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 109.5,
+              "price": 470
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 124.5,
+              "price": 790
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 149.5,
+              "price": 1600
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 24.5,
+              "price": -118
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 39.5,
+              "price": 205
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 49.5,
+              "price": 320
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 59.5,
+              "price": 520
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 69.5,
+              "price": 760
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1040
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 89.5,
+              "price": 1300
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 24.5,
+              "price": -800
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 39.5,
+              "price": -250
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 49.5,
+              "price": -140
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 59.5,
+              "price": 120
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 69.5,
+              "price": 186
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 79.5,
+              "price": 270
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 89.5,
+              "price": 420
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 99.5,
+              "price": 610
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 109.5,
+              "price": 880
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 124.5,
+              "price": 1300
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "draftkings",
+      "last_update": "2024-09-08T18:59:59Z",
+      "markets": [
+        {
+          "key": "player_reception_yds_alternate",
+          "last_update": "2024-09-08T19:00:02Z",
+          "outcomes": [
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 39.5,
+              "price": -175
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 49.5,
+              "price": 100
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 59.5,
+              "price": 170
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 69.5,
+              "price": 265
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 79.5,
+              "price": 400
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 89.5,
+              "price": 600
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 99.5,
+              "price": 900
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1200
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1600
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 39.5,
+              "price": -400
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 49.5,
+              "price": -210
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 59.5,
+              "price": -125
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 69.5,
+              "price": 125
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 79.5,
+              "price": 190
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 89.5,
+              "price": 290
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 99.5,
+              "price": 425
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 109.5,
+              "price": 600
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 119.5,
+              "price": 900
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 24.5,
+              "price": 115
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 39.5,
+              "price": 295
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 49.5,
+              "price": 500
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 59.5,
+              "price": 900
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 24.5,
+              "price": 195
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 500
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 49.5,
+              "price": 1000
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 24.5,
+              "price": 180
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 39.5,
+              "price": 475
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 49.5,
+              "price": 850
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 24.5,
+              "price": -550
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 39.5,
+              "price": -180
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 49.5,
+              "price": -105
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 59.5,
+              "price": 145
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 69.5,
+              "price": 215
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 79.5,
+              "price": 300
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 89.5,
+              "price": 425
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 99.5,
+              "price": 600
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 109.5,
+              "price": 1300
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 24.5,
+              "price": -150
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 39.5,
+              "price": 180
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 49.5,
+              "price": 310
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 69.5,
+              "price": 850
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 24.5,
+              "price": 265
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 39.5,
+              "price": 750
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 24.5,
+              "price": 155
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 39.5,
+              "price": 425
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 49.5,
+              "price": 750
+            },
+            {
+              "description": "Marvin Mims Jr.",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1300
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 24.5,
+              "price": -155
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 39.5,
+              "price": 175
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 49.5,
+              "price": 310
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 59.5,
+              "price": 500
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 69.5,
+              "price": 850
+            },
+            {
+              "description": "Noah Fant",
+              "name": "Over",
+              "point": 79.5,
+              "price": 1300
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 24.5,
+              "price": -475
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 39.5,
+              "price": -150
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 49.5,
+              "price": 115
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 59.5,
+              "price": 185
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 69.5,
+              "price": 295
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 79.5,
+              "price": 450
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 89.5,
+              "price": 650
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 99.5,
+              "price": 1000
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 24.5,
+              "price": 310
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 39.5,
+              "price": 850
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 22.5,
+              "price": -700
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 22.5,
+              "price": 475
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 33.5,
+              "price": -255
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 33.5,
+              "price": 200
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 40.5,
+              "price": -165
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 40.5,
+              "price": 130
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 54.5,
+              "price": 135
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 54.5,
+              "price": -170
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 63.5,
+              "price": 205
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 63.5,
+              "price": -265
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Over",
+              "point": 82.5,
+              "price": 500
+            },
+            {
+              "description": "Courtland Sutton",
+              "name": "Under",
+              "point": 82.5,
+              "price": -700
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 33.5,
+              "price": -650
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 33.5,
+              "price": 475
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 45.5,
+              "price": -265
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 45.5,
+              "price": 205
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 53.5,
+              "price": -165
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 53.5,
+              "price": 130
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 70.5,
+              "price": 130
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 70.5,
+              "price": -170
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 80.5,
+              "price": 205
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 80.5,
+              "price": -260
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Over",
+              "point": 102.5,
+              "price": 500
+            },
+            {
+              "description": "DK Metcalf",
+              "name": "Under",
+              "point": 102.5,
+              "price": -700
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 3.5,
+              "price": -700
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 3.5,
+              "price": 475
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 11.5,
+              "price": -275
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 11.5,
+              "price": 215
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 16.5,
+              "price": -170
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 16.5,
+              "price": 135
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 26.5,
+              "price": 130
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 26.5,
+              "price": -170
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 33.5,
+              "price": 210
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 33.5,
+              "price": -270
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Over",
+              "point": 47.5,
+              "price": 475
+            },
+            {
+              "description": "Greg Dulcich",
+              "name": "Under",
+              "point": 47.5,
+              "price": -700
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 22.5,
+              "price": -700
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 22.5,
+              "price": 475
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 33.5,
+              "price": -270
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 33.5,
+              "price": 210
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 40.5,
+              "price": -170
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 40.5,
+              "price": 130
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 55.5,
+              "price": 135
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 55.5,
+              "price": -170
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 64.5,
+              "price": 205
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 64.5,
+              "price": -265
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Over",
+              "point": 83.5,
+              "price": 475
+            },
+            {
+              "description": "Jaxon Smith-Njigba",
+              "name": "Under",
+              "point": 83.5,
+              "price": -700
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 9.5,
+              "price": -650
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 9.5,
+              "price": 450
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 17.5,
+              "price": -265
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 17.5,
+              "price": 205
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 22.5,
+              "price": -170
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 22.5,
+              "price": 135
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 34.5,
+              "price": 135
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 34.5,
+              "price": -170
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 41.5,
+              "price": 205
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 41.5,
+              "price": -265
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Over",
+              "point": 57.5,
+              "price": 475
+            },
+            {
+              "description": "Josh Reynolds",
+              "name": "Under",
+              "point": 57.5,
+              "price": -700
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 20.5,
+              "price": -700
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 20.5,
+              "price": 500
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 31.5,
+              "price": -260
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 31.5,
+              "price": 200
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 37.5,
+              "price": -170
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 37.5,
+              "price": 135
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 52.5,
+              "price": 135
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 52.5,
+              "price": -170
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 61.5,
+              "price": 210
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 61.5,
+              "price": -270
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Over",
+              "point": 80.5,
+              "price": 500
+            },
+            {
+              "description": "Tyler Lockett",
+              "name": "Under",
+              "point": 80.5,
+              "price": -700
+            }
+          ]
+        },
+        {
+          "key": "player_rush_yds_alternate",
+          "last_update": "2024-09-08T19:00:02Z",
+          "outcomes": [
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 24.5,
+              "price": 130
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 39.5,
+              "price": 400
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 49.5,
+              "price": 800
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 24.5,
+              "price": 425
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 39.5,
+              "price": 1300
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 24.5,
+              "price": -110
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 39.5,
+              "price": 285
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 49.5,
+              "price": 550
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 59.5,
+              "price": 1000
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 24.5,
+              "price": -1100
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 39.5,
+              "price": -250
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 49.5,
+              "price": -130
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 59.5,
+              "price": 135
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 69.5,
+              "price": 230
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 79.5,
+              "price": 370
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 89.5,
+              "price": 600
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 99.5,
+              "price": 900
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 39.5,
+              "price": -650
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 49.5,
+              "price": -300
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 59.5,
+              "price": -160
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 69.5,
+              "price": 105
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 79.5,
+              "price": 160
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 89.5,
+              "price": 260
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 99.5,
+              "price": 400
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 109.5,
+              "price": 600
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 119.5,
+              "price": 900
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 24.5,
+              "price": -125
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 39.5,
+              "price": 260
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 49.5,
+              "price": 475
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 59.5,
+              "price": 900
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 7.5,
+              "price": -800
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 7.5,
+              "price": 550
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 13.5,
+              "price": -285
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 13.5,
+              "price": 210
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 16.5,
+              "price": -175
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 16.5,
+              "price": 140
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 24.5,
+              "price": 130
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 24.5,
+              "price": -165
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 30.5,
+              "price": 210
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 30.5,
+              "price": -275
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Over",
+              "point": 41.5,
+              "price": 475
+            },
+            {
+              "description": "Bo Nix",
+              "name": "Under",
+              "point": 41.5,
+              "price": -700
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 2.5,
+              "price": -650
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 2.5,
+              "price": 450
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 5.5,
+              "price": -245
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 5.5,
+              "price": 190
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 7.5,
+              "price": -160
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 7.5,
+              "price": 130
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 12.5,
+              "price": 130
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 12.5,
+              "price": -165
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 16.5,
+              "price": 205
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 16.5,
+              "price": -265
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Over",
+              "point": 25.5,
+              "price": 475
+            },
+            {
+              "description": "Geno Smith",
+              "name": "Under",
+              "point": 25.5,
+              "price": -700
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 10.5,
+              "price": -650
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 10.5,
+              "price": 475
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 16.5,
+              "price": -250
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 16.5,
+              "price": 195
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 20.5,
+              "price": -160
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 20.5,
+              "price": 130
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 29.5,
+              "price": 135
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 29.5,
+              "price": -175
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 34.5,
+              "price": 200
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 34.5,
+              "price": -260
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Over",
+              "point": 47.5,
+              "price": 500
+            },
+            {
+              "description": "Jaleel McLaughlin",
+              "name": "Under",
+              "point": 47.5,
+              "price": -700
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 28.5,
+              "price": -700
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 28.5,
+              "price": 500
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 38.5,
+              "price": -270
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 38.5,
+              "price": 210
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 45.5,
+              "price": -165
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 45.5,
+              "price": 130
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 58.5,
+              "price": 130
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 58.5,
+              "price": -165
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 67.5,
+              "price": 210
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 67.5,
+              "price": -270
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Over",
+              "point": 84.5,
+              "price": 475
+            },
+            {
+              "description": "Javonte Williams",
+              "name": "Under",
+              "point": 84.5,
+              "price": -700
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 38.5,
+              "price": -700
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 38.5,
+              "price": 500
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 51.5,
+              "price": -260
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 51.5,
+              "price": 200
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 58.5,
+              "price": -170
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 58.5,
+              "price": 135
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 74.5,
+              "price": 130
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 74.5,
+              "price": -165
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 84.5,
+              "price": 210
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 84.5,
+              "price": -265
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Over",
+              "point": 103.5,
+              "price": 475
+            },
+            {
+              "description": "Kenneth Walker III",
+              "name": "Under",
+              "point": 103.5,
+              "price": -700
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 10.5,
+              "price": -750
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 10.5,
+              "price": 500
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 17.5,
+              "price": -250
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 17.5,
+              "price": 195
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 21.5,
+              "price": -165
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 21.5,
+              "price": 130
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 30.5,
+              "price": 135
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 30.5,
+              "price": -170
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 36.5,
+              "price": 210
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 36.5,
+              "price": -275
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Over",
+              "point": 49.5,
+              "price": 500
+            },
+            {
+              "description": "Zach Charbonnet",
+              "name": "Under",
+              "point": 49.5,
+              "price": -700
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    }
+  ],
+  "commence_time": "2024-09-08T20:05:00Z",
+  "home_team": "Seattle Seahawks",
+  "id": "afb7e137dbb2a3de38d2d3cb68897e3b",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

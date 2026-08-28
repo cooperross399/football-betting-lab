@@ -1,0 +1,388 @@
+{
+  "away_team": "Washington Commanders",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "last_update": "2026-01-04T20:20:05Z",
+      "markets": [
+        {
+          "key": "player_pass_interceptions_alternate",
+          "last_update": "2026-01-04T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -166
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 231
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 680
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -108
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 436
+            }
+          ]
+        },
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:19:49Z",
+          "outcomes": [
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -496
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 109
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 2.5,
+              "price": 409
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1440
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -178
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 280
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 1100
+            }
+          ]
+        }
+      ],
+      "title": "DraftKings"
+    },
+    {
+      "key": "betonlineag",
+      "last_update": "2026-01-04T20:20:31Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:20:44Z",
+          "outcomes": [
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1200
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -588
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 107
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 2.5,
+              "price": 340
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -172
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 220
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 825
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 3.5,
+              "price": 3500
+            }
+          ]
+        }
+      ],
+      "title": "BetOnline.ag"
+    },
+    {
+      "key": "williamhill_us",
+      "last_update": "2026-01-04T20:17:59Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:20:10Z",
+          "outcomes": [
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -460
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 111
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 2.5,
+              "price": 370
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1200
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -190
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 1200
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 285
+            }
+          ]
+        }
+      ],
+      "title": "Caesars"
+    },
+    {
+      "key": "fanduel",
+      "last_update": "2026-01-04T20:20:30Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:20:12Z",
+          "outcomes": [
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -166
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 320
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 1280
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -490
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 116
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 2.5,
+              "price": 410
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1280
+            }
+          ]
+        }
+      ],
+      "title": "FanDuel"
+    },
+    {
+      "key": "betrivers",
+      "last_update": "2026-01-04T20:20:34Z",
+      "markets": [
+        {
+          "key": "player_pass_interceptions_alternate",
+          "last_update": "2026-01-04T20:20:45Z",
+          "outcomes": [
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 290
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -159
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -106
+            }
+          ]
+        },
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:20:45Z",
+          "outcomes": [
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -455
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 132
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 370
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -157
+            }
+          ]
+        }
+      ],
+      "title": "BetRivers"
+    },
+    {
+      "key": "bovada",
+      "last_update": "2026-01-04T20:20:06Z",
+      "markets": [
+        {
+          "key": "player_pass_tds_alternate",
+          "last_update": "2026-01-04T20:19:44Z",
+          "outcomes": [
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 0.5,
+              "price": -170
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 1.5,
+              "price": 325
+            },
+            {
+              "description": "Josh Johnson",
+              "name": "Over",
+              "point": 2.5,
+              "price": 1200
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 0.5,
+              "price": -500
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 1.5,
+              "price": 105
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 2.5,
+              "price": 400
+            },
+            {
+              "description": "Tanner McKee",
+              "name": "Over",
+              "point": 3.5,
+              "price": 1200
+            }
+          ]
+        }
+      ],
+      "title": "Bovada"
+    }
+  ],
+  "commence_time": "2026-01-04T21:25:00Z",
+  "home_team": "Philadelphia Eagles",
+  "id": "b6eb23d78a4e1b3bf9946be7cfac0e6b",
+  "sport_key": "americanfootball_nfl",
+  "sport_title": "NFL"
+}

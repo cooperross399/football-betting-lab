@@ -188,15 +188,39 @@ None of this changes what any of them can *establish*. A bought backtest on
 still applies across sixty markets, and an interval including zero still means
 "no demonstrated edge" in those words.
 
-## What cannot be measured at all
+## What can and cannot be measured historically — probed, 2026-08-28
 
-To be filled in by the retention and coverage probes, market by market, with
-the reason — and probed **in season**, because a market unquoted in August
-establishes nothing. An entry here is a statement that no price exists to test
-against, not a statement that the market is bad.
+The retention probe has run: 20 events, stratified across kickoff windows and
+split evenly between the 2024 and 2025 seasons, 46 provider keys each, at a
+snapshot 60 minutes before kickoff. It cost **7,280 credits** against a
+pessimistic bound of 9,220 — the shortfall being exactly the keys no book
+retained, which is the thing it was measuring.
 
-Until those probes have run, the honest state is **unknown**: not "the props
-are all retained" and not "none are".
+**All 27 tier-1 markets have historical prices. 25 have enough to measure
+against.** Nine books appear across the sample. Full table:
+`data/outputs/nfl_retention_probe.md`.
+
+Two are retained but **too thin to support a measurement**: `reception_tds`
+and `rush_tds`, each priced on 2 of 20 events by a single book, with six and
+four priced outcomes respectively. "Retained" and "measurable" are different
+claims and this document will not let them be confused: a measurement against
+one book measures that book's pricing, not the market's.
+
+**The probe also reproduced the `total_2_5` mistake before it could be made.**
+Read by provider key, three markets returned nothing across all twenty events
+— `player_rush_tds`, `player_reception_tds`,
+`player_defensive_interceptions` — and the first rendering of the report
+called them unmeasurable. Their alternate ladders had all three, on 2, 2 and 9
+events. The featured key and its ladder are one market everywhere else in this
+repository, so a conclusion drawn per key was the wrong unit. The report now
+rolls up to the market and says so.
+
+The reverse case is in the same data and is why the rollup cannot simply
+prefer ladders: `pass_longest_completion` is retained on all 20 events and its
+ladder on none.
+
+Tier 2 has not been probed. Its markets are wired and settleable and their
+retention is **unknown** — not "retained", and not "absent".
 
 ## The gates that will produce nothing, and why that is correct
 

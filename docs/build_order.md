@@ -141,10 +141,10 @@ not.
 
 **Still open, and now a real choice rather than a constraint:**
 
-3. **The retention probe — about 9,200 credits.** Under a tenth of one
-   month's quota. It establishes which of the 111 documented markets are
-   retained historically, per market and per book, before anything larger is
-   spent. I would like to run this in early September.
+3. ~~The retention probe.~~ **Run 2026-08-28 on your instruction. 7,280
+   credits, 79,659 remaining this month.** All 27 tier-1 markets have
+   historical prices; 25 have enough to measure against, across nine books.
+   `data/outputs/nfl_retention_probe.md`.
 
 4. **What history to buy, once the probe answers.** The shapes and their
    costs, all against 100,000 a month:
@@ -156,7 +156,12 @@ not.
    | **Tier 1, one season, two snapshots (card-time and close)** | **250,240** | **2.5** |
    | Tier 1, two seasons, one snapshot | 250,240 | 2.5 |
 
-   My recommendation is the two-snapshot version. A single snapshot gives one
+   The probe revises those figures downward: billing is per market
+   **returned**, and it observed 21% fewer than the pessimistic bound, so a
+   full tier-1 season at one snapshot should land nearer **99,000** than
+   125,120, and the two-snapshot version nearer **198,000** than 250,240.
+
+   My recommendation is still the two-snapshot version. A single snapshot gives one
    price and no closing-line value; two — one at roughly the hour the card
    would have been built, one within minutes of kickoff — give the model's
    price, the closing price, and therefore **CLV on every historical bet**.
