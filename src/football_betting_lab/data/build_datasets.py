@@ -80,6 +80,8 @@ quietly wrong.
 
 from __future__ import annotations
 
+import json
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -92,6 +94,7 @@ from football_betting_lab.season import game_date
 
 TEAM_GAMES_FILENAME = "team_games.csv"
 PLAYER_LOGS_FILENAME = "player_game_logs.csv"
+PLAY_YARDAGE_FILENAME = "play_yardage.json"
 
 #: A rebuild that loses more than this fraction of an existing table is
 #: refused. Rows, not existence: an empty fetch still produces a file.
@@ -366,6 +369,57 @@ def build_player_logs(
     )
 
 
+def build_play_yardage(
+    league: League, raw_dir: Path, seasons: tuple[int, ...]
+) -> dict[str, dict[str, float]]:
+    """The empirical distribution of yards on a single play, by kind.
+
+    This is the shape a compound yardage model needs and a per-game total
+    cannot supply. Yards are opportunities x yards-per-opportunity, so pricing
+    a yardage market means drawing a count and then that many per-play
+    outcomes — which also yields the **longest** play for free, and yields it
+    consistently with the total rather than from a second model that could
+    disagree with the first.
+
+    Kept league-wide rather than per player. A single receiver has a few dozen
+    catches a season, which is not enough to fit a tail; the league shape is,
+    and a player's own yards-per-reception moves the mean by tilting it. That
+    is the same device the team model uses on scores and for the same reason:
+    the shape is what the data is good at, the mean is what a fit is good at.
+    """
+    counts: dict[str, Counter] = {
+        "completion": Counter(),
+        "rush": Counter(),
+        "reception": Counter(),
+    }
+    for season in seasons:
+        path = nflverse.feed_path(nflverse.FEEDS_BY_NAME["pbp"], league, raw_dir, season)
+        if not path.is_file():
+            continue
+        plays = pd.read_csv(
+            path, compression="gzip", usecols=list(PBP_COLUMNS), low_memory=False
+        )
+        plays = plays[plays["season_type"] == "REG"]
+        completed = plays[plays["complete_pass"] == 1]
+        for kind, frame, column in (
+            ("completion", completed, "passing_yards"),
+            ("rush", plays, "rushing_yards"),
+            ("reception", completed, "receiving_yards"),
+        ):
+            values = pd.to_numeric(frame[column], errors="coerce").dropna()
+            counts[kind].update(int(value) for value in values)
+
+    distributions: dict[str, dict[str, float]] = {}
+    for kind, counter in counts.items():
+        total = sum(counter.values())
+        if not total:
+            continue
+        distributions[kind] = {
+            str(yards): count / total for yards, count in sorted(counter.items())
+        }
+    return distributions
+
+
 def build(
     league: League,
     *,
@@ -385,6 +439,16 @@ def build(
         TEAM_GAMES_FILENAME, games_path, len(games), report, allow_shrink=allow_shrink
     ):
         games.to_csv(games_path, index=False)
+
+    yardage = build_play_yardage(league, raw_dir, report.seasons)
+    if yardage:
+        (processed_dir / PLAY_YARDAGE_FILENAME).write_text(
+            json.dumps(yardage, indent=1) + "\n", encoding="utf-8"
+        )
+        report.notes.append(
+            "Per-play yardage distributions: "
+            + ", ".join(f"{kind} ({len(pmf)} values)" for kind, pmf in yardage.items())
+        )
 
     logs = build_player_logs(league, raw_dir, report.seasons, report)
     report.player_logs = len(logs)

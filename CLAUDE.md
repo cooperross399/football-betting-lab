@@ -197,6 +197,33 @@ Anything that sounds like a finding before Week 1 is a bug.
   games is too few to measure an international effect, and the report will
   say that rather than reporting a number over eight games.
 
+- **The models exist and are measured.** The team model takes its *shape*
+  from the empirical score distribution and fits only the mean, by exponential
+  tilting, so the lumps at 3, 7, 10, 14 survive and a whole-number line pushes
+  exactly (−3 pushes 3.4% of the time, −3.5 never). Player props are **one
+  compound simulation per player** — draw opportunities, draw that many
+  per-play yardages tilted to his own efficiency, read the sum, the maximum
+  and the touchdowns off the same draws. Receptions and yards and longest
+  cannot disagree, and every alternate rung prices from the same distribution
+  as the featured line.
+- **Walk-forward calibration is run and reported**
+  (`data/outputs/nfl_props_calibration.md`, fitted pre-2025, scored on 2025,
+  1,248 / 1,193 / 526 player-games). Randomised PIT deciles are close to flat.
+  All nine quantities have a mean PIT below 0.5 — but that is **three
+  independent observations, not nine**: within a family, opportunities, yards
+  and longest are read off one simulation. Three families leaning one way is
+  what a coin does one time in eight, which is not enough to call systematic.
+- **The calibration found the missing mechanism, and it is the expected one.**
+  Excess mass in the lowest decile on `rush_yards`, `rush_longest`,
+  `pass_completions` and `pass_yards` (14.8-15.8% against 10%): very low
+  outcomes happen more often than the model allows, because **nothing here
+  knows a player's day can be cut short**. Blowouts empty benches and injuries
+  end afternoons. The model is unconditional on game state and says so; this
+  is what that costs, measured.
+- **Snap share and target share are available and not used yet.** The model
+  fits usage from recent volume, which prices a player's recent role rather
+  than his current one. Stated wherever a prop number appears.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
