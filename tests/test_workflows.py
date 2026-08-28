@@ -167,3 +167,45 @@ def test_the_comment_stripper_does_not_hide_a_real_command(tmp_path: Path) -> No
     stripped = _without_comments(path)
 
     assert stripped.count("git add -A") == 1
+
+
+# -- a broken run has to reach a human ---------------------------------------
+
+
+def test_the_gameday_workflow_posts_to_the_operating_home() -> None:
+    """A workflow that fails silently looks exactly like a day with no
+    football. The card-feed branch records the fault; nothing reads a branch
+    unprompted."""
+    text = _without_comments(WORKFLOW_DIR / "football-gameday-refresh.yml")
+
+    assert "gh issue comment" in text
+    assert "Run did not complete" in text
+
+
+def test_the_operating_home_title_in_the_workflow_is_the_contract_string() -> None:
+    """Posted to by title rather than by a hardcoded number, so the issue can
+    be recreated without editing a workflow — which means the title has to
+    match exactly, em dash included."""
+    from tests.test_contract_strings import OPERATING_HOME_ISSUE
+
+    text = (WORKFLOW_DIR / "football-gameday-refresh.yml").read_text(encoding="utf-8")
+
+    assert OPERATING_HOME_ISSUE in text
+
+
+def test_the_gameday_workflow_may_comment_but_the_others_may_not() -> None:
+    """Commenting is a side effect on something a human watches. Only the run
+    that produces the card needs it."""
+    for path in WORKFLOWS:
+        permissions = _load(path).get("permissions") or {}
+        expected = "write" if path.name == "football-gameday-refresh.yml" else None
+        assert permissions.get("issues") == expected, path.name
+
+
+def test_the_degraded_path_runs_even_when_the_card_step_failed() -> None:
+    """`if: always()` on the posting step is the whole point: the case that
+    most needs reporting is the one where an earlier step died."""
+    text = _without_comments(WORKFLOW_DIR / "football-gameday-refresh.yml")
+    posting = text[text.index("Post to the operating home") :]
+
+    assert "if: always()" in posting[:200]

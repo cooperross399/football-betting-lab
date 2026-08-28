@@ -52,6 +52,7 @@ from football_betting_lab.providers.odds_api import (
     STAGING_PRICES_FILENAME,
     OddsApiProvider,
     ProviderError,
+    sufficient_quota,
 )
 from football_betting_lab.providers.team_names import name_to_abbreviation, resolve_team
 from football_betting_lab.reports import gameday_card, provider_shadow
@@ -93,8 +94,18 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         load_provider_env()
         try:
+            # Refuse rather than half-fetch. A run that starts with less than
+            # it could spend gets partway through the slate and stops, which
+            # leaves a snapshot holding the games it happened to reach — a
+            # biased subset frozen into the ledger as though it were the day.
+            provider = OddsApiProvider(league)
+            ok, note = sufficient_quota(provider.quota(), args.credit_cap)
+            print(note)
+            if not ok:
+                print(f"::error::{note}", file=sys.stderr)
+                return 2
             run = provider_shadow.run_shadow(
-                OddsApiProvider(league),
+                provider,
                 league,
                 raw_dir=RAW_DIR,
                 season=args.season,

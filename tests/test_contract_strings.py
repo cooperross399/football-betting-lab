@@ -76,3 +76,13 @@ def test_claude_md_states_the_week_one_date_that_was_verified() -> None:
 
     assert "2026-09-09" in text
     assert re.search(r"272 games", text), "the season's size must stay on record"
+
+
+def test_the_card_consults_the_quota_guard_before_fetching() -> None:
+    """Behaviour is tested in `test_odds_api_provider.py`; this only pins that
+    the card actually calls it. A guard nothing invokes is a comment."""
+    script = (PROJECT_ROOT / "scripts" / "run_gameday_card.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "sufficient_quota" in script

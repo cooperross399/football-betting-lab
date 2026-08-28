@@ -49,6 +49,9 @@ permissions:
   # Write for exactly one ref: the card-feed branch. Nothing here pushes to
   # the default branch, and nothing here opens a pull request.
   contents: write
+  # ...and to comment on the operating-home issue, which is how a broken
+  # Sunday reaches a human instead of sitting in a branch nobody opens.
+  issues: write
 
 concurrency:
   group: football-gameday-refresh
@@ -170,6 +173,45 @@ jobs:
       - name: Write the card to the run summary
         if: always()
         run: cat data/outputs/nfl_gameday_card.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Post to the operating home
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DECISION: ${{ steps.card.outputs.decision || 'degraded' }}
+        run: |
+          set -euo pipefail
+          # The title is a contract string. Found by title rather than by a
+          # hardcoded number so the issue can be recreated without editing a
+          # workflow, and the search is exact so a near-miss posts nowhere
+          # rather than somewhere wrong.
+          TITLE="Football Betting Lab — Claude Operating Home"
+          NUMBER=$(gh issue list --state all --limit 100 \
+            --json number,title \
+            --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if [ -z "$NUMBER" ]; then
+            echo "::warning::No operating-home issue titled '$TITLE'. Nothing was posted, and a broken run would go unnoticed."
+            exit 0
+          fi
+          BODY=$(mktemp)
+          if [ "$DECISION" = "degraded" ]; then
+            {
+              echo "## Run did not complete"
+              echo
+              echo "No opinions were frozen and nothing was settled. **This is a fault, not a quiet Sunday.**"
+              echo
+              echo "[Run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            } > "$BODY"
+          else
+            cat data/outputs/nfl_gameday_card.md > "$BODY"
+            {
+              echo
+              echo "---"
+              echo "[Run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            } >> "$BODY"
+          fi
+          gh issue comment "$NUMBER" --body-file "$BODY"
+          echo "Posted to operating home #$NUMBER (decision: $DECISION)."
 
       - name: Publish to the card-feed branch
         if: always()

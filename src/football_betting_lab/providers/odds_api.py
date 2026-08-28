@@ -439,6 +439,34 @@ class OddsApiProvider:
         return data if isinstance(data, Mapping) else {}
 
 
+def sufficient_quota(headers: Mapping[str, str], credit_cap: int) -> tuple[bool, str]:
+    """Whether there are enough credits left to start a run at all.
+
+    Refusing is the safe direction. A run that starts with less than its cap
+    gets partway through the slate and stops, leaving a snapshot holding the
+    games it happened to reach — a biased subset frozen into the ledger as
+    though it were the day, and forward evidence cannot be re-made.
+
+    An unreadable header does **not** block the run: the guard exists to catch
+    a known shortfall, not to make an unreadable response fatal, and the
+    adapter's own cap still cannot be breached.
+    """
+    remaining = str(headers.get("x-requests-remaining", "")).strip()
+    if not remaining.lstrip("-").isdigit():
+        return True, (
+            "The provider did not report a remaining quota. Proceeding: the "
+            "per-request cap still cannot be breached."
+        )
+    left = int(remaining)
+    if left < credit_cap:
+        return False, (
+            f"{left} credits remain, below the {credit_cap} this run could "
+            "spend. Nothing was requested. A partial slate frozen into the "
+            "ledger is worse than no card."
+        )
+    return True, f"{left} credits remain, against a cap of {credit_cap}."
+
+
 def _guard(spend: Spend, credit_cap: int, bound: int, what: str) -> None:
     """Refuse a request whose pessimistic cost could breach the cap.
 
