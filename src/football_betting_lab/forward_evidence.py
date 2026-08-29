@@ -429,3 +429,115 @@ def interval_by_game(ledger: pd.DataFrame) -> tuple[float, float, float, int, in
     variance = float((weights**2 * ratios.var(ddof=1) / games).sum() * games)
     standard_error = math.sqrt(max(variance, 0.0) / games)
     return roi, roi - 1.96 * standard_error, roi + 1.96 * standard_error, total_bets, games
+
+
+# -- reading the ledger back ------------------------------------------------
+
+
+def render_ledger(
+    ledger: pd.DataFrame,
+    league: League,
+    *,
+    settlement_suspects: frozenset[str] = frozenset(),
+    minimum_bets: int = 200,
+) -> str:
+    """What the accumulated ledger supports, in the house vocabulary.
+
+    Everything the historical work learned applies here and has to be applied
+    *here*, not remembered: a settlement suspect's number is not evidence, an
+    interval including zero is "no demonstrated edge" in those words, and a
+    family correction across the markets reported is not optional because
+    something always looks profitable by chance.
+
+    The ledger is the only evidence that can still grow — the bought
+    population is complete — so it is also the only place a mistake in reading
+    it compounds for a season.
+    """
+    from statistics import NormalDist
+
+    lines: list[str] = []
+    add = lines.append
+    add(f"# Forward evidence — {league.title}")
+    add("")
+    if ledger.empty:
+        add(
+            "**The ledger is empty.** No opinion has settled yet. That is an "
+            "absence, not a result, and no number is offered in its place."
+        )
+        return "\n".join(lines) + "\n"
+
+    settled = ledger[ledger["outcome"].isin({WON, LOST, PUSH})]
+    voided = ledger[ledger["outcome"] == VOID]
+    unsettleable = ledger[ledger["outcome"] == UNSETTLEABLE]
+    days = sorted(set(ledger["snapshot_date"].astype(str)))
+
+    add(
+        f"**{len(ledger):,} frozen opinion(s) across {len(days)} day(s)**, "
+        f"{days[0]} to {days[-1]}. {len(settled):,} settled, "
+        f"{len(voided):,} voided (stake returned), "
+        f"{len(unsettleable):,} unsettleable."
+    )
+    add("")
+    add(
+        "Every opinion here was frozen **before kickoff and never repriced**. "
+        "It is the only evidence this lab can still gather: the bought "
+        "population is complete, so nothing else grows."
+    )
+    add("")
+
+    markets = sorted(set(settled["market"].astype(str)))
+    families = max(len(markets), 1)
+    factor = NormalDist().inv_cdf(1 - (0.05 / families) / 2) / 1.96
+
+    add("| Market | Bets | Games | ROI | 95% interval | Family-corrected | Reading |")
+    add("|:-------|-----:|------:|----:|:-------------|:-----------------|:--------|")
+    for market in markets:
+        rows = settled[settled["market"].astype(str) == market]
+        roi, low, high, bets, games = interval_by_game(rows)
+        half = (high - low) / 2 if math.isfinite(high - low) else float("inf")
+        clow, chigh = roi - half * factor, roi + half * factor
+        if market in settlement_suspects:
+            reading = (
+                "**not evidence** — this market is a settlement suspect; its "
+                "return measures a disagreement between sources, not an edge"
+            )
+        elif bets < minimum_bets:
+            reading = f"**not enough evidence** — {bets} bets, below {minimum_bets}"
+        elif clow <= 0.0 <= chigh:
+            reading = "**no demonstrated edge**"
+        else:
+            reading = "interval excludes zero"
+        add(
+            f"| `{market}` | {bets:,} | {games:,} | {roi:+.1%} | "
+            f"{low:+.1%} to {high:+.1%} | {clow:+.1%} to {chigh:+.1%} | "
+            f"{reading} |"
+        )
+
+    pooled_roi, pooled_low, pooled_high, pooled_bets, pooled_games = interval_by_game(
+        settled[~settled["market"].astype(str).isin(settlement_suspects)]
+    )
+    add("")
+    add(
+        f"**Pooled, excluding settlement suspects: {pooled_roi:+.1%} over "
+        f"{pooled_bets:,} bets across {pooled_games:,} games**, interval "
+        f"{pooled_low:+.1%} to {pooled_high:+.1%}."
+    )
+    if settlement_suspects:
+        add("")
+        add(
+            "Excluded as settlement suspects: "
+            + ", ".join(f"`{m}`" for m in sorted(settlement_suspects))
+            + ". A market settled on a different quantity from the one priced "
+            "produces a constant offset, which replicates perfectly and looks "
+            "exactly like an edge — `tackles_assists` returned +16% across "
+            "three bought seasons on that basis alone."
+        )
+    add("")
+    add(
+        "Intervals are clustered by game because selections inside one game "
+        f"are not independent, and family-corrected across the {families} "
+        "market(s) reported. Voids are excluded from the return rather than "
+        "counted as losses; that assumes a book returns the stake on a "
+        "did-not-play, which is the single largest assumption in this lab."
+    )
+    return "\n".join(lines) + "\n"
