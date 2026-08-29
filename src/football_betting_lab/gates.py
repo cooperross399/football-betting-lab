@@ -72,8 +72,24 @@ DOUBTFUL = "doubtful"
 EXCLUDED = "excluded"
 NO_REPORT = "no_report"
 
-#: The only state that may produce a selection. Nothing reaches it today.
+#: The only state that may produce a selection when no verdict is in force.
 SELECTABLE_STATES = frozenset({CONFIRMED})
+
+#: States that may also select **once the recorded verdict says so**.
+#:
+#: The original reasoning — a market you cannot confirm is a market you cannot
+#: bet — was the NHL lab's goalie-saves rule, and it does not survive
+#: measurement here. A player who does not take a snap does not lose the bet;
+#: the book **voids** it and returns the stake. Over three bought seasons
+#: 12.2% of selections voided, every player listed Out or Doubtful voided
+#: 100% of the time, and the return concentrated entirely in the undesignated
+#: population.
+#:
+#: So "cannot confirm active" is not a financial risk for props — provided the
+#: book voids. If it grades a did-not-play as a loss, the same record is
+#: -0.8% rather than +13.0%, and that is why this is behind a verdict rather
+#: than simply switched on.
+SELECTABLE_WITH_VERDICT = frozenset({UNDESIGNATED})
 
 #: States in which the model still holds and freezes an opinion, so forward
 #: evidence accumulates for a market that cannot yet be bet.
@@ -87,10 +103,16 @@ class Availability:
     player_id: str
     state: str
     reason: str
+    #: Whether the recorded verdict permitting undesignated players is in
+    #: force. Passed in by the caller, which reads the door; this class never
+    #: reads it, so a gate cannot quietly enable itself.
+    undesignated_allowed: bool = False
 
     @property
     def may_select(self) -> bool:
-        return self.state in SELECTABLE_STATES
+        if self.state in SELECTABLE_STATES:
+            return True
+        return self.undesignated_allowed and self.state in SELECTABLE_WITH_VERDICT
 
     @property
     def may_price(self) -> bool:

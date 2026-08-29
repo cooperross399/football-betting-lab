@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 
 from football_betting_lab.gates import (
+    Availability,
     DOUBTFUL,
     EXCLUDED,
     MAX_DEPTH_CHART_AGE_HOURS,
@@ -233,3 +234,45 @@ def test_the_quarantine_covers_the_passing_and_receiving_tree_and_not_the_kicker
     assert "anytime_td" in QB_DEPENDENT_MARKETS
     for market in ("kicking_points", "field_goals", "tackles_assists", "sacks"):
         assert market not in QB_DEPENDENT_MARKETS
+
+
+# -- what measurement changed about this gate --------------------------------
+
+
+def test_an_undesignated_player_may_select_only_when_a_verdict_says_so() -> None:
+    """The original reasoning — a market you cannot confirm is a market you
+    cannot bet — does not survive measurement: a did-not-play prop is voided
+    by the book, not lost. But that is a fact about a book's rules, so it
+    goes through the verdicts door rather than being switched on."""
+    injuries = _injuries([_report()])
+
+    without = assess_availability("00-0000999", "BUF", injuries, season=2026, week=1)
+    with_verdict = Availability(
+        player_id=without.player_id,
+        state=without.state,
+        reason=without.reason,
+        undesignated_allowed=True,
+    )
+
+    assert without.state == UNDESIGNATED
+    assert not without.may_select
+    assert with_verdict.may_select
+
+
+def test_the_verdict_never_unblocks_a_player_listed_out() -> None:
+    """Measured: every player listed Out or Doubtful voided 100% of the time.
+    There is nothing to unblock and pricing them would be noise."""
+    for state in (EXCLUDED, DOUBTFUL, QUESTIONABLE, NO_REPORT):
+        verdicted = Availability(
+            player_id="p", state=state, reason="", undesignated_allowed=True
+        )
+        assert not verdicted.may_select, state
+
+
+def test_the_verdict_for_this_gate_is_not_in_force() -> None:
+    """It waits on one line in a book's prop rules: whether a did-not-play is
+    voided or graded a loss. That single fact turns +13.0% into -0.8%."""
+    from football_betting_lab.leagues import NFL
+    from football_betting_lab.verdicts import ships
+
+    assert not ships("props_selectable_when_undesignated", NFL)

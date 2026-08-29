@@ -514,6 +514,45 @@ Zero CLV is a reason to keep asking why, not a refutation.
 player prop can reach a card at all without an inactives feed. Those are the
 binding constraints, not the evidence.
 
+## The availability gate was solving a problem that does not exist
+
+**A did-not-play prop is voided by the book, not lost.** The stake comes back.
+So "will he play?" is not a question about whether the bet wins — it is a
+question about whether there is a bet at all, and a bet that never existed
+costs nothing.
+
+Measured over three bought seasons on `rush_yards`:
+
+| Designation that week | Bets | Voids | Void share | ROI |
+|:---|---:|---:|---:|---:|
+| **not on the injury report** | **15,620** | 2,167 | 12.2% | **+13.7%** |
+| listed, no designation | 998 | 16 | 1.6% | +2.4% |
+| Questionable | 211 | 36 | 14.6% | +11.8% |
+| Doubtful | 0 | 13 | **100%** | — |
+| Out | 0 | 116 | **100%** | — |
+
+Every player listed **Out or Doubtful voided 100% of the time**, so they never
+produce a staked bet at all — the gate that matters is already automatic. And
+the return lives entirely in the **undesignated** population, which is also
+the one whose availability is least in doubt. The gate and the edge want the
+same thing.
+
+**nflverse does carry inactives** — in `weekly_rosters.status` as `INA`, not
+as a separate feed. It publishes at 07:00 UTC, so it is not live before a
+Sunday kickoff, but it is what made this measurable.
+
+### The one line that decides all of it
+
+**Everything above assumes a book voids a did-not-play prop rather than
+grading it a loss.** If it grades them as losses, the same record is
+**−0.8%** instead of **+13.0%**.
+
+That is the difference between a strategy and a disaster, it turns on one line
+in a book's prop rules, and no amount of modelling can settle it. So the
+policy sits behind the verdicts door as
+`props_selectable_when_undesignated`, **not in force**, waiting on a human
+who has read them. `scripts/run_availability_cost.py` recomputes both numbers.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently

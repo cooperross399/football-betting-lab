@@ -51,6 +51,17 @@ VERDICT_FILES: dict[str, str] = {
     "props_recency_weighting": "props_recency_experiment",
     # A within-game scoring model, which the half and quarter markets need.
     "half_scoring_model": "half_scoring_experiment",
+    # Whether a player prop may produce a selection for a player who carries
+    # no injury designation. Measured: 12.2% of such selections void, every
+    # player listed Out or Doubtful voids 100% of the time, and the edge lives
+    # entirely in the undesignated population.
+    #
+    # **It does not ship on that measurement alone.** The whole result rests on
+    # a book voiding a did-not-play prop rather than grading it a loss, which
+    # turns +13.0% into -0.8%. That is one line in a book's rules and no
+    # amount of modelling can settle it, so this verdict waits for a human who
+    # has read them.
+    "props_selectable_when_undesignated": "availability_policy",
 }
 
 
