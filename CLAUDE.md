@@ -553,6 +553,45 @@ policy sits behind the verdicts door as
 `props_selectable_when_undesignated`, **not in force**, waiting on a human
 who has read them. `scripts/run_availability_cost.py` recomputes both numbers.
 
+## It is not one market — it is one model
+
+Reporting twenty markets and demanding each survive a twenty-way correction
+buried the pattern. Pooled at the **consensus price**, with intervals
+clustered by game:
+
+| Group | Bets | Best of N | Consensus | 95% interval |
+|:---|---:|---:|---:|:---|
+| **Compound-simulation markets** (9) | 100,230 | +5.8% | **+3.5%** | **+1.4% to +5.7%** |
+| Count-only markets (10) | 23,345 | −6.1% | **−9.8%** | −12.1% to −7.5% |
+| All markets | 129,842 | +4.1% | +1.6% | −0.2% to +3.4% |
+
+**The split is the finding.** Everything priced by the compound simulation —
+draw opportunities, draw that many per-play yardages, read the sum, the
+maximum and the count off the same draws — is positive at the median quote and
+its interval excludes zero. Everything priced by a bare negative binomial
+fitted to a settlement column is **strongly negative**, and that group is
+where `sacks`, `pass_interceptions` and `defensive_interceptions` live.
+
+That is a mechanism, not a market. It says the structure the compound model
+imposes is doing real work and the count model is worse than nothing — which
+is a far more useful statement than "`rush_yards` happens to be positive", and
+it is the one I should have led with.
+
+`tackles_assists` is excluded from the count group above; it is a settlement
+artefact and pooling it would import the artefact.
+
+### What this does not settle
+
+- **Three seasons is three seasons.** It is the full population for 2023-25,
+  not a sample of it, but it is still three seasons.
+- **The NHL lab has just gone the other way at scale**, and the parallel is
+  worth reading before believing anything here: its +1.4% over 4,830 bets
+  became **−1.6% over 73,918** on the full two-season population, its one
+  positive market failed replication, and its allowlist approval was
+  **withdrawn**. The direction of that surprise is the one to expect.
+- **Closing-line value is still zero**, and the mechanism is still not
+  understood.
+
 ## Contract strings — never change these
 
 Cooper's scheduled routines hard-code these. Renaming any of them silently
