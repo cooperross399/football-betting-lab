@@ -139,7 +139,7 @@ Every distribution choice in this lab is stated, justified, and then
 shape that has not been shown against the data it was fitted to is an
 assertion.
 
-## Closing-line value is a first-class metric here, not a footnote
+## Closing-line value is a diagnostic, not a criterion
 
 It is the fastest signal available at these sample sizes, and it raises
 questions worth chasing: a high return with no market movement is what pointed
