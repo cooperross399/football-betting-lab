@@ -8,6 +8,8 @@ single season's non-zero interval a finding.
 from __future__ import annotations
 
 import pandas as pd
+
+from football_betting_lab.leagues import NFL
 import pytest
 
 from football_betting_lab.reports.props_backtest import (
@@ -266,3 +268,111 @@ def test_a_single_snapshot_is_card_not_close() -> None:
     one = _prices([{"snapshot": "20250907T170000Z"}])
 
     assert list(label_snapshots(one)["phase"]) == [CARD_TIME]
+
+
+# -- the cross-season settlement defect --------------------------------------
+
+
+def test_an_event_is_never_settled_against_another_seasons_game() -> None:
+    """The defect that invalidated every prop result in this repository.
+
+    `_game_weeks` looked a club pair up in the target season's logs and
+    ignored the event's own kickoff, while `run` was handed the whole
+    three-season price frame for every season. So a 2023 Detroit-at-Chicago
+    event settled against the 2024 and 2025 meetings too: **406 of 794 events
+    settled against more than one season, and 100,466 of 148,587 bets were on
+    such events.**
+
+    It did not look like a bug. It looked like three seasons of replication.
+    """
+    from football_betting_lab.reports.props_backtest import _game_weeks
+
+    logs = pd.DataFrame(
+        [
+            {"season": 2024, "week": 16, "game_id": "2024_16_DET_CHI",
+             "player_name": "x", "team": "CHI"},
+        ]
+    )
+    prices = pd.DataFrame(
+        [
+            {
+                "event_id": "e2023",
+                "home_team": "Chicago Bears",
+                "away_team": "Detroit Lions",
+                # Played in 2023. It must not settle against the 2024 meeting.
+                "commence_time": "2023-12-10T18:03:00Z",
+            }
+        ]
+    )
+
+    assert _game_weeks(logs, prices, NFL, 2024) == {}
+
+
+def test_an_event_played_in_the_target_season_still_maps() -> None:
+    """The fix must not throw away the rows that were always correct."""
+    from football_betting_lab.reports.props_backtest import _game_weeks
+
+    logs = pd.DataFrame(
+        [{"season": 2024, "week": 16, "game_id": "2024_16_DET_CHI",
+          "player_name": "x", "team": "CHI"}]
+    )
+    prices = pd.DataFrame(
+        [{"event_id": "e2024", "home_team": "Chicago Bears",
+          "away_team": "Detroit Lions",
+          "commence_time": "2024-12-22T18:00:00Z"}]
+    )
+
+    assert _game_weeks(logs, prices, NFL, 2024) == {"e2024": 16}
+
+
+@pytest.mark.parametrize(
+    ("commence_time", "expected"),
+    [
+        ("2023-12-10T18:03:00Z", 2023),
+        # Week 18 is played in January and belongs to the previous season.
+        ("2024-01-07T18:00:00Z", 2023),
+        ("2025-09-05T00:20:00Z", 2025),
+        ("2026-01-04T18:00:00Z", 2025),
+    ],
+)
+def test_the_season_of_an_event_comes_from_its_own_kickoff(
+    commence_time: str, expected: int
+) -> None:
+    from football_betting_lab.reports.props_backtest import _event_season
+
+    assert _event_season(commence_time, NFL) == expected
+
+
+def test_an_unparseable_kickoff_maps_to_no_season_rather_than_a_guess() -> None:
+    from football_betting_lab.reports.props_backtest import _event_season
+
+    for value in ("", "not a time", None):
+        assert _event_season(value, NFL) is None
+
+
+def test_a_calendar_year_filter_would_lose_week_eighteen() -> None:
+    """The same bug family, in the three places that wrote the filter by hand.
+
+    Week 18 is played in January, so `date[:4] == season` drops the target
+    season's last week and imports the previous season's.
+    """
+    from football_betting_lab.reports.props_backtest import events_in_season
+
+    prices = pd.DataFrame(
+        [
+            {"event_id": "sept", "commence_time": "2025-09-07T17:00:00Z"},
+            {"event_id": "jan-same-season", "commence_time": "2026-01-04T18:00:00Z"},
+            {"event_id": "jan-previous-season", "commence_time": "2025-01-05T18:00:00Z"},
+        ]
+    )
+
+    kept = set(events_in_season(prices, NFL, 2025)["event_id"])
+
+    assert kept == {"sept", "jan-same-season"}
+    # ...and a naive year filter would have got both of those wrong.
+    naive = {
+        row["event_id"]
+        for _, row in prices.iterrows()
+        if str(row["commence_time"])[:4] == "2025"
+    }
+    assert naive == {"sept", "jan-previous-season"}

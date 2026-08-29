@@ -21,7 +21,7 @@ from football_betting_lab.leagues import NFL
 from football_betting_lab.providers.historical import CACHE_DIRNAME
 from football_betting_lab.config import RAW_DIR, PROCESSED_DIR
 from football_betting_lab.reports.props_backtest import (load_bought_prices, label_snapshots,
-    best_price_per_selection, _game_weeks, _game_id)
+    best_price_per_selection, _game_weeks, _game_id, events_in_season)
 from football_betting_lab.providers.team_names import name_to_abbreviation, resolve_team
 from football_betting_lab.forward_evidence import profit_on_win
 from football_betting_lab.markets import MARKETS_BY_KEY
@@ -42,7 +42,9 @@ p=p[(p.american_odds>=-160)&(p.american_odds<=600)]
 lk=name_to_abbreviation(NFL)
 rows=[]
 for season in (2023,2024,2025):
-    sub=p[p.date.str[:4]==str(season)]
+    # The season an event belongs to, from its own kickoff. A calendar-year
+    # filter drops week 18, which is played in January.
+    sub=events_in_season(p, NFL, season)
     weeks=_game_weeks(logs, sub, NFL, season)
     for ev, frame in sub.groupby('event_id'):
         wk=weeks.get(str(ev))

@@ -27,6 +27,7 @@ from football_betting_lab.reports import settlement_agreement
 from football_betting_lab.reports.props_backtest import (
     _game_id,
     _game_weeks,
+    events_in_season,
     best_price_per_selection,
     label_snapshots,
     load_bought_prices,
@@ -85,7 +86,9 @@ def main(argv: list[str] | None = None) -> int:
     lookup = name_to_abbreviation(league)
     rows: list[dict] = []
     for season in args.seasons:
-        subset = prices[prices["date"].astype(str).str[:4] == str(season)]
+        # From the event's own kickoff, not its calendar year: week 18 is
+        # played in January and a year filter loses it.
+        subset = events_in_season(prices, league, season)
         weeks = _game_weeks(logs, subset, league, season)
         for event_id, frame in subset.groupby("event_id"):
             week = weeks.get(str(event_id))

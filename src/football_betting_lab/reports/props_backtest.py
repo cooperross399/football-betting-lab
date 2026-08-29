@@ -61,6 +61,7 @@ from football_betting_lab.config import (
 )
 from football_betting_lab.forward_evidence import american_to_implied, profit_on_win
 from football_betting_lab.leagues import League
+from football_betting_lab.season import game_date
 from football_betting_lab.markets import MARKETS_BY_KEY
 from football_betting_lab.models.player_props import load_play_yardage
 from football_betting_lab.providers.odds_api import normalize_event
@@ -370,7 +371,28 @@ def run(
 def _game_weeks(
     logs: pd.DataFrame, prices: pd.DataFrame, league: League, season: int
 ) -> dict[str, int]:
-    """Which season-week each priced event belongs to."""
+    """Which season-week each priced event belongs to.
+
+    **An event is matched only to the season it was actually played in.**
+
+    The first version looked a club pair up in the target season's logs and
+    ignored the event's own kickoff, so a 2023 Detroit-at-Chicago event was
+    settled against the 2024 and 2025 meetings of the same clubs as well. The
+    caller passed the whole three-season price frame to every season, so
+    **406 of 794 events settled against more than one season and 100,466 of
+    148,587 bets were on such events.**
+
+    It did not look like a bug. It looked like three seasons of replication:
+    the same purchase, re-settled three times, with the model fitted
+    walk-forward on whichever season it was being settled against while the
+    price was a stale quote about a different game. The minimum-edge filter
+    then selected exactly the wagers where the stale line was most wrong, so
+    the mis-settled third carried all of the apparent edge and more — +23.5%
+    against −6.4% on the rows that settled against their own game.
+
+    The season now comes from the event's own `commence_time`, through the
+    league-date rule that already exists for exactly this class of mistake.
+    """
     lookup = name_to_abbreviation(league)
     index: dict[tuple[str, str], int] = {}
     for row in logs[logs["season"] == season].itertuples():
@@ -380,12 +402,60 @@ def _game_weeks(
     weeks: dict[str, int] = {}
     for event_id, frame in prices.groupby("event_id"):
         first = frame.iloc[0]
+        if _event_season(first.get("commence_time", ""), league) != season:
+            # A game played in another season. Settling it here would score a
+            # stale price against a game it was never about.
+            continue
         home = resolve_team(first["home_team"], league, lookup)
         away = resolve_team(first["away_team"], league, lookup)
         week = index.get((str(away), str(home)))
         if week is not None:
             weeks[str(event_id)] = week
     return weeks
+
+
+def events_in_season(
+    prices: pd.DataFrame, league: League, season: int
+) -> pd.DataFrame:
+    """Only the priced events actually played in `season`.
+
+    One helper, because three callers had written the filter themselves and
+    all three had written it as `date[:4] == season` — a **calendar year**,
+    not a season. Week 18 is played in January, so that filter drops the
+    target season's last week and imports the previous season's, in every
+    place it appears.
+
+    This is the same family as the cross-season settlement defect: a filter
+    that looks obviously right, is wrong at a boundary, and produces a
+    plausible number rather than an error.
+    """
+    if prices.empty or "commence_time" not in prices.columns:
+        return prices
+    belongs = prices["commence_time"].map(
+        lambda value: _event_season(value, league) == season
+    )
+    return prices[belongs].copy()
+
+
+def _event_season(commence_time: object, league: League) -> int | None:
+    """The NFL season an event belongs to, from its own kickoff.
+
+    A season spans a calendar boundary — week 18 is played in January — so the
+    season is the league date's year, minus one from January and February.
+    The league date, not the UTC one: a Sunday-night kickoff is Monday in UTC
+    and a January 1st one would otherwise change season.
+    """
+    day = game_date(commence_time, league)
+    # `game_date` falls back to the input's leading ten characters when it
+    # cannot parse, so a length check alone is not enough — "not a time" is
+    # ten characters long. Nothing here guesses a season.
+    try:
+        year, month = int(day[:4]), int(day[5:7])
+    except (ValueError, IndexError):
+        return None
+    if not 1 <= month <= 12:
+        return None
+    return year if month >= 3 else year - 1
 
 
 def _game_id(logs: pd.DataFrame, season: int, week: int, home: str, away: str) -> str:
