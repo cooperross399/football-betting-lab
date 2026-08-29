@@ -206,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # -- the card --------------------------------------------------------
     from football_betting_lab.staging_provider_policy import StagingProviderPolicy
+    from football_betting_lab.verdicts import ships
 
     policy = StagingProviderPolicy.load()
     card = gameday_card.build_card(
@@ -216,6 +217,10 @@ def main(argv: list[str] | None = None) -> int:
         now=now,
         slate_date=slate_date,
         preseason_excluded=preseason,
+        probabilities=probabilities,
+        # No player prop may select until the recorded verdict says an
+        # undesignated player can. The card reads the door; it never decides.
+        undesignated_allowed=ships("props_selectable_when_undesignated", league),
     )
 
     # -- freeze, then settle --------------------------------------------

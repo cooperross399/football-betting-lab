@@ -43,15 +43,26 @@ and reporting it as the whole one.
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 
 import pandas as pd
 
+from football_betting_lab.config import (
+    MAX_DEFAULT_JUICE,
+    MAX_DEFAULT_PRICE,
+    MIN_EDGE,
+    MIN_PROP_EDGE,
+)
+from football_betting_lab.forward_evidence import american_to_implied
 from football_betting_lab.gates import selection_blocked_note
-from football_betting_lab.kickoff import QUARANTINE_HEADING, partition
+from football_betting_lab.kickoff import QUARANTINE_HEADING, judge, partition
 from football_betting_lab.leagues import League
+from football_betting_lab.markets import MARKETS_BY_KEY, PLAYER
 from football_betting_lab.reports.card_pricing import PricingDiagnostics
+from football_betting_lab.season import clean_text
+from football_betting_lab.selection import normalise_line, selection_key
 from football_betting_lab.staging_provider_policy import StagingProviderPolicy
 
 
@@ -88,6 +99,106 @@ class CardResult:
         return "no-selections"
 
 
+def select(
+    prices: pd.DataFrame,
+    probabilities: Mapping[tuple, float],
+    league: League,
+    *,
+    policy: StagingProviderPolicy,
+    now: datetime,
+    undesignated_allowed: bool = False,
+) -> tuple[list[dict], list[tuple[str, str]]]:
+    """Every bet that clears every bar, and everything the guard pulled.
+
+    This path had never run. Nothing is allowlisted, so `build_card` recorded
+    market states, ran the kickoff guard over the slate, and returned with an
+    empty `selections` list that nothing ever filled — which looked identical
+    to "no market qualified". **The first card after a signed receipt would
+    have produced nothing and said so confidently.**
+
+    The bars, in the order they are applied:
+
+    1. the market has a reviewed approval;
+    2. the model has an opinion at all — a missing key is *no opinion*, which
+       is different from a probability of zero;
+    3. the edge clears the market's threshold, higher for props than for team
+       markets because a card is built before inactives are known;
+    4. the price is not worse than the juice bar and not longer than the model
+       is trusted to judge;
+    5. for a player prop, the availability gate permits a selection — which it
+       does not unless a recorded verdict says so;
+    6. the kickoff guard confirms the game has not started.
+
+    One wager can be quoted by many books. The best price is taken **after**
+    every bar, so a bar is never cleared by a price the card would not have
+    used.
+    """
+    if prices.empty:
+        return [], []
+
+    best: dict[tuple, dict] = {}
+    quarantined: list[tuple[str, str]] = []
+    for row in prices.itertuples():
+        market_key = clean_text(getattr(row, "market", ""))
+        market = MARKETS_BY_KEY.get(market_key)
+        if market is None or not policy.market_allowed(league, market_key):
+            continue
+        selection = clean_text(getattr(row, "selection", ""))
+        line = normalise_line(getattr(row, "line", None))
+        probability = probabilities.get(
+            selection_key(
+                row, market=market_key, selection=selection, line=line, league=league
+            )
+        )
+        if probability is None:
+            continue
+        try:
+            odds = int(float(getattr(row, "american_odds")))
+        except (TypeError, ValueError):
+            continue
+        if odds < MAX_DEFAULT_JUICE or odds > MAX_DEFAULT_PRICE:
+            continue
+        threshold = MIN_PROP_EDGE if market.kind == PLAYER else MIN_EDGE
+        edge = probability - american_to_implied(odds)
+        if edge < threshold:
+            continue
+        if market.kind == PLAYER and not undesignated_allowed:
+            # No player prop may select until a recorded verdict says an
+            # undesignated player can. Nothing reaches `confirmed` today.
+            continue
+        verdict = judge(getattr(row, "commence_time", ""), now=now)
+        label = (
+            f"{clean_text(getattr(row, 'away_team', ''))} @ "
+            f"{clean_text(getattr(row, 'home_team', ''))}"
+        )
+        if not verdict.plays:
+            quarantined.append((f"{label} — `{market_key}`", verdict.reason))
+            continue
+        key = (
+            market_key,
+            clean_text(getattr(row, "player", "")),
+            selection,
+            line,
+            label,
+        )
+        candidate = {
+            "game": label,
+            "market": market_key,
+            "player": clean_text(getattr(row, "player", "")),
+            "selection": selection,
+            "line": line,
+            "odds": odds,
+            "book": clean_text(getattr(row, "book", "")),
+            "model_probability": probability,
+            "edge": edge,
+        }
+        if key not in best or odds > best[key]["odds"]:
+            best[key] = candidate
+
+    selections = sorted(best.values(), key=lambda item: -item["edge"])
+    return selections, quarantined
+
+
 def build_card(
     prices: pd.DataFrame,
     league: League,
@@ -97,6 +208,8 @@ def build_card(
     now: datetime,
     slate_date: str,
     preseason_excluded: list[str],
+    probabilities: Mapping[tuple, float] | None = None,
+    undesignated_allowed: bool = False,
 ) -> CardResult:
     result = CardResult(
         league=league,
@@ -141,6 +254,18 @@ def build_card(
     result.quarantined = [
         (str(item["label"]), verdict.reason) for item, verdict in quarantined
     ]
+
+    if probabilities:
+        selections, pulled = select(
+            prices,
+            probabilities,
+            league,
+            policy=policy,
+            now=now,
+            undesignated_allowed=undesignated_allowed,
+        )
+        result.selections = selections
+        result.quarantined.extend(pulled)
     return result
 
 
@@ -152,12 +277,25 @@ def render(result: CardResult) -> str:
     add("")
     add(ACCUMULATING_NOTE)
     add("")
-    add(
-        "No market is allowlisted. Allowlisting takes measurement against real "
-        "prices and a signed human acceptance receipt, and neither exists yet. "
-        "So every market that can be priced is priced, every opinion is frozen "
-        "into the forward ledger, and none of it is a recommendation."
+    allowlisted = sorted(
+        market for market, state in result.market_states.items()
+        if state == "eligible"
     )
+    if allowlisted:
+        add(
+            f"**{len(allowlisted)} market(s) have a reviewed approval**: "
+            + ", ".join(f"`{m}`" for m in allowlisted)
+            + ". Every other market is priced, frozen into the forward ledger, "
+            "and excluded from selection with a stated reason."
+        )
+    else:
+        add(
+            "No market is allowlisted. Allowlisting takes measurement against "
+            "real prices and a signed human acceptance receipt, and neither "
+            "exists yet. So every market that can be priced is priced, every "
+            "opinion is frozen into the forward ledger, and none of it is a "
+            "recommendation."
+        )
 
     if not result.games:
         add("")
@@ -187,8 +325,31 @@ def render(result: CardResult) -> str:
     add("## Selections")
     add("")
     if result.selections:
-        for selection in result.selections:
-            add(f"- {selection}")
+        add(
+            "Every one of these cleared an approved market, a modelled "
+            "opinion, its edge threshold, the juice and price bars, the "
+            "availability gate and the kickoff guard. **A cleared bar is not "
+            "a prediction.**"
+        )
+        add("")
+        add("| Game | Market | Selection | Line | Price | Book | Edge |")
+        add("|:-----|:-------|:----------|-----:|------:|:-----|-----:|")
+        for pick in result.selections:
+            player = f"{pick['player']} " if pick.get("player") else ""
+            line = "—" if pick.get("line") is None else f"{pick['line']:g}"
+            add(
+                f"| {pick['game']} | `{pick['market']}` | "
+                f"{player}{pick['selection']} | {line} | "
+                f"{int(pick['odds']):+d} | {pick['book']} | "
+                f"{pick['edge']:+.1%} |"
+            )
+    elif allowlisted:
+        add(
+            "**None.** Markets are approved, but nothing cleared every bar "
+            "today. That is a genuine model judgement about markets that were "
+            "priced and modelled — unlike an excluded market, which is a "
+            "different thing entirely."
+        )
     else:
         add(
             "**None.** Not a pass, not an avoid, and not a no-value call — no "
