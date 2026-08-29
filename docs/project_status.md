@@ -3,89 +3,85 @@
 Read this second, after `CLAUDE.md`. It is the shortest honest answer to
 "where is this and what should I do next".
 
-**As of 2026-08-28. Week 1 opens Wednesday 2026-09-09 — twelve days.**
+**As of 2026-08-29. Week 1 opens Wednesday 2026-09-09 — eleven days.**
 
-## Where the lab is
+## The one-line summary
 
-**Built and running:**
+The machinery is built, running and unusually well instrumented. **The
+evidence is genuinely mixed**, one apparent finding has already been killed by
+that instrumentation, and **nothing is allowlisted, so nothing is bet.**
 
-- **The league registry**, with the NFL as its only entry and a discipline
-  test that fails the build if a league literal appears anywhere else. NCAAF
-  is a registry entry plus an adapter when it comes, and it comes **without
-  player props** (Cooper, 2026-08-28).
-- **The data layer.** Eight nflverse feeds cached; a completed season fetched
-  once and never again; the current season refetched because the NFL revises
-  statistics Monday to Wednesday and Thursday's copy is the clean one.
-  Processed tables: 1,359 team-games and 72,457 player-games, 2022-2026.
-- **The market registry**: 60 markets, each naming the nflverse quantity that
-  settles it, the rest recorded as deferred with a reason.
-- **The provider adapter**, proven against real responses. The first live
-  shadow run staged 3,589 rows across 17 markets and 9 books with zero
-  unparseable.
-- **The retention probe**: all 27 tier-1 markets have historical prices, 25
-  with enough coverage to measure against.
-- **The models.** Team scoring by exponential tilting of the empirical score
-  distribution, so key numbers survive and pushes are exact. Player props by
-  one compound simulation per player, so receptions, yards, longest and
-  touchdowns cannot disagree and every alternate rung prices from the same
-  distribution.
-- **Walk-forward calibration**, reported with its sample sizes and its
-  defects.
-- **The gates**: preseason, kickoff, availability, quarterback change, market
-  eligibility, and a fail-closed per-league policy that allowlists nothing.
-- **The forward-evidence organ**: freeze before kickoff, settle after, never
-  reprice, day-as-unit, voids return the stake, unsettleable counted.
-- **`Football Gameday Refresh`**, publishing to the `card-feed` branch. Run
-  live end to end on 2026-08-28.
+## What the evidence says
 
-**Not built, deliberately:**
+Measured on the **entire** population of NFL games for which historical props
+exist — 816 games across 2023-25, three snapshots each, 8.4M price rows. The
+provider serves props only after 2023-05-03, so **there is no more to buy.**
 
-- **No half or quarter model.** Those markets are wired and settleable and
-  have no model, so they are `no_opinion` — not `unparseable`, which would
-  read as an adapter fault.
-- **No bought historical prices.** The probe says they exist; the purchase is
-  a credit-spend decision and therefore Cooper's.
-- **No snap-share or target-share input.** Both feeds are cached and unused,
-  so the model prices a player's recent role rather than his current one.
-- **No game-script conditioning**, and the calibration measures what that
-  costs: excess mass in the lowest decile, because nothing here knows a
-  player's day can be cut short.
-- **No weather source.** nflverse carries conditions, not forecasts.
+- **The models split by how a market is priced, not by which market it is.**
+  At the consensus (median) price, clustered by game: the nine
+  compound-simulation markets return **+3.5% over 100,230 bets, interval
+  +1.4% to +5.7%**; the ten count-only markets return **−9.8%, interval
+  −12.1% to −7.5%**. That split is the strongest structure in the evidence.
+- **Three markets clear every bar** in the allowlist evidence bundle:
+  `rush_yards`, `receptions`, `reception_longest`. All compound.
+- **`tackles_assists` returned +16% across three seasons and was an
+  artefact.** nflverse undercounts assisted tackles; the featured market is
+  priced 50% over and lands 42%. That gap is worth 16% to a model betting 86%
+  unders, and the measured edge was +16.3%.
+- **The team model does not beat the closing line**: moneyline −6.2%, spread
+  −1.9%, total −1.8%, every interval including zero.
+- **The mechanism behind the compound/count split is not understood**, which
+  is the largest open question in the lab.
 
-## What the card does today
+## The instruments, and why each exists
 
-Prices every market it can, freezes every opinion into the ledger, settles the
-days that are final, and **recommends nothing** — because no market has a
-reviewed approval. It says so in those words, prints the accounting identity,
-and names every excluded market with its reason.
+Each was built because something failed it. Run all of them before believing a
+result.
 
-That is not a degraded card. It is the product until the evidence exists.
+| Script | Catches |
+|:---|:---|
+| `run_null_baseline.py` | A broken harness. Betting everything must lose; it returns −9.28%. |
+| `run_settlement_agreement.py` | Settling on a different quantity from the one priced. A constant offset replicates perfectly and survives every other check. |
+| `run_price_sensitivity.py` | An edge that exists only as the maximum of N quotes, or at one soft book. |
+| `run_props_replication.py` | A result that holds only on the season it was found in. Necessary, and by itself not sufficient. |
+| `run_availability_cost.py` | What not knowing who plays actually costs. |
+| `run_clv.py` | A diagnostic only. Profit and ROI are the objective. |
 
-## The two things only Cooper can do
+## What blocks a bet
 
-1. **Allowlist a market.** Six steps in `docs/provider_allowlist_approval.md`;
-   Claude prepares all six and stops at the sixth.
-2. **Authorise credit spend** beyond a small measurement budget.
+1. **Nothing is allowlisted.** The evidence bundle is prepared; step six is
+   Cooper's signature and Claude never writes it.
+2. **No player prop can produce a selection** until the verdict
+   `props_selectable_when_undesignated` is in force — and that waits on one
+   line in a book's rules: whether a did-not-play prop is **voided** or graded
+   a loss. Void gives `rush_yards` +13.0%; loss gives −0.8%.
 
 ## What to do next, in order
 
-1. **Let the schedule run from 2026-09-09 and let the ledger accumulate.** It
-   is the only out-of-sample evidence stream, and it cannot be back-dated.
-2. **Build the free closing-line backtest** on the nflverse schedule file —
-   spread, total and both moneylines back to 1999, costing nothing. It is the
-   first priced test the team model can face, and it should decide the team
-   model the way the bought backtest decides in the NHL lab.
-3. **Watch the first live slates** for the failure modes the gates were built
-   against: unresolved club names, players unknown to the roster, an identity
-   that does not reconcile.
-4. Then, with Cooper's approval, the **historical purchase** and the prop
-   backtest.
-5. Only then: evidence assembled for a market to be approved.
+1. **Answer the did-not-play question.** Everything downstream turns on it and
+   no measurement can settle it.
+2. **Explain the compound/count split.** +3.5% against −9.8% is either a real
+   mechanism worth building on or a defect not yet found. Until it is
+   understood, the supported markets are a result rather than a strategy.
+3. **Let the forward ledger accumulate from 2026-09-09.** It is the only
+   evidence that can still grow, at 272 games a season, and it cannot be
+   back-dated.
+4. **Do not tune models against the bought data.** The population is complete
+   and every variant tested against it spends a degree of freedom. The
+   verdicts door records how many have been spent.
+
+## The parallel worth keeping in view
+
+The NHL lab's +1.4% over 4,830 bets became **−1.6% over 73,918** once it
+bought its full population, its one positive market failed replication, and
+its allowlist approval was **withdrawn**. That is the direction of surprise to
+expect. The difference here is that this lab already holds its full
+population — but three seasons is still three seasons.
 
 ## The honest summary
 
-Nothing has been measured against a price. The machinery for finding out is
-built and running, the calibration says the distributions are roughly the
-right shape, and none of that is evidence that there is anything to find. The
-first genuinely out-of-sample evidence this lab will ever have arrives on
-2026-09-09, one game-day at a time.
+Everything measurable has been measured, on all the data that exists, with
+five independent instruments. Three markets survive. One apparent finding was
+killed by the instruments rather than by luck, which is the strongest evidence
+that the machinery works. Whether the survivors are real is not yet known, and
+the lab says so.
