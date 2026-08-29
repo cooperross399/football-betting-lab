@@ -589,8 +589,22 @@ artefact and pooling it would import the artefact.
   became **−1.6% over 73,918** on the full two-season population, its one
   positive market failed replication, and its allowlist approval was
   **withdrawn**. The direction of that surprise is the one to expect.
-- **Closing-line value is still zero**, and the mechanism is still not
-  understood.
+- **The mechanism is still not understood.**
+
+## CLV is a diagnostic, not a criterion
+
+**Cooper's instruction, 2026-08-29: profit and ROI are the objective. Closing-
+line value is not.** It never gates a decision here, it never leads a report,
+and no market is refused for lacking it.
+
+It stays in the repository because it earns its keep as a *diagnostic*: a high
+return with no market movement was the first thing that pointed at the
+`tackles_assists` settlement artefact, before the screen that proved it
+existed. That is what it is for — raising a question, never answering one.
+
+An earlier version of this file weighted it as though beating the close were
+the goal. That was wrong. A model that makes money at a price you can get has
+made money, whether or not the market ever agrees.
 
 ## Contract strings — never change these
 

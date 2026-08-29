@@ -141,9 +141,10 @@ assertion.
 
 ## Closing-line value is a first-class metric here, not a footnote
 
-With samples this thin, CLV is the fastest honest signal available. The
-closing price is tracked for every frozen opinion and CLV is reported per
-market **beside** ROI.
+It is the fastest signal available at these sample sizes, and it raises
+questions worth chasing: a high return with no market movement is what pointed
+at the `tackles_assists` settlement artefact before the screen that proved it.
+It is reported **beside** ROI and never instead of it.
 
 **A winning record with negative CLV is variance**, and the reports will say
 that in those words. So is a losing record with positive CLV — in the other
