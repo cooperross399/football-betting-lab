@@ -452,12 +452,20 @@ def build_play_yardage(
     is the same device the team model uses on scores and for the same reason:
     the shape is what the data is good at, the mean is what a fit is good at.
     """
-    counts: dict[str, Counter] = {
-        "completion": Counter(),
-        "rush": Counter(),
-        "reception": Counter(),
-    }
+    # Counted PER SEASON, so a backtest can pool only the seasons before the
+    # one it is pricing. Pooling every season into one distribution and
+    # loading it outside the per-week loop was a walk-forward violation that
+    # only the compound markets consumed — the count models fit walk-forward
+    # through `before` — so it could only ever flatter the family that looked
+    # good. It survived the cross-season settlement fix and had to be found
+    # separately.
+    by_season: dict[int, dict[str, Counter]] = {}
     for season in seasons:
+        counts: dict[str, Counter] = {
+            "completion": Counter(),
+            "rush": Counter(),
+            "reception": Counter(),
+        }
         path = nflverse.feed_path(nflverse.FEEDS_BY_NAME["pbp"], league, raw_dir, season)
         if not path.is_file():
             continue
@@ -473,15 +481,21 @@ def build_play_yardage(
         ):
             values = pd.to_numeric(frame[column], errors="coerce").dropna()
             counts[kind].update(int(value) for value in values)
+        by_season[int(season)] = counts
 
-    distributions: dict[str, dict[str, float]] = {}
-    for kind, counter in counts.items():
-        total = sum(counter.values())
-        if not total:
-            continue
-        distributions[kind] = {
-            str(yards): count / total for yards, count in sorted(counter.items())
-        }
+    distributions: dict[str, dict[str, dict[str, float]]] = {}
+    for season, counts in by_season.items():
+        per_season: dict[str, dict[str, float]] = {}
+        for kind, counter in counts.items():
+            total = sum(counter.values())
+            if not total:
+                continue
+            per_season[kind] = {
+                str(yards): count / total
+                for yards, count in sorted(counter.items())
+            }
+        if per_season:
+            distributions[str(season)] = per_season
     return distributions
 
 

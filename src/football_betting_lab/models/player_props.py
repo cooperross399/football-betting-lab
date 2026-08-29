@@ -54,6 +54,7 @@ those as independent — that accounting belongs to the card, not here.
 from __future__ import annotations
 
 import json
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -142,14 +143,54 @@ class Simulation:
         return float((values == line).mean())
 
 
-def load_play_yardage(processed_dir: Path) -> dict[str, dict[int, float]]:
+def load_play_yardage(
+    processed_dir: Path, *, before_season: int | None = None
+) -> dict[str, dict[int, float]]:
+    """The per-play yardage shape, pooled over seasons **before** a target.
+
+    `before_season` is not optional in spirit. The file is stored per season
+    precisely so a backtest can pool only what it was allowed to know, and
+    the version that pooled every season and loaded once outside the per-week
+    loop was a walk-forward violation consumed by the compound markets alone —
+    the count models fit walk-forward through `before`. It could only ever
+    flatter the family that looked good, and it survived the cross-season
+    settlement fix.
+
+    Omitting it pools everything, which is right for a live card (all history
+    is genuinely known) and wrong for a backtest.
+    """
     path = Path(processed_dir) / "play_yardage.json"
     if not path.is_file():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
+    if not payload:
+        return {}
+    # Older files were a flat {kind: pmf}. Read them, but only when no season
+    # filter is asked for — silently ignoring the filter would reintroduce
+    # exactly the leak this signature exists to close.
+    if not all(str(key).isdigit() for key in payload):
+        if before_season is not None:
+            raise ValueError(
+                "play_yardage.json predates per-season storage and cannot be "
+                "filtered walk-forward. Rebuild it with scripts/build_datasets.py."
+            )
+        return {
+            kind: {int(yards): float(p) for yards, p in pmf.items()}
+            for kind, pmf in payload.items()
+        }
+
+    pooled: dict[str, Counter] = {}
+    for season, kinds in payload.items():
+        if before_season is not None and int(season) >= before_season:
+            continue
+        for kind, pmf in kinds.items():
+            bucket = pooled.setdefault(kind, Counter())
+            for yards, share in pmf.items():
+                bucket[int(yards)] += float(share)
     return {
-        kind: {int(yards): float(p) for yards, p in pmf.items()}
-        for kind, pmf in payload.items()
+        kind: {yards: share / sum(bucket.values()) for yards, share in bucket.items()}
+        for kind, bucket in pooled.items()
+        if sum(bucket.values())
     }
 
 
@@ -161,12 +202,24 @@ def fit_rates(
     yards_column: str,
     touchdown_column: str,
     recency_half_life: float | None = None,
+    condition_on_appearance: bool = True,
 ) -> dict[str, PlayerRates]:
     """Fit every player from games strictly earlier than `before`.
 
     `before` is a season-week ordering key, not a date, because the logs are
     weekly. Same-week data never touches its own fit: in a sixteen-game week
     the rest of the week is not history.
+
+    `condition_on_appearance` drops games where the player recorded no
+    opportunity. That is right when the opportunity column is a *role* count —
+    a receiver with no targets did not play a receiving role, and averaging his
+    zero into a yards-per-target rate is meaningless.
+
+    **It is badly wrong when the opportunity column IS the settlement column**,
+    which is how every count-only market is fitted. `sacks` was fitted on the
+    mean sacks *given at least one sack* — about 1.2 rather than the true 0.3 —
+    so the model over-predicted every count market by a factor of four or five
+    and took the Over on 92% of them. Callers pricing a count pass False.
 
     `recency_half_life` weights each game by `0.5 ** (games_ago / half_life)`,
     so a role from last November counts half as much as one from last week.
@@ -194,7 +247,11 @@ def fit_rates(
     for player_id, frame in history.groupby("player_id"):
         ordered_frame = frame.sort_values("_key")
         opportunities = ordered_frame[opportunity_column].astype(float)
-        appeared = opportunities > 0
+        appeared = (
+            opportunities > 0
+            if condition_on_appearance
+            else pd.Series(True, index=opportunities.index)
+        )
         played = opportunities[appeared]
         if played.empty:
             continue

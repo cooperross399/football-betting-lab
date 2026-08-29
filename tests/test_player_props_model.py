@@ -9,6 +9,8 @@ happen. These tests are what stops that.
 from __future__ import annotations
 
 import numpy as np
+import json
+from football_betting_lab.models.player_props import load_play_yardage
 import pandas as pd
 import pytest
 
@@ -239,3 +241,94 @@ def test_a_thin_record_is_shrunk_toward_the_league_rate() -> None:
 
     assert rates["star"].yards_per_opportunity < 33.3
     assert rates["star"].yards_per_opportunity > 10.0
+
+
+# -- the zero-inflation defect -----------------------------------------------
+
+
+def test_a_count_market_is_not_fitted_on_the_games_it_happened_in() -> None:
+    """`sacks` was fitted on the mean sacks *given at least one sack*.
+
+    `fit_rates` drops games with no opportunity, which is right when the
+    opportunity column is a role count — a receiver with no targets did not
+    play a receiving role. Every count-only market passes the settlement
+    column as its own opportunity column, so the filter dropped exactly the
+    zeros the count is mostly made of: a fitted 0.98 sacks a game against a
+    league mean of 0.07, and the model took the Over on 92% of them.
+    """
+    logs = pd.DataFrame(
+        [
+            {"player_id": "p", "player_name": "A Rusher", "season": 2025,
+             "week": w, "sacks": (1.0 if w == 1 else 0.0)}
+            for w in range(1, 11)
+        ]
+    )
+
+    conditioned = fit_rates(
+        logs, before="202511", opportunity_column="sacks", yards_column="sacks",
+        touchdown_column="sacks", condition_on_appearance=True,
+    )
+    unconditioned = fit_rates(
+        logs, before="202511", opportunity_column="sacks", yards_column="sacks",
+        touchdown_column="sacks", condition_on_appearance=False,
+    )
+
+    assert conditioned["p"].opportunities_mean == pytest.approx(1.0)
+    assert unconditioned["p"].opportunities_mean == pytest.approx(0.1)
+
+
+def test_the_count_fit_keeps_players_who_never_recorded_the_stat() -> None:
+    """The conditioned version dropped them entirely, so a defender with no
+    sacks all season had no fitted rate and produced no opinion."""
+    logs = pd.DataFrame(
+        [
+            {"player_id": "q", "player_name": "Never", "season": 2025,
+             "week": w, "sacks": 0.0}
+            for w in range(1, 11)
+        ]
+    )
+
+    assert "q" not in fit_rates(
+        logs, before="202511", opportunity_column="sacks", yards_column="sacks",
+        touchdown_column="sacks", condition_on_appearance=True,
+    )
+    assert "q" in fit_rates(
+        logs, before="202511", opportunity_column="sacks", yards_column="sacks",
+        touchdown_column="sacks", condition_on_appearance=False,
+    )
+
+
+# -- the walk-forward leak in the per-play shape ------------------------------
+
+
+def test_the_play_yardage_shape_can_be_pooled_walk_forward(tmp_path) -> None:
+    """It was pooled over every season and loaded once outside the per-week
+    loop. Only the compound markets consume it — the count models fit
+    walk-forward through `before` — so it could only ever flatter the family
+    that looked good, and it survived the cross-season settlement fix."""
+    (tmp_path / "play_yardage.json").write_text(
+        json.dumps(
+            {
+                "2023": {"rush": {"5": 1.0}},
+                "2024": {"rush": {"9": 1.0}},
+                "2025": {"rush": {"20": 1.0}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert set(load_play_yardage(tmp_path, before_season=2025)["rush"]) == {5, 9}
+    assert set(load_play_yardage(tmp_path, before_season=2024)["rush"]) == {5}
+    assert set(load_play_yardage(tmp_path)["rush"]) == {5, 9, 20}
+
+
+def test_a_flat_shape_file_refuses_to_pretend_it_can_be_filtered(tmp_path) -> None:
+    """Silently ignoring the filter would reintroduce exactly the leak the
+    signature exists to close."""
+    (tmp_path / "play_yardage.json").write_text(
+        json.dumps({"rush": {"5": 1.0}}), encoding="utf-8"
+    )
+
+    assert load_play_yardage(tmp_path)["rush"] == {5: 1.0}
+    with pytest.raises(ValueError, match="walk-forward"):
+        load_play_yardage(tmp_path, before_season=2025)

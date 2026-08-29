@@ -255,6 +255,9 @@ def _fit_counts(
             yards_column=column,
             touchdown_column=column,
             recency_half_life=recency_half_life,
+            # The opportunity column IS the settlement column here, so
+            # dropping the zero games would fit "mean sacks given a sack".
+            condition_on_appearance=False,
         )
     return fitted
 

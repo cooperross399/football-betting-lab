@@ -279,7 +279,10 @@ def run(
     # be walk-forward. Without it the model would be fitted on the season it
     # is pricing, which is not a backtest.
     game_week = _game_weeks(logs, collapsed, league, season)
-    per_play = load_play_yardage(processed_dir)
+    # Pooled over seasons strictly before the one being priced. Loading
+    # every season here was a walk-forward violation that only the
+    # compound markets consumed.
+    per_play = load_play_yardage(processed_dir, before_season=season)
     rosters = Rosters.load(league, raw_dir, season=season)
     lookup = name_to_abbreviation(league)
 
