@@ -1,0 +1,149 @@
+name: Weekly Ledger Check
+
+# The bought population is complete and cannot grow. The forward ledger is the
+# only evidence this lab can still gather, it accrues at 272 games a season,
+# and it CANNOT BE BACK-DATED. A game day that was never frozen is sample that
+# does not exist.
+#
+# This is deliberately a SECOND, INDEPENDENT workflow rather than a step inside
+# the gameday run. The failures it looks for are failures OF that run — a
+# process that died before freezing, a guard that stood down on the wrong day,
+# a provider that returned nothing — and a check that lives inside the thing it
+# checks cannot see them. It reports even when the gameday workflow never
+# started, which is the case that matters most.
+
+on:
+  schedule:
+    # Tuesday 14:00 UTC: after Monday night's game has settled and nflverse has
+    # published, and with the whole week still ahead to fix what it finds. A
+    # check that runs on Sunday morning reports a loss nobody can act on.
+    - cron: "0 14 * * 2"
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Season to check"
+        required: false
+        default: "2026"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: weekly-ledger-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --quiet -r requirements.txt
+          python -m pip install --quiet -e .
+
+      - name: Restore the ledger from card-feed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # The repository is private, so an unauthenticated fetch sees nothing
+          # and the check would report every game day LOST. Restores are
+          # written to a temp path and moved only on success, because a failed
+          # `git show` still creates the redirect target and pandas refuses a
+          # zero-byte CSV.
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"
+          mkdir -p data/outputs/nfl_forward/snapshots
+          git init -q feed && cd feed
+          if ! git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
+            echo "::warning::No card-feed branch. Nothing to check yet."
+            exit 0
+          fi
+          TMP=$(mktemp)
+          if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+             && [ -s "$TMP" ]; then
+            mv "$TMP" ../data/outputs/nfl_forward/forward_evidence.csv
+          fi
+          for f in $(git ls-tree -r --name-only refs/card-feed-tip | grep '^snapshots/' || true); do
+            TMP=$(mktemp)
+            if git show "refs/card-feed-tip:$f" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
+              mv "$TMP" "../data/outputs/nfl_forward/snapshots/$(basename "$f")"
+            fi
+          done
+
+      - name: Fetch the schedule
+        run: PYTHONPATH=src python scripts/fetch_football_data.py --seasons ${{ inputs.season || '2026' }} --only schedule || true
+
+      - name: Is the ledger intact?
+        id: coverage
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          PYTHONPATH=src python scripts/run_slate_coverage.py \
+            --season ${{ inputs.season || '2026' }} | tee /tmp/coverage.md
+
+      - name: Can the card hold an opinion?
+        id: freshness
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          PYTHONPATH=src python scripts/run_feed_freshness.py \
+            --season ${{ inputs.season || '2026' }} | tee /tmp/freshness.md
+
+      - name: Report to the operating home
+        # Always: the case that most needs reporting is the one where a step
+        # above died.
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERAGE: ${{ steps.coverage.outcome }}
+          FRESHNESS: ${{ steps.freshness.outcome }}
+        run: |
+          set -euo pipefail
+          TITLE="Football Betting Lab — Claude Operating Home"
+          NUMBER=$(gh issue list --state all --limit 100 \
+            --json number,title \
+            --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if [ -z "$NUMBER" ]; then
+            echo "::warning::No operating-home issue titled '$TITLE'. Nothing was posted."
+            exit 0
+          fi
+          BODY=$(mktemp)
+          # A clean week posts one line. Roughly 18 comments a season, not 300:
+          # a report that arrives every week in full trains the reader to stop
+          # opening the one that matters.
+          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ]; then
+            echo "### Weekly ledger check — intact" > "$BODY"
+            echo "" >> "$BODY"
+            echo "Every game day played so far was frozen and settled, and every feed is current." >> "$BODY"
+          else
+            {
+              echo "### Weekly ledger check — ATTENTION"
+              echo ""
+              echo "Forward evidence cannot be back-dated. A game day that was never frozen is gone."
+              echo ""
+              [ -s /tmp/coverage.md ] && cat /tmp/coverage.md
+              echo ""
+              [ -s /tmp/freshness.md ] && cat /tmp/freshness.md
+            } > "$BODY"
+          fi
+          {
+            echo ""
+            echo "---"
+            echo "[Run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          } >> "$BODY"
+          gh issue comment "$NUMBER" --body-file "$BODY"
+
+      - name: Fail the run if a game day was lost
+        if: always()
+        run: |
+          if [ "${{ steps.coverage.outcome }}" != "success" ]; then
+            echo "::error::A scheduled game day has no frozen opinions. That evidence cannot be recovered."
+            exit 1
+          fi
