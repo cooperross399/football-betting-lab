@@ -179,3 +179,46 @@ not.
 
 Nothing is bet in the meantime. Nothing is allowlisted. The card says it is
 accumulating evidence, because that is what it is doing.
+
+---
+
+## How those questions were answered
+
+This file is a record of what was built and why, so the questions above are
+left as they were asked. Every one of them is now closed.
+
+1. **The purchase happened, in full.** Cooper approved it and added 5,000,000
+   credits on 2026-08-28. **587,732 credits, 816 events across 2023-2025, two
+   priced snapshots each** — every NFL game for which the provider serves
+   historical props, since it serves none before 2023-05-03. There is nothing
+   left to buy. The two-snapshot recommendation was taken.
+2. **The quota resets monthly** (Cooper, 2026-08-28), which reversed this
+   file's central conclusion that history was unaffordable. Credits were never
+   the constraint.
+3. **CLV is not a first-class metric here.** Cooper, 2026-08-29: *profit and
+   ROI are the objective*. The passage above argues for the two-snapshot
+   purchase partly on CLV grounds; the purchase was right, the reasoning was
+   over-weighted, and CLV is now a diagnostic that raises questions and never
+   answers one. It earned that keep once — a high return with no market
+   movement was the first thing that pointed at the `tackles_assists`
+   settlement artefact.
+4. **NCAAF player props are out of scope** (Cooper, 2026-08-28).
+
+## What the build order got right, and what it did not
+
+**Right: the forward-evidence organ before the models.** It cannot be
+back-dated, and it is now the only evidence that can still grow. Everything
+historical is spent.
+
+**Wrong, or at least incomplete: measurement was treated as a phase.** The
+order runs data → models → measurement → evidence, as though measurement is
+something done once the models exist. In practice **every positive result this
+lab produced was an artefact**, and each was found by an instrument built
+*after* the finding it killed — the null baseline, the settlement screen, the
+price-sensitivity test, and a discipline test for the cross-season match, all
+written because something had already got through.
+
+A truer ordering would put the instruments before the models: a harness that
+cannot be checked produces numbers that cannot be believed, and the checking
+is not a later phase. The corrected state and the three retractions are in
+`CLAUDE.md` and `docs/what_we_can_and_cannot_claim.md`.
