@@ -466,6 +466,7 @@ def render_ledger(
     *,
     settlement_suspects: frozenset[str] = frozenset(),
     minimum_bets: int = 200,
+    families: int | None = None,
 ) -> str:
     """What the accumulated ledger supports, in the house vocabulary.
 
@@ -512,7 +513,12 @@ def render_ledger(
     add("")
 
     markets = sorted(set(settled["market"].astype(str)))
-    families = max(len(markets), 1)
+    # Across the CUMULATIVE count of everything this lab has ever tested when
+    # the caller supplies it, not just the markets in this week's table. A
+    # report that corrects across its own twelve rows, every week, for a
+    # season, is correcting across twelve when the true family is hundreds —
+    # and at a nominal 5% level roughly one look in twenty clears by chance.
+    families = max(families if families is not None else len(markets), 1)
     factor = NormalDist().inv_cdf(1 - (0.05 / families) / 2) / 1.96
 
     add("| Market | Bets | Games | ROI | 95% interval | Family-corrected | Reading |")

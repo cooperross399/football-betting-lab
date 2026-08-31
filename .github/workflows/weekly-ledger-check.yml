@@ -96,6 +96,39 @@ jobs:
           PYTHONPATH=src python scripts/run_feed_freshness.py \
             --season ${{ inputs.season || '2026' }} | tee /tmp/freshness.md
 
+      # The one form of self-improvement that is safe to automate: refitting
+      # on more data. The maps are monotone transforms fitted walk-forward, so
+      # a week of settled rows makes them better without anyone choosing
+      # anything. Structural changes are NOT automated — those go through the
+      # verdicts door, which is a human reading a measurement.
+      - name: Refit calibration on everything settled so far
+        id: recalibrate
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          PYTHONPATH=src python scripts/fit_calibration.py \
+            --include-forward --before-season 2027 | tee /tmp/calibration.md
+
+      # Reading the ledger back applies every instrument the historical work
+      # earned: settlement suspects excluded, intervals clustered by game, and
+      # the family correction taken from the CUMULATIVE experiment tally rather
+      # than from however many things this week happened to look at.
+      - name: What does the accumulated ledger support?
+        id: evidence
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          PYTHONPATH=src python scripts/run_forward_evidence.py | tee /tmp/evidence.md
+
+      - name: Record what was tested
+        continue-on-error: true
+        run: |
+          PYTHONPATH=src python scripts/record_experiments.py \
+            --search weekly-ledger-read \
+            --hypotheses "pooled forward return" \
+            --seasons ${{ inputs.season || '2026' }} \
+            --outcome "recorded weekly"
+
       - name: Report to the operating home
         # Always: the case that most needs reporting is the one where a step
         # above died.
@@ -131,6 +164,8 @@ jobs:
               [ -s /tmp/coverage.md ] && cat /tmp/coverage.md
               echo ""
               [ -s /tmp/freshness.md ] && cat /tmp/freshness.md
+              echo ""
+              [ -s /tmp/evidence.md ] && cat /tmp/evidence.md
             } > "$BODY"
           fi
           {

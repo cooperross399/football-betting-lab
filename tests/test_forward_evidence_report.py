@@ -116,3 +116,29 @@ def test_an_interval_excluding_zero_says_which_direction() -> None:
     assert "interval excludes zero, **negative**" in losing
     assert "positive" not in losing.split("| `rush_yards` |")[1].split("|\n")[0]
     assert "interval excludes zero, **positive**" in winning
+
+
+def test_the_family_correction_can_come_from_the_cumulative_tally() -> None:
+    """Reading the ledger back every week IS another look at it.
+
+    A report that corrects across its own twelve rows, every week, for a
+    season, is correcting across twelve when the true family is hundreds. The
+    caller passes the cumulative count from the experiment ledger; without it
+    the report silently resets the correction every Tuesday.
+    """
+    ledger = _ledger(_many("rush_yards", 400, 1.0))
+
+    narrow = render_ledger(ledger, NFL, families=1)
+    wide = render_ledger(ledger, NFL, families=200)
+
+    # The same data, corrected across two very different families, cannot
+    # produce the same interval.
+    assert narrow != wide
+
+
+def test_the_default_family_is_the_markets_reported() -> None:
+    """Backwards compatible: a caller that does not know about the tally still
+    gets the old behaviour rather than no correction at all."""
+    ledger = _ledger(_many("rush_yards", 400, 1.0))
+
+    assert render_ledger(ledger, NFL) == render_ledger(ledger, NFL, families=1)
