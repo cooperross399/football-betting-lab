@@ -6,16 +6,28 @@ this file wins.
 
 **Active repo path: `/Users/cooperross/Projects/football-betting-lab`.**
 
-**Scope: the NFL ships first. NCAAF is added later, and the architecture is
-built for it from day one.** League is a first-class dimension everywhere, so
-adding college football is a new registry entry, a new adapter and a new set of
-fitted models — never a refactor. Do not build NCAAF now.
+**Scope: this lab is the NFL, and only the NFL.** Cooper, 2026-08-31: NCAAF
+is a **separate project in its own repository**, not a second league in this
+one. Do not add college football here — not a registry entry, not an adapter,
+not a season calendar. If a session finds itself widening this lab to cover
+another league, it has misread this line.
 
-**NCAAF player props are out of scope** (Cooper, 2026-08-28: not essential).
-College football is a team-markets league unless he says otherwise. That takes
-the transfer portal, opt-outs and a per-player college data join off the
-critical path entirely, and cuts a college Saturday's credit cost by roughly
-four fifths.
+The league registry stays, and it is not wasted work. It is what keeps the
+league-specific pieces — provider sport key, market list, season calendar,
+roster source, model parameters — in one place rather than scattered through
+the code, which is exactly what makes this machinery copyable into a college
+lab without a refactor first. It is now a **portability** device rather than
+a multi-league one.
+
+**What separation costs, stated once so it is not rediscovered the hard way.**
+This lab and `../nhl-betting-lab` share no code, and the same defect classes
+appeared independently in both: a 422 zeroing an entire per-event fetch, a
+provider failure publishing as an empty slate, settlement joining on a raw
+name string, an empty-slate exit running before the degraded check, and two
+calendars for one slate. Six NHL fixes were ported into this lab **by hand**
+on 2026-08-31. A third lab means a third hand-port, every time. That is the
+price of separation, it is Cooper's call to pay it, and the mitigation is to
+read the sibling labs' `docs/` before believing this one is sound.
 
 The lab is modelled on `../nhl-betting-lab`, deliberately: the verdicts door,
 the forward-evidence ledger, the allowlist receipt and PR gate, the start-time

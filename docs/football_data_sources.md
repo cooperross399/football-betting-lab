@@ -279,9 +279,12 @@ only if they win — and with eight games in a season, the honest expectation is
 that the international effect will be **unmeasurable**, and the report will say
 that rather than reporting a number over eight games.
 
-## NCAAF — later, and what will need checking then
+## NCAAF — a separate lab, and what it will need
 
-Not built now. When it is:
+**Not built here, and not built into here.** Cooper, 2026-08-31: college
+football is its own project in its own repository. What follows is the
+research this lab already did, recorded so the college lab does not have to
+repeat it — not a plan to extend this one.
 
 - **CollegeFootballData (CFBD)** is the standard free API and **requires its
   own key**. That key is treated exactly like the odds key: a GitHub secret,
