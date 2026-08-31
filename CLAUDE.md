@@ -536,6 +536,60 @@ was the one question this lab was blocked on. It is now the difference
 between roughly zero and clearly negative. **It is still worth answering
 before anything is acted on, but nothing waits on it.**
 
+## The model is a worse forecaster than the price it bets into
+
+**This is the deepest result in the repository and it should be read before
+any other number here.** Every other instrument asks whether a *return* is
+real. This one asks the question underneath: does the model know anything the
+price does not? It needs no settlement rule, no vig assumption and no edge
+threshold — just a probability, an outcome, and the price's own implied
+probability. `scripts/run_forecast_skill.py`.
+
+The model is wildly overconfident; the market is nearly perfect:
+
+| Model says | Bets | Actually happens | Market says | Model error | Market error |
+|:---|---:|---:|---:|---:|---:|
+| 0.60-0.65 | 14,417 | 0.485 | 0.510 | **−0.139** | −0.024 |
+| 0.70-0.80 | 11,487 | 0.507 | 0.523 | **−0.235** | −0.017 |
+| 0.80-1.00 | 4,700 | 0.547 | 0.523 | **−0.314** | +0.024 |
+
+**Brier over 74,345 bets: model 0.26057, market 0.22703.** Walk-forward
+isotonic calibration — the map fitted on prior seasons only — closes most of
+that gap and never crosses it:
+
+| Season | Model | **Calibrated** | Market | Beats the price? |
+|:---|---:|---:|---:|:---|
+| 2024 | 0.26153 | **0.23104** | 0.22756 | no |
+| 2025 | 0.25710 | **0.22524** | 0.22329 | no |
+
+The market's implied probability still has the **vig in it**, so it is an
+over-estimate being scored with a handicap. The model loses anyway.
+
+**Why this matters more than any subgroup search:** if the model is not a
+better forecaster than the price, no betting rule, threshold or slice can be
+profitable except by chance. A promising subgroup found after this table is a
+coincidence with a story attached, and the pre-registered search in
+`docs/preregistered_subgroup_search.md` has to be read against it.
+
+**Calibration is still worth shipping.** It cuts 2025 from −5.97% to −3.69%
+and 2024 from −2.90% to −1.05%. A smaller loss is not a profit, and this table
+is the reason no filter turns one into the other.
+
+## The measurement that makes subgroup ROI readable
+
+**Raw subgroup ROI is uninterpretable here.** The null baseline is **−12.4% on
+overs and −2.6% on unders**, so "unders return −0.1%" reads as a finding and is
+entirely a property of the price structure. What the model is worth in a
+subgroup is its return **minus what betting that same cell blind returns**.
+
+Pooled, that is **+4.28 points of value-add against a −3.22% return**: a
+genuinely better-than-nothing model facing about 7.5 points of vig.
+
+**The over-shading bias is real and too small to bet.** Blind unders across
+exact-settlement markets return **−2.64% over 110,661 bets**. The only markets
+where blind unders are positive are `tackles_assists` (+9.26%) and `sacks` —
+both **charted**, which is the settlement-artefact family, and which confirms
+that artefact from a third independent direction.
 ## The measurement window is not the card's window
 
 **Found 2026-08-31, nine days before Week 1, while auditing the sibling NHL
