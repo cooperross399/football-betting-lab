@@ -536,6 +536,50 @@ was the one question this lab was blocked on. It is now the difference
 between roughly zero and clearly negative. **It is still worth answering
 before anything is acted on, but nothing waits on it.**
 
+## Every stat we can compute, tested against what the price got wrong
+
+**0 of 9 pre-registered feature families. No demonstrated edge.**
+`docs/preregistered_feature_search.md`, `data/outputs/nfl_feature_search.md`.
+
+Cooper asked for every stat, record and analytic to be used. They were —
+opponent defensive strength, player role, role trend, game script, rest,
+weather, position, a defence-by-role interaction, and a combined fit on all of
+them. All computed walk-forward and knowable before kickoff, over **78,253
+staked bets**.
+
+**The target was the residual, `won − market_implied`, and that choice is the
+whole result.** The market already knows the opponent, the spread, the weather
+and the depth chart. A feature that predicts a player's yards is one the price
+already carries; only a feature that predicts what the price got **wrong** can
+produce an edge. The two questions give opposite answers here:
+
+| Question | Answer |
+|:---|:---|
+| Does opponent strength predict rushing yards? | **Yes** — yards allowed vary **2.25×** best to worst, and the model uses none of it |
+| Does it predict what the *price* got wrong? | **No** — signed contrast **+4.35pp over 20,915 bets, CI [−0.93, +9.63]**; correlation with actual/line **r = 0.031** |
+
+**You can watch the market do this.** On role trend, `market_implied` rises
+monotonically across quartiles (0.410 → 0.426 on overs) while `won` does not.
+The market reprices last-three-game usage in real time, and what is left after
+that repricing is nothing.
+
+**The cleanest single result is the combined fit.** A ridge model on every
+pre-kickoff feature, in-sample, looks bettable: **+8.6% at a 0.03 threshold,
++16.0% at 0.05**. Out-of-fold, 5-fold grouped by game, the same rules are
+**negative at every threshold** — −3.5%, −4.8%, −4.4%. That gap between
++16.0% and −4.4% is what "add all the stats and look" produces, and it is why
+the held-out split is not optional.
+
+**Three predicted directions reversed outright**: role trend (rising usage is
+the *worst* overs bucket), game script (heavy underdogs are negative on unders),
+and the defence-by-role interaction (low-usage players show the larger
+weak-defence effect). Weather is not testable at all — 46 high-wind games
+against the ~774 needed for a 2.5-point half-width.
+
+**Worth building anyway:** the two defensive ratios, as a forecasting
+improvement. A better forecaster is worth having before it is a profitable one.
+**Not worth the degrees of freedom:** everything else.
+
 ## The model is a worse forecaster than the price it bets into
 
 **This is the deepest result in the repository and it should be read before
