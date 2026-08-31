@@ -455,3 +455,27 @@ def test_an_unreadable_snapshot_does_not_lock_the_day(tmp_path: Path) -> None:
     (directory / "2026-09-09.csv").write_text("", encoding="utf-8")
 
     assert _write(tmp_path, {("moneyline", "home"): 0.6}) is not None
+
+
+def test_settlement_joins_on_identity_not_spelling() -> None:
+    """`A.J. Brown` priced and `AJ Brown` logged is one player.
+
+    The raw-string join recorded the mismatch as "the player did not dress".
+    A void returns the stake, so the error never showed up in the returns —
+    it just deleted, silently, exactly the players whose names are written
+    two ways.
+    """
+    from football_betting_lab.rosters import normalise_name
+
+    assert normalise_name("A.J. Brown") == normalise_name("AJ Brown")
+    assert normalise_name("Deebo Samuel Sr.") == normalise_name("Deebo Samuel")
+
+    source = (
+        Path(__file__).resolve().parents[1]
+        / "src" / "football_betting_lab" / "forward_evidence.py"
+    ).read_text(encoding="utf-8")
+    assert "normalise_name(row.player_name)" in source
+    assert "normalise_name(player)" in source
+    assert "player.casefold()" not in source, (
+        "a casefolded raw name is the defect this test exists to prevent"
+    )

@@ -11,6 +11,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
+from football_betting_lab.reports import settlement_agreement
 from football_betting_lab.reports.settlement_agreement import (
     CHARTING_DEPENDENT,
     IMPLIED_GAP_TOLERANCE,
@@ -118,3 +119,40 @@ def test_the_tolerance_is_larger_than_any_plausible_edge() -> None:
     """A screen tighter than the effect it is screening for fires on
     everything and gets ignored."""
     assert IMPLIED_GAP_TOLERANCE >= 0.03
+
+
+def test_an_empty_screen_is_a_fault_and_never_a_clean_bill_of_health():
+    """The one sentence this file must never produce from an absence of data.
+
+    A reshaped price frame dropped the kickoff column, every event failed its
+    season match, and the screen that exists to catch silent mis-settlement
+    rendered an empty table above the words "No market is a settlement
+    suspect" — which is what a reader would quote.
+    """
+    report = settlement_agreement.render(settlement_agreement.AgreementResult(markets=[]))
+    assert "No market is a settlement suspect" not in report
+    assert "measured nothing" in report
+    assert "fault, not a pass" in report
+
+
+def test_a_market_the_screen_never_looked_at_is_not_a_pass():
+    """Absent from `suspects` and absent from `screened` are different facts.
+
+    A caller testing only `market not in suspects` printed an unscreened
+    market as "agrees with the devigged price" — an approval bar cleared by
+    never having been measured.
+    """
+    report = "\n".join(
+        [
+            "| Market | Gap |",
+            "|:---|---:|",
+            "| `tackles_assists` | -7% | **settlement suspect** — outcomes land below |",
+            "| `rush_yards` | -2% | agrees with the price |",
+        ]
+    )
+
+    suspects, screened = settlement_agreement.suspects_and_screened(report)
+
+    assert suspects == {"tackles_assists"}
+    assert screened == {"tackles_assists", "rush_yards"}
+    assert "reception_tds" not in screened

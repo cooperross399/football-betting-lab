@@ -29,7 +29,10 @@ close did, which is the direction that pays.
 
 Measured on the first three seasons bought: **55.7% of wagers had an identical
 price at T-60 and T-5**, and among the 44% that moved, the model's selections
-went **exactly 50/50**.
+went **exactly 50/50**. (The 55.7% is a property of the prices and stands; the
+50/50 was computed before the cross-season settlement fix, on selections that
+have since changed. It is kept because it is the observation that bought the
+wider window, and the wider window is what the report now uses.)
 
 That is a real null over that window and it is also a weak test, because the
 window is 55 minutes. A prop line mostly does not move in the last hour; the

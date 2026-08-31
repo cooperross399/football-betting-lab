@@ -152,12 +152,25 @@ almost everything.**
 | Longest completion / rush / reception | per-play maximum | exact |
 | Anytime / first / last touchdown scorer | play-by-play, **including ordering** | exact |
 | Kicking points, field goals, PATs | play-by-play kick results | exact |
-| Tackles + assists, solo tackles, sacks, defensive interceptions | `stats_player` defensive columns | exact, but **subject to the NFL's Mon-Wed stat corrections** |
+| Solo tackles, sacks, defensive interceptions | `stats_player` defensive columns | exact, but **subject to the NFL's Mon-Wed stat corrections** |
+| **Tackles + assists** | `stats_player` defensive columns | **not settleable — see below** |
 
-The last row is the one that needs care. Defensive counting stats are revised
-after the fact more than any other family. Settlement therefore reads the
-**Thursday** copy of the week's data, which nflreadr documents as the clean
-one, and a row settled from a pre-correction copy is re-settled, never left.
+The last two rows are the ones that need care. Defensive counting stats are
+revised after the fact more than any other family. Settlement therefore reads
+the **Thursday** copy of the week's data, which nflreadr documents as the
+clean one, and a row settled from a pre-correction copy is re-settled, never
+left.
+
+**Tackles + assists is worse than revised: it is a different quantity from
+the one the books settle.** Measured across 6,575 featured wagers over three
+seasons, the market is priced at **50% over** and nflverse's number lands over
+**42%** of the time — an offset of about half a tackle per player-game. That
+gap is worth **15%** to a model that consistently takes the under, and it
+manufactured this lab's first headline finding twice, surviving three seasons
+of replication, split-half, fragility and a Bonferroni correction, because a
+constant offset replicates by construction. `tackles_assists` is modelled and
+priced and **cannot be measured at all** until an independent settlement
+source exists. `scripts/run_settlement_agreement.py` is the screen.
 
 Nothing here needs a market this lab cannot settle. That is why the wired list
 is large and the deferred list is short — the opposite of the NHL lab, where

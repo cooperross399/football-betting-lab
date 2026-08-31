@@ -6,23 +6,23 @@ Both sides of a featured line are quoted, so the two prices devig to the market'
 
 | Market | Featured wagers | Priced over | Realised over | Gap | Worth to a one-sided model | Charted | Reading |
 |:-------|----------------:|------------:|--------------:|----:|--------------------------:|:--------|:--------|
-| `tackles_assists` | 6,494 | 50% | 42% | -7% | 15% | yes | **settlement suspect** — outcomes land 7% below what the price implied; this market settles on a charted quantity |
+| `tackles_assists` | 6,575 | 50% | 42% | -7% | 15% | yes | **settlement suspect** — outcomes land 7% below what the price implied; this market settles on a charted quantity |
 | `anytime_td` | 1,193 | 20% | 19% | -1% | 2% | no | agrees with the price |
-| `field_goals` | 1,454 | 49% | 53% | +4% | 7% | no | agrees with the price |
-| `kicking_points` | 1,678 | 50% | 54% | +4% | 7% | no | agrees with the price |
-| `pass_attempts` | 2,479 | 50% | 48% | -2% | 5% | no | agrees with the price |
-| `pass_completions` | 2,550 | 50% | 50% | -0% | 0% | no | agrees with the price |
-| `pass_interceptions` | 1,689 | 44% | 42% | -2% | 3% | no | agrees with the price |
-| `pass_longest_completion` | 2,712 | 50% | 49% | -1% | 2% | no | agrees with the price |
-| `pass_tds` | 1,618 | 46% | 45% | -1% | 2% | no | agrees with the price |
-| `pass_yards` | 10,335 | 50% | 50% | +1% | 1% | no | agrees with the price |
-| `reception_longest` | 12,670 | 50% | 49% | -0% | 1% | no | agrees with the price |
-| `reception_yards` | 35,641 | 48% | 47% | -0% | 1% | no | agrees with the price |
-| `receptions` | 11,254 | 47% | 46% | -1% | 2% | no | agrees with the price |
-| `rush_attempts` | 3,810 | 50% | 48% | -2% | 4% | no | agrees with the price |
-| `rush_longest` | 4,924 | 50% | 47% | -3% | 6% | no | agrees with the price |
-| `rush_yards` | 16,453 | 48% | 46% | -2% | 4% | no | agrees with the price |
-| `sacks` | 4,059 | 33% | 31% | -2% | 4% | yes | agrees with the price |
+| `field_goals` | 1,496 | 49% | 52% | +3% | 7% | no | agrees with the price |
+| `kicking_points` | 1,729 | 50% | 53% | +4% | 7% | no | agrees with the price |
+| `pass_attempts` | 2,541 | 50% | 48% | -2% | 5% | no | agrees with the price |
+| `pass_completions` | 2,599 | 50% | 50% | +0% | 0% | no | agrees with the price |
+| `pass_interceptions` | 1,731 | 44% | 42% | -2% | 4% | no | agrees with the price |
+| `pass_longest_completion` | 2,795 | 50% | 48% | -2% | 4% | no | agrees with the price |
+| `pass_tds` | 1,658 | 46% | 46% | -0% | 1% | no | agrees with the price |
+| `pass_yards` | 10,579 | 50% | 50% | +0% | 1% | no | agrees with the price |
+| `reception_longest` | 12,926 | 50% | 49% | -1% | 1% | no | agrees with the price |
+| `reception_yards` | 36,073 | 48% | 47% | -0% | 1% | no | agrees with the price |
+| `receptions` | 11,412 | 47% | 46% | -1% | 2% | no | agrees with the price |
+| `rush_attempts` | 3,881 | 50% | 48% | -2% | 4% | no | agrees with the price |
+| `rush_longest` | 5,023 | 50% | 47% | -3% | 5% | no | agrees with the price |
+| `rush_yards` | 16,672 | 48% | 46% | -2% | 4% | no | agrees with the price |
+| `sacks` | 4,141 | 33% | 32% | -2% | 3% | yes | agrees with the price |
 
 **1 market(s) are settlement suspects**, and 1 of them settle on a charted quantity: `tackles_assists`.
 

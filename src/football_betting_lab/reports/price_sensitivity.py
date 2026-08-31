@@ -100,11 +100,26 @@ class MarketSensitivity:
                 f"{len(self.books)} books"
             )
         if self.consensus_roi <= 0 and share < 0.4:
+            # "Shopping premium" means the edge exists ONLY at the best of N
+            # quotes. That claim requires the best of N to actually be
+            # positive. Without this check a market losing money at the
+            # consensus AND at the best price available anywhere was still
+            # described as having an edge you could shop for — the most
+            # flattering possible reading of a market that loses at every
+            # price a human could take.
+            if self.best_of_n_roi > 0:
+                return (
+                    f"**a shopping premium** — {self.consensus_roi:+.1%} at "
+                    f"the consensus, {self.best_of_n_roi:+.1%} at the best of "
+                    f"{len(self.books)} books, and positive at only "
+                    f"{self.books_positive} of them. The edge is the maximum "
+                    "of N quotes, not a disagreement with the market"
+                )
             return (
-                f"**a shopping premium** — {self.consensus_roi:+.1%} at the "
-                f"consensus and positive at only {self.books_positive} of "
-                f"{len(self.books)} books. The edge is the maximum of N "
-                "quotes, not a disagreement with the market"
+                f"**loses at every price** — {self.consensus_roi:+.1%} at the "
+                f"consensus and {self.best_of_n_roi:+.1%} even at the best of "
+                f"{len(self.books)} books. There is no price at which this "
+                "market was profitable, so there is nothing to shop for"
             )
         return (
             f"mixed — {self.consensus_roi:+.1%} at the consensus, positive at "
@@ -161,11 +176,16 @@ def measure(bets: pd.DataFrame, prices: pd.DataFrame) -> list[MarketSensitivity]
     return results
 
 
-def render(results: list[MarketSensitivity]) -> str:
+def render(results: list[MarketSensitivity], *, coverage: str = "") -> str:
     lines: list[str] = []
     add = lines.append
     add("# Does the edge survive at a price you could actually get?")
     add("")
+    # What the numbers are measured over, stated before any of them. A report
+    # that does not say what it covers reads as covering everything.
+    if coverage:
+        add(coverage)
+        add("")
     add(
         "The backtest takes the **best available** price across every book "
         "quoting a wager, which is what a card does. But a measured edge can "

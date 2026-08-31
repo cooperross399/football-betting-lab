@@ -15,7 +15,7 @@ and returns the stake. So the question "will he play?" is not a question about
 whether the bet wins — it is a question about whether there is a bet at all,
 and a bet that never existed costs nothing.
 
-Over three bought seasons, **12.6% of the model's selections voided**. That is
+Over three bought seasons, **6.2% of the model's selections voided**. That is
 a large number and it is financially a non-event.
 
 ## The assumption this rests on, and what it is worth
@@ -23,8 +23,13 @@ a large number and it is financially a non-event.
 **Everything above assumes the book voids a did-not-play prop rather than
 grading it a loss.** That is the standard rule — no action if the player does
 not take a snap — and it is a rule, not a law of nature. Books differ, and a
-book that graded those as losses would turn the same record from **+4.1% into
-−9.0%**.
+book that graded those as losses would turn the same record from **−3.2% into
+−9.2%** across all markets, or `rush_yards` from **+0.9% into −4.4%**.
+
+An earlier version of this docstring quoted +13.0% against −0.8% and called
+that the difference between a strategy and a disaster. It was, and the numbers
+were computed on cross-season-settled bets. The clause still deserves an
+answer before a live card; nothing waits on it any more.
 
 `void_rule_sensitivity` computes that number rather than asserting it. It is
 the single largest assumption in this lab and it is one a human can settle in
@@ -119,11 +124,16 @@ def measure(bets: pd.DataFrame, designations: pd.Series) -> AvailabilityResult:
     return result
 
 
-def render(result: AvailabilityResult, *, market: str = "all markets") -> str:
+def render(
+    result: AvailabilityResult, *, market: str = "all markets", coverage: str = ""
+) -> str:
     lines: list[str] = []
     add = lines.append
     add(f"# What does not knowing who will play cost? — {market}")
     add("")
+    if coverage:
+        add(coverage)
+        add("")
     add(
         "This lab has refused to let any player prop produce a selection, "
         "because inactives are declared ninety minutes before kickoff and no "

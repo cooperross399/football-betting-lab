@@ -13,8 +13,8 @@ Scored on **1,248 player-games**.
 | Quantity | d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10 | mean | Verdict |
 |:---------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|:--------|
 | `receptions` | 7.3 | 13.2 | 12.4 | 11.5 | 10.8 | 11.1 | 9.0 | 8.7 | 6.9 | 9.1 | 0.474 | no material departure from flat |
-| `reception_yards` | 8.3 | 10.4 | 12.2 | 11.7 | 11.3 | 10.8 | 9.6 | 9.2 | 7.5 | 9.0 | 0.482 | no material departure from flat |
-| `reception_longest` | 7.5 | 11.3 | 11.4 | 10.5 | 10.7 | 11.8 | 9.9 | 11.2 | 7.7 | 8.0 | 0.490 | no material departure from flat |
+| `reception_yards` | 8.3 | 10.4 | 12.2 | 11.6 | 11.4 | 10.8 | 9.6 | 9.2 | 7.5 | 9.0 | 0.482 | no material departure from flat |
+| `reception_longest` | 7.5 | 11.3 | 11.3 | 10.6 | 10.7 | 11.7 | 10.0 | 11.2 | 7.7 | 8.0 | 0.490 | no material departure from flat |
 
 ## Rushing
 
@@ -23,8 +23,8 @@ Scored on **1,193 player-games**.
 | Quantity | d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10 | mean | Verdict |
 |:---------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|:--------|
 | `rush_attempts` | 11.6 | 9.0 | 10.6 | 11.8 | 10.1 | 8.5 | 10.9 | 7.5 | 9.6 | 10.4 | 0.486 | no material departure from flat |
-| `rush_yards` | 15.2 | 9.8 | 8.9 | 8.0 | 8.5 | 9.8 | 10.8 | 9.7 | 8.3 | 11.1 | 0.484 | too narrow — the tails arrive more often than priced |
-| `rush_longest` | 14.8 | 9.1 | 8.5 | 8.7 | 9.1 | 9.2 | 10.6 | 10.6 | 10.0 | 9.3 | 0.484 | no material departure from flat |
+| `rush_yards` | 15.2 | 9.8 | 8.9 | 8.0 | 8.5 | 9.8 | 10.8 | 9.8 | 8.1 | 11.1 | 0.484 | too narrow — the tails arrive more often than priced |
+| `rush_longest` | 14.8 | 9.1 | 8.5 | 8.7 | 9.1 | 9.1 | 10.6 | 10.6 | 10.0 | 9.3 | 0.484 | no material departure from flat |
 
 ## Passing
 

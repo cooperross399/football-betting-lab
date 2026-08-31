@@ -44,11 +44,24 @@ from football_betting_lab.reports.card_pricing import HALF_MARKETS, _team_probab
 from football_betting_lab.reports.props_backtest import (
     MINIMUM_BETS,
     best_price_per_selection,
+    events_in_season,
     load_bought_prices,
 )
 from football_betting_lab.verdicts import record
 
 POLICY = "half_scoring_model"
+
+
+def _direction(roi: float) -> str:
+    """An interval excluding zero is only good news in one of two directions.
+
+    Without the word, `total_points_h1` at -17.2% printed the same verdict as
+    a market returning +17.2%, and "excludes zero" reads to anyone as a
+    finding. Every other report in this lab names it; this one did not.
+    """
+    return "interval excludes zero, " + (
+        "**positive**" if roi > 0 else "**negative**"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -70,6 +83,16 @@ def main(argv: list[str] | None = None) -> int:
         load_bought_prices(RAW_DIR / league.data_dir_segment / CACHE_DIRNAME, league)
     )
     prices = prices[prices["market"].isin(HALF_MARKETS)].copy()
+    # Every bought season is in this frame, and the match below keys on
+    # `args.season` for every event regardless of when it kicked off. Without
+    # this filter a 2023 Chiefs-at-Broncos event settles against the 2025
+    # meeting of the same clubs — the cross-season defect that invalidated
+    # every prop result in this repository, in a second script that had
+    # written its own version of the filter.
+    prices = events_in_season(prices, league, args.season)
+    if prices.empty:
+        print(f"No first-half prices for {args.season}.", file=sys.stderr)
+        return 2
     if prices.empty:
         print("No first-half prices were bought.", file=sys.stderr)
         return 2
@@ -162,7 +185,10 @@ def main(argv: list[str] | None = None) -> int:
             verdict = (
                 f"**not enough evidence** — {len(subset)} bets"
                 if len(subset) < MINIMUM_BETS
-                else ("**no demonstrated edge**" if low <= 0 <= high else "excludes zero")
+                else (
+                    "**no demonstrated edge**" if low <= 0 <= high
+                    else _direction(roi)
+                )
             )
             lines.append(
                 f"| `{market}` | {len(subset):,} | "
@@ -176,7 +202,10 @@ def main(argv: list[str] | None = None) -> int:
             f"{int((bets['outcome'] == 'won').sum()):,} | "
             f"{int((bets['outcome'] == 'push').sum()):,} | {roi:+.1%} | "
             f"{low:+.1%} to {high:+.1%} | "
-            + ("**no demonstrated edge**" if low <= 0 <= high else "excludes zero")
+            + (
+                "**no demonstrated edge**" if low <= 0 <= high
+                else _direction(roi)
+            )
             + " |"
         )
         ships = roi > 0 and len(bets) >= MINIMUM_BETS

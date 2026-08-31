@@ -55,6 +55,7 @@ import pandas as pd
 
 from football_betting_lab.leagues import League
 from football_betting_lab.markets import MARKETS_BY_KEY
+from football_betting_lab.rosters import normalise_name
 from football_betting_lab.season import clean_text
 
 
@@ -252,8 +253,16 @@ def settle_snapshot(
     }
     log_index: dict[tuple[str, str], object] = {}
     for row in logs.itertuples():
+        # Identity, not spelling. The model resolves a provider name through
+        # rosters.normalise_name — which collapses `A.J.` to `aj`, drops
+        # generational suffixes and strips apostrophes — but this join used
+        # the raw string, so `A.J. Brown` priced against `AJ Brown` logged
+        # found nothing and the bet was recorded as "the player did not
+        # dress". A void returns the stake, so the error is invisible in the
+        # returns and silently deletes exactly the players whose names are
+        # written two ways.
         log_index.setdefault(
-            (str(row.game_id), str(row.player_name).casefold()), row
+            (str(row.game_id), normalise_name(row.player_name)), row
         )
 
     for row in snapshot.itertuples():
@@ -321,7 +330,7 @@ def _settle_row(
         return UNSETTLEABLE, None
     player = str(record.get("player", ""))
     entry = log_index.get(
-        (str(getattr(game, "game_id", "")), player.casefold())
+        (str(getattr(game, "game_id", "")), normalise_name(player))
     )
     if entry is None:
         # He did not dress, or did not appear in the box score. The bet is
@@ -505,8 +514,16 @@ def render_ledger(
             reading = f"**not enough evidence** — {bets} bets, below {minimum_bets}"
         elif clow <= 0.0 <= chigh:
             reading = "**no demonstrated edge**"
+        elif roi > 0.0:
+            reading = "interval excludes zero, **positive**"
         else:
-            reading = "interval excludes zero"
+            # The direction is not decoration. Without it a market losing
+            # money beyond chance printed the same words as one making it,
+            # and "interval excludes zero" reads to anyone as good news. The
+            # NHL lab shipped exactly this bug in its claims document, where
+            # a replicated LOSS produced a headline that a market had
+            # survived and replicated.
+            reading = "interval excludes zero, **negative**"
         add(
             f"| `{market}` | {bets:,} | {games:,} | {roi:+.1%} | "
             f"{low:+.1%} to {high:+.1%} | {clow:+.1%} to {chigh:+.1%} | "
@@ -517,10 +534,25 @@ def render_ledger(
         settled[~settled["market"].astype(str).isin(settlement_suspects)]
     )
     add("")
+    # The pooled line gets the same three guards every row above it gets.
+    # Without them Week 1 prints a bold ROI over a handful of bets with no
+    # reading at all, which is the single most quotable number in the file
+    # and the least supported.
+    if pooled_bets < minimum_bets:
+        pooled_reading = (
+            f"**not enough evidence** — {pooled_bets:,} bets, below "
+            f"{minimum_bets}"
+        )
+    elif pooled_low <= 0.0 <= pooled_high:
+        pooled_reading = "**no demonstrated edge**"
+    elif pooled_roi > 0.0:
+        pooled_reading = "interval excludes zero, **positive**"
+    else:
+        pooled_reading = "interval excludes zero, **negative**"
     add(
         f"**Pooled, excluding settlement suspects: {pooled_roi:+.1%} over "
         f"{pooled_bets:,} bets across {pooled_games:,} games**, interval "
-        f"{pooled_low:+.1%} to {pooled_high:+.1%}."
+        f"{pooled_low:+.1%} to {pooled_high:+.1%} — {pooled_reading}."
     )
     if settlement_suspects:
         add("")

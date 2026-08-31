@@ -150,6 +150,27 @@ def main(argv: list[str] | None = None) -> int:
         provider_shadow.write_staging(run, STAGING_DIR)
         preseason = list(run.preseason_excluded)
         print(run.summary_line())
+        # A provider failure must never read as a quiet night. run_shadow
+        # records a failed event listing, a failed bulk fetch and a capped
+        # fetch on the run and returns NORMALLY, so without this a broken
+        # game day produced zero events, published `no-slate`, and the
+        # backup trigger then stood down because the day looked finished.
+        # The league does not play every day, so "no games" is the one
+        # decision that is invisible by design — which makes it the worst
+        # possible disguise for a fault.
+        if run.errors or run.stopped_early:
+            degraded_notes = list(run.errors)
+            if run.stopped_early:
+                degraded_notes.append(f"stopped early: {run.stopped_early}")
+            for note in degraded_notes:
+                print(f"::error::{redact(note)}", file=sys.stderr)
+            print("decision=degraded")
+            print(
+                "The fetch did not complete, so this run is degraded and no "
+                "card is published from a partial slate. What went wrong is "
+                "above; the next scheduled run will not stand down."
+            )
+            return 1
 
     staged = STAGING_DIR / STAGING_PRICES_FILENAME
     prices = _read(staged)

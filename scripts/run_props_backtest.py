@@ -56,8 +56,16 @@ def main(argv: list[str] | None = None) -> int:
         report, encoding="utf-8"
     )
     if not result.bets.empty:
-        result.bets.to_csv(
-            OUTPUTS_DIR / league.output_name("props_backtest_bets", ".csv"), index=False
+        # Season-scoped, and never the pooled filename. This script scores ONE
+        # season; the pooled `props_backtest_bets.csv` that four downstream
+        # reports read is written only by run_props_replication.py, which
+        # scores every season. They used to share a filename, so running this
+        # one last replaced three seasons of evidence with one and every
+        # downstream report carried on under its three-season heading.
+        result.bets.assign(season=args.season).to_csv(
+            OUTPUTS_DIR
+            / league.output_name(f"props_backtest_bets_{args.season}", ".csv"),
+            index=False,
         )
     print(report)
     return 0

@@ -76,19 +76,28 @@ jobs:
     steps:
       - id: check
         env:
-          REMOTE: https://github.com/${{ github.repository }}
+          # The repository is PRIVATE, so an unauthenticated fetch cannot see
+          # the branch. Without this the guard failed open on every run: it
+          # read "no card-feed branch yet", the backup trigger never stood
+          # down, and every game day fetched the slate twice and posted the
+          # card twice. A guard that cannot fail closed is not a guard.
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" != "schedule" ]; then
             echo "run=yes" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"
           git init -q feed && cd feed
           if ! git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
             echo "No card-feed branch yet; running."
             echo "run=yes" >> "$GITHUB_OUTPUT"; exit 0
           fi
           STATUS=$(git show refs/card-feed-tip:latest_status.json 2>/dev/null || echo '{}')
-          DAY=$(date -u +%F)
+          # The league date, not UTC: the card stamps its slate in league time
+          # and a guard comparing a different calendar would stand down on the
+          # wrong day the moment a trigger moves either side of midnight UTC.
+          DAY=$(TZ=America/New_York date +%F)
           if echo "$STATUS" | grep -q "\"slate_date\": *\"$DAY\"" \
              && ! echo "$STATUS" | grep -q '"decision": *"degraded"'; then
             echo "Today's card already published cleanly; standing down."
@@ -250,7 +259,10 @@ jobs:
           REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         run: |
           set -euo pipefail
-          DAY=$(date -u +%F)
+          # League date, matching what the card itself stamps and what the
+          # already-published guard compares against. Three calendars for one
+          # slate is how a run stands itself down on the wrong day.
+          DAY=$(TZ=America/New_York date +%F)
           DECISION="${{ steps.card.outputs.decision || 'degraded' }}"
           # Built with plumbing rather than a checkout, so only the files named
           # here can ever reach the branch. A `git add -A` on a working tree
@@ -271,19 +283,40 @@ jobs:
             "$DAY" "$DECISION" "${{ github.run_id }}" > latest_status.json
           add latest_status.json latest_status.json "$ROOT_INPUT"
           add card.md data/outputs/nfl_gameday_card.md "$ROOT_INPUT"
-          add forward_evidence.csv data/processed/forward_evidence.csv "$ROOT_INPUT"
+          # The tree is rebuilt from local files under `if: always()`, so a
+          # run that died at or before the Restore step holds NO ledger and
+          # NO snapshots — and publishing that tree would replace a season of
+          # evidence on the branch with a commit that simply omits it. The
+          # prices those rows settled against are gone, so nothing could
+          # rebuild them. Anything the run does not hold locally is therefore
+          # carried forward from the branch tip rather than dropped.
+          git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null || true
+          if [ -f data/processed/forward_evidence.csv ]; then
+            add forward_evidence.csv data/processed/forward_evidence.csv "$ROOT_INPUT"
+          elif git cat-file -e refs/card-feed-tip:forward_evidence.csv 2>/dev/null; then
+            git show refs/card-feed-tip:forward_evidence.csv > carried_ledger.csv
+            add forward_evidence.csv carried_ledger.csv "$ROOT_INPUT"
+            echo "::warning::This run held no local ledger; carried the branch copy forward rather than publishing a tree without it."
+          fi
           for snapshot in data/archive/priced_snapshots/*.csv; do
             [ -f "$snapshot" ] || continue
             add "$(basename "$snapshot")" "$snapshot" "$SNAP_INPUT"
           done
-          if [ -s "$SNAP_INPUT" ]; then
+          if [ ! -s "$SNAP_INPUT" ] && git cat-file -e refs/card-feed-tip:snapshots 2>/dev/null; then
+            # Same rule for the frozen opinions: never publish their absence.
+            CARRIED=$(git rev-parse refs/card-feed-tip:snapshots)
+            printf '040000 tree %s\tsnapshots\n' "$CARRIED" >> "$ROOT_INPUT"
+            echo "::warning::This run held no local snapshots; carried the branch tree forward."
+            SNAP_CARRIED=yes
+          fi
+          if [ -s "$SNAP_INPUT" ] && [ -z "${SNAP_CARRIED:-}" ]; then
             SNAP_TREE=$(git mktree < "$SNAP_INPUT")
             printf '040000 tree %s\tsnapshots\n' "$SNAP_TREE" >> "$ROOT_INPUT"
           fi
           TREE=$(git mktree < "$ROOT_INPUT")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
+          if git rev-parse refs/card-feed-tip >/dev/null 2>&1; then
             PARENT=$(git rev-parse refs/card-feed-tip)
             COMMIT=$(git commit-tree "$TREE" -p "$PARENT" -m "card $DAY ($DECISION)")
           else
