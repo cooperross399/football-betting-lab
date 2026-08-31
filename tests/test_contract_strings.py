@@ -125,3 +125,25 @@ def test_the_feed_never_publishes_the_absence_of_evidence() -> None:
     assert "carried_ledger.csv" in text
     assert "refs/card-feed-tip:forward_evidence.csv" in text
     assert "refs/card-feed-tip:snapshots" in text
+
+
+def test_a_rehearsal_can_see_the_slate_it_rehearses() -> None:
+    """The one tool built to prove readiness before the season was blind.
+
+    run_shadow anchors its fetch window to today and the card then filters
+    staged prices to `slate_date`. At a one-day horizon those two filters
+    intersect nowhere for any date but today, so a rehearsal of Week 1
+    fetched today's board, kept Week 1's rows, found none, and reported "no
+    games in scope" — in language indistinguishable from a real empty slate.
+    """
+    from pathlib import Path
+
+    source = (
+        Path(__file__).resolve().parents[1] / "scripts" / "run_gameday_card.py"
+    ).read_text(encoding="utf-8")
+
+    assert "horizon_days = args.horizon_days" in source
+    assert "reach + 1" in source
+    assert "horizon_days=horizon_days," in source, (
+        "the widened window has to reach run_shadow, not just be computed"
+    )

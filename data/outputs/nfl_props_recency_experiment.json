@@ -1,8 +1,10 @@
 {
   "policy": "props_recency_weighting",
   "league": "nfl",
-  "ships": [],
-  "measured_on": "2025 bought prices, 24,434 pooled bets",
+  "ships": [
+    "props_recency_weighting"
+  ],
+  "measured_on": "2025 bought prices, 31,361 pooled bets",
   "variants_tested": 1,
-  "summary": "half-life 8 games vs baseline: -5.2% against -6.6%; paired difference +1.4% per bet over 172 games, interval -1.0% to +3.9%. Not distinguishable from zero. Both arms lose money against real prices."
+  "summary": "half-life 8 games vs baseline: -3.1% against -5.3%; paired difference +2.3% per bet over 256 games, interval +0.1% to +4.5%. Distinguishable from zero. Both arms lose money against real prices."
 }
