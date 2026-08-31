@@ -16,7 +16,7 @@ import sys
 from football_betting_lab.config import OUTPUTS_DIR
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import forecast_skill
-from football_betting_lab.reports.forecast_skill import SETTLEMENT_ARTEFACT
+from football_betting_lab.reports.forecast_skill import settlement_suspects
 from football_betting_lab.reports.props_backtest import coverage_line, load_scored_bets
 
 
@@ -31,9 +31,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No scored bets at {path}.", file=sys.stderr)
         return 2
     bets = load_scored_bets(path)
+    suspects = settlement_suspects(
+        OUTPUTS_DIR / league.output_name("settlement_agreement", ".md")
+    )
     bets = bets[
-        (bets["outcome"] != "void") & (bets["market"] != SETTLEMENT_ARTEFACT)
+        (bets["outcome"] != "void") & (~bets["market"].isin(suspects))
     ].copy()
+    print(
+        f"excluding {len(suspects)} settlement suspect(s): "
+        f"{', '.join(sorted(suspects)) or 'none'}",
+    )
     if bets.empty:
         print("No staked bets to score.", file=sys.stderr)
         return 2

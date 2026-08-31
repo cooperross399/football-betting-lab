@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from football_betting_lab.reports.forecast_skill import (
     apply_map,
@@ -116,3 +117,33 @@ def test_no_scoreable_season_is_an_absence_not_a_result() -> None:
 
     assert "absence, not a result" in text
     assert "never a better forecaster" not in text
+
+
+def test_the_excluded_markets_come_from_the_screen_not_a_constant(tmp_path):
+    """A hardcoded exclusion cannot notice that it stopped being true.
+
+    `tackles_assists` was a module constant here. It was flagged because our
+    tackle column dropped `def_tackles_with_assist` and undercounted by 7%;
+    once that was fixed the screen cleared it, and the constant would have gone
+    on excluding a market with nothing wrong with it.
+    """
+    from football_betting_lab.reports.forecast_skill import settlement_suspects
+
+    report = tmp_path / "screen.md"
+    report.write_text(
+        "| Market | Gap |\n"
+        "|:---|---:|\n"
+        "| `tackles_assists` | -1% | agrees with the price |\n"
+        "| `sacks` | -9% | **settlement suspect** — outcomes land below |\n",
+        encoding="utf-8",
+    )
+
+    assert settlement_suspects(report) == {"sacks"}
+
+
+def test_a_missing_screen_is_an_error_not_an_empty_exclusion(tmp_path):
+    """"Nothing is excluded" and "nothing was screened" must not look alike."""
+    from football_betting_lab.reports.forecast_skill import settlement_suspects
+
+    with pytest.raises(FileNotFoundError, match="settlement"):
+        settlement_suspects(tmp_path / "absent.md")

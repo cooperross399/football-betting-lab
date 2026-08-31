@@ -13,14 +13,37 @@ worse than the price it pays for.
 
 from __future__ import annotations
 
+import pathlib
 from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
 
-#: Excluded from every figure. Its outcomes are not the quantity the books
-#: settled, so scoring a forecast against them measures the gap, not the skill.
-SETTLEMENT_ARTEFACT = "tackles_assists"
+from football_betting_lab.reports.settlement_agreement import suspects_and_screened
+
+def settlement_suspects(report_path) -> set[str]:
+    """Markets to exclude, read from the settlement screen's own output.
+
+    This was a module constant naming `tackles_assists`, and the constant was
+    true when it was written and false a day later: the market was flagged
+    because our tackle column dropped `def_tackles_with_assist` and undercounted
+    by 7%, and once that was fixed the screen cleared it. A hardcoded exclusion
+    cannot notice that. Scoring a forecast against outcomes that are not the
+    quantity the books settled measures the gap rather than the skill — but so
+    does excluding a market that no longer has a gap.
+
+    A missing report is an error rather than an empty set: "nothing is
+    excluded" and "nothing was screened" must not look the same.
+    """
+    path = pathlib.Path(report_path)
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"No settlement screen at {path}. Run "
+            "scripts/run_settlement_agreement.py first: without it nothing "
+            "here knows which markets settle on what they were priced on."
+        )
+    suspects, _ = suspects_and_screened(path.read_text(encoding="utf-8"))
+    return suspects
 
 
 def implied(odds: pd.Series) -> np.ndarray:
