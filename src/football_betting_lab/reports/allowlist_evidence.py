@@ -21,8 +21,11 @@ reader can check the reasoning rather than take it:
     computed on top of it means anything.
 ``settlement``
     The realised rate must match the devigged price. `tackles_assists`
-    returned +16% across three seasons and was an eight-point settlement gap;
+    returns +11.7% across three seasons and is a seven-point settlement gap;
     a constant offset replicates perfectly and survives every other check.
+    A market this screen never *examined* fails the bar too — an approval
+    cleared by never having been measured is the same artefact in a
+    different shape.
 ``consensus``
     The return must survive at the median quote. A number that exists only as
     the maximum of thirteen quotes needs an account at whichever book was

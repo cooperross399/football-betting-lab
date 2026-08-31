@@ -1,4 +1,4 @@
-# Do the prop models beat real prices? — 2024
+# Do the prop models beat real prices? — 2025
 
 8,393,403 bought price rows across 816 events, collapsed to 627,626 distinct wagers — one player, market, line and side is **one bet**, quoted by up to nine books, and a card takes the best reachable price. Counting each book separately would multiply one wager by nine and narrow every interval by a factor of three while measuring nothing new.
 
@@ -10,30 +10,29 @@ Betting only where the model disagrees by at least 6.0% at a price between -160 
 
 | Market | Bets | Games | Won | Push | Void | ROI | 95% interval | Family-corrected | Verdict |
 |:-------|-----:|------:|----:|-----:|-----:|----:|:-------------|:-----------------|:--------|
-| `reception_yards` | 10,096 | 254 | 4,005 | 0 | 715 | -5.2% | -11.2% to +0.9% | -14.3% to +4.0% | **no demonstrated edge** |
-| `rush_yards` | 4,608 | 254 | 2,044 | 0 | 208 | +3.1% | -5.2% to +11.4% | -9.4% to +15.6% | **no demonstrated edge** |
-| `receptions` | 3,164 | 255 | 1,182 | 0 | 225 | -6.3% | -12.7% to +0.2% | -16.0% to +3.4% | **no demonstrated edge** |
-| `pass_yards` | 2,935 | 243 | 1,268 | 0 | 10 | +7.9% | -5.1% to +20.8% | -11.6% to +27.3% | **no demonstrated edge** |
-| `reception_longest` | 1,740 | 250 | 817 | 0 | 144 | -5.4% | -11.7% to +0.9% | -14.9% to +4.1% | **no demonstrated edge** |
-| `tackles_assists` | 1,657 | 248 | 963 | 0 | 87 | +10.9% | +6.3% to +15.5% | +3.9% to +17.9% | interval excludes zero, positive |
-| `rush_attempts` | 1,152 | 246 | 522 | 0 | 54 | -7.2% | -15.8% to +1.4% | -20.2% to +5.8% | **no demonstrated edge** |
-| `rush_longest` | 675 | 228 | 339 | 0 | 19 | -3.0% | -12.2% to +6.2% | -16.9% to +10.8% | **no demonstrated edge** |
-| `pass_completions` | 527 | 216 | 244 | 0 | 1 | -9.6% | -20.6% to +1.4% | -26.2% to +7.0% | **no demonstrated edge** |
-| `anytime_td` | 519 | 221 | 127 | 0 | 48 | +5.0% | -13.5% to +23.6% | -22.9% to +33.0% | **no demonstrated edge** |
-| `pass_attempts` | 513 | 212 | 255 | 0 | 1 | -5.1% | -16.3% to +6.2% | -22.1% to +11.9% | **no demonstrated edge** |
-| `sacks` | 513 | 197 | 207 | 10 | 44 | +5.2% | -10.8% to +21.3% | -19.0% to +29.4% | **no demonstrated edge** |
-| `pass_tds` | 313 | 189 | 109 | 0 | 1 | -3.2% | -20.4% to +13.9% | -29.1% to +22.7% | **no demonstrated edge** |
-| `pass_longest_completion` | 239 | 131 | 130 | 0 | 0 | +3.0% | -14.0% to +20.0% | -22.7% to +28.6% | **no demonstrated edge** |
-| `kicking_points` | 234 | 145 | 102 | 0 | 2 | -12.6% | -29.0% to +3.8% | -37.3% to +12.1% | **no demonstrated edge** |
-| `pass_interceptions` | 216 | 166 | 98 | 0 | 0 | -6.6% | -21.2% to +8.0% | -28.6% to +15.4% | **no demonstrated edge** |
-| `field_goals` | 112 | 93 | 46 | 0 | 3 | -19.4% | -36.3% to -2.6% | -44.8% to +5.9% | **not enough evidence** — 112 bets, below the 200 declared in advance |
-| `defensive_interceptions` | 15 | 12 | 2 | 0 | 4 | -30.7% | -119.5% to +58.1% | -164.6% to +103.2% | **not enough evidence** — 15 bets, below the 200 declared in advance |
-| `rush_tds` | 1 | 1 | 0 | 0 | 0 | -100.0% | -inf% to +inf% | -inf% to +inf% | **not enough evidence** — 1 bets, below the 200 declared in advance |
-| **all markets pooled** | 29,229 | 256 | 12,460 | 10 | 1,566 | -1.6% | -5.0% to +1.8% | -6.7% to +3.6% | **no demonstrated edge** |
+| `reception_yards` | 10,511 | 255 | 4,219 | 0 | 882 | -7.6% | -12.6% to -2.5% | -15.2% to +0.0% | **no demonstrated edge** |
+| `rush_yards` | 4,051 | 254 | 1,838 | 0 | 245 | +0.7% | -7.0% to +8.5% | -10.8% to +12.3% | **no demonstrated edge** |
+| `receptions` | 3,474 | 254 | 1,318 | 0 | 270 | -6.1% | -11.7% to -0.6% | -14.4% to +2.1% | **no demonstrated edge** |
+| `reception_longest` | 2,976 | 254 | 1,349 | 0 | 276 | -2.9% | -8.8% to +3.1% | -11.8% to +6.1% | **no demonstrated edge** |
+| `pass_yards` | 2,534 | 232 | 857 | 0 | 0 | -18.9% | -33.4% to -4.5% | -40.5% to +2.6% | **no demonstrated edge** |
+| `rush_attempts` | 1,671 | 252 | 707 | 0 | 54 | -10.8% | -18.9% to -2.8% | -22.8% to +1.2% | **no demonstrated edge** |
+| `tackles_assists` | 1,331 | 244 | 755 | 0 | 51 | +12.8% | +6.2% to +19.4% | +2.9% to +22.7% | interval excludes zero, positive |
+| `pass_attempts` | 885 | 222 | 382 | 0 | 0 | -0.5% | -15.8% to +14.8% | -23.4% to +22.4% | **no demonstrated edge** |
+| `rush_longest` | 837 | 245 | 442 | 0 | 46 | +0.3% | -7.2% to +7.9% | -11.0% to +11.6% | **no demonstrated edge** |
+| `pass_completions` | 777 | 226 | 303 | 0 | 0 | -9.1% | -25.0% to +6.8% | -32.9% to +14.7% | **no demonstrated edge** |
+| `sacks` | 602 | 227 | 228 | 20 | 68 | +3.7% | -10.5% to +17.9% | -17.6% to +24.9% | **no demonstrated edge** |
+| `anytime_td` | 580 | 219 | 139 | 0 | 51 | +3.0% | -12.0% to +18.0% | -19.4% to +25.5% | **no demonstrated edge** |
+| `pass_tds` | 279 | 187 | 107 | 0 | 0 | -7.6% | -24.3% to +9.2% | -32.6% to +17.5% | **no demonstrated edge** |
+| `kicking_points` | 262 | 158 | 121 | 0 | 2 | -7.5% | -22.9% to +7.8% | -30.5% to +15.5% | **no demonstrated edge** |
+| `pass_longest_completion` | 218 | 128 | 118 | 0 | 0 | +2.3% | -13.0% to +17.6% | -20.6% to +25.2% | **no demonstrated edge** |
+| `pass_interceptions` | 199 | 156 | 95 | 0 | 0 | +3.4% | -15.2% to +22.1% | -24.5% to +31.4% | **not enough evidence** — 199 bets, below the 200 declared in advance |
+| `field_goals` | 105 | 92 | 44 | 0 | 0 | -12.0% | -33.3% to +9.4% | -44.0% to +20.0% | **not enough evidence** — 105 bets, below the 200 declared in advance |
+| `defensive_interceptions` | 31 | 27 | 5 | 0 | 4 | -3.2% | -78.6% to +72.2% | -116.2% to +109.7% | **not enough evidence** — 31 bets, below the 200 declared in advance |
+| **all markets pooled** | 31,323 | 256 | 13,027 | 20 | 1,949 | -5.2% | -8.9% to -1.5% | -10.7% to +0.3% | **no demonstrated edge** |
 
-The family correction is Bonferroni across the 16 market(s) with at least 200 bets, applied because with twenty markets something will look profitable by chance. Intervals are clustered by game: the props on one afternoon are not independent.
+The family correction is Bonferroni across the 15 market(s) with at least 200 bets, applied because with twenty markets something will look profitable by chance. Intervals are clustered by game: the props on one afternoon are not independent.
 
-6,662 priced rows named a player who could not be resolved on that season's roster, and produced no opinion. Reported rather than guessed at: a fuzzy match produces a confident price for a bet nobody placed.
+8,073 priced rows named a player who could not be resolved on that season's roster, and produced no opinion. Reported rather than guessed at: a fuzzy match produces a confident price for a bet nobody placed.
 
 ## Markets whose interval excludes zero, and whether they survive
 
@@ -41,7 +40,7 @@ The family correction is Bonferroni across the 16 market(s) with at least 200 be
 
 | Market | ROI | First half | Second half | Halves agree | Top game | Top 10 games | Without the best game | Players |
 |:-------|----:|-----------:|------------:|:-------------|---------:|-------------:|----------------------:|--------:|
-| `tackles_assists` | +10.9% | +15.9% (924) | +4.6% (733) | **no** | 4% | 32% | +10.5% | 302 |
+| `tackles_assists` | +12.8% | +13.2% (689) | +12.4% (642) | yes | 7% | 52% | +12.0% | 251 |
 
 A result carried by one afternoon shows up as a large top-game share and collapses when it is removed. A result that is really one player shows up in the player count.
 
