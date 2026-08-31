@@ -575,6 +575,48 @@ coincidence with a story attached, and the pre-registered search in
 and 2024 from −2.90% to −1.05%. A smaller loss is not a profit, and this table
 is the reason no filter turns one into the other.
 
+## The team model on card-time ladders: the last untested angle, and it loses
+
+**−9.8% pooled over 54,641 bets across 773 games, interval −17.5% to −2.2% —
+excludes zero, negative.** `scripts/run_team_ladder_backtest.py`,
+`data/outputs/nfl_team_ladder_backtest.md`.
+
+This was the one substantial priced test the lab had never run, and it existed
+because the closing-line backtest's own report called itself conservative in
+two directions: it bets **into the close**, the sharpest price of the week, at
+**one consensus line** rather than the best of nine books. This test does
+neither — card-time snapshot, best price across every book quoting the rung,
+which is what a card actually does.
+
+It is also the only test that reaches the machinery the team model was built
+for. Featured `moneyline`, `spread` and `total_points` were **never bought**
+(the purchase was props-led), but 985,000 rows of `alternate_spread` and
+`alternate_total_points` were, plus the team totals. Those ladders are where
+the exponential tilt and the exact push mass at 3 and 7 do their work.
+
+| Market | Bets | ROI | Corrected interval |
+|:---|---:|---:|:---|
+| `alternate_spread` | 23,211 | −11.6% | −24.7% to +1.6% |
+| `alternate_total_points` | 17,057 | −7.2% | −22.0% to +7.5% |
+| `alternate_team_total` | 7,753 | **−17.4%** | −31.0% to −3.7% |
+| `team_total` | 6,620 | −1.7% | −10.9% to +7.5% |
+| **pooled** | **54,641** | **−9.8%** | **−17.5% to −2.2%** |
+
+Per season: 2023 −4.1%, 2024 −10.1%, 2025 −15.0%. It gets worse, not better.
+
+**−9.8% is about the props null baseline (−9.47%)**, so the team model on
+ladders is no better than betting them blind. Giving the model the friendliest
+price it could ever see did not help, which is the same answer the Brier
+comparison gives from a different direction.
+
+**Settlement was proved against pricing before the number was believed.**
+Twenty tests put all the distribution's mass on one scoreline and assert the
+backtest settles each rung exactly as `GameDistribution.spread` / `.total` /
+`.team_total` price it — including the pushes at 3 and 7, a missing line as a
+void rather than a loss, and an unknown market as a void rather than a guess.
+A sign error in any of those would have produced a plausible number rather
+than an error.
+
 ## The pre-registered subgroup search found nothing, in twelve directions
 
 **0 of 12 subgroups survived, and 0 of 12 mechanisms held.**
