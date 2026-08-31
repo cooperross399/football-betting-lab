@@ -575,6 +575,44 @@ coincidence with a story attached, and the pre-registered search in
 and 2024 from −2.90% to −1.05%. A smaller loss is not a profit, and this table
 is the reason no filter turns one into the other.
 
+## The pre-registered subgroup search found nothing, in twelve directions
+
+**0 of 12 subgroups survived, and 0 of 12 mechanisms held.**
+`docs/preregistered_subgroup_search.md` was written before any subgroup was
+measured; discovery on 2023-24, validation on held-out 2025, minimum 500 bets,
+intervals clustered by game, Bonferroni across twelve.
+`data/outputs/nfl_subgroup_search.md` has the full table.
+
+**One subgroup cleared discovery and died twice.** Q3 of *contemporaneous*
+target share returned +10.69% over 7,644 discovery bets. It fails for two
+independent reasons, and the second is the disqualifying one: on held-out 2025
+it returned **+6.68% over 4,904 bets with an interval of [−5.71%, +19.07%]**,
+which includes zero — and **same-game target share is a post-game quantity**,
+so it could not have been bet whatever the interval said. The lagged version,
+which *is* knowable at bet time, is not monotone at all.
+
+**Four mechanisms reversed outright**, which is worth more than the null result:
+
+- **Blowout risk was backwards.** Under value-add is *highest* in the tightest
+  games (+7.39% at |spread| < 3) and flat everywhere wider. The calibration's
+  "days get cut short" story predicted the opposite, so **the game-script model
+  that finding motivated should not be built** on this evidence.
+- **Longshot bias was backwards.** The longest prices (+250 to +600) have the
+  *highest* value-add.
+- **Late-season was backwards.** Weeks 1-9 beat weeks 10-18.
+- **Role stability was backwards.** Volatile roles +10.48%, stable roles −0.29%.
+
+**No book is soft enough.** Gated on its own quote, the best is DraftKings at
+**−2.02% over 16,794 bets** (interval [−6.43%, +2.38%]); five of ten are
+negative with intervals excluding zero.
+
+**A defect in the pre-registration, recorded so the next one is better:** three
+of the twelve hypotheses were written with no predicted direction, so they
+could not be falsified by direction and three slots were spent on cuts that
+could only ever be exploratory. Also, the declared Bonferroni of twelve is too
+generous — the search examined far more than twelve cells — and **nothing
+cleared it even so.**
+
 ## The measurement that makes subgroup ROI readable
 
 **Raw subgroup ROI is uninterpretable here.** The null baseline is **−12.4% on
