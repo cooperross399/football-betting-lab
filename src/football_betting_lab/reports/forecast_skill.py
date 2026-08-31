@@ -66,6 +66,17 @@ def implied(odds: pd.Series) -> np.ndarray:
     )
 
 
+#: A market needs this many held-out bets before its Brier is reported. Below
+#: it the difference between two Brier scores is dominated by which games
+#: happened to land in the sample.
+MINIMUM_MARKET_BETS = 500
+
+#: And this many prior-season rows before a calibration map is fitted at all.
+#: A map fitted on a handful of rows is a step function through noise, and it
+#: would flatter the model by memorising its earlier mistakes.
+MINIMUM_CALIBRATION_ROWS = 300
+
+
 def isotonic_fit(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Pool-adjacent-violators, sorted by `x`.
 
@@ -92,7 +103,22 @@ def isotonic_fit(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 
 def apply_map(xs: np.ndarray, fitted: np.ndarray, query: pd.Series) -> np.ndarray:
-    return np.clip(np.interp(query.astype(float).to_numpy(), xs, fitted), 0.01, 0.99)
+    """Read a query through the fitted step map.
+
+    `np.interp` needs a strictly increasing `xp`. An isotonic fit on a market
+    whose model probability barely moves produces ties, and in the limit — a
+    model that says the same number every time — every x is identical and the
+    interpolation is degenerate. That is not hypothetical: a count market
+    fitted to a near-constant rate is exactly that shape, and the answer there
+    is the pooled outcome rate, not whatever the interpolator happens to
+    return.
+    """
+    values = query.astype(float).to_numpy()
+    if len(xs) == 0:
+        return np.full(len(values), 0.5)
+    if xs[0] == xs[-1]:
+        return np.clip(np.full(len(values), float(np.mean(fitted))), 0.01, 0.99)
+    return np.clip(np.interp(values, xs, fitted), 0.01, 0.99)
 
 
 def brier(probability: np.ndarray, won: np.ndarray) -> float:
@@ -116,15 +142,52 @@ class SeasonSkill:
 
 
 @dataclass
+class MarketSkill:
+    """One market, scored on its held-out seasons only.
+
+    Pooled Brier answers "does this model know anything". It cannot answer
+    "does it know anything **here**", and those are different questions: a
+    model with no skill on average can still carry skill in one family and
+    noise everywhere else, and pooling hides that in both directions.
+
+    Scored walk-forward like everything else — a market's calibration map is
+    fitted on its own prior seasons, never on the season being scored.
+    """
+
+    market: str
+    bets: int
+    calibrated_brier: float
+    market_brier: float
+
+    @property
+    def edge_over_price(self) -> float:
+        """Positive means the model forecast this market better than the price.
+
+        Necessary for an edge here and nowhere near sufficient: it must beat
+        the price by more than the vig, and on a season it was not chosen on.
+        """
+        return self.market_brier - self.calibrated_brier
+
+    @property
+    def beats_the_price(self) -> bool:
+        return self.calibrated_brier < self.market_brier
+
+
+@dataclass
 class SkillResult:
     bets: int = 0
     model_brier: float = 0.0
     market_brier: float = 0.0
     seasons: list[SeasonSkill] = field(default_factory=list)
+    markets: list[MarketSkill] = field(default_factory=list)
 
     @property
     def ever_beats_the_price(self) -> bool:
         return any(s.beats_the_price for s in self.seasons)
+
+    @property
+    def markets_beating_the_price(self) -> list[MarketSkill]:
+        return [m for m in self.markets if m.beats_the_price]
 
 
 def measure(bets: pd.DataFrame) -> SkillResult:
@@ -163,6 +226,44 @@ def measure(bets: pd.DataFrame) -> SkillResult:
                 market_brier=brier(current["market_probability"].to_numpy(), won),
             )
         )
+
+    # Per market, pooled over the held-out seasons only. The calibration map
+    # is the market's own, fitted on that market's earlier seasons: a pooled
+    # map would import other markets' miscalibration and score this one
+    # against it.
+    if "market" in frame.columns:
+        for market, rows in frame.groupby("market"):
+            held = []
+            for season in seasons[1:]:
+                prior = rows[rows["season"] < season]
+                current = rows[rows["season"] == season]
+                if len(prior) < MINIMUM_CALIBRATION_ROWS or current.empty:
+                    continue
+                xs, fitted = isotonic_fit(
+                    prior["model_probability"].to_numpy(), prior["won"].to_numpy()
+                )
+                held.append(
+                    current.assign(
+                        _cal=apply_map(xs, fitted, current["model_probability"])
+                    )
+                )
+            if not held:
+                continue
+            scored = pd.concat(held, ignore_index=True)
+            if len(scored) < MINIMUM_MARKET_BETS:
+                continue
+            won = scored["won"].to_numpy()
+            result.markets.append(
+                MarketSkill(
+                    market=str(market),
+                    bets=len(scored),
+                    calibrated_brier=brier(scored["_cal"].to_numpy(), won),
+                    market_brier=brier(
+                        scored["market_probability"].to_numpy(), won
+                    ),
+                )
+            )
+        result.markets.sort(key=lambda m: -m.edge_over_price)
     return result
 
 
@@ -237,6 +338,45 @@ def render(result: SkillResult, bets: pd.DataFrame, *, coverage: str = "") -> st
             f"{'**yes**' if entry.beats_the_price else 'no'} |"
         )
     add("")
+    if result.markets:
+        add("## Per market, on held-out seasons only")
+        add("")
+        add(
+            "Pooled Brier answers *does this model know anything*. It cannot "
+            "answer *does it know anything **here***, and a model with no "
+            "skill on average could still carry skill in one family and noise "
+            "everywhere else. Each market's calibration map is its own, fitted "
+            "on its own earlier seasons."
+        )
+        add("")
+        add("| Market | Held-out bets | Calibrated Brier | Market Brier | Better than the price? |")
+        add("|:---|---:|---:|---:|:---|")
+        for entry in result.markets:
+            add(
+                f"| `{entry.market}` | {entry.bets:,} | "
+                f"{entry.calibrated_brier:.5f} | {entry.market_brier:.5f} | "
+                f"{'**yes, by ' + format(entry.edge_over_price, '+.5f') + '**' if entry.beats_the_price else 'no'} |"
+            )
+        add("")
+        winners = result.markets_beating_the_price
+        if winners:
+            add(
+                f"**{len(winners)} of {len(result.markets)} markets forecast "
+                "better than the price.** That is necessary and nowhere near "
+                "sufficient: a Brier edge has to exceed the vig before it is a "
+                "bet, and it has to hold on a season it was not chosen on. "
+                "Selecting the best of "
+                f"{len(result.markets)} markets is itself a search, and the "
+                "priced test decides."
+            )
+        else:
+            add(
+                f"**No market forecasts better than the price** — 0 of "
+                f"{len(result.markets)} with at least "
+                f"{MINIMUM_MARKET_BETS} held-out bets. The pooled result was "
+                "not hiding a good family inside a bad average."
+            )
+        add("")
     if result.seasons and not result.ever_beats_the_price:
         add(
             "**The model is never a better forecaster than the price, on any "

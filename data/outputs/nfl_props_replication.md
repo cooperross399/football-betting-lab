@@ -21,7 +21,7 @@
 | `rush_longest` | **-6.8%** (511) | **-5.0%** (663) | **-0.0%** (840) | **no demonstrated edge** — -5.8% over 1,174 bets |
 | `rush_yards` | **+0.5%** (2,874) | **+2.6%** (4,640) | **+0.1%** (4,059) | **no demonstrated edge** — +1.8% over 7,514 bets |
 | `sacks` | — | **+0.6%** (494) | **+3.8%** (585) | **no demonstrated edge** — +0.6% over 494 bets |
-| `tackles_assists` | **+12.7%** (1,447) | **+11.2%** (1,661) | **+12.6%** (1,319) | replicates positive — +11.9% over 3,108 bets |
+| `tackles_assists` | **-0.4%** (1,139) | **-1.8%** (1,497) | **+8.5%** (1,351) | **no demonstrated edge** — -1.2% over 2,636 bets |
 
 Each cell is ROI with the bet count. **Bold** means the season cleared the 200-bet minimum declared in advance; below it no verdict is offered however good the number looks.
 

@@ -4,10 +4,10 @@ A sound harness returns roughly the vig here. If betting everything makes money,
 
 | Season | Bets | ROI |
 |:-------|-----:|----:|
-| 2023 | 84,167 | -5.62% |
-| 2024 | 136,725 | -8.27% |
-| 2025 | 145,833 | -12.81% |
-| **all** | 366,725 | -9.47% |
+| 2023 | 84,167 | -5.61% |
+| 2024 | 136,725 | -7.90% |
+| 2025 | 145,833 | -12.72% |
+| **all** | 366,725 | -9.29% |
 
 **The baseline is not flat across seasons**, and that matters more than it looks: a market whose ROI falls by seven points between two seasons may simply be sitting on a baseline that fell by seven points. Raw ROIs compared across seasons without this are comparing two different questions.
 
@@ -28,7 +28,7 @@ A sound harness returns roughly the vig here. If betting everything makes money,
 | 2023 | `rush_attempts` | 2,300 | -5.02% |
 | 2023 | `rush_longest` | 2,741 | -5.79% |
 | 2023 | `rush_yards` | 11,538 | -6.04% |
-| 2023 | `tackles_assists` | 4,575 | -5.11% |
+| 2023 | `tackles_assists` | 4,575 | -5.00% |
 | 2024 | `anytime_td` | 3,051 | -2.34% |
 | 2024 | `defensive_interceptions` | 369 | -40.95% |
 | 2024 | `field_goals` | 1,296 | -9.69% |
@@ -48,7 +48,7 @@ A sound harness returns roughly the vig here. If betting everything makes money,
 | 2024 | `rush_tds` | 102 | -16.27% |
 | 2024 | `rush_yards` | 19,871 | -6.57% |
 | 2024 | `sacks` | 3,808 | -7.41% |
-| 2024 | `tackles_assists` | 8,558 | -19.85% |
+| 2024 | `tackles_assists` | 8,558 | -14.05% |
 | 2025 | `anytime_td` | 2,968 | +0.02% |
 | 2025 | `defensive_interceptions` | 621 | -28.73% |
 | 2025 | `field_goals` | 1,594 | -13.25% |
@@ -66,4 +66,4 @@ A sound harness returns roughly the vig here. If betting everything makes money,
 | 2025 | `rush_longest` | 3,977 | -5.36% |
 | 2025 | `rush_yards` | 19,575 | -13.06% |
 | 2025 | `sacks` | 4,026 | -11.90% |
-| 2025 | `tackles_assists` | 6,938 | -11.76% |
+| 2025 | `tackles_assists` | 6,938 | -9.86% |
