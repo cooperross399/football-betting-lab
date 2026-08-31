@@ -479,3 +479,50 @@ def test_settlement_joins_on_identity_not_spelling() -> None:
     assert "player.casefold()" not in source, (
         "a casefolded raw name is the defect this test exists to prevent"
     )
+
+
+def test_a_snapshot_frozen_before_calibration_existed_still_settles(tmp_path):
+    """The ledger on `card-feed` predates the calibrated columns.
+
+    Every run restores that branch before it starts, so the first run after
+    this change settles rows that have no `calibrated_probability` at all. They
+    must settle to NaN rather than raise — an older opinion is still an
+    opinion, and losing the ledger to a schema change is the one failure this
+    organ cannot survive.
+    """
+    from football_betting_lab.forward_evidence import LEDGER_COLUMNS, append_ledger
+
+    old = pd.DataFrame(
+        [
+            {
+                "snapshot_date": "2026-09-09",
+                "market": "rush_yards",
+                "selection": "over",
+                "outcome": "won",
+                "profit_units": 0.91,
+            }
+        ]
+    )
+    ledger = tmp_path / "forward_evidence.csv"
+    old.to_csv(ledger, index=False)
+
+    new = pd.DataFrame(
+        [{c: None for c in LEDGER_COLUMNS} | {
+            "snapshot_date": "2026-09-14",
+            "market": "rush_yards",
+            "selection": "under",
+            "outcome": "lost",
+            "profit_units": -1.0,
+            "calibrated_probability": 0.42,
+            "calibrated_edge": 0.01,
+        }]
+    )
+
+    assert append_ledger(new, ledger) == 1
+
+    combined = pd.read_csv(ledger)
+    assert len(combined) == 2
+    assert "calibrated_probability" in combined.columns
+    # The pre-calibration row is blank there, and blank is the honest value.
+    first = combined[combined["snapshot_date"] == "2026-09-09"].iloc[0]
+    assert pd.isna(first["calibrated_probability"])

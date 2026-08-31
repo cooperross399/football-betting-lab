@@ -83,6 +83,15 @@ SNAPSHOT_COLUMNS = (
     "book",
     "model_probability",
     "edge",
+    # Frozen beside the raw number, and blank when the market has no map.
+    # A calibrated probability CANNOT BE BACK-DATED: the ledger records what
+    # was believed before kickoff, so if this is not written from the first
+    # game day the season can never be scored on it, and the bought population
+    # is complete so there is no other source. Blank rather than a copy of the
+    # raw number, because "no map" and "calibrates to itself" must not look
+    # the same a year later.
+    "calibrated_probability",
+    "calibrated_edge",
     "gates_in_force",
 )
 
@@ -140,6 +149,7 @@ def write_snapshot(
     gates_in_force: str,
     snapshot_date: str,
     archive_dir: Path,
+    calibration=None,
 ) -> Path | None:
     """Freeze today's priced opinions. Returns None when one already stands.
 
@@ -187,6 +197,9 @@ def write_snapshot(
             implied = american_to_implied(float(odds))
         except (TypeError, ValueError):
             continue
+        calibrated = (
+            None if calibration is None else calibration.apply(market, probability)
+        )
         rows.append(
             {
                 "snapshot_date": snapshot_date,
@@ -201,6 +214,10 @@ def write_snapshot(
                 "book": clean_text(getattr(row, "book", "")),
                 "model_probability": probability,
                 "edge": probability - implied,
+                "calibrated_probability": calibrated,
+                "calibrated_edge": (
+                    None if calibrated is None else calibrated - implied
+                ),
                 "gates_in_force": gates_in_force,
             }
         )
