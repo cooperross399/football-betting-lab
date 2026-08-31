@@ -33,8 +33,10 @@ from football_betting_lab.reports.price_sensitivity import (
 )
 from football_betting_lab.reports.props_backtest import (
     MINIMUM_BETS,
+    coverage_line,
     label_snapshots,
     load_bought_prices,
+    load_scored_bets,
 )
 from football_betting_lab.reports.settlement_agreement import (
     IMPLIED_GAP_TOLERANCE,
@@ -66,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No backtest bets at {bets_path}.", file=sys.stderr)
         return 2
 
-    bets = pd.read_csv(bets_path)
+    bets = load_scored_bets(bets_path)
     staked = bets[bets["outcome"] != "void"].copy()
     staked["line"] = pd.to_numeric(staked["line"], errors="coerce")
     prices = label_snapshots(
@@ -77,11 +79,22 @@ def main(argv: list[str] | None = None) -> int:
 
     # Settlement suspects, read from the screen's own output so the two
     # cannot drift apart.
+    # Two sets, not one. `suspects` is what the screen FLAGGED; `screened` is
+    # what it actually LOOKED AT. A market the screen never examined is
+    # absent from both, and testing only `not in suspects` printed it as a
+    # pass reading "agrees with the devigged price" — an approval bar cleared
+    # by never having been measured, which is the shape of the tackles
+    # artefact that already cost this lab its headline finding.
     suspects = set()
+    screened = set()
     if settle_path.is_file():
         for line in settle_path.read_text(encoding="utf-8").splitlines():
-            if "settlement suspect" in line and line.startswith("| `"):
-                suspects.add(line.split("`")[1])
+            if not line.startswith("| `"):
+                continue
+            name = line.split("`")[1]
+            screened.add(name)
+            if "settlement suspect" in line:
+                suspects.add(name)
 
     seasons = sorted(staked["season"].unique())
     families = staked["market"].nunique()
@@ -97,12 +110,20 @@ def main(argv: list[str] | None = None) -> int:
             Bar("harness", NULL_BASELINE_ROI < 0,
                 f"betting everything returns {NULL_BASELINE_ROI:+.1%}")
         )
-        entry.bars.append(
-            Bar("settlement", str(market) not in suspects,
-                "agrees with the devigged price"
-                if str(market) not in suspects
-                else f"realised rate sits more than {IMPLIED_GAP_TOLERANCE:.0%} from it")
-        )
+        if str(market) not in screened:
+            entry.bars.append(
+                Bar("settlement", False,
+                    "never screened — the settlement report does not cover "
+                    "this market, so nothing is known about whether it "
+                    "settles on what it was priced on")
+            )
+        else:
+            entry.bars.append(
+                Bar("settlement", str(market) not in suspects,
+                    "agrees with the devigged price"
+                    if str(market) not in suspects
+                    else f"realised rate sits more than {IMPLIED_GAP_TOLERANCE:.0%} from it")
+            )
         if sens is None:
             entry.bars.append(Bar("consensus", False, "no consensus price computed"))
             entry.bars.append(Bar("books", False, "no book quoted enough"))

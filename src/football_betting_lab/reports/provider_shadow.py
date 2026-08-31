@@ -41,7 +41,11 @@ from typing import Any
 import pandas as pd
 
 from football_betting_lab.leagues import League
-from football_betting_lab.markets import bulk_provider_keys, per_event_provider_keys
+from football_betting_lab.markets import (
+    ALTERNATE_PROVIDER_KEYS,
+    bulk_provider_keys,
+    per_event_provider_keys,
+)
 from football_betting_lab.providers.odds_api import (
     ROW_COLUMNS,
     STAGING_PRICES_FILENAME,
@@ -178,6 +182,14 @@ def run_shadow(
         run.errors.append(f"bulk fetch: {exc}")
         bulk = []
 
+    # The fallback target: the markets this lab actually models and settles,
+    # without the alternate ladders that ride along for free.
+    core_markets = tuple(
+        key for key in per_event_markets
+        if key not in set(ALTERNATE_PROVIDER_KEYS)
+    ) or tuple(per_event_markets)
+    degraded_to_core = False
+
     wanted_ids = {str(event.get("id", "")) for event in playable}
     payloads = [event for event in bulk if str(event.get("id", "")) in wanted_ids]
 
@@ -191,8 +203,43 @@ def run_shadow(
             run.stopped_early = str(exc)
             break
         except ProviderError as exc:
-            run.errors.append(f"event {event_id}: {exc}")
-            continue
+            # A 422 is different in kind from any other failure: it means the
+            # provider refused the market LIST, so it will refuse the same
+            # list for every remaining event too. Forty-six keys ride one
+            # request, and one key the provider stops serving would take
+            # every prop on every event with it for the rest of the season,
+            # looking exactly like books not posting props. That is the
+            # alternate-ladder 422 the bulk endpoint already taught this
+            # family of labs, one endpoint over.
+            #
+            # So a 422 falls back once to the core per-event markets — the
+            # ones this lab models and settles — and records what it dropped.
+            # Losing the alternate ladders is a bounded, stated loss; losing
+            # every prop silently is not.
+            if "422" in str(exc) and tuple(per_event_markets) != tuple(core_markets):
+                try:
+                    extra = provider.fetch_event_odds(
+                        event_id, core_markets, spend=run.spend,
+                        credit_cap=credit_cap,
+                    )
+                except CreditCapReached as cap_exc:
+                    run.stopped_early = str(cap_exc)
+                    break
+                except ProviderError as retry_exc:
+                    run.errors.append(f"event {event_id}: {retry_exc}")
+                    continue
+                if not degraded_to_core:
+                    degraded_to_core = True
+                    dropped = sorted(set(per_event_markets) - set(core_markets))
+                    run.errors.append(
+                        "the provider refused the full per-event market list "
+                        f"with a 422, so this run fell back to {len(core_markets)} "
+                        f"core markets and dropped {dropped}. Those markets are "
+                        "absent from this run, not empty."
+                    )
+            else:
+                run.errors.append(f"event {event_id}: {exc}")
+                continue
         if extra:
             payloads.append(extra)
 

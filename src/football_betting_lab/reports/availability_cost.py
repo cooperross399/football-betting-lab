@@ -119,11 +119,16 @@ def measure(bets: pd.DataFrame, designations: pd.Series) -> AvailabilityResult:
     return result
 
 
-def render(result: AvailabilityResult, *, market: str = "all markets") -> str:
+def render(
+    result: AvailabilityResult, *, market: str = "all markets", coverage: str = ""
+) -> str:
     lines: list[str] = []
     add = lines.append
     add(f"# What does not knowing who will play cost? — {market}")
     add("")
+    if coverage:
+        add(coverage)
+        add("")
     add(
         "This lab has refused to let any player prop produce a selection, "
         "because inactives are declared ninety minutes before kickoff and no "

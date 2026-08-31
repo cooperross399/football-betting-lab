@@ -18,7 +18,10 @@ from football_betting_lab.config import OUTPUTS_DIR, RAW_DIR
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.providers.historical import CACHE_DIRNAME
 from football_betting_lab.reports import clv
-from football_betting_lab.reports.props_backtest import load_bought_prices
+from football_betting_lab.reports.props_backtest import (
+    load_bought_prices,
+    load_scored_bets,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -31,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     if not bets_path.is_file():
         print(f"No backtest bets at {bets_path}.", file=sys.stderr)
         return 2
-    bets = pd.read_csv(bets_path)
+    bets = load_scored_bets(bets_path)
     prices = load_bought_prices(RAW_DIR / league.data_dir_segment / CACHE_DIRNAME, league)
 
     result = clv.measure(bets, prices)

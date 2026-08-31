@@ -402,6 +402,15 @@ def _game_weeks(
         parts = str(row.game_id).split("_")
         if len(parts) == 4:
             index[(parts[2], parts[3])] = int(row.week)
+    if not prices.empty and "commence_time" not in prices.columns:
+        # The mirror of the fail-open above, and just as quiet: with no
+        # kickoff to read, every event failed the season check and the
+        # function returned an empty mapping, which reads downstream as "no
+        # priced event was played that season" rather than as a fault.
+        raise ValueError(
+            "prices have no `commence_time`, so no event can be matched to "
+            "the season it was played in."
+        )
     weeks: dict[str, int] = {}
     for event_id, frame in prices.groupby("event_id"):
         first = frame.iloc[0]
@@ -432,8 +441,22 @@ def events_in_season(
     that looks obviously right, is wrong at a boundary, and produces a
     plausible number rather than an error.
     """
-    if prices.empty or "commence_time" not in prices.columns:
+    if prices.empty:
         return prices
+    if "commence_time" not in prices.columns:
+        # It used to return the frame unchanged here, which is the worst of
+        # the three options: a caller that has dropped the kickoff column
+        # asked "which of these were played in 2023?" and was handed all
+        # three seasons with no indication anything had gone wrong. The
+        # settlement screen did exactly that — it pivots to one row per
+        # wager and the pivot does not carry `commence_time` — and the
+        # screen that exists to catch mis-settlement was itself measuring
+        # nothing while printing a clean bill of health.
+        raise ValueError(
+            "prices have no `commence_time`, so which season an event "
+            "belongs to cannot be answered. Carry the kickoff through "
+            "whatever reshaped this frame."
+        )
     belongs = prices["commence_time"].map(
         lambda value: _event_season(value, league) == season
     )
@@ -686,3 +709,46 @@ def render(result: BacktestResult) -> str:
         "rather than counted as a zero."
     )
     return "\n".join(lines) + "\n"
+
+
+def load_scored_bets(path: Path) -> pd.DataFrame:
+    """Read a scored-bets file, refusing one that will not say what it covers.
+
+    Four reports read this file and every one of them phrases its findings as
+    if the file were the whole bought population. That is only true when the
+    replication run wrote it. A single-season backtest used to write the same
+    filename, so whichever script ran last silently decided what "the
+    evidence" meant, and a one-season file scored under a three-season
+    heading produced a number that was not wrong so much as unanswerable.
+
+    The `season` column is the fix and the check: it is what makes coverage
+    legible, so a file without it is refused rather than assumed.
+    """
+    frame = pd.read_csv(path, low_memory=False)
+    if "season" not in frame.columns:
+        raise ValueError(
+            f"{path} has no `season` column, so nothing here can state what it "
+            "covers. Rebuild it with scripts/run_props_replication.py."
+        )
+    return frame
+
+
+def coverage_line(bets: pd.DataFrame) -> str:
+    """One sentence naming the seasons and events behind every number below.
+
+    Printed at the top of each report that reads the scored-bets file, so a
+    partial rebuild announces itself in the artifact rather than in whoever
+    happens to check the file's timestamp.
+    """
+    if bets.empty:
+        return "**Covers no bets.**"
+    seasons = sorted({int(s) for s in bets["season"].dropna().unique()})
+    events = bets["event_id"].nunique() if "event_id" in bets.columns else 0
+    span = ", ".join(str(s) for s in seasons) if seasons else "no season"
+    return (
+        f"Measured over **{len(bets):,} scored bets** on **{events:,} games** "
+        f"across season {span}."
+        if len(seasons) == 1
+        else f"Measured over **{len(bets):,} scored bets** on **{events:,} "
+        f"games** across seasons {span}."
+    )

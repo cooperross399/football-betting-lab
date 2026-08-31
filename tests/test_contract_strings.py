@@ -86,3 +86,42 @@ def test_the_card_consults_the_quota_guard_before_fetching() -> None:
     )
 
     assert "sufficient_quota" in script
+
+
+def _gameday_workflow() -> str:
+    from pathlib import Path
+
+    return (
+        Path(__file__).resolve().parents[1]
+        / ".github" / "workflows" / "football-gameday-refresh.yml"
+    ).read_text(encoding="utf-8")
+
+
+def test_the_already_published_guard_can_authenticate() -> None:
+    """The repository is private, so an unauthenticated fetch fails open and
+    the backup trigger never stands down — two fetches and two cards a day."""
+    text = _gameday_workflow()
+    guard = text.split("already-published:", 1)[1].split("\n  card:", 1)[0]
+
+    assert "x-access-token" in guard
+    assert "GH_TOKEN" in guard
+
+
+def test_every_date_in_the_workflow_is_the_league_date() -> None:
+    """The card stamps its slate in league time. A guard or a publish step
+    comparing UTC is a third calendar for one slate."""
+    text = _gameday_workflow()
+
+    assert "date -u +%F" not in text
+    assert text.count("TZ=America/New_York date +%F") >= 2
+
+
+def test_the_feed_never_publishes_the_absence_of_evidence() -> None:
+    """The tree is rebuilt from local files under `if: always()`, so a run
+    that died before the restore holds no ledger. Publishing that tree would
+    replace a season of settled opinions with a commit that omits them."""
+    text = _gameday_workflow()
+
+    assert "carried_ledger.csv" in text
+    assert "refs/card-feed-tip:forward_evidence.csv" in text
+    assert "refs/card-feed-tip:snapshots" in text

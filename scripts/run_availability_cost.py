@@ -14,6 +14,7 @@ import pandas as pd
 from football_betting_lab.config import OUTPUTS_DIR, RAW_DIR
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import availability_cost
+from football_betting_lab.reports.props_backtest import coverage_line, load_scored_bets
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -28,7 +29,7 @@ def main(argv: list[str] | None = None) -> int:
     if not bets_path.is_file():
         print(f"No backtest bets at {bets_path}.", file=sys.stderr)
         return 2
-    bets = pd.read_csv(bets_path)
+    bets = load_scored_bets(bets_path)
     if args.market:
         bets = bets[bets["market"] == args.market]
         if bets.empty:
@@ -61,7 +62,9 @@ def main(argv: list[str] | None = None) -> int:
         + "|" + bets["week"].astype(str)
     )
     result = availability_cost.measure(bets, keys.map(lookup))
-    report = availability_cost.render(result, market=args.market or "all markets")
+    report = availability_cost.render(
+        result, market=args.market or "all markets", coverage=coverage_line(bets)
+    )
     suffix = f"_{args.market}" if args.market else ""
     (OUTPUTS_DIR / league.output_name(f"availability_cost{suffix}", ".md")).write_text(
         report, encoding="utf-8"
