@@ -95,6 +95,34 @@ def main(argv: list[str] | None = None) -> int:
     slate_date = args.slate_date or game_date(now.isoformat(), league)
     preseason: list[str] = []
 
+    # A rehearsal of a FUTURE slate could not see its own games. The fetch
+    # window is anchored to today — `horizon = moment.date()` in run_shadow,
+    # keeping events where `0 <= day - today < horizon_days` — and the staged
+    # prices are then filtered to `slate_date`. With a horizon of one day
+    # those two filters are mutually exclusive for every date but today, so
+    # the rehearsal fetched today's board, kept the slate date's rows, and
+    # reported "no games in scope" no matter what the books had posted.
+    #
+    # That made the one tool built to prove readiness BEFORE the season
+    # structurally blind: it exercised the plumbing and priced nothing, and
+    # said so in language indistinguishable from a real empty slate. The
+    # window is therefore widened to reach the date being rehearsed.
+    horizon_days = args.horizon_days
+    if args.slate_date:
+        reach = (
+            date.fromisoformat(slate_date)
+            - date.fromisoformat(game_date(now.isoformat(), league))
+        ).days
+        if reach >= horizon_days:
+            horizon_days = reach + 1
+            print(
+                f"Rehearsing {slate_date}, which is {reach} day(s) out, so "
+                f"the fetch window is widened to {horizon_days} day(s). "
+                "Without this the fetch would cover today and the price "
+                "filter would keep the rehearsed day, which intersect "
+                "nowhere."
+            )
+
     # A rehearsal must not touch the evidence, and the sharp edge is not
     # obvious: pricing Week 1 twelve days early would freeze a snapshot dated
     # for the real slate, and on the day itself `write_snapshot` would find one
@@ -139,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
                 league,
                 raw_dir=RAW_DIR,
                 season=args.season,
-                horizon_days=args.horizon_days,
+                horizon_days=horizon_days,
                 credit_cap=args.credit_cap,
                 now=now,
                 tier=args.tier,
