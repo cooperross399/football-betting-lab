@@ -536,6 +536,45 @@ was the one question this lab was blocked on. It is now the difference
 between roughly zero and clearly negative. **It is still worth answering
 before anything is acted on, but nothing waits on it.**
 
+## The measurement window is not the card's window
+
+**Found 2026-08-31, nine days before Week 1, while auditing the sibling NHL
+lab for the same defect.**
+
+Every bought price is at **T−60 minutes** (`CARD_TIME_LEAD_MINUTES = 60`).
+The card runs at **14:00 UTC = 10:00 ET**, which for a 13:00 ET kickoff is
+**T−180 minutes**; the 21:00 UTC backup is *after* the early slate starts and
+those games are quarantined by the kickoff guard.
+
+That two-hour gap straddles the one deadline this lab cares most about.
+**NFL inactives are declared ninety minutes before kickoff:**
+
+| | inactives public? |
+|:--|:--|
+| T−60 min — where every number here was measured | **yes** |
+| T−180 min — where the card actually runs | **no** |
+
+**The measurement sits inside the inactives window; the card sits outside
+it.** Every figure above therefore describes a world in which you already
+know who is playing, and the card does not live in that world.
+
+This lab gates player props precisely because inactives are unknowable at
+card time — and then measured those props at an hour when they were knowable.
+Both statements cannot be load-bearing at once.
+
+**What follows, and what does not.** It does not rescue anything: the
+compound-versus-count split died of a cross-season settlement defect and
+`tackles_assists` of a settlement offset, neither of which is a timing
+question. What it does mean is that **any future positive result at T−60
+must be re-measured at the card's real window before it means anything.**
+
+And it sharpens the availability question rather than answering it. The NHL
+lab is currently buying its own second window to ask whether its card simply
+runs at the wrong hour. For football the honest answer may be that **no hour
+works** — ninety minutes is inside every plausible card time, so the
+availability gate would be permanent rather than provisional. Worth settling
+deliberately rather than inheriting.
+
 ## The verdict
 
 **No demonstrated edge anywhere, on the full available population.** 816
