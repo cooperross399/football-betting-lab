@@ -118,3 +118,41 @@ def test_checking_nothing_is_an_absence_not_a_pass() -> None:
 
     assert "absence, not a pass" in text
     assert "asymmetry" not in text
+
+
+def test_the_fair_joint_of_two_binaries_is_pinned_by_their_correlation() -> None:
+    """No copula choice is needed for two binary legs — the correlation IS the
+    dependence. P(A and B) = P(A)P(B) + rho*sqrt(P(A)(1-P(A))P(B)(1-P(B)))."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "check_parlay_pricing",
+        Path(__file__).resolve().parents[1] / "scripts" / "check_parlay_pricing.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    # Independent legs: the joint is the product.
+    assert module.fair_joint(0.5, 0.5, 0.0) == pytest.approx(0.25)
+    # Perfectly correlated equal legs: the joint is the marginal.
+    assert module.fair_joint(0.5, 0.5, 1.0) == pytest.approx(0.5)
+    # Strongly correlated, the realised receiving figure.
+    assert module.fair_joint(0.5, 0.5, 0.8) == pytest.approx(0.45)
+
+
+def test_a_correlation_implying_an_impossible_joint_is_clipped() -> None:
+    """A joint cannot exceed either marginal, nor fall below P(A)+P(B)-1. A
+    correlation that implies otherwise is a measurement error, not a price."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "check_parlay_pricing",
+        Path(__file__).resolve().parents[1] / "scripts" / "check_parlay_pricing.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    assert module.fair_joint(0.2, 0.9, 1.0) == pytest.approx(0.2)
+    assert module.fair_joint(0.8, 0.9, -1.0) == pytest.approx(0.7)
