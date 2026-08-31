@@ -8,14 +8,24 @@ This is the third time, and it is written first again.
 
 ## The current position, stated plainly
 
-**Nothing has been measured. There is no model, no fitted parameter, no
-backtest, and no evidence of any kind about whether this works.** The only
-numbers in this repository today are counts of games and counts of credits.
-Anything this lab says before Week 1 that sounds like a finding is a bug.
+**No demonstrated edge anywhere, on the complete available historical
+population.** 816 games — every NFL game for which the provider serves
+historical props — two priced snapshots each, 5.67M price rows, four
+independent instruments, and **0 of 18 markets clearing the bars declared in
+advance**. Every market's family-corrected interval includes zero, which in
+this document's own words means *no demonstrated edge*.
 
-The card, when it exists, will say in those words that it is accumulating
-evidence rather than making recommendations. That is not modesty. It is the
-accurate description of a lab whose entire evidence base is empty.
+**Three defects were found after the first findings were written up, and
+between them they had manufactured every positive result this lab ever
+reported.** Cross-season settlement, a walk-forward leak in the per-play
+yardage file, and zero-inflation in the count fits. Each is fixed with a
+regression test; the account is in `CLAUDE.md` under *Three defects, and the
+numbers after them*. Two headline findings — `rush_yards` and the
+compound-versus-count split — were retracted as a result, and this document
+records both retractions rather than quietly restating the corrected number.
+
+The card says in those words that it is accumulating evidence rather than
+making recommendations. That is not modesty. It is what the evidence says.
 
 ## The rules this document enforces
 
@@ -240,37 +250,27 @@ An excluded market is never reported as a pass, an avoid, or a no-value call.
 
 ## The first priced results, and how to read them
 
-Two priced tests have now run. Both say the same thing about the models as a
-whole, and one of them raises a question.
-
 **The team model does not beat the closing line.** Moneyline −6.2% over 1,923
 bets, spread −1.9% over 1,886, total −1.8% over 1,708, every interval
 including zero. Free, back to 2016, and conservative in two directions:
 it bets into the close and uses one consensus line rather than the best of
 nine books.
 
-**The prop models lose against real bought prices.** Pooled −6.7% over 24,470
-bets, family-corrected interval −12.4% to −1.1%. The interval excludes zero
-and it is **negative**. That is a result, not an absence of one.
+**The prop models lose against real bought prices.** 2023 −1.6% over 18,062
+bets, 2024 −2.1% over 29,394, 2025 −5.2% over 31,317. Against a null baseline
+of −9.47%, the model is better than betting at random and still loses. That is
+a result, not an absence of one.
 
-**`tackles_assists` returned +16.2% over 941 bets and is not a finding.**
+**`tackles_assists` returned +11.7% on its held-out seasons and is not a
+finding.** It is the one market that replicates and the one market the
+settlement screen flags, and those are the same fact. The section below is the
+whole of why.
 
-This document exists to make that last sentence stick, so the reasoning is
-spelled out rather than summarised:
-
-* It survives every check that can be run for free. The halves agree, 223
-  distinct players are involved, the best single game is 7% of the profit, and
-  removing that game leaves +15.1%.
-* Settlement was suspected first and cleared: at the featured line the Over
-  hits 47.7%, so what nflverse records and what the books settle are not
-  drifting apart.
-* The count model it uses was calibrated afterwards and is roughly centred.
-
-And none of that is replication. It is **one season, 67% sampled, one of
-eighteen markets tested**. A market selected because it looked good in a sample
-is exactly the market most likely to have looked good by chance, and the
-correction for that is not a wider interval — it is a season the market was
-not selected on. Until that exists, the honest word is **candidate**.
+The failure mode this guards against is specific and this repository has
+watched it happen — three times now, on its own numbers: a suggestive cell
+survives every test anyone thinks to run, gets described as "promising" once,
+and is a shipped policy three sessions later with nobody able to say when it
+stopped being a candidate.
 
 The failure mode this guards against is specific and this repository has
 watched it happen elsewhere: a suggestive cell survives every test anyone
@@ -283,15 +283,17 @@ candidate.
 **Replication does not protect against a systematic settlement offset**, and
 this repository has now proved it the expensive way.
 
-`tackles_assists` returned +16.1%, +14.9% and +18.2% across three seasons. It
-survived split-half, fragility, a 223-player spread, and a Bonferroni
-correction across twenty markets. Two seasons of it were held out from the
-selection. By every standard this document sets, it had replicated.
+`tackles_assists` returns +12.4%, +11.2% and +12.6% across three seasons, and
+**+11.7% over 3,109 held-out bets** after the family correction. It survives
+split-half, fragility, a 223-player spread, and is positive at **8 of 8** books
+at the consensus price. By every standard this document sets, it has
+replicated.
 
-It was an artefact. nflverse records about half a tackle per player-game fewer
-than the books settle on, the featured market is priced at 50% over and lands
-over 42% of the time, and that eight-point gap is worth 16% to a model that
-takes the under — which the model did, 86% of the time.
+It is an artefact. nflverse records about half a tackle per player-game fewer
+than the books settle on, the featured market is priced at 50% over across
+6,575 featured wagers and lands over 42% of the time, and that seven-point gap
+is worth **15%** to a model that takes the under — which the model does, 86%
+of the time. The measured return is +11.7%. Those are the same number.
 
 **A constant offset replicates by construction.** It is the one defect that
 survives every check a backtest can run on itself, because every one of those
@@ -311,11 +313,13 @@ Two things caught it, and only two:
 So both now run before any result is believed:
 `scripts/run_null_baseline.py` and `scripts/run_settlement_agreement.py`.
 
-**And passing the settlement screen is not a clean bill of health.**
-`rush_yards` sits three points inside the tolerance, which is worth 5% to a
-one-sided model against a measured +12.4%. Five of those points are
-settlement. Seven are not yet explained, and that is the whole of what this
-lab currently has.
+**And an empty screen is not a pass either.** The screen once rendered an
+empty table above the words *"No market is a settlement suspect"*, because a
+reshaped price frame had dropped the kickoff column and every event failed its
+season match. The screen that exists to catch silent mis-settlement was itself
+silently measuring nothing while printing a clean bill of health. It now says
+so explicitly, and the two functions that made it possible — one failing open,
+one failing closed, on the same missing column — raise instead.
 
 ## Where this actually stands
 
@@ -325,44 +329,81 @@ on priced evidence rather than on an absence of it.
 Four instruments, each built to catch a different failure, and they agree:
 
 * **The null baseline.** Betting every priced selection with no model returns
-  −9.28% over 385,495 bets. A harness that made money here would invalidate
-  everything computed on it.
+  **−9.47% over 366,725 bets**. A harness that made money here would
+  invalidate everything computed on it.
 * **The settlement screen.** `tackles_assists` is priced 50% over and lands
-  over 42% of the time. Worth 16% to a one-sided model; the measured edge was
-  +16.3%.
-* **Closing-line value**, over a six-hour window: 70% of prices move, and the
-  model's selections split 51/49. `rush_yards` — the last survivor — moves
-  toward the bet 48% of the time against a +13.0% return.
-* **Replication**, which passed, and which this document now records as
-  insufficient on its own.
+  over 42%. Worth 15% to a one-sided model; the measured return is +11.7%. It
+  is the only suspect and the only market that replicates.
+* **Price sensitivity.** **No market is profitable at the consensus price**
+  except the artefact. `rush_yards`, the market this document twice called a
+  survivor, is **−1.0% at the median quote and positive at 2 of 10 books**.
+* **Replication.** Every one of the eighteen markets returns *no demonstrated
+  edge* on its held-out seasons. The best are `rush_yards` +1.6% over 7,502
+  bets and `pass_yards` +1.1% over 4,502, both with intervals spanning zero
+  several times over.
 
 The honest summary is the one this document opened with, now earned rather
 than assumed: **the evidence says no edge has been demonstrated, on samples
 large enough to mean it.**
 
-## Where `rush_yards` actually stands
+## Where `rush_yards` actually stands, after two retractions
 
-It survives everything built to break it except one thing.
+This section has been written three times. The first two were wrong, and both
+were confident.
 
-* Positive in all three seasons: +19.1%, +10.1%, +10.9%.
-* Held-out pooled **+14.0% over 11,269 bets**, family-corrected.
-* **+8.3% at the consensus price** — the median quote, which line-shopping
-  cannot improve. It is not a shopping premium.
-* **Positive at 10 of 11 books.** It is not one soft book.
-* Settlement contributes **0.3%**: the gap is 2 points and this model bets
-  54% unders, so it is nearly balanced and the gap nearly cancels.
-* **Closing-line value is zero.** 48% of the prices that moved went toward it.
+**It said:** positive in all three seasons at +19.1% / +10.1% / +10.9%,
+held-out pooled **+14.0% over 11,269 bets**, **+8.3% at the consensus price**,
+positive at **10 of 11 books** — "it survives everything built to break it
+except one thing", the one thing being closing-line value, which this document
+then argued did not matter.
 
-That last line is the only thing against it, and it is not decisive. CLV
-measures whether the market comes round to a view. A structural bias the
-market never corrects produces exactly this pattern: consistent profit, no
-movement. The honest statement is that **the profit evidence is substantial
-and the mechanism is not understood.**
+**It is:**
 
-This document's standing rule still applies: an interval including zero is no
-demonstrated edge. `rush_yards` does not include zero. What it lacks is not
-sample size — it is an explanation, and a single out-of-sample season that
-nobody chose it on. The forward ledger provides the second from 2026-09-09.
+| Test | Result |
+|:---|:---|
+| Three seasons | −0.4%, +2.8%, −0.5% |
+| Held-out pooled | **+1.6% over 7,502 bets** — interval includes zero, **no demonstrated edge** |
+| Consensus price | **−1.0%** |
+| Best of N books | +0.9% |
+| By book | positive at **2 of 10** |
+| Settlement screen | 2-point gap, agrees with the price |
+
+Every number in the first version was computed on bets settled against the
+wrong season, priced by a model whose yardage distribution had seen the future.
+What is left is a **shopping premium at best**: negative at the median quote,
+marginally positive only as the maximum of ten. A number that is negative at
+the price most people can get is not an edge.
+
+**The lesson is not that the numbers changed.** It is that the second version
+of this section was written *after* a correction, in the confident register of
+something that had already survived scrutiny — and it was as wrong as the
+first. A retraction is not evidence that what replaces it is right.
+
+## The compound-versus-count split, retracted
+
+This document and `CLAUDE.md` both reported that markets priced by the
+compound simulation pooled to **+3.5%** at the consensus price while the
+count-only markets pooled to **−9.8%**, and called that split *"the strongest
+structure in the evidence"* — a mechanism rather than a market, and the thing
+that should have been led with.
+
+There is no split. It was two defects sitting on opposite sides of the same
+line: the walk-forward leak lifted the compound group, which is the only group
+that consumes the leaked file, and the zero-inflation sank the count group.
+The apparent structure was the gap between two bugs.
+
+| Group | Bets | Best of N | Consensus |
+|:---|---:|---:|---:|
+| Compound-simulation markets (9) | 67,005 | **−4.3%** | **−6.3%** |
+| Count-only markets | 7,340 | **−2.8%** | **−7.5%** |
+
+At the best-of-N price the compound group is the worse of the two; at the
+consensus price they are 1.2 points apart and both are clearly negative. The
++3.5%-against-−9.8% gulf does not exist at either price.
+
+**A finding that is really a mechanism is the most persuasive kind and the
+most dangerous**, because it supplies its own explanation and so stops the
+search for another one.
 
 ## The one thing that is certain
 

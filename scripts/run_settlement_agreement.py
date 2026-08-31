@@ -68,8 +68,16 @@ def main(argv: list[str] | None = None) -> int:
     # count every outcome twice and change nothing but the sample size.
     # Both sides of each featured line, so the pair can be devigged into the
     # market's own probability of the over.
+    # `commence_time` is carried through the pivot deliberately. Without it
+    # the reshaped frame cannot say which season an event was played in, and
+    # this screen silently measured zero wagers while printing "no market is a
+    # settlement suspect" — the one sentence in this repository that must
+    # never be produced by an absence of data.
     sides = prices.pivot_table(
-        index=["event_id", "market", "player", "line", "date", "home_team", "away_team"],
+        index=[
+            "event_id", "market", "player", "line", "date", "commence_time",
+            "home_team", "away_team",
+        ],
         columns="selection",
         values="american_odds",
         aggfunc="max",

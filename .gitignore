@@ -18,3 +18,10 @@ data/raw/nfl/rosters/
 data/raw/nfl/injuries/
 data/processed/*.csv
 data/raw/nfl/historical_prices/
+
+# Single-season backtest bets. `run_props_backtest.py` writes one of these per
+# season; the pooled `*_props_backtest_bets.csv` that four reports read comes
+# only from `run_props_replication.py`. They shared a filename until
+# 2026-08-31, and a partial set of season files committed alongside the pooled
+# one is the same confusion in a different shape.
+data/outputs/*_props_backtest_bets_[0-9]*.csv

@@ -12,6 +12,7 @@ import pandas as pd
 from football_betting_lab.leagues import NFL
 import pytest
 
+from football_betting_lab.reports import props_backtest
 from football_betting_lab.reports.props_backtest import (
     MINIMUM_BETS,
     MarketResult,
@@ -376,3 +377,53 @@ def test_a_calendar_year_filter_would_lose_week_eighteen() -> None:
         if str(row["commence_time"])[:4] == "2025"
     }
     assert naive == {"sept", "jan-previous-season"}
+
+
+def test_events_in_season_refuses_a_frame_without_a_kickoff():
+    """A reshaped price frame cannot be silently assumed to be in season.
+
+    It used to return the frame unchanged, so a caller that had pivoted the
+    kickoff column away asked "which of these were played in 2023?" and was
+    handed all three seasons with nothing to indicate the question had gone
+    unanswered.
+    """
+    frame = pd.DataFrame({"event_id": ["a"], "home_team": ["DET"]})
+    with pytest.raises(ValueError, match="commence_time"):
+        props_backtest.events_in_season(frame, NFL, 2023)
+
+
+def test_game_weeks_refuses_a_frame_without_a_kickoff():
+    """The mirror failure, which was just as quiet.
+
+    With no kickoff to read, every event failed its season check and the
+    function returned an empty mapping — indistinguishable downstream from
+    "no priced event was played that season".
+    """
+    frame = pd.DataFrame({"event_id": ["a"], "home_team": ["DET"], "away_team": ["CHI"]})
+    logs = pd.DataFrame({"season": [2023], "week": [1], "game_id": ["2023_01_CHI_DET"]})
+    with pytest.raises(ValueError, match="commence_time"):
+        props_backtest._game_weeks(logs, frame, NFL, 2023)
+
+
+def test_load_scored_bets_refuses_a_file_that_cannot_say_what_it_covers(tmp_path):
+    """Four reports read this file and all four phrase findings as if it were
+    the whole bought population. A file with no season column cannot support
+    that sentence, so it is refused rather than assumed."""
+    path = tmp_path / "bets.csv"
+    pd.DataFrame({"market": ["rush_yards"], "profit": [1.0]}).to_csv(path, index=False)
+    with pytest.raises(ValueError, match="season"):
+        props_backtest.load_scored_bets(path)
+
+
+def test_coverage_line_names_every_season_behind_the_numbers():
+    bets = pd.DataFrame(
+        {
+            "season": [2023, 2024, 2024],
+            "event_id": ["a", "b", "b"],
+            "profit": [1.0, -1.0, 0.5],
+        }
+    )
+    line = props_backtest.coverage_line(bets)
+    assert "2023, 2024" in line
+    assert "3 scored bets" in line
+    assert "2 games" in line

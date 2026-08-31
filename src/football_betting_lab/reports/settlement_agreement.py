@@ -227,8 +227,22 @@ def render(result: AgreementResult) -> str:
             "turn a three-season, family-corrected, split-half-stable +16% "
             "into the vig."
         )
-    else:
+    elif result.markets:
         add("**No market is a settlement suspect.**")
+    else:
+        # An empty screen is not a pass. It printed "no market is a settlement
+        # suspect" over an empty table once, after a reshaped price frame
+        # dropped the kickoff column and every event failed its season match:
+        # the exact screen that exists to catch a silent mis-settlement,
+        # reporting a clean bill of health because it had measured nothing.
+        add(
+            "**This screen measured nothing, and that is a fault, not a "
+            "pass.** No market cleared the minimum featured-wager count, so "
+            "nothing here has been screened for settlement disagreement and "
+            "no result downstream of it should be believed. Check that the "
+            "price frame reaching this script still carries both sides and "
+            "its kickoff."
+        )
     add("")
     add(
         "**Passing the screen is not a clean bill of health.** A wager at "
@@ -247,3 +261,26 @@ def render(result: AgreementResult) -> str:
         "screen that fires on everything is ignored."
     )
     return "\n".join(lines) + "\n"
+
+
+def suspects_and_screened(report: str) -> tuple[set[str], set[str]]:
+    """Read a rendered screen back: what it flagged, and what it looked at.
+
+    Two sets, not one. A market the screen never examined is absent from both,
+    and a caller testing only `market not in suspects` prints it as a pass
+    reading "agrees with the devigged price" — an approval bar cleared by
+    never having been measured. That is the same shape as the artefact that
+    already cost this lab its headline finding twice, so the distinction is
+    kept here rather than re-derived by each reader.
+    """
+    suspects: set[str] = set()
+    screened: set[str] = set()
+    for line in report.splitlines():
+        if not line.startswith("| `"):
+            continue
+        name = line.split("`")[1]
+        screened.add(name)
+        if "settlement suspect" in line:
+            suspects.add(name)
+    return suspects, screened
+

@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 
 from football_betting_lab.reports.price_sensitivity import (
+    BookResult,
     MarketSensitivity,
     from_implied,
     measure,
@@ -135,3 +136,39 @@ def test_no_books_means_no_claim() -> None:
     entry = MarketSensitivity(market="x", best_of_n_roi=0.2, consensus_roi=0.2)
 
     assert "no book quoted enough" in entry.reading()
+
+
+def test_a_market_negative_at_every_price_is_not_called_a_shopping_premium() -> None:
+    """"Shopping premium" claims the edge exists at the best of N quotes.
+
+    That requires the best of N to be positive. Without the check, a market
+    losing money at the consensus *and* at the best price available anywhere
+    was still described as having an edge you could shop for — the most
+    flattering possible reading of a market that loses at every price a human
+    could take.
+    """
+    entry = MarketSensitivity(
+        market="rush_attempts",
+        best_of_n_roi=-0.078,
+        consensus_roi=-0.110,
+        books=[BookResult(book=f"b{i}", bets=500, roi=-0.05) for i in range(8)],
+    )
+
+    reading = entry.reading()
+
+    assert "shopping premium" not in reading
+    assert "loses at every price" in reading
+
+
+def test_a_market_positive_only_at_the_best_of_n_is_still_a_shopping_premium() -> None:
+    entry = MarketSensitivity(
+        market="rush_yards",
+        best_of_n_roi=0.009,
+        consensus_roi=-0.010,
+        books=[
+            BookResult(book=f"b{i}", bets=500, roi=0.02 if i < 2 else -0.04)
+            for i in range(10)
+        ],
+    )
+
+    assert "shopping premium" in entry.reading()

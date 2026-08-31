@@ -40,15 +40,17 @@ Every session, in this order. These replace chat history as project memory.
 
 ## Current operating state
 
-**As of 2026-08-28. Nothing has been measured. There is no model, no fitted
-parameter, no backtest, and no evidence of any kind about whether this works.**
-The only numbers in this repository are counts of games, markets and credits.
-Anything that sounds like a finding before Week 1 is a bug.
+**As of 2026-08-31. Everything is measured and the answer is no demonstrated
+edge.** The models exist, the full available historical population is bought
+and scored, and four independent instruments agree that nothing clears the
+bars declared in advance. Three defects that had manufactured every earlier
+positive result are fixed. **No market is allowlisted, nothing is bet, and
+that is the correct state.**
 
 - **Week 1 opens Wednesday 2026-09-09**, NE @ SEA, 20:20 ET — **not** the
   Thursday after Labor Day, which is the season's second game (SF @ LA,
   2026-09-10). Verified against the nflverse schedule, as the brief instructed,
-  rather than assumed. That is **12 days from today**.
+  rather than assumed. That is **9 days from today**.
 - **The 2026 regular season is 272 games across 57 game days**, 2026-09-09 to
   2027-01-10, weeks 1-18. Largest slate: 16 games on 2027-01-10, all
   simultaneous.
@@ -263,11 +265,11 @@ Anything that sounds like a finding before Week 1 is a bug.
   `getattr(..., None)` default turned a missing column into a quietly skipped
   market. A missing price column is now an error.
 
-- **The historical purchase is under way and 67% of the 2025 card-time
-  snapshot is bought.** 183 of 272 events, **69,964 credits** against a 70,000
-  cap, zero failures, stopped cleanly at the cap. **9,874 credits remain this
-  month**; the rest waits for the reset, which the free daily quota check will
-  observe rather than assume.
+- **The historical purchase is complete and cannot grow.** 587,732 credits,
+  5.67M price rows, **816 events across 2023-2025 — every NFL game for which
+  historical props exist**, both snapshots on 815 of them. The provider serves
+  props only after 2023-05-03, so there is no more to buy. 4,473,866 credits
+  left. The only evidence that can still grow is forward, from 2026-09-09.
 - **A partial purchase is a sample, not a prefix.** Events are bought in an
   order whose every prefix is spread across the season, so the 67% covers
   every week at 62-73%. The first ordering left the kickoff *windows* uneven
@@ -275,38 +277,19 @@ Anything that sounds like a finding before Week 1 is a bug.
   by window; the order is now stratified by window, measured against three
   alternatives, and the residual week imbalance is structural — 21 Thursday
   games across 18 weeks cannot be two-thirds sampled evenly.
-- **Still to buy**: the remaining 89 card-time events (~34,000) and the full
-  close snapshot (~99,000). Roughly 133,000, or 1.3 months.
+- **The stratified order stopped mattering once the purchase completed**, but
+  it is recorded because a future partial buy will need it again.
 
-- **The prop models lose against real prices, and the sample says so.**
-  767,947 bought rows over 183 events, collapsed to 188,045 distinct wagers
-  (one player, market, line and side is **one bet** quoted by up to nine
-  books; a card takes the best price). Under the shipped bars: **pooled −6.7%
-  over 24,470 bets, family-corrected interval −12.4% to −1.1% — the interval
-  excludes zero and it is negative.** `data/outputs/nfl_props_backtest.md`.
-  This measures the model, not a shippable policy: no player prop can reach a
-  card at all.
-- **Two markets have intervals excluding zero after correction**, and they
-  point opposite ways: `sacks` **−14.2% over 2,164 bets** (confirmed bad) and
-  `tackles_assists` **+16.2% over 941 bets**.
-- **`tackles_assists` is a candidate, not a finding, and must be read as
-  one.** It survives every free check: halves agree (+17.8% early, +14.5%
-  late), 223 distinct players, the best single game is 7% of the profit and
-  removing it leaves +15.1%. Settlement was checked against the books and
-  agrees — at the featured line the Over hits 47.7%, so nflverse's defensive
-  charting is not drifting from what the books settle. **None of that makes it
-  a finding.** It is one season, 67% sampled, one of eighteen markets tested.
-  The standard is replication on a season it was not selected on, and that
-  needs a second season bought — roughly 99,000 credits, Cooper's decision.
-- **Do not act on `tackles_assists`, and do not quietly drop it either.** It
-  is the strongest candidate this lab has produced and it is the reason to
-  prioritise a second season in the next purchase.
+- **Every prop number this file used to carry was wrong, and the corrected
+  answer is that nothing has a demonstrated edge.** Three defects were found
+  after the first round of findings was written up, each of which inflated
+  returns, and all three are fixed with regression tests. The account of what
+  they were and what they cost is below, under *Three defects, and the numbers
+  after them*. Read that before believing any prop figure anywhere.
 - **The count-model markets were calibrated after the backtest, not before**,
   because the props calibration only ever covered the three compound families.
   They are roughly centred (mean PIT 0.51-0.54 across tackles, sacks,
-  interceptions, field goals, kicking points, passing touchdowns). That ruled
-  out the first explanation offered for the tackles result and is why the
-  second one had to be found.
+  interceptions, field goals, kicking points, passing touchdowns).
 
 - **The verdicts door exists and nothing ships through it.**
   `verdicts.py`: an experiment measures a policy, records its verdict as a
@@ -375,222 +358,180 @@ Anything that sounds like a finding before Week 1 is a bug.
   would have inflated every measured edge. The backtest prices card time
   only; the close is for CLV.
 
-## What three seasons of bought prices say
+## Three defects, and the numbers after them
 
-**The purchase completed: 587,732 credits, 5.67M price rows, 816 events across
-2023-2025, both snapshots on 815 of them, 4,473,866 credits left.**
+Between them these produced every positive result this repository has ever
+reported. Each was found by disbelieving a good number, none was found by a
+test that existed at the time, and each now has one.
 
-- **The harness was validated before any result was believed.** Betting every
-  priced selection with no model at all returns **−9.28% over 385,495 bets**
-  (`scripts/run_null_baseline.py`). A sound harness returns roughly the vig
-  here; if betting everything made money, nothing computed on top of it would
-  mean anything.
-- **The null baseline is not flat across seasons**: 2023 −5.2%, 2024 −8.3%,
-  2025 −12.8%. The price samples differ in how soft they are, so **raw ROIs
-  compared across seasons are comparing two different questions.** The pooled
-  model results inherit that gradient almost exactly (+9.6%, +4.2%, −0.0%),
-  which is why the pooled number is not the interesting one.
-- **Two markets replicate positive on seasons they were not selected on.**
-  `tackles_assists` **+16.1% / +14.9% / +18.2%** and `rush_yards` **+14.8% /
-  +10.7% / +12.2%**, across 2023, 2024 and 2025. Held-out pooled, Bonferroni
-  across 20 markets: tackles **+15.5% over 4,849 bets**, rush yards **+12.5%
-  over 12,874**. `receptions` is positive in all three but decaying
-  (+12.6/+7.6/+5.0).
-- **This is the first thing in this lab that has cleared the bar the brief
-  sets**, and four wrong explanations were tested and discarded before it was
-  believed: settlement drift (Over hits ~50% at the featured line in every
-  season), a single soft book (DraftKings shows +16.5% in 2023 and −3.6% in
-  2025, and DraftKings does not misprice by 16%), best-of-N price selection
-  (measured at 0.5 probability points among selected bets and **flat** across
-  seasons, so it cannot explain a gradient), and a broken harness (the null
-  test).
-- **It is still not an edge that can be acted on.** No player prop can reach a
-  card — inactives are declared ninety minutes before kickoff and no available
-  feed publishes them. The model is also badly calibrated (overconfident in
-  every price bucket: it says 0.73 and gets 0.59, says 0.37 and gets 0.17),
-  so *why* it wins is not understood, and a miscalibrated model that wins is a
-  reason for more scrutiny rather than less.
-- **Nothing is allowlisted and nothing is bet.** The next step is the six-step
-  approval in `docs/provider_allowlist_approval.md`, and step six is Cooper's.
+**1. Cross-season settlement.** `_game_weeks` matched a priced event to a
+club pair *within the target season* and ignored the event's own kickoff,
+while the caller handed it all three seasons at once. So a 2023
+Detroit-at-Chicago event was also settled against the 2024 and 2025 meetings
+of the same clubs. **406 of 794 events settled against more than one season;
+100,466 of 148,587 bets were on such events.** One 2023 event appears 286
+times in the bets file across three "seasons". The minimum-edge filter then
+selected exactly the wagers where the stale line was most wrong, so the
+mis-settled rows carried all of the apparent edge: **+23.5% against −6.4% on
+the rows that settled against their own game.** It did not look like a bug.
+It looked like three seasons of replication.
 
-## The tackles finding is dead, and how it died
+**2. A walk-forward leak.** `play_yardage.json` was built over every season
+pooled and loaded once, outside the per-week loop, so the per-play yardage
+distribution used to price week 1 of 2023 had seen 2025. **Only the compound
+markets consume it** — which is precisely why the compound group looked good
+and the count group did not.
 
-**`tackles_assists` is a settlement artefact, not an edge.** The screen is one
-number: the featured market is priced at **50% over** and the outcome lands
-over **42%** of the time. That eight-point gap is worth **16%** to a model
-that consistently takes the under — and the measured "edge" was **+16.3%**.
-Those are the same number.
+**3. Zero-inflation in the count fits.** `fit_rates` conditioned on
+appearance, so `sacks` was fitted at **0.978 a game against a league mean of
+0.073** — a thirteen-fold over-prediction. That is why the model took the
+Over on 92% of sacks and lost.
 
-nflverse records about half a tackle per player-game fewer than whatever the
-books settle on. At a +0.5 offset the entire edge vanishes and both sides
-return the vig.
+### What is left after all three
 
-**This is the defect a backtest cannot catch by checking itself.** A
-settlement offset is *constant*, so it replicated perfectly across three
-seasons, survived split-half, survived fragility, survived a Bonferroni
-correction across twenty markets, and had **no closing-line value** — which
-was the only signal that ever pointed at it, and which I read as inconclusive
-because I had bought too narrow a window.
-
-`scripts/run_settlement_agreement.py` now runs this screen before any result
-is believed. It compares the realised over rate to the **devigged price**, not
-to a half — the naive version flagged `anytime_td`, where 13% is exactly
-right, and the yardage markets on an absolute gap of 2.5 yards against a
-37-yard line.
-
-- **Sixteen of seventeen markets agree with their price** within three points.
-  `sacks` agrees too (33% priced, 31% realised), so the sacks result is the
-  model being on the wrong side, not a settlement fault.
-- **Passing the screen is not a clean bill of health.** `rush_yards` has a
-  three-point gap, inside tolerance, worth **5%** to a one-sided model against
-  a measured **+12.4%**. So roughly 5 of its 12.4 points are settlement and
-  **7 are unexplained** — it is now the only survivor, and a weaker one.
-- **`tackles_assists` cannot be measured at all** until an independent
-  settlement source exists. It joins goalie saves in the NHL lab: modelled,
-  priced, and structurally unmeasurable.
-
-**What made this findable:** the model bets 86% unders in tackles, and a
-one-sided model plus a settlement offset is indistinguishable from an edge on
-every test that only looks at returns. The question that broke it was not
-"is this result robust" — it was **"what would betting one side with no model
-at all return?"** For tackles, that is +10.2%.
-
-## The verdict, on three seasons of bought prices at two snapshots
-
-**No demonstrated edge anywhere.** Every instrument now agrees, and each was
-built to catch a different failure.
-
-| Instrument | What it says |
+| Instrument | What it says now |
 |:---|:---|
-| Null baseline | Betting everything returns **−9.28%** over 385,495 bets. The harness is sound. |
-| Settlement screen | `tackles_assists` is priced 50% over and lands 42%. That gap is worth **16%** to a one-sided model; the "edge" was **+16.3%**. |
-| Closing-line value | Over a **six-hour** window, 70% of prices moved and **51% moved toward the bet**. Pooled mean CLV **+0.06 probability points**. |
-| Replication | Replicates — and a constant settlement offset replicates by construction, so this proves nothing on its own. |
+| Null baseline | Betting everything returns **−9.47% over 366,725 bets**. The harness is sound. |
+| Backtest | 2023 **−1.6%** (18,062), 2024 **−2.1%** (29,394), 2025 **−5.2%** (31,317). |
+| Replication | **Nothing replicates** on a season it was not selected on, except `tackles_assists`. |
+| Settlement screen | `tackles_assists` is the **only** suspect, and it is the thing that replicates. |
+| Price sensitivity | **No market is profitable at the consensus price** except `tackles_assists`. |
+| Allowlist bundle | **0 of 18 markets clear every bar.** |
 
-- **CLV is now a real test, not an inconclusive one.** The first window was 55
-  minutes, which was a purchasing mistake; at six hours, 70% of prices move
-  and the model's selections split **51/49**. `rush_yards` moves toward the
-  bet **48%** of the time against a measured +13.0% return. **The market has
-  no idea the model exists.**
-- **`rush_yards` is the last thing standing and it does not stand.** A
-  two-to-three point settlement gap is worth 4-5% of its 13%, and the residual
-  has no market confirmation at all. A return with zero CLV and a partial
-  settlement explanation is a residual, not an edge.
-- **Nothing here is a failure of the lab.** Establishing that a model has no
-  edge, on 8.4 million bought price rows across three seasons at two
-  snapshots, with four independent instruments agreeing, **is the result.**
-  The machinery that produced it is the product.
+Every one of the eighteen markets returns **no demonstrated edge** on its
+held-out seasons — that is the phrase and it is meant literally: the
+family-corrected interval includes zero in every case. The best held-out
+numbers are `rush_yards` **+1.6% over 7,502 bets** and `pass_yards` **+1.1%
+over 4,502**, both with intervals spanning zero several times over.
 
-## `rush_yards` stands up, and an earlier reading of it was wrong
+## `tackles_assists` is still a settlement artefact, and now it is the only thing left
 
-**Correction.** This file previously said roughly 5 of `rush_yards`' 13 points
-were a settlement gap. That was wrong. The "worth to a one-sided model"
-figure assumes a model that always takes one side; `rush_yards` bets **54%
-unders**, which is nearly balanced, so a 2-point settlement gap contributes
-**0.3%**, not 5%. The same arithmetic confirms `tackles_assists`: 85% unders
-against a 7-point gap is worth **9.9%**, and its consensus return is **9.0%**.
+It is the one market that replicates — **+12.4% / +11.2% / +12.6%** across
+2023, 2024 and 2025, **+11.7% over 3,109 held-out bets** — and the one market
+the settlement screen flags. Those are the same fact.
 
-**What `rush_yards` actually has**, after every instrument built to break it:
+The screen is one number: the featured market is priced at **50% over** across
+6,575 featured wagers and the outcome lands over **42%** of the time. That
+seven-point gap is worth **15%** to a model that consistently takes the under,
+and this model bets 86% unders. The measured return is **+11.7%**. nflverse
+records about half a tackle per player-game fewer than whatever the books
+settle on; at a +0.5 offset the entire edge vanishes and both sides return the
+vig.
 
-| Test | Result |
+**A settlement offset is constant, so it replicates by construction.** It
+survived split-half, fragility, a Bonferroni correction across twenty markets,
+and it is positive at **8 of 8** books at the consensus price — because every
+book settles on the number this lab cannot see. Replication is not evidence
+against it. Replication is what it does.
+
+`tackles_assists` cannot be measured at all until an independent settlement
+source exists. It joins goalie saves in the NHL lab: modelled, priced, and
+structurally unmeasurable.
+
+- **Sixteen of seventeen screened markets agree with their price** within four
+  points. `sacks` agrees too (33% priced, 32% realised), so the sacks result
+  was the model being wrong, not settlement — and the zero-inflation fix
+  explains it exactly.
+- **The question that broke it** was never "is this result robust". It was
+  **"what would betting one side with no model at all return?"**
+
+## `rush_yards` does not stand up, and this file twice said it did
+
+**Correction, and it is the second one on this market.** This file previously
+reported `rush_yards` at **+14.0% held-out**, then at **+8.3% at the consensus
+price, positive at 10 of 11 books**, and called it the last thing standing.
+Both readings were computed on cross-season-settled bets with a leaked yardage
+distribution. Neither survives.
+
+| Test | Result now |
 |:---|:---|
-| Three seasons | +19.1%, +10.1%, +10.9% — positive in all three |
-| Held-out pooled | **+14.0% over 11,269 bets**, Bonferroni across 20 markets |
-| Null baseline | Harness returns −9.28% betting everything |
-| Settlement screen | 2-point gap, worth **0.3%** at this model's side split |
-| **Consensus price** | **+8.3%** — it is not a shopping premium |
-| **By book** | positive at **10 of 11** |
-| Closing-line value | **zero** — 48% of moving prices moved toward it |
+| Three seasons | −0.4%, +2.8%, −0.5% |
+| Held-out pooled | **+1.6% over 7,502 bets** — interval includes zero, **no demonstrated edge** |
+| Settlement screen | 2-point gap, agrees with the price |
+| **Consensus price** | **−1.0%** |
+| **Best of N books** | +0.9% |
+| **By book** | positive at **2 of 10** |
 
-Four of five instruments support it. Only CLV does not, and CLV measures
-whether the market *corrects*, which a persistent structural bias need not.
+It is a **shopping premium at best**: whatever is left exists only as the
+maximum of ten quotes, and it is negative at the median price. A number that
+is negative at the price most people can get is not an edge, and the earlier
+sentence claiming otherwise was wrong on the arithmetic it was built from.
 
-**Beating the close was never the objective and this file over-weighted it.**
-A +8.3% return at the median price across 16,829 bets and three seasons, at
-ten of eleven books, is direct evidence of the thing that actually matters.
-Zero CLV is a reason to keep asking why, not a refutation.
+## There is no compound-versus-count split
 
-**What still blocks it from being a bet:** no market is allowlisted, and no
-player prop can reach a card at all without an inactives feed. Those are the
-binding constraints, not the evidence.
+This file reported the split as *"the strongest structure in the evidence"* —
+compound markets **+3.5%** at the consensus against count-only at **−9.8%** —
+and said it was a mechanism rather than a market. It was neither. It was
+defect 2 and defect 3 sitting on opposite sides of the same line: the leak
+lifted the compound group, the zero-inflation sank the count group, and the
+split was the gap between two bugs.
 
-## The availability gate was solving a problem that does not exist
+After both fixes, at the best-of-N price, excluding the settlement artefact:
 
-**A did-not-play prop is voided by the book, not lost.** The stake comes back.
-So "will he play?" is not a question about whether the bet wins — it is a
-question about whether there is a bet at all, and a bet that never existed
-costs nothing.
+| Group | Bets | Best of N | Consensus |
+|:---|---:|---:|---:|
+| Compound-simulation markets (9) | 67,005 | **−4.3%** | **−6.3%** |
+| Count-only markets | 7,340 | **−2.8%** | **−7.5%** |
+| All markets | 74,345 | **−4.1%** | — |
 
-Measured over three bought seasons on `rush_yards`:
+At the best-of-N price the compound group is the *worse* of the two; at the
+consensus price the two are within 1.2 points of each other and both are
+comfortably negative. Either way there is no structure here to explain.
+
+## The availability gate, measured again
+
+**A did-not-play prop is voided by the book, not lost.** The stake comes back,
+so "will he play?" is a question about whether there is a bet at all. That
+part still holds. What does not hold is the return that made it interesting.
+
+On `rush_yards` across three bought seasons:
 
 | Designation that week | Bets | Voids | Void share | ROI |
 |:---|---:|---:|---:|---:|
-| **not on the injury report** | **15,620** | 2,167 | 12.2% | **+13.7%** |
-| listed, no designation | 998 | 16 | 1.6% | +2.4% |
-| Questionable | 211 | 36 | 14.6% | +11.8% |
-| Doubtful | 0 | 13 | **100%** | — |
-| Out | 0 | 116 | **100%** | — |
+| not on the injury report | 10,678 | 629 | 5.6% | **+1.8%** |
+| listed, no designation | 733 | 1 | 0.1% | −10.2% |
+| Questionable | 154 | 10 | 6.1% | −12.9% |
+| **all** | **11,565** | 640 | 5.2% | **+0.9%** |
 
-Every player listed **Out or Doubtful voided 100% of the time**, so they never
-produce a staked bet at all — the gate that matters is already automatic. And
-the return lives entirely in the **undesignated** population, which is also
-the one whose availability is least in doubt. The gate and the edge want the
-same thing.
+Across all markets it is **−3.2% over 78,773 bets**. Every player listed Out
+or Doubtful voided 100% of the time, so the gate that matters is already
+automatic — that finding survives.
 
-**nflverse does carry inactives** — in `weekly_rosters.status` as `INA`, not
-as a separate feed. It publishes at 07:00 UTC, so it is not live before a
-Sunday kickoff, but it is what made this measurable.
+**The did-not-play clause no longer decides anything.** If a book graded
+did-not-plays as losses rather than voids, `rush_yards` is **−4.4%** instead
+of **+0.9%**, and all markets **−9.2%** instead of −3.2%. That was previously
+the difference between +13.0% and −0.8% — a strategy or a disaster — and it
+was the one question this lab was blocked on. It is now the difference
+between roughly zero and clearly negative. **It is still worth answering
+before anything is acted on, but nothing waits on it.**
 
-### The one line that decides all of it
+## The verdict
 
-**Everything above assumes a book voids a did-not-play prop rather than
-grading it a loss.** If it grades them as losses, the same record is
-**−0.8%** instead of **+13.0%**.
+**No demonstrated edge anywhere, on the full available population.** 816
+games, every NFL game for which historical props exist, two priced snapshots
+each, 5.67M price rows, four independent instruments, and 0 of 18 markets
+clearing the bars declared in advance.
 
-That is the difference between a strategy and a disaster, it turns on one line
-in a book's prop rules, and no amount of modelling can settle it. So the
-policy sits behind the verdicts door as
-`props_selectable_when_undesignated`, **not in force**, waiting on a human
-who has read them. `scripts/run_availability_cost.py` recomputes both numbers.
+The one market that replicates is the one the settlement screen flags, and
+those are the same fact rather than two.
 
-## It is not one market — it is one model
-
-Reporting twenty markets and demanding each survive a twenty-way correction
-buried the pattern. Pooled at the **consensus price**, with intervals
-clustered by game:
-
-| Group | Bets | Best of N | Consensus | 95% interval |
-|:---|---:|---:|---:|:---|
-| **Compound-simulation markets** (9) | 100,230 | +5.8% | **+3.5%** | **+1.4% to +5.7%** |
-| Count-only markets (10) | 23,345 | −6.1% | **−9.8%** | −12.1% to −7.5% |
-| All markets | 129,842 | +4.1% | +1.6% | −0.2% to +3.4% |
-
-**The split is the finding.** Everything priced by the compound simulation —
-draw opportunities, draw that many per-play yardages, read the sum, the
-maximum and the count off the same draws — is positive at the median quote and
-its interval excludes zero. Everything priced by a bare negative binomial
-fitted to a settlement column is **strongly negative**, and that group is
-where `sacks`, `pass_interceptions` and `defensive_interceptions` live.
-
-That is a mechanism, not a market. It says the structure the compound model
-imposes is doing real work and the count model is worse than nothing — which
-is a far more useful statement than "`rush_yards` happens to be positive", and
-it is the one I should have led with.
-
-`tackles_assists` is excluded from the count group above; it is a settlement
-artefact and pooling it would import the artefact.
+**This is the result.** Establishing that a model has no edge, on the complete
+bought population, with the instruments that found three of its own defects,
+is a finding. The machinery that produced it — and that produced three
+retractions of its own headline findings in four days — is the product.
 
 ### What this does not settle
 
 - **Three seasons is three seasons.** It is the full population for 2023-25,
   not a sample of it, but it is still three seasons.
-- **The NHL lab has just gone the other way at scale**, and the parallel is
-  worth reading before believing anything here: its +1.4% over 4,830 bets
-  became **−1.6% over 73,918** on the full two-season population, its one
-  positive market failed replication, and its allowlist approval was
-  **withdrawn**. The direction of that surprise is the one to expect.
-- **The mechanism is still not understood.**
-
+- **The forward ledger is untouched by all of this.** It starts 2026-09-09 at
+  272 games a season and it is the only evidence that can still grow.
+- **The NHL lab reached the same answer by a different route**: its +1.4%
+  over 4,830 bets became **−1.6% over 73,918** once it bought its full
+  population, its one positive market failed replication, and its allowlist
+  approval was **withdrawn**. It got there by buying more data; this lab got
+  there by finding defects in its own harness. Two labs, two routes, one
+  answer.
 ## CLV is a diagnostic, not a criterion
 
 **Cooper's instruction, 2026-08-29: profit and ROI are the objective. Closing-

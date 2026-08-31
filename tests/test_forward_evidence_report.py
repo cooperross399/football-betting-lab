@@ -101,3 +101,18 @@ def test_the_report_names_that_the_ledger_is_the_only_growing_evidence() -> None
     text = render_ledger(_ledger(_many("rush_yards", 10, 1.0)), NFL)
 
     assert "bought population is complete" in text
+
+
+def test_an_interval_excluding_zero_says_which_direction() -> None:
+    """"Interval excludes zero" reads to anyone as good news.
+
+    The NHL lab shipped exactly this into its claims document, where a
+    replicated LOSS produced a headline saying a market had survived and
+    replicated. The direction is not decoration.
+    """
+    losing = render_ledger(_ledger(_many("rush_yards", 400, -1.0, "lost")), NFL)
+    winning = render_ledger(_ledger(_many("rush_yards", 400, 1.0)), NFL)
+
+    assert "interval excludes zero, **negative**" in losing
+    assert "positive" not in losing.split("| `rush_yards` |")[1].split("|\n")[0]
+    assert "interval excludes zero, **positive**" in winning
