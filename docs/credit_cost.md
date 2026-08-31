@@ -175,4 +175,9 @@ schedule, but it is not a budget to worry about.
 So nothing about NCAAF is deferred for money. What defers it is that the NFL
 is not built, that 134 FBS teams with forty-point talent gaps are a different
 distribution needing their own fitted models and their own verdicts, and that
-**adding NCAAF must not move a single NFL number**.
+**adding NCAAF must not move a single NFL number** — a rule that is now
+satisfied structurally rather than by testing, because as of 2026-08-31 NCAAF
+is a separate repository and cannot touch this lab's numbers at all. What it
+CAN still touch is the shared quota: one Odds API account funds every lab, so
+a college Saturday's cost is subtracted from the same pool as an NFL Sunday's
+and the arithmetic here must be read against all labs together.
