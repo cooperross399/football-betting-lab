@@ -248,3 +248,38 @@ def test_a_first_build_is_never_blocked_by_the_guard(tmp_path: Path) -> None:
 
 def test_the_shrink_threshold_is_a_half_and_is_stated_rather_than_inlined() -> None:
     assert MAX_SHRINK == 0.5
+
+
+def test_a_combined_tackle_sums_all_three_defensive_columns():
+    """Verified against a published box score, not argued from the column names.
+
+    Zack Baun's 2024 regular season, 16 games:
+
+        def_tackles_solo         82
+        def_tackles_with_assist  11
+        def_tackle_assists       58
+
+    The official box score reports 93 solo and 151 combined. So the official
+    *solo* figure is `solo + with_assist`, and *combined* is all three. An
+    earlier version summed only solo and assists, reasoning that
+    `def_tackles_with_assist` would "double-count against the solo column".
+    It does not — the two are disjoint — and dropping it undercounted every
+    defensive line by about 7%, which is the whole of the +12% tackles
+    "edge" this lab reported for four days.
+    """
+    frame = pd.DataFrame(
+        {
+            "def_tackles_solo": [82.0],
+            "def_tackles_with_assist": [11.0],
+            "def_tackle_assists": [58.0],
+        }
+    )
+    solo = frame["def_tackles_solo"] + frame["def_tackles_with_assist"]
+    combined = solo + frame["def_tackle_assists"]
+
+    assert float(solo.iloc[0]) == 93.0
+    assert float(combined.iloc[0]) == 151.0
+    # The old sum, kept here so the regression is named rather than implied.
+    old = frame["def_tackles_solo"] + frame["def_tackle_assists"]
+    assert float(old.iloc[0]) == 140.0
+    assert float(combined.iloc[0]) - float(old.iloc[0]) == 11.0

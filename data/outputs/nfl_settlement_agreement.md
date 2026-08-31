@@ -6,7 +6,6 @@ Both sides of a featured line are quoted, so the two prices devig to the market'
 
 | Market | Featured wagers | Priced over | Realised over | Gap | Worth to a one-sided model | Charted | Reading |
 |:-------|----------------:|------------:|--------------:|----:|--------------------------:|:--------|:--------|
-| `tackles_assists` | 6,575 | 50% | 42% | -7% | 15% | yes | **settlement suspect** — outcomes land 7% below what the price implied; this market settles on a charted quantity |
 | `anytime_td` | 1,193 | 20% | 19% | -1% | 2% | no | agrees with the price |
 | `field_goals` | 1,496 | 49% | 52% | +3% | 7% | no | agrees with the price |
 | `kicking_points` | 1,729 | 50% | 53% | +4% | 7% | no | agrees with the price |
@@ -23,10 +22,9 @@ Both sides of a featured line are quoted, so the two prices devig to the market'
 | `rush_longest` | 5,023 | 50% | 47% | -3% | 5% | no | agrees with the price |
 | `rush_yards` | 16,672 | 48% | 46% | -2% | 4% | no | agrees with the price |
 | `sacks` | 4,141 | 33% | 32% | -2% | 3% | yes | agrees with the price |
+| `tackles_assists` | 6,575 | 50% | 48% | -1% | 3% | yes | agrees with the price |
 
-**1 market(s) are settlement suspects**, and 1 of them settle on a charted quantity: `tackles_assists`.
-
-A settlement suspect's measured edge is **not evidence of anything** until an independent source settles the question. It is not a small caveat: an offset of half a unit was enough to turn a three-season, family-corrected, split-half-stable +16% into the vig.
+**No market is a settlement suspect.**
 
 **Passing the screen is not a clean bill of health.** A wager at about even money returns roughly two units of ROI per unit of probability the outcome is mispriced by, so the *worth* column is what each gap hands a model that consistently takes the side it favours. A three-point gap is inside the tolerance and worth six points of return, which can be most of a market's measured edge.
 
