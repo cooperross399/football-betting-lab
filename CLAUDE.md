@@ -724,41 +724,46 @@ that artefact from a third independent direction.
 ## The measurement window is not the card's window
 
 **Found 2026-08-31, nine days before Week 1, while auditing the sibling NHL
-lab for the same defect.**
+lab for the same defect.** Measured directly from the cache rather than from
+the purchase constants, because the two disagree.
 
-Every bought price is at **T−60 minutes** (`CARD_TIME_LEAD_MINUTES = 60`).
-The card runs at **14:00 UTC = 10:00 ET**, which for a 13:00 ET kickoff is
-**T−180 minutes**; the 21:00 UTC backup is *after* the early slate starts and
-those games are quarantined by the kickoff guard.
+**Three snapshots were bought per event**, on 813 of 816:
 
-That two-hour gap straddles the one deadline this lab cares most about.
-**NFL inactives are declared ninety minutes before kickoff:**
+| Snapshot | Lead | What labels it | Inactives known? |
+|:---|---:|:---|:---|
+| earliest | **T-360** | `label_snapshots` calls this **`card`** | no |
+| middle | T-60 | called `mid`, **used by nothing** | yes |
+| latest | T-6 | `close` | yes |
 
-| | inactives public? |
-|:--|:--|
-| T−60 min — where every number here was measured | **yes** |
-| T−180 min — where the card actually runs | **no** |
+`label_snapshots` labels an event's **earliest** snapshot `card`. The purchase
+code meant something else - `CARD_TIME_LEAD_MINUTES = 60` - so the snapshot the
+purchase called card time is the one this lab labels `mid` and never reads.
+**Every backtest that filtered `phase == "card"` used the six-hour-out price.**
 
-**The measurement sits inside the inactives window; the card sits outside
-it.** Every figure above therefore describes a world in which you already
-know who is playing, and the card does not live in that world.
+**That corrects the first version of this section, which said every bought price
+sat at T-60, inside the inactives window, knowing something the card never
+would.** It did not. Inactives publish at T-90; the measurements sat at T-360
+and are blind to them exactly as the card is. The lab's gate reasoning and its
+measurements are consistent after all, which is the opposite of what was
+recorded here for a day.
 
-This lab gates player props precisely because inactives are unknowable at
-card time — and then measured those props at an hour when they were knowable.
-Both statements cannot be load-bearing at once.
+**What the real gap is, and which way it cuts.** The card runs at T-180 for a
+13:00 ET kickoff; the measurements sat at T-360. Three hours earlier is a price
+with *less* information in it, so the measured window is the **softer** of the
+two - and every backtest lost at it anyway. A bias running toward the model, on
+results that are uniformly negative, does not threaten them; it makes them more
+robust. It would matter enormously if any result had been positive, and it is
+recorded so a future one cannot quietly rest on it.
 
-**What follows, and what does not.** It does not rescue anything: the
-compound-versus-count split died of a cross-season settlement defect and
-`tackles_assists` of a settlement offset, neither of which is a timing
-question. What it does mean is that **any future positive result at T−60
-must be re-measured at the card's real window before it means anything.**
+**What is genuinely wasted** is the T-60 purchase: a third of the snapshot
+spend, bought deliberately, labelled `mid`, and read by nothing. Either the
+label or the reader should change - and whichever changes, every number
+measured before it changes has to be re-measured.
 
-And it sharpens the availability question rather than answering it. The NHL
-lab is currently buying its own second window to ask whether its card simply
-runs at the wrong hour. For football the honest answer may be that **no hour
-works** — ninety minutes is inside every plausible card time, so the
-availability gate would be permanent rather than provisional. Worth settling
-deliberately rather than inheriting.
+**And 2026 rows will not pool with 2023-25.** The forward ledger freezes at the
+card's real window, which is neither T-360 nor T-60 and varies by kickoff slot.
+The ledger records `commence_time` and `snapshot_date`, so the lead is
+recoverable per row rather than assumed.
 
 ## The card's lead time is not one number, and no game is ever carded inside the inactives window
 
@@ -776,9 +781,12 @@ to kickoff that still precedes it.
 | **09:30** (international) | **6** | **none — 14:00 UTC is 30 min AFTER kickoff** | no |
 
 **All 272 games are carded blind to inactives**, which drop ninety minutes
-out. The closest any run gets is three hours. So the T−60 measurement knows
-something the card will never know, on **every game of the season** — not
-some of them.
+out. The closest any run gets is three hours.
+
+(An earlier version of this paragraph said the measurement knew something the
+card never would. It did not - see the section above: the backtests used the
+T-360 snapshot, which is also blind to inactives. The **card is blind and so
+was the measurement**, which is the one axis on which they agree.)
 
 That is the sharper form of "the measurement window is not the card's
 window". It is not a two-hour discrepancy to be tuned away; there is no cron
@@ -798,35 +806,6 @@ stand the 14:00 run down — buying six international games at the cost of
 carding 149 one-o'clock games two hours earlier, with less information. The
 real fix is per-game carding rather than per-day, which is a design change
 and not a scheduling one. Recorded rather than done.
-
-## The bought snapshots are not the card's window, and that flatters us
-
-**Measured over 816 events, three snapshots each:**
-
-| Bought snapshot | Minutes before kickoff |
-|:---|---:|
-| `card` | **360** (median, 6 hours) |
-| `mid` | 60 |
-| `close` | 6 |
-
-**The gameday workflow runs once, at 14:00 UTC — 10:00 ET.** So the card's own
-lead time is not 360 minutes and is not even constant: it is about **180
-minutes for a 13:00 ET kickoff**, 385 for a 16:25, and 620 for a 20:20. Every
-priced result in this repository was measured at a flat T−360 that the card
-never actually sees.
-
-**The direction of that error matters and it runs in the model's favour.** An
-earlier price has had less information put into it, so T−360 is the softer of
-the two — and every backtest here still lost at it. A mismatch that biases
-toward the model, on results that are negative anyway, does not threaten the
-conclusion; it makes it more robust. It would matter enormously if any of
-those results had been positive, and it is recorded now so that a future
-positive one cannot quietly rest on it.
-
-**What it does affect is Week 1.** The forward ledger will freeze at the card's
-real window, so 2026 rows and the 2023-25 rows are priced at different lead
-times and are not directly poolable. The ledger records `commence_time` and
-`snapshot_date`, so the lead is recoverable per row rather than assumed.
 
 ## The verdict
 
