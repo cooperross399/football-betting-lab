@@ -142,3 +142,54 @@ def test_the_default_family_is_the_markets_reported() -> None:
     ledger = _ledger(_many("rush_yards", 400, 1.0))
 
     assert render_ledger(ledger, NFL) == render_ledger(ledger, NFL, families=1)
+
+
+def test_the_pooled_line_gets_the_same_family_correction_as_every_row_above_it() -> None:
+    """It was judged on its RAW interval while every market row was judged on a
+    corrected one — and the paragraph below then told the reader the numbers
+    were family-corrected. At the live factor that is an interval 1.69x too
+    narrow on the single most quotable sentence in the file.
+    """
+    ledger = _ledger(_many("rush_yards", 600, 1.0))
+
+    narrow = render_ledger(ledger, NFL, families=1)
+    wide = render_ledger(ledger, NFL, families=200)
+
+    assert "family-corrected interval" in wide
+    # A correction across 200 families cannot leave the pooled interval where a
+    # correction across one left it.
+    assert narrow != wide
+
+
+def test_a_pooled_result_stops_excluding_zero_as_the_family_grows() -> None:
+    """The exact shape the audit described: a pooled line that reads
+    "interval excludes zero" on its raw interval and "no demonstrated edge"
+    once the family it was actually searched over is accounted for.
+
+    Asserted as a property rather than at a hand-picked family size, so the
+    test does not quietly depend on today's correction arithmetic.
+    """
+    # Games that win and lose whole, so between-game variance is real.
+    rows = []
+    for game in range(200):
+        won = game < 117
+        rows += [
+            {
+                "market": "rush_yards",
+                "outcome": "won" if won else "lost",
+                "profit_units": 1.0 if won else -1.0,
+                "snapshot_date": "2026-09-13",
+                "home_team": f"H{game}",
+                "away_team": f"A{game}",
+            }
+            for _ in range(4)
+        ]
+    ledger = _ledger(rows)
+
+    def pooled_line(families: int) -> str:
+        text = render_ledger(ledger, NFL, families=families)
+        return next(l for l in text.splitlines() if l.startswith("**Pooled"))
+
+    assert "excludes zero" in pooled_line(1)
+    # Somewhere between one family and a thousand, the claim has to give way.
+    assert "no demonstrated edge" in pooled_line(1000)

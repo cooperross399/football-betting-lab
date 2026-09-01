@@ -15,7 +15,7 @@ and returns the stake. So the question "will he play?" is not a question about
 whether the bet wins — it is a question about whether there is a bet at all,
 and a bet that never existed costs nothing.
 
-Over three bought seasons, **6.2% of the model's selections voided**. That is
+Over three bought seasons, **2.2% of the model's selections voided**. That is
 a large number and it is financially a non-event.
 
 ## The assumption this rests on, and what it is worth
@@ -23,8 +23,8 @@ a large number and it is financially a non-event.
 **Everything above assumes the book voids a did-not-play prop rather than
 grading it a loss.** That is the standard rule — no action if the player does
 not take a snap — and it is a rule, not a law of nature. Books differ, and a
-book that graded those as losses would turn the same record from **−3.2% into
-−9.2%** across all markets, or `rush_yards` from **+0.9% into −4.4%**.
+book that graded those as losses would turn the same record from **−3.7% into
+−5.8%** across all markets.
 
 An earlier version of this docstring quoted +13.0% against −0.8% and called
 that the difference between a strategy and a disaster. It was, and the numbers

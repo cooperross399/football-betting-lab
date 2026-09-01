@@ -577,12 +577,23 @@ def render_ledger(
     # Without them Week 1 prints a bold ROI over a handful of bets with no
     # reading at all, which is the single most quotable number in the file
     # and the least supported.
+    #
+    # And corrected across the same family every market row above it gets.
+    # The pooled line was judged on its RAW interval while every row above was
+    # judged on a corrected one, and the paragraph below then told the reader
+    # the numbers were family-corrected. At the live factor that is an interval
+    # 1.69x too narrow on the single most quotable sentence in the file: a
+    # pooled +6.0% reading "interval excludes zero, positive" is -3.7% to
+    # +15.7% once corrected, which any single market would report as no
+    # demonstrated edge.
+    pooled_half = (pooled_high - pooled_low) / 2 * factor
+    pooled_clow, pooled_chigh = pooled_roi - pooled_half, pooled_roi + pooled_half
     if pooled_bets < minimum_bets:
         pooled_reading = (
             f"**not enough evidence** — {pooled_bets:,} bets, below "
             f"{minimum_bets}"
         )
-    elif pooled_low <= 0.0 <= pooled_high:
+    elif pooled_clow <= 0.0 <= pooled_chigh:
         pooled_reading = "**no demonstrated edge**"
     elif pooled_roi > 0.0:
         pooled_reading = "interval excludes zero, **positive**"
@@ -590,8 +601,9 @@ def render_ledger(
         pooled_reading = "interval excludes zero, **negative**"
     add(
         f"**Pooled, excluding settlement suspects: {pooled_roi:+.1%} over "
-        f"{pooled_bets:,} bets across {pooled_games:,} games**, interval "
-        f"{pooled_low:+.1%} to {pooled_high:+.1%} — {pooled_reading}."
+        f"{pooled_bets:,} bets across {pooled_games:,} games**, "
+        f"family-corrected interval "
+        f"{pooled_clow:+.1%} to {pooled_chigh:+.1%} — {pooled_reading}."
     )
     if settlement_suspects:
         add("")
