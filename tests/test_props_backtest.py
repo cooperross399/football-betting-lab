@@ -427,3 +427,55 @@ def test_coverage_line_names_every_season_behind_the_numbers():
     assert "2023, 2024" in line
     assert "3 scored bets" in line
     assert "2 games" in line
+
+
+def test_settlement_matches_the_identity_the_model_priced_with():
+    """The provider writes a generational suffix the roster omits.
+
+    Matching on the name string voided 3,281 bets across 61 players who played
+    every week — Travis Etienne Jr. 436 of 436, Brian Robinson Jr. 415 of 415,
+    AJ Brown 200 of 200. A void returns the stake, so the error never showed in
+    the returns; it silently deleted exactly the players whose names are
+    written two ways, and inflated the void rate from 2.6% to 6.2%.
+
+    The pricing side already resolved identity. Only settlement did not.
+    """
+    logs = pd.DataFrame([{
+        "game_id": "2024_01_JAX_HOU", "player_id": "00-0036389",
+        "player_name": "Travis Etienne", "rush_yards": 88.0,
+    }])
+
+    class _Row:
+        market, player, selection, line = "rush_yards", "Travis Etienne Jr.", "over", 60.5
+
+    assert props_backtest._settle(
+        logs, "2024_01_JAX_HOU", _Row(), "00-0036389"
+    ) == ("won", 88.0)
+
+
+def test_settlement_falls_back_to_a_normalised_name_never_a_raw_one():
+    """Without an id it must still collapse the suffix, exactly as
+    `forward_evidence` does. A raw casefold is what caused the defect."""
+    logs = pd.DataFrame([{
+        "game_id": "2024_01_JAX_HOU", "player_id": "",
+        "player_name": "Deebo Samuel", "reception_yards": 70.0,
+    }])
+
+    class _Row:
+        market, player, selection, line = "reception_yards", "Deebo Samuel Sr.", "over", 49.5
+
+    assert props_backtest._settle(logs, "2024_01_JAX_HOU", _Row())[0] == "won"
+
+
+def test_two_spellings_of_one_player_collapse_to_one_wager():
+    """Fixing settlement alone would convert 625 silent voids into 625
+    duplicate stakes — one afternoon's opinion staked twice, each keeping its
+    own best price, inflating the bet count and narrowing every interval."""
+    frame = pd.DataFrame([
+        {"event_id": "e1", "market": "rush_yards", "player": "Travis Etienne Jr.",
+         "selection": "over", "line": 60.5, "american_odds": -110},
+        {"event_id": "e1", "market": "rush_yards", "player": "Travis Etienne",
+         "selection": "over", "line": 60.5, "american_odds": -105},
+    ])
+
+    assert len(props_backtest.best_price_per_selection(frame)) == 1

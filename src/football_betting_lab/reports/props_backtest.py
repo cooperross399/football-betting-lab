@@ -71,7 +71,7 @@ from football_betting_lab.reports.card_pricing import (
     PlayerBook,
     _player_probability,
 )
-from football_betting_lab.rosters import Rosters
+from football_betting_lab.rosters import Rosters, normalise_name
 
 
 #: Declared in advance. The detection arithmetic says roughly 600 bets
@@ -165,10 +165,22 @@ def best_price_per_selection(prices: pd.DataFrame) -> pd.DataFrame:
     # "Best" is the largest payout, which for American odds is the largest
     # signed number: +150 beats +120 beats -110 beats -200.
     frame = frame.sort_values("american_odds", ascending=False)
-    subset = ["event_id", "market", "player", "selection", "line"]
+    # Keyed on the NORMALISED name, not the raw provider string. Two
+    # spellings of one man are one wager quoted twice, and collapsing on the
+    # raw string kept both — one afternoon's opinion staked twice, each with
+    # its own "best" price. This has to move in the same change as the
+    # settlement join below: fixing settlement alone converts 625 silent voids
+    # into 625 duplicate stakes, inflating the bet count and narrowing every
+    # interval.
+    frame = frame.assign(_identity=frame["player"].map(normalise_name))
+    subset = ["event_id", "market", "_identity", "selection", "line"]
     if "snapshot" in frame.columns:
         subset.append("snapshot")
-    return frame.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
+    return (
+        frame.drop_duplicates(subset=subset, keep="first")
+        .drop(columns=["_identity"])
+        .reset_index(drop=True)
+    )
 
 
 @dataclass
@@ -324,13 +336,18 @@ def run(
             edge = probability - american_to_implied(odds)
             if edge < min_edge:
                 continue
-            outcome, actual = _settle(logs, game_id, row)
+            outcome, actual = _settle(
+                logs, game_id, row, resolution.entry.player_id
+            )
             rows.append(
                 {
                     "event_id": str(event_id),
                     "week": week,
                     "market": row.market,
                     "player": row.player,
+                    # The resolved identity, recorded so downstream reports
+                    # stop splitting one man into two spellings.
+                    "player_id": resolution.entry.player_id,
                     "selection": row.selection,
                     "line": row.line,
                     "odds": odds,
@@ -488,14 +505,30 @@ def _game_id(logs: pd.DataFrame, season: int, week: int, home: str, away: str) -
     return f"{season}_{week:02d}_{away}_{home}"
 
 
-def _settle(logs: pd.DataFrame, game_id: str, row) -> tuple[str, float | None]:
+def _settle(
+    logs: pd.DataFrame, game_id: str, row, player_id: str = ""
+) -> tuple[str, float | None]:
     market = MARKETS_BY_KEY.get(row.market)
     if market is None or row.market not in logs.columns:
         return "void", None
-    entries = logs[
-        (logs["game_id"].astype(str) == game_id)
-        & (logs["player_name"].astype(str).str.casefold() == str(row.player).casefold())
-    ]
+    in_game = logs["game_id"].astype(str) == game_id
+    if player_id and "player_id" in logs.columns:
+        # The identity the model priced with. Matching on the name string
+        # instead silently voided 3,281 bets across 61 players who played
+        # every week — Travis Etienne Jr. 436 of 436, AJ Brown 200 of 200 —
+        # because the provider writes a generational suffix the roster omits.
+        # A void returns the stake, so the error never showed in the returns;
+        # it just deleted the players whose names are written two ways, and
+        # inflated the void rate from 2.6% to 6.2%.
+        entries = logs[in_game & (logs["player_id"].astype(str) == str(player_id))]
+    else:
+        entries = logs[
+            in_game
+            & (
+                logs["player_name"].map(normalise_name)
+                == normalise_name(getattr(row, "player", ""))
+            )
+        ]
     if entries.empty:
         # He did not dress, or did not appear in the box score. The stake
         # comes back; it is not a loss.
