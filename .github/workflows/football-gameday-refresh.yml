@@ -230,7 +230,12 @@ jobs:
 
       - name: Write the card to the run summary
         if: always()
-        run: cat data/outputs/nfl_gameday_card.md >> "$GITHUB_STEP_SUMMARY" || true
+        # `continue-on-error` rather than `|| true`: the summary genuinely does
+        # not matter enough to fail a run over, but a step that forces its own
+        # exit status records nothing, and this lab has been bitten four times
+        # by exactly that.
+        continue-on-error: true
+        run: cat data/outputs/nfl_gameday_card.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Post to the operating home
         if: always()
