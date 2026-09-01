@@ -80,6 +80,14 @@ jobs:
       - name: Fetch the schedule
         run: PYTHONPATH=src python scripts/fetch_football_data.py --seasons ${{ inputs.season || '2026' }} --only schedule || true
 
+      - name: Build the processed tables the checks read
+        # The coverage check reads data/processed/team_games.csv, which the
+        # schedule fetch does not write — it writes the raw file. On a fresh
+        # runner nothing built the processed table, so the check exited 2
+        # ("No team games at ...") on its very first run, eight days before
+        # Week 1. A watchdog that has never been fired is an assumption.
+        run: PYTHONPATH=src python scripts/build_datasets.py || true
+
       - name: Is the ledger intact?
         id: coverage
         continue-on-error: true
@@ -175,10 +183,30 @@ jobs:
           } >> "$BODY"
           gh issue comment "$NUMBER" --body-file "$BODY"
 
-      - name: Fail the run if a game day was lost
+      - name: Fail the run, and say which kind of failure it was
+        # Two different alarms wearing one label is worse than no alarm. The
+        # first run of this workflow reported "a scheduled game day has no
+        # frozen opinions — that evidence cannot be recovered" when what had
+        # actually happened is that the check could not read its own input
+        # file. One of those is irreversible and one is a missing build step,
+        # and a watchdog that cannot tell them apart teaches the reader to
+        # ignore it.
         if: always()
+        env:
+          COVERAGE: ${{ steps.coverage.outcome }}
+          FRESHNESS: ${{ steps.freshness.outcome }}
         run: |
-          if [ "${{ steps.coverage.outcome }}" != "success" ]; then
-            echo "::error::A scheduled game day has no frozen opinions. That evidence cannot be recovered."
-            exit 1
+          set -u
+          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ]; then
+            echo "Ledger intact and every feed current."
+            exit 0
           fi
+          # A lost game day is a finding the report names in words; anything
+          # else is this job failing to do its job.
+          if grep -qiE "never frozen|no frozen opinions|missing game day" \
+               /tmp/coverage.md /tmp/freshness.md 2>/dev/null; then
+            echo "::error::A scheduled game day has no frozen opinions. That evidence cannot be recovered."
+          else
+            echo "::error::The weekly check could not complete — it failed to read or produce its own inputs. This is a broken watchdog, NOT evidence that a game day was lost. Fix the job before trusting its silence."
+          fi
+          exit 1
