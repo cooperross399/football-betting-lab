@@ -319,10 +319,17 @@ that is the correct state.**
   constant. A missing or unreadable verdict ships nothing. Each verdict
   records `variants_tested`, because every variant tried against the same
   bought season spends a degree of freedom.
-- **Recency weighting: measured, does not ship.** Half-life 8 games returned
-  −5.2% against the baseline's −6.6%. The **paired** difference over the 172
-  games both arms bet is **+1.4% per bet, interval −1.0% to +3.9% — not
-  distinguishable from zero.** The first decision rule was `roi_variant >
+- **Recency weighting: measured on all three seasons, does not ship.**
+  Half-life 8 games returned −2.7% against the baseline's −3.1%. The **paired**
+  difference over the 768 games both arms bet is **−0.1% per bet, interval
+  −1.5% to +1.4% — not distinguishable from zero**, and it fails to clear 2023
+  and 2024 individually.
+- **That verdict was a single-season coin flip until 2026-08-31.** The script
+  scored one season and wrote a verdict file with one name, so the policy
+  shipped or did not depending on which season had been run last: +2.3% on
+  2025 shipped it, −1.8% on 2023 did not. Same policy, same script, opposite
+  verdicts, and the card reads whichever ran most recently. It now scores every
+  season and ships only if the paired difference clears in **all** of them. The first decision rule was `roi_variant >
   roi_baseline` and would have shipped it; comparing two overlapping intervals
   and taking the larger number is how a lab ships noise, and the arms' own
   intervals span several times the gap between them.
@@ -791,6 +798,35 @@ stand the 14:00 run down — buying six international games at the cost of
 carding 149 one-o'clock games two hours earlier, with less information. The
 real fix is per-game carding rather than per-day, which is a design change
 and not a scheduling one. Recorded rather than done.
+
+## The bought snapshots are not the card's window, and that flatters us
+
+**Measured over 816 events, three snapshots each:**
+
+| Bought snapshot | Minutes before kickoff |
+|:---|---:|
+| `card` | **360** (median, 6 hours) |
+| `mid` | 60 |
+| `close` | 6 |
+
+**The gameday workflow runs once, at 14:00 UTC — 10:00 ET.** So the card's own
+lead time is not 360 minutes and is not even constant: it is about **180
+minutes for a 13:00 ET kickoff**, 385 for a 16:25, and 620 for a 20:20. Every
+priced result in this repository was measured at a flat T−360 that the card
+never actually sees.
+
+**The direction of that error matters and it runs in the model's favour.** An
+earlier price has had less information put into it, so T−360 is the softer of
+the two — and every backtest here still lost at it. A mismatch that biases
+toward the model, on results that are negative anyway, does not threaten the
+conclusion; it makes it more robust. It would matter enormously if any of
+those results had been positive, and it is recorded now so that a future
+positive one cannot quietly rest on it.
+
+**What it does affect is Week 1.** The forward ledger will freeze at the card's
+real window, so 2026 rows and the 2023-25 rows are priced at different lead
+times and are not directly poolable. The ledger records `commence_time` and
+`snapshot_date`, so the lead is recoverable per row rather than assumed.
 
 ## The verdict
 
