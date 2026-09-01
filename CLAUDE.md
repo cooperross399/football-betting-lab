@@ -852,47 +852,87 @@ late news move a line too, and nothing here separates them. A large gap could
 have been any of those; a small gap is the informative result, because nothing
 can be hiding inside it.
 
-## The card's lead time is not one number, and no game is ever carded inside the inactives window
+## The card's lead time, corrected: it was wrong in three ways and is now computed
 
-Computed from the real 2026 schedule, 272 games, against the two crons
-(14:00 and 21:00 UTC). ET is UTC−4 in September; the lead is the run closest
-to kickoff that still precedes it.
+**Correction, 2026-09-01.** This section previously carried a lead-time table
+written by hand. **Three of its numbers were wrong**, and none of them were
+caught by a test because no script generated them. The table is now
+`data/outputs/nfl_carding_window.md`, computed by
+`scripts/run_carding_window.py` from the workflow's own cron expressions and
+the committed schedule cache, and pinned by `tests/test_carding_window.py`.
+**Do not restate it in prose here.**
 
-| kickoff ET | games | best lead | inactives known? |
-|:--|--:|--:|:--|
-| 13:00 | 149 | 3.0h | no |
-| 16:25 | 37 | 6.4h | no |
-| 20:15 | 33 | 3.2h | no |
-| 16:05 | 21 | 6.1h | no |
-| 20:20 | 20 | 3.3h | no |
-| **09:30** (international) | **6** | **none — 14:00 UTC is 30 min AFTER kickoff** | no |
+What the old table said, and what is true:
 
-**All 272 games are carded blind to inactives**, which drop ninety minutes
-out. The closest any run gets is three hours.
+**1. It assumed ET is UTC−4 for all 272 games.** It said so — "ET is UTC−4 in
+September" — and then applied that to a season running to 2027-01-10. ET is
+UTC−5 from 2026-11-01. So "13:00 ET, 149 games, 3.0h lead" is really **54
+games at 3.0h and 95 games at 4.0h**. Every row was wrong for its EST half.
 
-(An earlier version of this paragraph said the measurement knew something the
-card never would. It did not - see the section above: the backtests used the
-T-360 snapshot, which is also blind to inactives. The **card is blind and so
-was the measurement**, which is the one axis on which they agree.)
+**2. It read the last run before kickoff. That is not the run that cards the
+game.** The backup triggers stand down when the first run publishes cleanly,
+and the first run prices the whole league day at `--horizon-days 1`. So the
+first firing owns the slate. The night window — documented at 3.25h and
+3.33h — is really carded at **10.25–11.33h**. A reading that ignores the
+standdown can only ever understate the lead, and it did so for 266 of 272
+games.
 
-That is the sharper form of "the measurement window is not the card's
-window". It is not a two-hour discrepancy to be tuned away; there is no cron
-that fixes it, because the card must price a whole slate at once and the
-slate's kickoffs span eleven hours.
+**3. "Six games a season cannot be carded at all" is four.** The 09:30 ET
+internationals straddle the DST boundary: the four October games kick at
+13:30 UTC, before the 14:00 UTC cron; the two November games kick at **14:30
+UTC**, after it.
 
-### Six games a season cannot be carded at all
+### And two games a season are carded inside the inactives window
 
-The 09:30 ET international games kick at 13:30 UTC and the first cron is
-14:00 UTC — **thirty minutes late**. The card prices them and the kickoff
-guard then quarantines them, which is the correct behaviour and produces no
-wrong answer. It is a coverage gap, not a fault: 6 of 272 games, 2%.
+That is the consequence of the third error, and it contradicts two sentences
+this file used to state flatly: *"all 272 games are carded blind to
+inactives"* and *"the closest any run gets is three hours"*. Both are false
+for `2026_09_CIN_ATL` (2026-11-08) and `2026_10_NE_DET` (2026-11-15), which
+are carded **30 minutes** before kickoff — inactives drop at 90.
 
-**Moving the cron earlier would make things worse, not better.** A 12:00 UTC
-run would card the whole day, and the already-published guard would then
-stand the 14:00 run down — buying six international games at the cost of
-carding 149 one-o'clock games two hours earlier, with less information. The
-real fix is per-game carding rather than per-day, which is a design change
-and not a scheduling one. Recorded rather than done.
+It is two games and it is not comfortable. The kickoff guard applies **no
+grace period**, so whether those two enter the ledger at all depends on how
+delayed the runner fleet is that morning. They are a different population
+rather than a better-informed one, and the ledger records `commence_time` and
+`snapshot_date`, so any future reading can exclude them on the lead rather
+than on a note in a document. **Not engineered around**: an earlier November
+cron would fix two games by carding forty others with less information.
+
+## The backup trigger could not back anything up, and now it can
+
+**Found 2026-09-01 by the script above, and this one costs evidence rather
+than accuracy.** The workflow's own comment cited GitHub's warning that
+scheduled runs may be dropped — *"a single daily trigger is not a schedule, it
+is a hope"* — and then set the backup seven hours after the primary.
+
+Measured against the real schedule, a dropped or degraded 14:00 UTC run left,
+of 272 games:
+
+| | old (14:00 + 21:00 UTC) | now (+ 15:30 UTC) |
+|:--|--:|--:|
+| carded normally by the backup | **55** | **266** |
+| carded inside the inactives window | 34 | **0** |
+| not carded at all — kickoff already passed | **183** | 6 |
+
+**Every 13:00 ET game was in the 183** — 149 games, 55% of the season. The
+backup arrived after kickoff for two thirds of the slate, which is to say it
+was not a backup.
+
+A third cron at **15:30 UTC** now sits 90 minutes after the primary. It
+changes **nothing** on a healthy day — the operative lead of all 272 games is
+byte-identical, asserted by test — because the standdown guard reads the
+published status and exits without fetching a price. The 21:00 UTC trigger
+stays as a last resort for the night window only, and is documented as a
+backstop rather than the "second pass for the Thursday and Monday night
+windows" it was labelled and never was.
+
+**A dropped Sunday run is not a delayed card. It is 16 games of frozen
+opinions that cannot be back-dated**, and the forward ledger is the only
+evidence this lab can still gather.
+
+**The earlier note that "moving the cron earlier would make things worse"
+still stands and is not what was done.** The *primary* cron did not move. What
+moved is a backup that only ever runs when the primary already failed.
 
 ## The verdict
 

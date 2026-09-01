@@ -4,7 +4,11 @@ NFL now, NCAAF later. Modelled on `nhl-betting-lab`; the gates, the provider
 staging discipline and the honesty rules are carried over because they were
 earned there.
 
-**Nothing has been measured. No market is allowlisted. Nothing is bet.**
+**Everything available has been measured and the answer is no demonstrated
+edge.** 816 games — every NFL game for which historical props exist — five
+instruments, 0 of 18 markets clearing the bars declared in advance. **No
+market is allowlisted, nothing is bet, and that is the correct state.** The
+forward ledger, from 2026-09-09, is the only evidence that can still grow.
 
 Read `CLAUDE.md` first. Then:
 
@@ -15,6 +19,7 @@ Read `CLAUDE.md` first. Then:
 | `docs/credit_cost.md` | What this costs against a quota shared with the NHL lab. |
 | `docs/build_order.md` | What is being built, in what order, and what is needed from Cooper. |
 | `docs/new_session_prompt.md` | How to start a session on this lab, and the facts that live outside the repo. |
+| `data/outputs/nfl_carding_window.md` | When each game is actually carded, and what a dropped run costs. Computed from the crons, never written by hand. |
 
 ## Where things stand
 
@@ -43,6 +48,10 @@ evidence cannot be back-dated.**
 ```bash
 # The season's credit cost, computed from the cached schedule. Spends nothing.
 PYTHONPATH=src .venv/bin/python scripts/estimate_credit_cost.py
+
+# When each game is actually carded, and what a dropped run would cost.
+# Reads the workflow's crons and the schedule cache. Spends nothing.
+PYTHONPATH=src .venv/bin/python scripts/run_carding_window.py --season 2026
 
 # Tests
 PYTHONPATH=src .venv/bin/python -m pytest -q
