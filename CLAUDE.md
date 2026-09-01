@@ -765,6 +765,50 @@ card's real window, which is neither T-360 nor T-60 and varies by kickoff slot.
 The ledger records `commence_time` and `snapshot_date`, so the lead is
 recoverable per row rather than assumed.
 
+## What knowing the inactives is worth: almost nothing, measured
+
+**0 of 17 markets.** `scripts/run_inactives_value.py`,
+`data/outputs/nfl_inactives_value.md`.
+
+The availability gate rests on a premise this lab argued about for weeks and
+never measured: that a card running three hours out gives up something real by
+not knowing who is playing. **The evidence was bought and then never read.** The
+T-60 snapshot sits *inside* the ninety-minute inactives window, is a third of the
+snapshot spend, and was labelled `mid` and consumed by nothing.
+
+Comparing the pre-deadline price (T-360) with the post-deadline one (T-60) as
+forecasts of the same settled outcome:
+
+| Market | Wagers | Brier T-360 | Brier T-60 | Gain |
+|:---|---:|---:|---:|---:|
+| `pass_yards` | 5,275 | 0.22348 | 0.22263 | +0.00085 |
+| `rush_yards` | 9,541 | 0.23559 | 0.23523 | +0.00036 |
+| `reception_yards` | 22,318 | 0.22385 | 0.22366 | +0.00020 |
+| `reception_longest` | 5,133 | 0.23885 | 0.23918 | **−0.00033** |
+
+The largest gain is **+0.00085 against a 0.002 threshold declared in advance**,
+and four markets are *worse* after the deadline. Mean price movement across five
+hours is about **0.01 in probability**. **Crossing the inactives deadline buys
+the market almost nothing.**
+
+**The limitation is real and stated in the report: 82,810 wagers priced at T-360
+had no price at T-60 and were dropped.** A scratched player loses his market
+entirely, so the dropped rows are enriched in exactly the players the question
+is about, and every figure is conditioned on the wager still existing an hour
+out.
+
+**But that limitation is also the answer.** The value of inactives is not in
+repricing a wager — it is in knowing which wagers vanish, and those never
+produce a staked bet at all. That is the same conclusion the availability-cost
+report reached from the other side: every player listed Out or Doubtful voids
+100% of the time, so the gate that matters is already automatic. Two
+instruments, opposite directions, one answer.
+
+**It is an upper bound, not a measurement.** Five hours of steam, weather and
+late news move a line too, and nothing here separates them. A large gap could
+have been any of those; a small gap is the informative result, because nothing
+can be hiding inside it.
+
 ## The card's lead time is not one number, and no game is ever carded inside the inactives window
 
 Computed from the real 2026 schedule, 272 games, against the two crons
