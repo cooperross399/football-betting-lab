@@ -14,6 +14,7 @@ Read `CLAUDE.md` first. Then:
 | `docs/football_data_sources.md` | Where every number comes from, what each source cannot tell us, and its licence. |
 | `docs/credit_cost.md` | What this costs against a quota shared with the NHL lab. |
 | `docs/build_order.md` | What is being built, in what order, and what is needed from Cooper. |
+| `docs/new_session_prompt.md` | How to start a session on this lab, and the facts that live outside the repo. |
 
 ## Where things stand
 
