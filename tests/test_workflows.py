@@ -369,3 +369,36 @@ def test_the_step_status_rule_catches_the_defect_it_was_written_for() -> None:
         'git fetch --depth=1 "$REMOTE" tip 2>/dev/null || true\n'
         'if git cat-file -e tip:ledger.csv 2>/dev/null; then echo yes; fi'
     )
+
+
+# -- a workflow may not name a feed that does not exist -----------------------
+
+def test_every_only_feed_named_in_a_workflow_is_a_real_feed() -> None:
+    """`--only schedule` (singular) is not a feed. The real one is `schedules`.
+
+    That argument sat in the weekly watchdog behind a `|| true`, so the fetch
+    exited 2 on every run and nothing ever said so. The watchdog then compared
+    the ledger against the committed calendar instead of the current one — and
+    reported the week intact.
+
+    An argument error is only discoverable at runtime, which is precisely why it
+    survived. This makes it discoverable at test time.
+    """
+    from football_betting_lab.data import nflverse
+
+    known = set(nflverse.FEEDS_BY_NAME)
+    bad: list[str] = []
+    for path in WORKFLOWS:
+        for line in _without_comments(path).splitlines():
+            if "--only" not in line:
+                continue
+            after = line.split("--only", 1)[1].split("|")[0]
+            for token in after.replace("\\", " ").split():
+                if token.startswith("-") or token.startswith("$"):
+                    break
+                if token not in known:
+                    bad.append(f"{path.name}: --only {token}")
+    assert bad == [], (
+        f"These workflows name feeds that do not exist: {bad}. "
+        f"Known feeds: {sorted(known)}."
+    )

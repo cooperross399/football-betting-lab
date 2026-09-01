@@ -20,6 +20,7 @@ import csv
 from datetime import datetime
 from pathlib import Path
 
+from football_betting_lab.data import nflverse
 from football_betting_lab.leagues import League
 
 
@@ -81,7 +82,24 @@ EXPECTED_NFL_CLUBS = 32
 
 
 def schedule_path(league: League, raw_dir: Path) -> Path:
-    return Path(raw_dir) / league.data_dir_segment / "schedule" / "nflverse_games.csv"
+    """The one calendar, which is the one `fetch_football_data.py` writes.
+
+    This used to name `schedule/nflverse_games.csv`, a file **nothing writes**.
+    The `schedules` feed lands at `schedules/games.csv`, so every fetch updated
+    a file nothing read while the preseason screen and the credit estimate read
+    a frozen snapshot. Two calendars for one slate — the same defect the NHL lab
+    had, which `CLAUDE.md` names and this lab then grew independently.
+
+    They had already drifted on the price columns, which are not decoration
+    here: the schedule's closing spread, total and moneylines are one of the
+    three priced instruments this lab has.
+
+    The screen this feeds decides whether a fixture is preseason. The NFL flexes
+    games between slots and dates all season, and a fixture whose date moved
+    would match nothing in a frozen calendar, be read as preseason, and be
+    dropped from the card — freezing no opinion for a game that was played.
+    """
+    return nflverse.feed_path(nflverse.FEEDS_BY_NAME["schedules"], league, raw_dir, None)
 
 
 def known_regular_season_games(

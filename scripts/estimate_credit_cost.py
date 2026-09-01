@@ -50,6 +50,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 from football_betting_lab.leagues import NFL, league_for
+from football_betting_lab.season import schedule_path
 from football_betting_lab import markets as market_registry
 
 
@@ -57,10 +58,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # The league supplies its own directory segment. A hardcoded "nfl" here is
 # exactly the literal the registry exists to prevent, and the discipline
 # test fails the build when one appears.
-SCHEDULE_CSV = (
-    PROJECT_ROOT / "data" / "raw" / NFL.data_dir_segment / "schedule"
-    / "nflverse_games.csv"
-)
+# ...and the FILE comes from the same place every other reader gets it, which
+# is the one the fetcher writes. This used to name a second, frozen copy that
+# no fetch ever updated.
+SCHEDULE_CSV = schedule_path(NFL, PROJECT_ROOT / "data" / "raw")
 
 #: The season this lab is being built for.
 SEASON = 2026

@@ -95,7 +95,7 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH=src python scripts/fetch_football_data.py \
-            --seasons ${{ inputs.season || '2026' }} --only schedule
+            --seasons ${{ inputs.season || '2026' }} --only schedules
 
       - name: Build the processed tables the checks read
         # The coverage check reads data/processed/team_games.csv, which the
