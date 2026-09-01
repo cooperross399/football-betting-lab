@@ -86,7 +86,15 @@ jobs:
         # runner nothing built the processed table, so the check exited 2
         # ("No team games at ...") on its very first run, eight days before
         # Week 1. A watchdog that has never been fired is an assumption.
-        run: PYTHONPATH=src python scripts/build_datasets.py || true
+        # `|| true` was here and swallowed an argument error, which is the
+        # same silent-failure pattern this lab keeps finding — written into
+        # the fix for a silent failure. continue-on-error records the outcome
+        # instead of hiding it, and the gate below can then tell a broken job
+        # from a real finding.
+        continue-on-error: true
+        run: |
+          PYTHONPATH=src python scripts/build_datasets.py \
+            --seasons 2023 2024 2025 ${{ inputs.season || '2026' }}
 
       - name: Is the ledger intact?
         id: coverage
