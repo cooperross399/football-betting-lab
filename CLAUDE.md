@@ -442,6 +442,49 @@ family-corrected interval includes zero in every case. The best held-out
 numbers are `rush_yards` **+1.6% over 7,502 bets** and `pass_yards` **+1.1%
 over 4,502**, both with intervals spanning zero several times over.
 
+## The forward ledger's interval was sqrt(games) too narrow
+
+**Found 2026-09-01, eight days before the ledger starts accruing.** Found the
+way the three earlier defects were: by writing an invariant test that asserted
+something obvious — that clustering *widens* an interval — and then not
+believing the result when it failed.
+
+`forward_evidence.interval_by_game` divided by `games` twice, once building the
+variance and again taking the root:
+
+```
+variance       = (w^2 * s^2 / G).sum() * G   # already Var(estimator)
+standard_error = sqrt(variance / G)          # divides by G AGAIN
+```
+
+On twenty games of twenty perfectly correlated bets it reported a half-width of
+**0.10 where a bootstrap over games gives 0.40** — out by exactly sqrt(20). Over
+a full season of ~250 games it would have been out by a **factor of sixteen**.
+
+**This is the worst function in the repository to have had it in.** It reads the
+forward ledger — the only evidence this lab can still gather, and the one number
+Week 1 starts producing. A too-narrow interval is precisely how *"no demonstrated
+edge"* quietly becomes a claim, which is the failure its own docstring names. It
+would have made "the interval excludes zero" fire on noise all season.
+
+The illustration is not hypothetical. On the eight-game fixture in
+`tests/test_numeric_invariants.py`, the broken estimator returns **(+0.040,
++0.509) — an interval excluding zero.** The correct one returns **(−0.223,
++0.771)**, which includes it. Same data, opposite conclusion.
+
+Replaced with the cluster-robust standard error of a ratio estimator, which is
+what a pooled ROI is: total profit over total bets, games contributing unequal
+numbers of bets. **`props_backtest._interval` and
+`closing_line_backtest._interval` were already correct**, and only this third
+copy was wrong.
+
+**Three copies of one formula is how that happens, and a comment saying "these
+must agree" is not a guard.** `test_every_clustered_interval_in_the_repository_agrees_with_the_others`
+now asserts all three return the same interval on the same per-game data, with
+deliberately unequal bets per game — a ratio estimator and a mean-of-ratios
+estimator agree when every cluster is the same size, so equal sizes would let a
+wrong implementation pass. Reverting the fix fails that test.
+
 ## `tackles_assists` is still a settlement artefact, and now it is the only thing left
 
 It is the one market that replicates — **+12.4% / +11.2% / +12.6%** across

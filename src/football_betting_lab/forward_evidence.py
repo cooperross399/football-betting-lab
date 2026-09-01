@@ -450,10 +450,26 @@ def interval_by_game(ledger: pd.DataFrame) -> tuple[float, float, float, int, in
     if games < 2:
         return roi, float("-inf"), float("inf"), total_bets, games
     # Standard error of the mean per-bet return, from between-game variation.
-    ratios = per_game["profit"] / per_game["bets"]
-    weights = per_game["bets"] / total_bets
-    variance = float((weights**2 * ratios.var(ddof=1) / games).sum() * games)
-    standard_error = math.sqrt(max(variance, 0.0) / games)
+    #
+    # The cluster-robust standard error of a RATIO estimator, which is what a
+    # pooled ROI is: total profit over total bets, where games contribute
+    # unequal numbers of bets. This is the same arithmetic
+    # `props_backtest._interval` uses, and the two must not drift apart.
+    #
+    # The previous version divided by `games` twice — once building the
+    # variance and again taking the root — and was therefore **sqrt(games) too
+    # narrow**. On twenty games of twenty correlated bets it reported a
+    # half-width of 0.10 where a bootstrap over games gives 0.40, and over a
+    # full season of ~250 games it would have been out by a factor of sixteen.
+    #
+    # That is the worst possible direction for this particular function. It
+    # reads the FORWARD LEDGER, which is the only evidence this lab can still
+    # gather, and a too-narrow interval is exactly how "no demonstrated edge"
+    # quietly becomes a claim — the failure its own docstring names.
+    residuals = per_game["profit"] - roi * per_game["bets"]
+    mean_bets = total_bets / games
+    variance = float((residuals**2).sum() / (games * (games - 1)))
+    standard_error = math.sqrt(max(variance, 0.0)) / mean_bets
     return roi, roi - 1.96 * standard_error, roi + 1.96 * standard_error, total_bets, games
 
 
