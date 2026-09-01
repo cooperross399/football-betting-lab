@@ -150,14 +150,31 @@ line value is a diagnostic and never leads a report.
   test pins it that way — so there is nothing about it to verify.
 
   What is genuinely unverified is the **card's own schedule**: every
-  `Football Gameday Refresh` run to date was a `workflow_dispatch`. Its cron
-  is `9-12,1`, so the first scheduled firing in the repository's history is
-  **2026-09-01 at 14:00 UTC**, on a day with no games, which is free. Read
-  that run before trusting the season.
-- **`|| true` is how this lab hides its own failures.** It has caused the same
-  class of defect three separate times, including inside the fix for one of
-  them. Prefer `continue-on-error`, which records the outcome instead of
-  swallowing it.
+  `Football Gameday Refresh` run to date was a `workflow_dispatch`. Its cron is
+  `9-12,1`, so the first scheduled firing in this repository's history is
+  **2026-09-01 at 14:00 UTC**.
+
+  **That run will stand down, and that is not a fault.** A dispatch at 04:47
+  UTC on 2026-09-01 published `slate_date: 2026-09-01, decision: no-slate`, so
+  the guard reads today as already published. Standing down is the guard
+  working, and it is worth reading for exactly that.
+
+  **The first full card on the schedule path is 2026-09-02 at 14:00 UTC**, and
+  then daily until Week 1. Those are eight free rehearsals of the exact
+  production path on days with no games — the cheapest verification this lab
+  will ever get, and nobody has to do anything but read them.
+- **`|| true` is how this lab hides its own failures.** Four times now, twice
+  inside the fix for a previous one. The fourth sat on the weekly watchdog's
+  schedule fetch, where the argument had ALSO always been wrong (`--only
+  schedule`; the feed is `schedules`), so that fetch had never once succeeded
+  and the check silently compared the ledger against a frozen calendar —
+  reporting the week **intact**. `tests/test_workflows.py` now fails any step
+  whose last command ends in `|| true`, and any workflow naming a feed that
+  does not exist. Prefer `continue-on-error`, which records the outcome.
+
+- **Fire a workflow after you change it.** Both defects above were found that
+  way, on the first firing, in about a minute. The weekly check is free and
+  the card costs nothing on a day with no games.
 
 ## First action
 
