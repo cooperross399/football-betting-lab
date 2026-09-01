@@ -442,6 +442,48 @@ family-corrected interval includes zero in every case. The best held-out
 numbers are `rush_yards` **+1.6% over 7,502 bets** and `pass_yards` **+1.1%
 over 4,502**, both with intervals spanning zero several times over.
 
+## Two calendars for one slate, and the watchdog that never fetched either
+
+**Found 2026-09-01 by firing the weekly watchdog after changing it**, which is
+the discipline this file already states and had not been applied here.
+
+**The watchdog's schedule fetch had never once succeeded.** Its argument was
+`--only schedule`; the feed is `schedules`. The script exits 2 on an unknown
+feed, and a `|| true` on the step swallowed it on every run since the workflow
+was written. The comment on the step immediately below describes this exact
+failure — *"`|| true` was here and swallowed an argument error"* — because the
+previous fix corrected that step and left this one. **Fourth occurrence of the
+family, second inside a fix for itself.**
+
+It failed in the direction that looks like success. A committed calendar already
+existed, so the coverage and freshness checks ran against it, **both returned
+success**, and the week would have been reported **intact**. The gate now reads
+the fetch's outcome first, and on the run that found this it printed *"broken
+watchdog, NOT evidence about the ledger"* — which is what it was.
+
+**And there were two calendars.** `season.schedule_path` named
+`schedule/nflverse_games.csv`, which **nothing writes**. The `schedules` feed
+lands at `schedules/games.csv`, which until now **nothing read**. So every fetch
+updated one file and the card's preseason screen judged against the other,
+frozen at whatever was last committed. They had already drifted — on the
+`spread_line`, `total_line` and moneyline columns, which are not decoration
+here: the schedule's closing prices are one of the three priced instruments this
+lab has.
+
+**What the stale calendar would have cost.** `known_regular_season_games`
+decides whether a provider fixture is preseason by matching `(date, HOME, AWAY)`.
+The NFL flexes games between slots and dates all season. A game whose date moved
+would match nothing in a frozen calendar, be read as **preseason**, and be
+dropped from the card — freezing no opinion for a game that was played, in a
+ledger that cannot be back-dated. `schedule_cache_is_complete` would still have
+reported 32 clubs, so nothing would have fired.
+
+`schedule_path` now delegates to the feed, the orphan file is deleted, and two
+tests hold the line: one asserts the path the code reads is the path the fetcher
+writes, the other that no orphan reappears. A third asserts every `--only` in
+every workflow names a feed that exists — an argument error is otherwise
+discoverable only at runtime, which is exactly how this one survived.
+
 ## The forward ledger's interval was sqrt(games) too narrow
 
 **Found 2026-09-01, eight days before the ledger starts accruing.** Found the

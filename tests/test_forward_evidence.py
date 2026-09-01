@@ -526,3 +526,39 @@ def test_a_snapshot_frozen_before_calibration_existed_still_settles(tmp_path):
     # The pre-calibration row is blank there, and blank is the honest value.
     first = combined[combined["snapshot_date"] == "2026-09-09"].iloc[0]
     assert pd.isna(first["calibrated_probability"])
+
+
+# -- one calendar, not two ----------------------------------------------------
+
+def test_the_schedule_the_code_reads_is_the_one_the_fetcher_writes() -> None:
+    """Two calendars for one slate is a defect class this lab already knows.
+
+    `schedule_path` used to name `schedule/nflverse_games.csv`, which **nothing
+    writes**. The `schedules` feed lands at `schedules/games.csv`, so every
+    fetch updated a file nothing read while the card's preseason screen and the
+    credit estimate read a frozen snapshot. They had already drifted on the
+    price columns, which are one of this lab's three priced instruments.
+    """
+    from football_betting_lab.config import RAW_DIR
+    from football_betting_lab.data import nflverse
+    from football_betting_lab.leagues import NFL
+    from football_betting_lab.season import schedule_path
+
+    written = nflverse.feed_path(nflverse.FEEDS_BY_NAME["schedules"], NFL, RAW_DIR, None)
+    assert schedule_path(NFL, RAW_DIR) == written, (
+        "The schedule the code reads is not the one the fetcher writes. Every "
+        "fetch would update a file nothing reads, and the preseason screen "
+        "would decide against a calendar frozen at whatever was committed."
+    )
+
+
+def test_no_orphan_calendar_is_left_behind() -> None:
+    """A second copy that nothing writes is worse than no copy: it answers."""
+    from football_betting_lab.config import RAW_DIR
+    from football_betting_lab.leagues import NFL
+
+    orphan = RAW_DIR / NFL.data_dir_segment / "schedule" / "nflverse_games.csv"
+    assert not orphan.exists(), (
+        f"{orphan} is back. Nothing writes it, so it can only ever go stale "
+        "while looking exactly like the real calendar."
+    )
