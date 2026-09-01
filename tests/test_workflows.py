@@ -257,3 +257,115 @@ def test_the_purchase_says_so_loudly_when_it_restored_nothing() -> None:
     text = _without_comments(WORKFLOW_DIR / "historical-purchase.yml")
 
     assert "Nothing restored" in text
+
+
+# -- a step may not force its own exit status ---------------------------------
+#
+# `|| true` has caused the same class of defect four times in this repository,
+# twice inside the fix for a previous instance. The failure is always the same
+# shape: a step that cannot fail reports success, and the steps below it run on
+# whatever it left behind. The last one sat on the step that fetches the
+# schedule the weekly watchdog compares the ledger against — so a failed fetch
+# left a STALE calendar and the check reported the week intact.
+#
+# The rule is not "never write `|| true`". Tolerating an expected non-zero
+# INSIDE a command is legitimate and this repository does it correctly: `grep`
+# finding no snapshots yet is not an error. What is forbidden is forcing the
+# exit status of the STEP, because that is the value `continue-on-error` exists
+# to record and `steps.<id>.outcome` exists to read.
+
+def _run_blocks(path: Path) -> list[tuple[str, dict]]:
+    """(step name, step) for every step with a `run:`, across every job."""
+    loaded = _load(path)
+    out: list[tuple[str, dict]] = []
+    for job in (loaded.get("jobs") or {}).values():
+        for step in job.get("steps") or []:
+            if isinstance(step, dict) and "run" in step:
+                out.append((step.get("name", "<unnamed>"), step))
+    return out
+
+
+def _forces_its_own_exit_status(script: str) -> bool:
+    """Does the step's LAST executed command swallow its own failure?
+
+    Only the final command decides the step's exit status, and only a `|| true`
+    that is not nested inside a substitution or a loop body applies to it. A
+    crude substring search would flag the legitimate `$(... | grep ... || true)`
+    and teach everyone to ignore this test.
+    """
+    meaningful = [
+        line.strip()
+        for line in script.splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+    if not meaningful:
+        return False
+    last = meaningful[-1]
+    if not last.endswith("|| true"):
+        return False
+    # Nested inside a command substitution, so it guards that command's status
+    # rather than the step's. `$(... || true)` is how you tolerate grep finding
+    # nothing, and flagging it would make this test noise.
+    if "$(" in last:
+        return False
+    # Closing a compound statement rather than being the final simple command.
+    return not last.startswith(("done", "fi", "esac"))
+
+
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
+def test_no_step_forces_its_own_exit_status(path: Path) -> None:
+    offenders = [
+        name
+        for name, step in _run_blocks(path)
+        if _forces_its_own_exit_status(str(step["run"]))
+    ]
+    assert offenders == [], (
+        f"{path.name}: these steps end in `|| true`, which makes them incapable "
+        f"of failing and therefore incapable of being read: {offenders}. Use "
+        "`continue-on-error: true` instead — it records the outcome as "
+        "`steps.<id>.outcome` so a later gate can tell a broken job from a real "
+        "finding. This family has cost this repository four defects."
+    )
+
+
+def test_the_weekly_check_can_tell_a_stale_calendar_from_a_lost_game_day() -> None:
+    """The failure that looks like good news.
+
+    A silently failed schedule fetch leaves the committed calendar in place, the
+    coverage check runs against it and succeeds, and the week is reported
+    intact. So the gate has to read the fetch's outcome, and has to read it
+    before it reports anything clean.
+    """
+    text = _without_comments(WORKFLOW_DIR / "weekly-ledger-check.yml")
+    assert "id: schedule" in text, (
+        "The schedule fetch has no id, so no gate can read whether it worked."
+    )
+    assert "steps.schedule.outcome" in text, (
+        "Nothing reads the schedule fetch's outcome. A stale calendar would be "
+        "reported as an intact week."
+    )
+    assert text.count("SCHEDULE: ${{ steps.schedule.outcome }}") >= 2, (
+        "Both the report step and the failing gate must read the schedule "
+        "outcome; a report that says 'intact' while the gate fails is two "
+        "alarms wearing one label."
+    )
+
+
+def test_the_step_status_rule_catches_the_defect_it_was_written_for() -> None:
+    """The exact line that was in `weekly-ledger-check.yml`, and the legitimate
+    uses that must not be flagged."""
+    assert _forces_its_own_exit_status(
+        "PYTHONPATH=src python scripts/fetch_football_data.py --only schedule || true"
+    )
+    assert _forces_its_own_exit_status('cat data/outputs/card.md >> "$SUMMARY" || true')
+    # Legitimate: an expected non-zero tolerated inside a command substitution.
+    assert not _forces_its_own_exit_status(
+        "for f in $(git ls-tree -r --name-only tip | grep '^snapshots/' || true); do\n"
+        "  echo \"$f\"\n"
+        "done"
+    )
+    # Legitimate: the failure is handled by the lines that follow it.
+    assert not _forces_its_own_exit_status(
+        'git fetch --depth=1 "$REMOTE" tip 2>/dev/null || true\n'
+        'if git cat-file -e tip:ledger.csv 2>/dev/null; then echo yes; fi'
+    )

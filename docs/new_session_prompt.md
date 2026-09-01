@@ -141,8 +141,19 @@ line value is a diagnostic and never leads a report.
   check failed its first two firings: it could not build its own inputs, and
   it reported that as *"a scheduled game day has no frozen opinions"*, which
   is a different and irreversible thing. Fire every scheduled workflow at
-  least once before trusting its silence. `provider-shadow` and
-  `provider-quota` have crons and have **not** been verified this way.
+  least once before trusting its silence.
+
+  **That sentence previously named `provider-shadow` and `provider-quota` as
+  unverified. Both halves were wrong, checked 2026-09-01.** `provider-quota`
+  has a cron and has fired on it successfully three times (2026-08-29, 08-30,
+  08-31). `provider-shadow` has **no cron at all** — it is manual-only, and a
+  test pins it that way — so there is nothing about it to verify.
+
+  What is genuinely unverified is the **card's own schedule**: every
+  `Football Gameday Refresh` run to date was a `workflow_dispatch`. Its cron
+  is `9-12,1`, so the first scheduled firing in the repository's history is
+  **2026-09-01 at 14:00 UTC**, on a day with no games, which is free. Read
+  that run before trusting the season.
 - **`|| true` is how this lab hides its own failures.** It has caused the same
   class of defect three separate times, including inside the fix for one of
   them. Prefer `continue-on-error`, which records the outcome instead of

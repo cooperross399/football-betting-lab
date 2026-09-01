@@ -78,7 +78,24 @@ jobs:
           done
 
       - name: Fetch the schedule
-        run: PYTHONPATH=src python scripts/fetch_football_data.py --seasons ${{ inputs.season || '2026' }} --only schedule || true
+        id: schedule
+        # `|| true` was here too — on the step that builds this watchdog's own
+        # calendar, directly above the comment explaining why `|| true` is
+        # forbidden. That is the fourth time this family has appeared in this
+        # repository and the second time inside a fix for itself.
+        #
+        # It is the worst placement of the four. A committed schedule cache
+        # already exists, so a silently failed fetch does not empty the
+        # calendar — it leaves a STALE one, and the coverage check then runs
+        # against it and reports **intact**. The NFL flexes games between
+        # windows and dates all season; a watchdog comparing the ledger to last
+        # month's calendar answers confidently and wrongly, which is worse than
+        # not answering.
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python scripts/fetch_football_data.py \
+            --seasons ${{ inputs.season || '2026' }} --only schedule
 
       - name: Build the processed tables the checks read
         # The coverage check reads data/processed/team_games.csv, which the
@@ -153,6 +170,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERAGE: ${{ steps.coverage.outcome }}
           FRESHNESS: ${{ steps.freshness.outcome }}
+          SCHEDULE: ${{ steps.schedule.outcome }}
         run: |
           set -euo pipefail
           TITLE="Football Betting Lab — Claude Operating Home"
@@ -167,7 +185,8 @@ jobs:
           # A clean week posts one line. Roughly 18 comments a season, not 300:
           # a report that arrives every week in full trains the reader to stop
           # opening the one that matters.
-          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ]; then
+          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ] \
+             && [ "$SCHEDULE" = "success" ]; then
             echo "### Weekly ledger check — intact" > "$BODY"
             echo "" >> "$BODY"
             echo "Every game day played so far was frozen and settled, and every feed is current." >> "$BODY"
@@ -203,11 +222,20 @@ jobs:
         env:
           COVERAGE: ${{ steps.coverage.outcome }}
           FRESHNESS: ${{ steps.freshness.outcome }}
+          SCHEDULE: ${{ steps.schedule.outcome }}
         run: |
           set -u
-          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ]; then
+          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ] \
+             && [ "$SCHEDULE" = "success" ]; then
             echo "Ledger intact and every feed current."
             exit 0
+          fi
+          # A stale calendar is checked FIRST, because the coverage check can
+          # succeed against it and report a clean week. That is the one failure
+          # here that looks like good news.
+          if [ "$SCHEDULE" != "success" ]; then
+            echo "::error::The schedule fetch failed, so every check below it ran against the committed calendar rather than the current one. The NFL flexes games between windows and dates all season. This is a broken watchdog, NOT evidence about the ledger."
+            exit 1
           fi
           # A lost game day is a finding the report names in words; anything
           # else is this job failing to do its job.
