@@ -43,6 +43,10 @@ DOES_NOT_SETTLE = {
     "run_clv.py",                     # compares two prices, settles neither
     "run_allowlist_evidence.py",      # reads settled bets from file
     "run_gameday_card.py",            # today's slate; one season by definition
+    # Joins two price snapshots to ALREADY-SETTLED outcomes on the wager
+    # key (event, market, player, selection, line). It never maps an event
+    # to a season, so there is no season for it to get wrong.
+    "run_inactives_value.py",
 }
 
 
