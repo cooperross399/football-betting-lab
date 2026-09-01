@@ -19,6 +19,8 @@ import pandas as pd
 
 from football_betting_lab.config import OUTPUTS_DIR, PROCESSED_DIR
 from football_betting_lab.forward_evidence import LEDGER_FILENAME, render_ledger
+from football_betting_lab.experiment_ledger import LEDGER_FILENAME as EXPERIMENTS_FILENAME
+from football_betting_lab.experiment_ledger import load as load_experiments
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 
 
@@ -45,8 +47,14 @@ def main(argv: list[str] | None = None) -> int:
     ledger = (
         pd.read_csv(path, low_memory=False) if path.is_file() else pd.DataFrame()
     )
+    # The family is everything this lab has ever tested, not the rows in
+    # this week's table. Reading the ledger back IS another look at it.
+    experiments = load_experiments(OUTPUTS_DIR / EXPERIMENTS_FILENAME)
     report = render_ledger(
-        ledger, league, settlement_suspects=settlement_suspects(league)
+        ledger,
+        league,
+        settlement_suspects=settlement_suspects(league),
+        families=max(experiments.count, 1),
     )
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
     (OUTPUTS_DIR / league.output_name("forward_evidence", ".md")).write_text(

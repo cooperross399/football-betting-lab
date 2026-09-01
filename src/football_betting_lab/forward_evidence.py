@@ -83,6 +83,15 @@ SNAPSHOT_COLUMNS = (
     "book",
     "model_probability",
     "edge",
+    # Frozen beside the raw number, and blank when the market has no map.
+    # A calibrated probability CANNOT BE BACK-DATED: the ledger records what
+    # was believed before kickoff, so if this is not written from the first
+    # game day the season can never be scored on it, and the bought population
+    # is complete so there is no other source. Blank rather than a copy of the
+    # raw number, because "no map" and "calibrates to itself" must not look
+    # the same a year later.
+    "calibrated_probability",
+    "calibrated_edge",
     "gates_in_force",
 )
 
@@ -140,6 +149,7 @@ def write_snapshot(
     gates_in_force: str,
     snapshot_date: str,
     archive_dir: Path,
+    calibration=None,
 ) -> Path | None:
     """Freeze today's priced opinions. Returns None when one already stands.
 
@@ -187,6 +197,9 @@ def write_snapshot(
             implied = american_to_implied(float(odds))
         except (TypeError, ValueError):
             continue
+        calibrated = (
+            None if calibration is None else calibration.apply(market, probability)
+        )
         rows.append(
             {
                 "snapshot_date": snapshot_date,
@@ -201,6 +214,10 @@ def write_snapshot(
                 "book": clean_text(getattr(row, "book", "")),
                 "model_probability": probability,
                 "edge": probability - implied,
+                "calibrated_probability": calibrated,
+                "calibrated_edge": (
+                    None if calibrated is None else calibrated - implied
+                ),
                 "gates_in_force": gates_in_force,
             }
         )
@@ -449,6 +466,7 @@ def render_ledger(
     *,
     settlement_suspects: frozenset[str] = frozenset(),
     minimum_bets: int = 200,
+    families: int | None = None,
 ) -> str:
     """What the accumulated ledger supports, in the house vocabulary.
 
@@ -495,7 +513,12 @@ def render_ledger(
     add("")
 
     markets = sorted(set(settled["market"].astype(str)))
-    families = max(len(markets), 1)
+    # Across the CUMULATIVE count of everything this lab has ever tested when
+    # the caller supplies it, not just the markets in this week's table. A
+    # report that corrects across its own twelve rows, every week, for a
+    # season, is correcting across twelve when the true family is hundreds —
+    # and at a nominal 5% level roughly one look in twenty clears by chance.
+    families = max(families if families is not None else len(markets), 1)
     factor = NormalDist().inv_cdf(1 - (0.05 / families) / 2) / 1.96
 
     add("| Market | Bets | Games | ROI | 95% interval | Family-corrected | Reading |")

@@ -1,10 +1,8 @@
 {
   "policy": "props_recency_weighting",
   "league": "nfl",
-  "ships": [
-    "props_recency_weighting"
-  ],
-  "measured_on": "2025 bought prices, 31,361 pooled bets",
+  "ships": [],
+  "measured_on": "2023, 2024, 2025 bought prices, 78,693 pooled bets across 3 season(s)",
   "variants_tested": 1,
-  "summary": "half-life 8 games vs baseline: -3.1% against -5.3%; paired difference +2.3% per bet over 256 games, interval +0.1% to +4.5%. Distinguishable from zero. Both arms lose money against real prices."
+  "summary": "half-life 8 games vs baseline: -2.7% against -3.1%; paired difference -0.1% per bet over 768 games, interval -1.5% to +1.4%. Pooled difference not distinguishable from zero. Does NOT clear 2023, 2024, so it does not ship however good the pooled number is. Both arms lose money against real prices."
 }

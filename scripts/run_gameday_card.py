@@ -41,6 +41,7 @@ from football_betting_lab.forward_evidence import (
     write_snapshot,
 )
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
+from football_betting_lab.models.calibration import load as load_calibration
 from football_betting_lab.models.player_props import load_play_yardage
 from football_betting_lab.models.scoring import (
     distribution_for,
@@ -273,6 +274,26 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     # -- freeze, then settle --------------------------------------------
+    # Frozen beside the raw probability, and a missing artifact is reported
+    # rather than silently skipped: a calibrated probability CANNOT BE
+    # BACK-DATED, so a season of rows written without one can never be scored
+    # on it. Absent maps do not block the run — an uncalibrated opinion is
+    # still an opinion, and refusing to freeze it would lose the row entirely.
+    calibration = load_calibration(
+        OUTPUTS_DIR / league.output_name("calibration", ".json")
+    )
+    if calibration is None:
+        card.notes.append(
+            "No calibration artifact, so every frozen row is raw-only and this "
+            "slate can never be scored on a calibrated probability. Fit one "
+            "with `scripts/fit_calibration.py`."
+        )
+    else:
+        card.notes.append(
+            f"Calibration fitted on {calibration.fitted_on}, covering "
+            f"{len(calibration.markets)} market(s), frozen beside every raw "
+            "probability."
+        )
     frozen = write_snapshot(
         prices,
         probabilities,
@@ -282,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
         gates_in_force=policy.summary_line(league),
         snapshot_date=slate_date,
         archive_dir=archive_dir,
+        calibration=calibration,
     )
     if frozen is None:
         card.notes.append(

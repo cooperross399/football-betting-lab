@@ -1,0 +1,558 @@
+{
+  "hypotheses": [
+    {
+      "search": "subgroup-search",
+      "name": "blowout risk",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "edge magnitude",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "odds range",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "line magnitude",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "week of season",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "position",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "target share",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "rest",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "weather",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "home/away",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "game total",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "subgroup-search",
+      "name": "book",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "opponent defensive strength",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "player role level",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "role trend",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "game script",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "rest and schedule",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "weather",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "position",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "defence x role interaction",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "feature-search",
+      "name": "all features combined",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024
+      ],
+      "outcome": "0 survivors"
+    },
+    {
+      "search": "props-replication",
+      "name": "anytime_td",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "defensive_interceptions",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "field_goals",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "kicking_points",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_attempts",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_completions",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_interceptions",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_longest_completion",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_tds",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "pass_yards",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "reception_longest",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "reception_yards",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "receptions",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "rush_attempts",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "rush_longest",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "rush_yards",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "sacks",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "props-replication",
+      "name": "tackles_assists",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "model-variants",
+      "name": "recency weighting half-life 8",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "recency and half-model do not ship"
+    },
+    {
+      "search": "model-variants",
+      "name": "first-half scoring model",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "recency and half-model do not ship"
+    },
+    {
+      "search": "model-variants",
+      "name": "walk-forward isotonic calibration",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "recency and half-model do not ship"
+    },
+    {
+      "search": "team-markets",
+      "name": "moneyline into the close",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "spread into the close",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "total into the close",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "alternate_spread at card time",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "alternate_total_points at card time",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "alternate_team_total at card time",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "team-markets",
+      "name": "team_total at card time",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "no demonstrated edge"
+    },
+    {
+      "search": "joint-distribution",
+      "name": "receptions x reception_yards correlation",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2025
+      ],
+      "outcome": "joint accurate; not monetizable without parlay prices"
+    },
+    {
+      "search": "joint-distribution",
+      "name": "reception_yards x reception_longest correlation",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2025
+      ],
+      "outcome": "joint accurate; not monetizable without parlay prices"
+    },
+    {
+      "search": "joint-distribution",
+      "name": "rush_attempts x rush_yards correlation",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2025
+      ],
+      "outcome": "joint accurate; not monetizable without parlay prices"
+    },
+    {
+      "search": "joint-distribution",
+      "name": "rush_yards x rush_longest correlation",
+      "tested_on": "2026-08-31",
+      "seasons": [
+        2025
+      ],
+      "outcome": "joint accurate; not monetizable without parlay prices"
+    }
+  ]
+}

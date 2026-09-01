@@ -319,10 +319,17 @@ that is the correct state.**
   constant. A missing or unreadable verdict ships nothing. Each verdict
   records `variants_tested`, because every variant tried against the same
   bought season spends a degree of freedom.
-- **Recency weighting: measured, does not ship.** Half-life 8 games returned
-  −5.2% against the baseline's −6.6%. The **paired** difference over the 172
-  games both arms bet is **+1.4% per bet, interval −1.0% to +3.9% — not
-  distinguishable from zero.** The first decision rule was `roi_variant >
+- **Recency weighting: measured on all three seasons, does not ship.**
+  Half-life 8 games returned −2.7% against the baseline's −3.1%. The **paired**
+  difference over the 768 games both arms bet is **−0.1% per bet, interval
+  −1.5% to +1.4% — not distinguishable from zero**, and it fails to clear 2023
+  and 2024 individually.
+- **That verdict was a single-season coin flip until 2026-08-31.** The script
+  scored one season and wrote a verdict file with one name, so the policy
+  shipped or did not depending on which season had been run last: +2.3% on
+  2025 shipped it, −1.8% on 2023 did not. Same policy, same script, opposite
+  verdicts, and the card reads whichever ran most recently. It now scores every
+  season and ships only if the paired difference clears in **all** of them. The first decision rule was `roi_variant >
   roi_baseline` and would have shipped it; comparing two overlapping intervals
   and taking the larger number is how a lab ships noise, and the arms' own
   intervals span several times the gap between them.
@@ -536,6 +543,184 @@ was the one question this lab was blocked on. It is now the difference
 between roughly zero and clearly negative. **It is still worth answering
 before anything is acted on, but nothing waits on it.**
 
+## Every stat we can compute, tested against what the price got wrong
+
+**0 of 9 pre-registered feature families. No demonstrated edge.**
+`docs/preregistered_feature_search.md`, `data/outputs/nfl_feature_search.md`.
+
+Cooper asked for every stat, record and analytic to be used. They were —
+opponent defensive strength, player role, role trend, game script, rest,
+weather, position, a defence-by-role interaction, and a combined fit on all of
+them. All computed walk-forward and knowable before kickoff, over **78,253
+staked bets**.
+
+**The target was the residual, `won − market_implied`, and that choice is the
+whole result.** The market already knows the opponent, the spread, the weather
+and the depth chart. A feature that predicts a player's yards is one the price
+already carries; only a feature that predicts what the price got **wrong** can
+produce an edge. The two questions give opposite answers here:
+
+| Question | Answer |
+|:---|:---|
+| Does opponent strength predict rushing yards? | **Yes** — yards allowed vary **2.25×** best to worst, and the model uses none of it |
+| Does it predict what the *price* got wrong? | **No** — signed contrast **+4.35pp over 20,915 bets, CI [−0.93, +9.63]**; correlation with actual/line **r = 0.031** |
+
+**You can watch the market do this.** On role trend, `market_implied` rises
+monotonically across quartiles (0.410 → 0.426 on overs) while `won` does not.
+The market reprices last-three-game usage in real time, and what is left after
+that repricing is nothing.
+
+**The cleanest single result is the combined fit.** A ridge model on every
+pre-kickoff feature, in-sample, looks bettable: **+8.6% at a 0.03 threshold,
++16.0% at 0.05**. Out-of-fold, 5-fold grouped by game, the same rules are
+**negative at every threshold** — −3.5%, −4.8%, −4.4%. That gap between
++16.0% and −4.4% is what "add all the stats and look" produces, and it is why
+the held-out split is not optional.
+
+**Three predicted directions reversed outright**: role trend (rising usage is
+the *worst* overs bucket), game script (heavy underdogs are negative on unders),
+and the defence-by-role interaction (low-usage players show the larger
+weak-defence effect). Weather is not testable at all — 46 high-wind games
+against the ~774 needed for a 2.5-point half-width.
+
+**Worth building anyway:** the two defensive ratios, as a forecasting
+improvement. A better forecaster is worth having before it is a profitable one.
+**Not worth the degrees of freedom:** everything else.
+
+## The model is a worse forecaster than the price it bets into
+
+**This is the deepest result in the repository and it should be read before
+any other number here.** Every other instrument asks whether a *return* is
+real. This one asks the question underneath: does the model know anything the
+price does not? It needs no settlement rule, no vig assumption and no edge
+threshold — just a probability, an outcome, and the price's own implied
+probability. `scripts/run_forecast_skill.py`.
+
+The model is wildly overconfident; the market is nearly perfect:
+
+| Model says | Bets | Actually happens | Market says | Model error | Market error |
+|:---|---:|---:|---:|---:|---:|
+| 0.60-0.65 | 14,417 | 0.485 | 0.510 | **−0.139** | −0.024 |
+| 0.70-0.80 | 11,487 | 0.507 | 0.523 | **−0.235** | −0.017 |
+| 0.80-1.00 | 4,700 | 0.547 | 0.523 | **−0.314** | +0.024 |
+
+**Brier over 74,345 bets: model 0.26057, market 0.22703.** Walk-forward
+isotonic calibration — the map fitted on prior seasons only — closes most of
+that gap and never crosses it:
+
+| Season | Model | **Calibrated** | Market | Beats the price? |
+|:---|---:|---:|---:|:---|
+| 2024 | 0.26153 | **0.23104** | 0.22756 | no |
+| 2025 | 0.25710 | **0.22524** | 0.22329 | no |
+
+The market's implied probability still has the **vig in it**, so it is an
+over-estimate being scored with a handicap. The model loses anyway.
+
+**Why this matters more than any subgroup search:** if the model is not a
+better forecaster than the price, no betting rule, threshold or slice can be
+profitable except by chance. A promising subgroup found after this table is a
+coincidence with a story attached, and the pre-registered search in
+`docs/preregistered_subgroup_search.md` has to be read against it.
+
+**Calibration is still worth shipping.** It cuts 2025 from −5.97% to −3.69%
+and 2024 from −2.90% to −1.05%. A smaller loss is not a profit, and this table
+is the reason no filter turns one into the other.
+
+## The team model on card-time ladders: the last untested angle, and it loses
+
+**−9.8% pooled over 54,641 bets across 773 games, interval −17.5% to −2.2% —
+excludes zero, negative.** `scripts/run_team_ladder_backtest.py`,
+`data/outputs/nfl_team_ladder_backtest.md`.
+
+This was the one substantial priced test the lab had never run, and it existed
+because the closing-line backtest's own report called itself conservative in
+two directions: it bets **into the close**, the sharpest price of the week, at
+**one consensus line** rather than the best of nine books. This test does
+neither — card-time snapshot, best price across every book quoting the rung,
+which is what a card actually does.
+
+It is also the only test that reaches the machinery the team model was built
+for. Featured `moneyline`, `spread` and `total_points` were **never bought**
+(the purchase was props-led), but 985,000 rows of `alternate_spread` and
+`alternate_total_points` were, plus the team totals. Those ladders are where
+the exponential tilt and the exact push mass at 3 and 7 do their work.
+
+| Market | Bets | ROI | Corrected interval |
+|:---|---:|---:|:---|
+| `alternate_spread` | 23,211 | −11.6% | −24.7% to +1.6% |
+| `alternate_total_points` | 17,057 | −7.2% | −22.0% to +7.5% |
+| `alternate_team_total` | 7,753 | **−17.4%** | −31.0% to −3.7% |
+| `team_total` | 6,620 | −1.7% | −10.9% to +7.5% |
+| **pooled** | **54,641** | **−9.8%** | **−17.5% to −2.2%** |
+
+Per season: 2023 −4.1%, 2024 −10.1%, 2025 −15.0%. It gets worse, not better.
+
+**−9.8% is about the props null baseline (−9.47%)**, so the team model on
+ladders is no better than betting them blind. Giving the model the friendliest
+price it could ever see did not help, which is the same answer the Brier
+comparison gives from a different direction.
+
+**Settlement was proved against pricing before the number was believed.**
+Twenty tests put all the distribution's mass on one scoreline and assert the
+backtest settles each rung exactly as `GameDistribution.spread` / `.total` /
+`.team_total` price it — including the pushes at 3 and 7, a missing line as a
+void rather than a loss, and an unknown market as a void rather than a guess.
+A sign error in any of those would have produced a plausible number rather
+than an error.
+
+## The pre-registered subgroup search found nothing, in twelve directions
+
+**0 of 12 subgroups survived, and 0 of 12 mechanisms held.**
+`docs/preregistered_subgroup_search.md` was written before any subgroup was
+measured; discovery on 2023-24, validation on held-out 2025, minimum 500 bets,
+intervals clustered by game, Bonferroni across twelve.
+`data/outputs/nfl_subgroup_search.md` has the full table.
+
+**One subgroup cleared discovery and died twice.** Q3 of *contemporaneous*
+target share returned +10.69% over 7,644 discovery bets. It fails for two
+independent reasons, and the second is the disqualifying one: on held-out 2025
+it returned **+6.68% over 4,904 bets with an interval of [−5.71%, +19.07%]**,
+which includes zero — and **same-game target share is a post-game quantity**,
+so it could not have been bet whatever the interval said. The lagged version,
+which *is* knowable at bet time, is not monotone at all.
+
+**Four mechanisms reversed outright**, which is worth more than the null result:
+
+- **Blowout risk was backwards.** Under value-add is *highest* in the tightest
+  games (+7.39% at |spread| < 3) and flat everywhere wider. The calibration's
+  "days get cut short" story predicted the opposite, so **the game-script model
+  that finding motivated should not be built** on this evidence.
+- **Longshot bias was backwards.** The longest prices (+250 to +600) have the
+  *highest* value-add.
+- **Late-season was backwards.** Weeks 1-9 beat weeks 10-18.
+- **Role stability was backwards.** Volatile roles +10.48%, stable roles −0.29%.
+
+**No book is soft enough.** Gated on its own quote, the best is DraftKings at
+**−2.02% over 16,794 bets** (interval [−6.43%, +2.38%]); five of ten are
+negative with intervals excluding zero.
+
+**A defect in the pre-registration, recorded so the next one is better:** three
+of the twelve hypotheses were written with no predicted direction, so they
+could not be falsified by direction and three slots were spent on cuts that
+could only ever be exploratory. Also, the declared Bonferroni of twelve is too
+generous — the search examined far more than twelve cells — and **nothing
+cleared it even so.**
+
+## The measurement that makes subgroup ROI readable
+
+**Raw subgroup ROI is uninterpretable here.** The null baseline is **−12.4% on
+overs and −2.6% on unders**, so "unders return −0.1%" reads as a finding and is
+entirely a property of the price structure. What the model is worth in a
+subgroup is its return **minus what betting that same cell blind returns**.
+
+Pooled, that is **+4.28 points of value-add against a −3.22% return**: a
+genuinely better-than-nothing model facing about 7.5 points of vig.
+
+**The over-shading bias is real and too small to bet.** Blind unders across
+exact-settlement markets return **−2.64% over 110,661 bets**. The only markets
+where blind unders are positive are `tackles_assists` (+9.26%) and `sacks` —
+both **charted**, which is the settlement-artefact family, and which confirms
+that artefact from a third independent direction.
 ## The measurement window is not the card's window
 
 **Found 2026-08-31, nine days before Week 1, while auditing the sibling NHL
@@ -613,6 +798,35 @@ stand the 14:00 run down — buying six international games at the cost of
 carding 149 one-o'clock games two hours earlier, with less information. The
 real fix is per-game carding rather than per-day, which is a design change
 and not a scheduling one. Recorded rather than done.
+
+## The bought snapshots are not the card's window, and that flatters us
+
+**Measured over 816 events, three snapshots each:**
+
+| Bought snapshot | Minutes before kickoff |
+|:---|---:|
+| `card` | **360** (median, 6 hours) |
+| `mid` | 60 |
+| `close` | 6 |
+
+**The gameday workflow runs once, at 14:00 UTC — 10:00 ET.** So the card's own
+lead time is not 360 minutes and is not even constant: it is about **180
+minutes for a 13:00 ET kickoff**, 385 for a 16:25, and 620 for a 20:20. Every
+priced result in this repository was measured at a flat T−360 that the card
+never actually sees.
+
+**The direction of that error matters and it runs in the model's favour.** An
+earlier price has had less information put into it, so T−360 is the softer of
+the two — and every backtest here still lost at it. A mismatch that biases
+toward the model, on results that are negative anyway, does not threaten the
+conclusion; it makes it more robust. It would matter enormously if any of
+those results had been positive, and it is recorded now so that a future
+positive one cannot quietly rest on it.
+
+**What it does affect is Week 1.** The forward ledger will freeze at the card's
+real window, so 2026 rows and the 2023-25 rows are priced at different lead
+times and are not directly poolable. The ledger records `commence_time` and
+`snapshot_date`, so the lead is recoverable per row rather than assumed.
 
 ## The verdict
 

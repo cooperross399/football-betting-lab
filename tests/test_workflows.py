@@ -193,12 +193,32 @@ def test_the_operating_home_title_in_the_workflow_is_the_contract_string() -> No
     assert OPERATING_HOME_ISSUE in text
 
 
-def test_the_gameday_workflow_may_comment_but_the_others_may_not() -> None:
-    """Commenting is a side effect on something a human watches. Only the run
-    that produces the card needs it."""
+#: The only workflows that may comment on the operating-home issue. Commenting
+#: is a side effect on something a human watches, so the set is named here and
+#: a new workflow has to be added deliberately rather than by inheriting a
+#: permission block from whatever was copied.
+MAY_COMMENT = {
+    # Produces the card, and must report a degraded run.
+    "football-gameday-refresh.yml",
+    # The second, independent watchdog. It exists precisely for the case where
+    # the gameday run never started, so it cannot report through that run — a
+    # check that can only speak through the thing it checks is not a check.
+    "weekly-ledger-check.yml",
+}
+
+
+def test_only_the_named_workflows_may_comment_on_the_operating_home() -> None:
+    """Commenting is a side effect on something a human watches.
+
+    This was "only the gameday workflow", and the weekly ledger check was added
+    to the set deliberately: it reports on game days the gameday run never
+    froze, which is the one failure it cannot report on itself. The set is
+    explicit so the next workflow cannot acquire the permission by copying a
+    permissions block.
+    """
     for path in WORKFLOWS:
         permissions = _load(path).get("permissions") or {}
-        expected = "write" if path.name == "football-gameday-refresh.yml" else None
+        expected = "write" if path.name in MAY_COMMENT else None
         assert permissions.get("issues") == expected, path.name
 
 

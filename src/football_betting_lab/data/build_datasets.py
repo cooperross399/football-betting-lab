@@ -17,10 +17,32 @@ touchdowns has scored none. Anytime-touchdown settles on touchdowns a player
 passing column would credit every scoring drive to the quarterback and price
 every quarterback as the most likely scorer on the field.
 
-**`tackles_assists` is solo tackles plus assists credited to the player**
-(`def_tackles_solo + def_tackle_assists`), not `def_tackles_with_assist`,
-which counts tackles *made with* an assister and would double-count against
-the solo column.
+**`tackles_assists` is all three defensive columns summed**
+(`def_tackles_solo + def_tackles_with_assist + def_tackle_assists`).
+
+An earlier version summed only the first and third, reasoning that
+`def_tackles_with_assist` "counts tackles *made with* an assister and would
+double-count against the solo column". That reasoning was wrong, and it was
+wrong in the direction that manufactured this lab's longest-running false
+finding. `def_tackles_solo` counts tackles made **alone**;
+`def_tackles_with_assist` counts tackles the player **made** while someone
+else assisted. They are disjoint, and the official box score's *solo* figure
+is their sum.
+
+Verified against a published box score rather than argued:
+
+    Zack Baun, 2024, 16 games
+      def_tackles_solo                                    82
+      def_tackles_with_assist                             11
+      def_tackle_assists                                  58
+      solo + with_assist            = 93   official solo      93
+      solo + with_assist + assists  = 151  official combined  151
+      solo + assists (the old sum)  = 140  -- 11 short
+
+League-wide the old sum gave **123.6 combined tackles a game against the
+correct 133.0**, a 7.1% undercount, and on the featured prop it put the mean
+outcome **0.424 below the mean line**. The books were pricing the median of
+the correct quantity to within **0.017 tackles** the whole time.
 
 ## Yardage can be negative, and the maximum can exceed the total
 
@@ -362,12 +384,24 @@ def build_player_logs(
             "field_goals": column("fg_made"),
             "pats": column("pat_made"),
             "kicking_points": 3 * column("fg_made") + column("pat_made"),
-            # Defence. `def_tackles_with_assist` counts tackles MADE WITH an
-            # assister and would double-count against the solo column, which
-            # is why it is not the one summed here.
-            "solo_tackles": column("def_tackles_solo"),
+            # Defence. All three columns are disjoint and all three are part
+            # of a combined tackle. `def_tackles_solo` is tackles made alone;
+            # `def_tackles_with_assist` is tackles the player MADE while
+            # someone else assisted; `def_tackle_assists` is assists he gave
+            # on someone else's tackle. The official box score's *solo* figure
+            # is the first two summed, and its *combined* figure is all three.
+            # Dropping the middle one undercounted every defensive line in
+            # this repository by about 7% and produced a +12% "edge" that was
+            # the undercount and nothing else.
+            "solo_tackles": (
+                column("def_tackles_solo") + column("def_tackles_with_assist")
+            ),
             "tackle_assists": column("def_tackle_assists"),
-            "tackles_assists": column("def_tackles_solo") + column("def_tackle_assists"),
+            "tackles_assists": (
+                column("def_tackles_solo")
+                + column("def_tackles_with_assist")
+                + column("def_tackle_assists")
+            ),
             "sacks": column("def_sacks"),
             "defensive_interceptions": column("def_interceptions"),
         }
