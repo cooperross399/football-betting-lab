@@ -23,12 +23,33 @@ name: Football Gameday Refresh
 
 on:
   schedule:
-    # Sunday's early games kick off 13:00 ET. This runs at 10:00 ET, late
-    # enough that books have posted their boards and early enough that the
-    # kickoff guard has nothing to quarantine.
+    # THE OPERATIVE RUN. Sunday's early games kick off 13:00 ET; this runs at
+    # 10:00 ET (09:00 EST), late enough that books have posted their boards and
+    # early enough that the kickoff guard has nothing to quarantine. Because the
+    # later triggers stand down when this one publishes cleanly, and because
+    # `--horizon-days 1` prices the whole league day at once, THIS run cards
+    # every game of the day — including the 20:15 ET night window. The lead is
+    # therefore 3-11 hours depending on slot, not the 3-6.4h a
+    # last-run-before-kickoff reading suggests. `nfl_carding_window.md` computes
+    # it from these very lines; do not restate it in prose.
     - cron: "0 14 * 9-12,1 *"
-    # A second pass for the Thursday and Monday night windows, and a backup
-    # for a dropped first run. It stands down if the first published cleanly.
+    # THE REAL BACKUP, and it is 90 minutes later rather than seven hours for a
+    # measured reason. The 21:00 UTC trigger below cannot rescue a dropped first
+    # run: it arrives AFTER kickoff for 183 of 272 games (every 13:00 ET game,
+    # 55% of the season) and inside the 90-minute inactives window for 34 more,
+    # leaving 55 carded normally. At 15:30 UTC the same failure leaves 266 of
+    # 272 carded normally, none inside the inactives window, and only the six
+    # 09:30 ET internationals unreachable — which nothing can reach.
+    #
+    # A dropped Sunday run is not a delay, it is evidence that cannot be
+    # back-dated. This costs nothing on a healthy day: the guard reads the
+    # feed's published status and stands down without fetching a price.
+    - cron: "30 15 * 9-12,1 *"
+    # LAST RESORT. Reaches only the late-afternoon and night windows, which is
+    # all it ever reached. Kept because a day on which both earlier triggers
+    # were dropped still has a night game worth freezing, and dropped in EST
+    # months it would card the 16:05 ET slate five minutes before kickoff — so
+    # it is a backstop, never a second pass.
     - cron: "0 21 * 9-12,1 *"
   workflow_dispatch:
     inputs:
