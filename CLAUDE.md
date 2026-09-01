@@ -575,6 +575,45 @@ works** — ninety minutes is inside every plausible card time, so the
 availability gate would be permanent rather than provisional. Worth settling
 deliberately rather than inheriting.
 
+## The card's lead time is not one number, and no game is ever carded inside the inactives window
+
+Computed from the real 2026 schedule, 272 games, against the two crons
+(14:00 and 21:00 UTC). ET is UTC−4 in September; the lead is the run closest
+to kickoff that still precedes it.
+
+| kickoff ET | games | best lead | inactives known? |
+|:--|--:|--:|:--|
+| 13:00 | 149 | 3.0h | no |
+| 16:25 | 37 | 6.4h | no |
+| 20:15 | 33 | 3.2h | no |
+| 16:05 | 21 | 6.1h | no |
+| 20:20 | 20 | 3.3h | no |
+| **09:30** (international) | **6** | **none — 14:00 UTC is 30 min AFTER kickoff** | no |
+
+**All 272 games are carded blind to inactives**, which drop ninety minutes
+out. The closest any run gets is three hours. So the T−60 measurement knows
+something the card will never know, on **every game of the season** — not
+some of them.
+
+That is the sharper form of "the measurement window is not the card's
+window". It is not a two-hour discrepancy to be tuned away; there is no cron
+that fixes it, because the card must price a whole slate at once and the
+slate's kickoffs span eleven hours.
+
+### Six games a season cannot be carded at all
+
+The 09:30 ET international games kick at 13:30 UTC and the first cron is
+14:00 UTC — **thirty minutes late**. The card prices them and the kickoff
+guard then quarantines them, which is the correct behaviour and produces no
+wrong answer. It is a coverage gap, not a fault: 6 of 272 games, 2%.
+
+**Moving the cron earlier would make things worse, not better.** A 12:00 UTC
+run would card the whole day, and the already-published guard would then
+stand the 14:00 run down — buying six international games at the cost of
+carding 149 one-o'clock games two hours earlier, with less information. The
+real fix is per-game carding rather than per-day, which is a design change
+and not a scheduling one. Recorded rather than done.
+
 ## The verdict
 
 **No demonstrated edge anywhere, on the full available population.** 816
