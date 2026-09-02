@@ -24,6 +24,7 @@ on games kicking off strictly before the game being priced.
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from statistics import NormalDist
 
@@ -100,11 +101,29 @@ def _interval(bets: pd.DataFrame) -> tuple[float, float, float]:
     staked = bets[bets["outcome"] != "void"]
     if staked.empty:
         return 0.0, 0.0, 0.0
-    roi = float(staked["profit"].mean())
-    per_game = staked.groupby("event_id")["profit"].mean()
-    if len(per_game) < 2:
+    per_game = staked.groupby("event_id")["profit"].agg(profit="sum", bets="size")
+    total_bets = int(per_game["bets"].sum())
+    games = len(per_game)
+    roi = float(per_game["profit"].sum() / total_bets)
+    if games < 2:
         return roi, float("-inf"), float("inf")
-    error = float(per_game.std(ddof=1)) / (len(per_game) ** 0.5)
+    # The cluster-robust standard error of a RATIO estimator, matching
+    # `props_backtest._interval`, `closing_line_backtest._interval` and
+    # `forward_evidence.interval_by_game`. This was the FOURTH copy of one
+    # formula and the only one still divergent: it paired a pooled ratio point
+    # estimate with an UNWEIGHTED per-game-mean standard error. Those agree
+    # only when every game contributes the same number of bets, and on a ladder
+    # they never do — this population runs 1 to 142 bets per game, median 74.
+    #
+    # Measured against a bootstrap over games on the committed bets file
+    # (54,641 bets, 773 games): the old form was 0.960x the bootstrap, this one
+    # is 1.012x. The pooled verdict does not move — -9.8%, interval -17.9% to
+    # -1.8% against -17.5% to -2.2%, still excluding zero. It is a consistency
+    # fix, not a corrected conclusion, and saying otherwise would overstate it.
+    residuals = per_game["profit"] - roi * per_game["bets"]
+    mean_bets = total_bets / games
+    variance = float((residuals**2).sum() / (games * (games - 1)))
+    error = math.sqrt(max(variance, 0.0)) / mean_bets
     return roi, roi - 1.96 * error, roi + 1.96 * error
 
 
