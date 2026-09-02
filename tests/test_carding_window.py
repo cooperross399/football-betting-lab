@@ -110,8 +110,15 @@ def test_the_same_kickoff_slot_has_two_different_leads_across_the_boundary(rows)
         for r in rows
         if r.kickoff_et == "13:00"
     }
-    assert leads["EDT"] == pytest.approx(3.0)
-    assert leads["EST"] == pytest.approx(4.0)
+    # The exact hours depend on which trigger fires first and are therefore not
+    # pinned — the schedule is allowed to change. What is NOT allowed is the two
+    # offsets collapsing to one number, which is how "149 games, 3.0h" was
+    # written for a season that is 95 games in EST.
+    assert leads["EST"] - leads["EDT"] == pytest.approx(1.0), (
+        f"13:00 ET games show leads {leads}. A fixed UTC trigger must be "
+        "exactly one hour further from an EST kickoff than an EDT one; equal "
+        "leads mean the DST offset is being ignored."
+    )
 
 
 def test_a_run_belongs_to_its_league_date_not_its_utc_date() -> None:
@@ -132,10 +139,10 @@ def test_the_operative_run_is_the_first_firing_not_the_last_before_kickoff(rows)
     night = [r for r in rows if r.kickoff_et in {"20:15", "20:20"} and r.carded]
     assert night, "the 2026 schedule has night games; this test needs one"
     for row in night:
-        assert row.operative_lead_hours > 10.0, (
+        assert row.operative_lead_hours > 14.0, (
             f"{row.game_id} is carded {row.operative_lead_hours:.2f}h out. A "
-            "night game carded ~3h out would mean a backup trigger ran despite "
-            "the first having published cleanly."
+            "night game carded a few hours out would mean a later trigger ran "
+            "despite an earlier one having published cleanly."
         )
         assert row.naive_last_lead_hours < row.operative_lead_hours
 
@@ -173,26 +180,62 @@ def test_ignoring_the_standdown_understates_the_lead_it_never_overstates(rows) -
 
 # -- the numbers CLAUDE.md quotes ---------------------------------------------
 
-def test_exactly_four_games_have_no_run_before_kickoff(rows) -> None:
-    """CLAUDE.md said six. The 09:30 ET internationals straddle the DST
-    boundary: the four October ones kick at 13:30 UTC, before the first cron;
-    the two November ones kick at 14:30 UTC, after it."""
-    missed = [r for r in rows if not r.carded]
-    assert [r.game_id for r in missed] == [
-        "2026_04_IND_WAS",
-        "2026_05_PHI_JAX",
-        "2026_06_HOU_JAX",
-        "2026_07_PIT_NO",
-    ]
+def test_every_game_of_the_season_has_a_run_before_kickoff(rows) -> None:
+    """Once the schedule became a net starting at 09:00 UTC, the six 09:30 ET
+    internationals stopped being structurally uncardable — 13:30 UTC is after
+    09:00 UTC. CLAUDE.md said six games a season could never be carded, then
+    four; on this schedule it is none."""
+    missed = [r.game_id for r in rows if not r.carded]
+    assert missed == [], (
+        f"{len(missed)} games have no trigger before kickoff: {missed}. On the "
+        "13-trigger net every game should reach one."
+    )
 
 
-def test_exactly_two_games_are_carded_inside_the_inactives_window(rows) -> None:
-    """CLAUDE.md said all 272 games are carded blind to inactives and that the
-    closest any run gets is three hours. Both sentences were false for these."""
-    inside = [r for r in rows if r.inside_inactives]
-    assert [r.game_id for r in inside] == ["2026_09_CIN_ATL", "2026_10_NE_DET"]
-    for row in inside:
-        assert row.operative_lead_hours * 60 == pytest.approx(30.0)
+def test_no_game_is_carded_inside_the_inactives_window(rows) -> None:
+    """`2026_09_CIN_ATL` and `2026_10_NE_DET` were carded 30 minutes out on the
+    old three-trigger schedule, inside the 90-minute inactives window, which
+    made them a different population from the other 270. The net's 09:00 UTC
+    trigger reaches them 5.5 hours out, so the season is uniform again."""
+    inside = [r.game_id for r in rows if r.inside_inactives]
+    assert inside == [], (
+        f"These are carded inside the inactives window: {inside}. Their rows "
+        "are not comparable with the rest of the ledger."
+    )
+
+
+def test_the_net_survives_every_delay_yet_observed(rows, crons) -> None:
+    """The property the schedule exists for.
+
+    GitHub has fired none of this repository's crons on time — 11 firings,
+    115 to 443 minutes late. A late trigger is not a later card: past kickoff
+    the guard quarantines the game and the evidence is gone. On the old
+    14:00/15:30/21:00 schedule a 304-minute delay lost 155 of 272 games,
+    including the entire 149-game 13:00 ET slate.
+    """
+    for delay in cw.OBSERVED_DELAYS_MINUTES:
+        carded, lost = cw.coverage_under_delay(rows, crons, NFL, delay)
+        # Only the 09:30 ET internationals may fall off, and only at the
+        # extreme tail. Anything else means the net starts too late.
+        assert all(slot == "09:30" for slot in lost), (
+            f"At the observed {delay}-minute delay the schedule loses "
+            f"{lost}, which is more than the international slot. The first "
+            "trigger is too late to absorb the delays GitHub actually applies."
+        )
+        assert carded >= len(rows) - 6, (
+            f"At the observed {delay}-minute delay only {carded} of "
+            f"{len(rows)} games are carded."
+        )
+
+
+def test_a_delay_past_the_first_kickoff_is_reported_as_loss_not_lateness(
+    rows, crons
+) -> None:
+    """A sanity check on the model itself: push the delay absurdly far and the
+    coverage must collapse. A function that always answers 'fine' would pass
+    every test above without measuring anything."""
+    carded, lost = cw.coverage_under_delay(rows, crons, NFL, 24 * 60)
+    assert carded == 0 and sum(lost.values()) == len(rows)
 
 
 # -- the backup has to be able to back up -------------------------------------

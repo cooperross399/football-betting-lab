@@ -23,33 +23,53 @@ name: Football Gameday Refresh
 
 on:
   schedule:
-    # THE OPERATIVE RUN. Sunday's early games kick off 13:00 ET; this runs at
-    # 10:00 ET (09:00 EST), late enough that books have posted their boards and
-    # early enough that the kickoff guard has nothing to quarantine. Because the
-    # later triggers stand down when this one publishes cleanly, and because
-    # `--horizon-days 1` prices the whole league day at once, THIS run cards
-    # every game of the day — including the 20:15 ET night window. The lead is
-    # therefore 3-11 hours depending on slot, not the 3-6.4h a
-    # last-run-before-kickoff reading suggests. `nfl_carding_window.md` computes
-    # it from these very lines; do not restate it in prose.
-    - cron: "0 14 * 9-12,1 *"
-    # THE REAL BACKUP, and it is 90 minutes later rather than seven hours for a
-    # measured reason. The 21:00 UTC trigger below cannot rescue a dropped first
-    # run: it arrives AFTER kickoff for 183 of 272 games (every 13:00 ET game,
-    # 55% of the season) and inside the 90-minute inactives window for 34 more,
-    # leaving 55 carded normally. At 15:30 UTC the same failure leaves 266 of
-    # 272 carded normally, none inside the inactives window, and only the six
-    # 09:30 ET internationals unreachable — which nothing can reach.
+    # MANY TRIGGERS, FIRST ONE TO ACTUALLY EXECUTE CARDS THE DAY.
     #
-    # A dropped Sunday run is not a delay, it is evidence that cannot be
-    # back-dated. This costs nothing on a healthy day: the guard reads the
-    # feed's published status and stands down without fetching a price.
-    - cron: "30 15 * 9-12,1 *"
-    # LAST RESORT. Reaches only the late-afternoon and night windows, which is
-    # all it ever reached. Kept because a day on which both earlier triggers
-    # were dropped still has a night game worth freezing, and dropped in EST
-    # months it would card the 16:05 ET slate five minutes before kickoff — so
-    # it is a backstop, never a second pass.
+    # Measured 2026-09-02, n=11 scheduled firings across three workflows on
+    # this repository: GitHub fired NONE of them on time. Delays ran 115 to
+    # 443 minutes, median 218. The card's own five firings were 115, 122, 123,
+    # 189 and 199 minutes late, and the first run of the day landed at 17:32
+    # and 17:33 UTC on consecutive days.
+    #
+    # 13:00 ET is 17:00 UTC. A 14:00 UTC trigger three hours late arrives after
+    # kickoff, and the kickoff guard then quarantines the largest slate of the
+    # week. Against the real 2026 schedule the cliff is at about 180 minutes:
+    #
+    #     delay      games carded   lost
+    #       0 min             268      4
+    #     123 min             266      6
+    #     189 min             212     60
+    #     304 min             117    155   <- the whole 13:00 ET slate
+    #     443 min              76    196
+    #
+    # So the schedule can no longer be a time. It is a NET. Thirteen hourly
+    # triggers from 09:00 UTC; the already-published guard stands down every
+    # one after the first that publishes cleanly, so the extra triggers cost no
+    # credits and no fetch — they read one file from the card-feed branch and
+    # exit. Whichever GitHub actually runs first is the card.
+    #
+    # 09:00 UTC is early enough that even the worst delay observed (443 min)
+    # still lands at 16:23 UTC, before a 17:00 UTC kickoff. The cost of a
+    # PROMPT 09:00 firing is a card ~8h out instead of ~3h, and that cost is
+    # measured rather than assumed: crossing the inactives deadline is worth
+    # +0.00085 Brier against a 0.002 threshold, and five hours of market
+    # movement is about 0.01 in probability (nfl_inactives_value.md). Losing
+    # 149 game-days of frozen opinions is not recoverable at any price.
+    #
+    # Do not "tidy" these into fewer triggers. The redundancy IS the mechanism.
+    # `nfl_carding_window.md` is computed from these lines; do not restate it.
+    - cron: "0 9 * 9-12,1 *"
+    - cron: "0 10 * 9-12,1 *"
+    - cron: "0 11 * 9-12,1 *"
+    - cron: "0 12 * 9-12,1 *"
+    - cron: "0 13 * 9-12,1 *"
+    - cron: "0 14 * 9-12,1 *"
+    - cron: "0 15 * 9-12,1 *"
+    - cron: "0 16 * 9-12,1 *"
+    - cron: "0 17 * 9-12,1 *"
+    - cron: "0 18 * 9-12,1 *"
+    - cron: "0 19 * 9-12,1 *"
+    - cron: "0 20 * 9-12,1 *"
     - cron: "0 21 * 9-12,1 *"
   workflow_dispatch:
     inputs:
