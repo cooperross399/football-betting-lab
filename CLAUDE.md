@@ -431,9 +431,9 @@ Over on 92% of sacks and lost.
 |:---|:---|
 | Null baseline | Betting everything returns **−9.47% over 366,725 bets**. The harness is sound. |
 | Backtest | 2023 **−1.6%** (18,062), 2024 **−2.1%** (29,394), 2025 **−5.2%** (31,317). |
-| Replication | **Nothing replicates** on a season it was not selected on, except `tackles_assists`. |
-| Settlement screen | `tackles_assists` is the **only** suspect, and it is the thing that replicates. |
-| Price sensitivity | **No market is profitable at the consensus price** except `tackles_assists`. |
+| Replication | **Nothing replicates** on a season it was not selected on. `tackles_assists` was the lone exception until its summation bug was fixed; it is now −1.0% over 2,758 held-out bets. |
+| Settlement screen | **Every market agrees with its price.** `tackles_assists` was the only suspect; post-fix its gap is −1% over 6,575 featured wagers. |
+| Price sensitivity | **No market is profitable at the consensus price.** `tackles_assists` is +0.9% there and positive at only 3 of 8 books. |
 | Allowlist bundle | **0 of 18 markets clear every bar.** |
 
 Every one of the eighteen markets returns **no demonstrated edge** on its
@@ -527,29 +527,46 @@ deliberately unequal bets per game — a ratio estimator and a mean-of-ratios
 estimator agree when every cluster is the same size, so equal sizes would let a
 wrong implementation pass. Reverting the fix fails that test.
 
-## `tackles_assists` is still a settlement artefact, and now it is the only thing left
+## `tackles_assists` was a summation bug, not a settlement artefact — and this section said otherwise for days
 
-It is the one market that replicates — **+12.4% / +11.2% / +12.6%** across
-2023, 2024 and 2025, **+11.7% over 3,109 held-out bets** — and the one market
-the settlement screen flags. Those are the same fact.
+**Correction, 2026-09-02.** This section claimed `tackles_assists` replicated at
+**+12.4% / +11.2% / +12.6%**, returned **+11.7% over 3,109 held-out bets**, was
+flagged by the settlement screen at a **seven-point** gap, was positive at **8 of
+8 books**, and was *"structurally unmeasurable until an independent settlement
+source exists"*. **Every one of those numbers is stale.** The committed reports
+have said something different since the summation was fixed, and this file was
+never updated to match. Found by mapping the measurement code and disbelieving
+the mismatch.
 
-The screen is one number: the featured market is priced at **50% over** across
-6,575 featured wagers and the outcome lands over **42%** of the time. That
-seven-point gap is worth **15%** to a model that consistently takes the under,
-and this model bets 86% unders. The measured return is **+11.7%**. nflverse
-records about half a tackle per player-game fewer than whatever the books
-settle on; at a +0.5 offset the entire edge vanishes and both sides return the
-vig.
+The actual cause was the lab's own settlement arithmetic: `tackles_assists` is
+the sum of **all three** defensive columns, and `def_tackles_with_assist` — a
+tackle the player *made* while someone else assisted — was being omitted. That
+is a data bug in this repository, not an unknowable offset in the books'.
 
-**A settlement offset is constant, so it replicates by construction.** It
-survived split-half, fragility, a Bonferroni correction across twenty markets,
-and it is positive at **8 of 8** books at the consensus price — because every
-book settles on the number this lab cannot see. Replication is not evidence
-against it. Replication is what it does.
+What the four instruments say now, read from the committed reports rather than
+from memory:
 
-`tackles_assists` cannot be measured at all until an independent settlement
-source exists. It joins goalie saves in the NHL lab: modelled, priced, and
-structurally unmeasurable.
+| Instrument | `tackles_assists` |
+|:---|:---|
+| Settlement screen | priced 50% over, realised **48%**, gap **−1%** over 6,575 featured wagers — **agrees with the price** |
+| Replication | 2023 **−0.9%** (1,194), 2024 **−1.2%** (1,564), 2025 selection +8.6% (1,397) — **−1.0% over 2,758 held-out bets, no demonstrated edge** |
+| Price sensitivity | +2.1% best-of-N, **+0.9% at the consensus**, positive at **3 of 8** books — mixed |
+| Allowlist bundle | **not supported** — fails books and replication |
+
+**So the market is measurable after all, and it is measured: no demonstrated
+edge.** It does not belong beside goalie saves in the NHL lab, and the sentence
+that put it there was wrong.
+
+**This makes the lab's conclusion simpler, not weaker.** The old story was
+"nothing replicates except one market, and that one is unmeasurable" — a null
+with an asterisk. The true story is **nothing replicates, full stop**, and the
+settlement screen agrees with the price on every market it can read.
+
+**The lesson is the one this repository keeps paying for.** A number that no
+script regenerates goes stale silently. These figures lived in prose while the
+reports that superseded them sat in `data/outputs/`, and nothing compared the
+two. The reports are derived data and are regenerated; this file is not, so a
+claim here about a measured quantity must cite the report it came from.
 
 - **Sixteen of seventeen screened markets agree with their price** within four
   points. `sacks` agrees too (33% priced, 32% realised), so the sacks result
@@ -822,10 +839,24 @@ Pooled, that is **+4.28 points of value-add against a −3.22% return**: a
 genuinely better-than-nothing model facing about 7.5 points of vig.
 
 **The over-shading bias is real and too small to bet.** Blind unders across
-exact-settlement markets return **−2.64% over 110,661 bets**. The only markets
-where blind unders are positive are `tackles_assists` (+9.26%) and `sacks` —
-both **charted**, which is the settlement-artefact family, and which confirms
-that artefact from a third independent direction.
+exact-settlement markets return **−2.64% over 110,661 bets**.
+
+**Correction, 2026-09-02.** This paragraph went on to say that the only markets
+where blind unders are positive are `tackles_assists` (+9.26%) and `sacks`, and
+that this *"confirms the settlement artefact from a third independent
+direction"*. **The inference is dead** — there is no settlement artefact; see
+the `tackles_assists` section above, where the settlement screen now reports a
+−1% gap and the market agrees with its price.
+
+**And neither number can be checked.** `−2.64% over 110,661` and `+9.26%`
+appear in no committed report — `nfl_null_baseline.md` carries only
+season/market/bets/ROI, with `tackles_assists` at **−5.00%** (4,575), **−14.05%**
+(8,558) and **−9.86%** (6,938) across 2023-25, all negative. The per-side split
+these sentences rest on was never written to a file. They are left here marked
+rather than silently replaced with a number nothing generated, because
+substituting an invented figure is the failure this correction is about. **A
+per-side blind baseline needs regenerating by a script before any of it is
+quoted again.**
 ## The measurement window is not the card's window
 
 **Found 2026-08-31, nine days before Week 1, while auditing the sibling NHL
