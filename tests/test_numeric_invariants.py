@@ -214,6 +214,18 @@ def test_every_clustered_interval_in_the_repository_agrees_with_the_others() -> 
     )
     from football_betting_lab.reports.props_backtest import _interval as props_interval
 
+    # The ladder backtest lives in scripts/, takes a raw bets frame rather than
+    # a per-game frame, and was the fourth divergent copy of this formula.
+    import importlib.util
+
+    from football_betting_lab.config import PROJECT_ROOT
+
+    spec = importlib.util.spec_from_file_location(
+        "_ladder", PROJECT_ROOT / "scripts" / "run_team_ladder_backtest.py"
+    )
+    ladder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ladder)
+
     # Deliberately unequal bets per game: a ratio estimator and a mean-of-ratios
     # estimator agree when every cluster is the same size and diverge when they
     # are not, so equal sizes would let a wrong implementation pass.
@@ -245,9 +257,23 @@ def test_every_clustered_interval_in_the_repository_agrees_with_the_others() -> 
 
     assert bets_l == int(per_game["bets"].sum())
     assert games_l == len(per_game)
+    # The ladder takes one row per bet, so expand the per-game frame back out.
+    ladder_rows = []
+    for game, row in enumerate(per_game.itertuples(index=False)):
+        for bet in range(int(row.bets)):
+            ladder_rows.append(
+                {
+                    "event_id": f"g{game}",
+                    "outcome": "won" if bet == 0 else "lost",
+                    "profit": float(row.profit) if bet == 0 else 0.0,
+                }
+            )
+    roi_L, low_L, high_L = ladder._interval(pd.DataFrame(ladder_rows))
+
     for name, (roi, low, high) in (
         ("props_backtest", (roi_p, low_p, high_p)),
         ("closing_line_backtest", (roi_c, low_c, high_c)),
+        ("run_team_ladder_backtest", (roi_L, low_L, high_L)),
     ):
         assert roi == pytest.approx(roi_l), (
             f"{name} and forward_evidence.interval_by_game disagree on the "

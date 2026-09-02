@@ -6,11 +6,11 @@
 
 | Market | Bets | Games | Won | Push | ROI | 95% interval | Verdict |
 |:---|---:|---:|---:|---:|---:|:---|:---|
-| `alternate_spread` | 23,211 | 709 | 6,070 | 268 | -11.6% | -24.7% to +1.6% | **no demonstrated edge** |
-| `alternate_team_total` | 7,753 | 433 | 2,109 | 0 | -17.4% | -31.0% to -3.7% | interval excludes zero, **negative** |
-| `alternate_total_points` | 17,057 | 505 | 5,136 | 180 | -7.2% | -22.0% to +7.5% | **no demonstrated edge** |
-| `team_total` | 6,620 | 681 | 2,467 | 0 | -1.7% | -10.9% to +7.5% | **no demonstrated edge** |
-| **pooled** | 54,641 | 773 | 15,782 | 448 | -9.8% | -17.5% to -2.2% | interval excludes zero, **negative** |
+| `alternate_spread` | 23,211 | 709 | 6,070 | 268 | -11.6% | -25.8% to +2.7% | **no demonstrated edge** |
+| `alternate_team_total` | 7,753 | 433 | 2,109 | 0 | -17.4% | -32.2% to -2.6% | interval excludes zero, **negative** |
+| `alternate_total_points` | 17,057 | 505 | 5,136 | 180 | -7.2% | -23.5% to +9.1% | **no demonstrated edge** |
+| `team_total` | 6,620 | 681 | 2,467 | 0 | -1.7% | -13.8% to +10.4% | **no demonstrated edge** |
+| **pooled** | 54,641 | 773 | 15,782 | 448 | -9.8% | -17.9% to -1.8% | interval excludes zero, **negative** |
 
 Per season, because a pooled number can hide a reversal:
 

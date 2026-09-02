@@ -713,7 +713,7 @@ is the reason no filter turns one into the other.
 
 ## The team model on card-time ladders: the last untested angle, and it loses
 
-**−9.8% pooled over 54,641 bets across 773 games, interval −17.5% to −2.2% —
+**−9.8% pooled over 54,641 bets across 773 games, interval −17.9% to −1.8% —
 excludes zero, negative.** `scripts/run_team_ladder_backtest.py`,
 `data/outputs/nfl_team_ladder_backtest.md`.
 
@@ -732,11 +732,11 @@ the exponential tilt and the exact push mass at 3 and 7 do their work.
 
 | Market | Bets | ROI | Corrected interval |
 |:---|---:|---:|:---|
-| `alternate_spread` | 23,211 | −11.6% | −24.7% to +1.6% |
-| `alternate_total_points` | 17,057 | −7.2% | −22.0% to +7.5% |
-| `alternate_team_total` | 7,753 | **−17.4%** | −31.0% to −3.7% |
-| `team_total` | 6,620 | −1.7% | −10.9% to +7.5% |
-| **pooled** | **54,641** | **−9.8%** | **−17.5% to −2.2%** |
+| `alternate_spread` | 23,211 | −11.6% | −25.8% to +2.7% |
+| `alternate_total_points` | 17,057 | −7.2% | −23.5% to +9.1% |
+| `alternate_team_total` | 7,753 | **−17.4%** | −32.2% to −2.6% |
+| `team_total` | 6,620 | −1.7% | −13.8% to +10.4% |
+| **pooled** | **54,641** | **−9.8%** | **−17.9% to −1.8%** |
 
 Per season: 2023 −4.1%, 2024 −10.1%, 2025 −15.0%. It gets worse, not better.
 
@@ -752,6 +752,26 @@ backtest settles each rung exactly as `GameDistribution.spread` / `.total` /
 void rather than a loss, and an unknown market as a void rather than a guess.
 A sign error in any of those would have produced a plausible number rather
 than an error.
+
+## The fourth copy of the interval formula, and why it changes nothing
+
+**Found 2026-09-02 by mapping the measurement code**, days after the third copy
+was fixed. `run_team_ladder_backtest._interval` was outside the invariant test
+because it lives in `scripts/` and takes a raw bets frame rather than a per-game
+one, and it was a **different estimator**: a pooled ratio point estimate paired
+with an **unweighted per-game-mean** standard error. Those agree only when every
+game contributes the same number of bets, and on a ladder they never do — this
+population runs **1 to 142 bets per game, median 74**.
+
+**It changes no conclusion, and saying otherwise would overstate it.** Measured
+against a bootstrap over games on the committed bets file (54,641 bets, 773
+games): the old form was **0.960×** the bootstrap, the unified form **1.012×**.
+Every point estimate, every per-season number and every verdict in
+`nfl_team_ladder_backtest.md` is unchanged; only the intervals widen, pooled
+from −17.5%/−2.2% to **−17.9%/−1.8%**, still excluding zero. The intervals above
+are the corrected ones.
+
+The guard now covers **all four** copies, the ladder included.
 
 ## The pre-registered subgroup search found nothing, in twelve directions
 
