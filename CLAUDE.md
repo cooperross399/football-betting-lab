@@ -940,6 +940,64 @@ rather than a better-informed one, and the ledger records `commence_time` and
 than on a note in a document. **Not engineered around**: an earlier November
 cron would fix two games by carding forty others with less information.
 
+## GitHub fires none of this repository's crons on time, so the schedule is a net
+
+**Measured 2026-09-02, and it supersedes the trigger design recorded below.**
+The card's schedule had never fired when that section was written. It has now,
+and so has everything else:
+
+| workflow | cron | firings | delay, minutes |
+|:---|:---|---:|:---|
+| `Football Gameday Refresh` | 14:00 / 15:30 / 21:00 UTC | 5 | 115, 122, 123, 189, 199 |
+| `Provider Quota` | 06:00 UTC | 5 | 304, 330, 343, 395, 443 |
+| `Weekly Ledger Check` | 14:00 UTC Tue | 1 | 218 |
+
+**11 scheduled firings, none on time, median 218 minutes.** The first run of the
+day landed at 17:32 and 17:33 UTC on consecutive days.
+
+**A cron time is therefore not a lead**, and every lead computed from one is a
+best case rather than an expectation. This is the second time the carding table
+rested on a premise nobody had checked; the first was assuming ET is UTC−4.
+
+**A late trigger is not a later card.** 13:00 ET is 17:00 UTC. A 14:00 UTC
+trigger three hours late arrives after kickoff, the guard quarantines the game,
+and the ledger cannot be back-dated. On the old three-trigger schedule:
+
+| delay | games carded | lost |
+|---:|---:|---:|
+| 0 min | 268 | 4 |
+| 189 min | 212 | 60 |
+| **304 min** | **117** | **155** — the whole 13:00 ET slate |
+| 443 min | 76 | 196 |
+
+**So the schedule is now thirteen hourly triggers from 09:00 to 21:00 UTC.**
+Whichever GitHub actually runs first cards the day; the already-published guard
+stands every later one down without fetching a price, so the redundancy costs
+no credits. At the worst delay yet observed — 443 minutes — **266 of 272 games
+are still carded**, against 76 on the old schedule.
+
+**Two earlier problems dissolved as a side effect**, and both were recorded here
+as facts about the lab:
+
+- *"Six games a season cannot be carded at all"*, later corrected to four, is
+  now **none**. The 09:30 ET internationals kick at 13:30 UTC, which is after
+  09:00 UTC.
+- *"Two games a season are carded inside the inactives window"* is now **none**.
+  The 09:00 UTC trigger reaches them 5.5 hours out, so the season is one
+  population again rather than 270 games plus two.
+
+**What it costs, stated because it is a real cost.** A trigger that fires
+promptly at 09:00 UTC cards a 13:00 ET game eight hours out rather than three.
+That is a softer price with less information in it. The measured size of that
+cost: crossing the inactives deadline is worth **+0.00085 Brier against a 0.002
+threshold declared in advance**, and five hours of market movement is about
+**0.01 in probability** (`nfl_inactives_value.md`). Losing 149 game-days of
+frozen opinions is not recoverable at any price, so the trade is not close.
+
+**Do not tidy the thirteen triggers into fewer.** The redundancy is the
+mechanism, and `tests/test_carding_window.py` fails if the net stops surviving
+the delays actually observed.
+
 ## The backup trigger could not back anything up, and now it can
 
 **Found 2026-09-01 by the script above, and this one costs evidence rather

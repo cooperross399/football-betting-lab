@@ -58,6 +58,14 @@ from football_betting_lab.leagues import League
 from football_betting_lab.season import schedule_path
 
 
+#: Every scheduled firing observed on this repository, in minutes late,
+#: measured 2026-09-02 across `Football Gameday Refresh` (5), `Provider Quota`
+#: (5) and `Weekly Ledger Check` (1). **None fired on time.** A cron time is
+#: therefore not a lead, and any table that treats it as one is wrong in the
+#: dangerous direction. Update this list when more firings accumulate; it is
+#: evidence, not a constant.
+OBSERVED_DELAYS_MINUTES = (115, 122, 123, 189, 199, 218, 304, 330, 343, 395, 443)
+
 #: Inactives are declared about ninety minutes before kickoff. A card built
 #: inside this window knows something every other card of the season does not,
 #: which makes its rows a different population rather than a better one.
@@ -282,6 +290,28 @@ def _offset_label(moment: datetime, league: League) -> str:
     return name
 
 
+def coverage_under_delay(
+    rows: list[CardingRow], crons: list[Cron], league: League, delay_minutes: float
+) -> tuple[int, dict[str, int]]:
+    """(games still carded, games lost by kickoff slot) if every firing is late.
+
+    The schedule is a net rather than a time, so the question is not "what is
+    the lead" but "does ANY trigger still land before kickoff". A trigger that
+    fires late is not a later card; past kickoff it is no card at all, and the
+    ledger cannot be back-dated.
+    """
+    late = timedelta(minutes=delay_minutes)
+    carded = 0
+    lost: dict[str, int] = {}
+    for row in rows:
+        firings = firings_on(row.league_date, crons, league)
+        if any(moment + late < row.kickoff_utc for moment in firings):
+            carded += 1
+        else:
+            lost[row.kickoff_et] = lost.get(row.kickoff_et, 0) + 1
+    return carded, lost
+
+
 def days_without_any_run(rows: list[CardingRow], crons: list[Cron], league: League) -> list[date]:
     """Game days on which no cron fires at all.
 
@@ -397,6 +427,50 @@ def render(rows: list[CardingRow], crons: list[Cron], *, season: int, league: Le
                 f"{row.kickoff_utc:%H:%M}Z | {first} |"
             )
         add("")
+
+    add("## The schedule is a net, not a time")
+    add("")
+    add(
+        "**Measured 2026-09-02: GitHub fired none of this repository's crons on "
+        f"time.** {len(OBSERVED_DELAYS_MINUTES)} scheduled firings across three "
+        f"workflows, delays of {min(OBSERVED_DELAYS_MINUTES)}-"
+        f"{max(OBSERVED_DELAYS_MINUTES)} minutes, median "
+        f"{sorted(OBSERVED_DELAYS_MINUTES)[len(OBSERVED_DELAYS_MINUTES) // 2]}. "
+        "So a cron time is not a lead, and the leads in the table above are the "
+        "best case rather than the expected one."
+    )
+    add("")
+    add(
+        "A late trigger is not a later card. Past kickoff the guard quarantines "
+        "the game and there is no card at all — and the ledger cannot be "
+        "back-dated. That is why the schedule is thirteen hourly triggers "
+        "rather than a well-chosen time: whichever GitHub actually runs first "
+        "cards the day, and the rest stand down for free."
+    )
+    add("")
+    add("| delay | games carded | lost | worst slot lost |")
+    add("|--:|--:|--:|:--|")
+    for delay in (0, 60, 123, 189, 218, 304, 443):
+        carded_n, lost = coverage_under_delay(rows, crons, league, delay)
+        worst = (
+            max(lost.items(), key=lambda item: item[1]) if lost else None
+        )
+        worst_text = f"{worst[1]} x {worst[0]} ET" if worst else "—"
+        marker = "**" if delay in OBSERVED_DELAYS_MINUTES else ""
+        add(
+            f"| {marker}{delay} min{marker} | {carded_n} | {len(rows) - carded_n} "
+            f"| {worst_text} |"
+        )
+    add("")
+    observed_worst = max(OBSERVED_DELAYS_MINUTES)
+    carded_worst, _ = coverage_under_delay(rows, crons, league, observed_worst)
+    add(
+        f"**At the worst delay yet observed ({observed_worst} min), "
+        f"{carded_worst} of {len(rows)} games are still carded.** That is the "
+        "number the net exists to hold up, and it is the one to re-check "
+        "whenever the schedule is edited."
+    )
+    add("")
 
     add("## What a dropped first run costs")
     add("")
