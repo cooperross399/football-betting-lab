@@ -103,7 +103,14 @@ wastes a day.
 branch, and sends a **PushNotification** with the full brief as the run's
 final message. It stays *silent* on healthy days with no selections, because
 this lab is dark by design and a daily "no plays" push would bury the one that
-matters. All three lab repositories are set `ignored=true` for GitHub
+matters. **A second routine fires the card itself.** **NFL CARD DISPATCHER**
+(`trig_01HTMtmrT3Mx7BfupBvntZBm`, 13:00 UTC daily in season) dispatches `Football
+Gameday Refresh` with `respect_standdown=true`, because GitHub delivers this
+repository's own crons hours late and sometimes not at all. It pushes only if
+the dispatch fails. Its environment has **no `gh` CLI** — it dispatches through
+the GitHub MCP tool. Both routines can be silently skipped by the account's
+five-hour rate limit (the BRIEF was, on 2026-09-02), so neither's silence is
+evidence; the operating-home post is. All three lab repositories are set `ignored=true` for GitHub
 notifications — do not re-enable them.
 
 **Auto-merge does not work on this repository.** GitHub rejects
