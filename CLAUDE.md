@@ -689,6 +689,71 @@ against the ~774 needed for a 2.5-point half-width.
 improvement. A better forecaster is worth having before it is a profitable one.
 **Not worth the degrees of freedom:** everything else.
 
+## Does the model know anything the price does not? A little, and it is worth nothing
+
+**Measured 2026-09-02.** `scripts/run_encompassing.py`,
+`data/outputs/nfl_encompassing.md`. This is the question underneath the Brier
+comparison: a model can lose on Brier either because it is noise, or because it
+is noisy while carrying a real signal the market lacks. Fitting
+
+    logit P(over) = a + b*logit(p_market_devigged) + c*logit(p_model)
+
+separates the two, because `c` is estimated **holding the price fixed**.
+
+**`c` = +0.0695, interval [+0.0324, +0.1066] over 61,267 wagers across 762
+games** — excludes zero. Out of sample, fitted without 2025, `c` = **+0.0685,
+[+0.0218, +0.1152]**. It replicates on all three seasons (+0.062, +0.071,
++0.078) and survives mean-vs-median devigging and a books ≥ 5 restriction. So
+**the model does carry a little information the devigged price does not**, and
+"every feature idea is dead on arrival" would be too strong.
+
+**What it is worth decides the matter, and it is almost nothing.** Adding the
+model to the price improves out-of-sample Brier from 0.24728 to **0.24700 — a
+gain of 0.00028**. This lab declared a **0.002** threshold in advance for
+whether crossing the inactives deadline was worth anything and called that no at
++0.00085. This is a third of the number already judged too small to matter.
+
+**The blend's edge is negative on the wagers the card selects**: mean −0.0107,
+median −0.0143, against a raw model edge whose median is +0.1357. The model's
+apparent 6-14% edges are almost entirely the model being wrong. The median
+two-sided book hold is **6.78%**, so a wager must clear a 3.39% half-hold and
+only **1.5%** of them do. No filter threshold produces an interval excluding
+zero, and the returns rise then fall (+1.30%, +3.09%, −0.35%, −4.20%, −20.10%),
+which is what a threshold scan does to noise.
+
+**`b` = 0.89, not 1.** The devigged market logit is itself slightly
+overconfident; shrinking it toward a half improves the fit. That is a small
+finding about the market, not about this model.
+
+**Where the signal is:** receiving. `receptions` +0.104, `reception_yards`
++0.091, `reception_longest` +0.097, `tackles_assists` +0.110. Passing is
+nothing — `pass_yards` −0.013, `pass_completions` −0.004.
+
+**Four things make this believable rather than another retraction:**
+
+- **A placebo runs every time.** The model probability is shuffled within
+  market: `c` falls to **+0.0081, [−0.0101, +0.0262]**. The harness does not
+  manufacture the result.
+- **The interval is checked against a resample, not asserted.** The hand-rolled
+  sandwich is **0.966×** a bootstrap over games (SE 0.01894 against 0.01960),
+  and both intervals exclude zero. Two interval defects have already shipped
+  here; a closed form nobody checked was the third waiting to happen.
+- **Selection does not bias it, and that is simulated rather than argued.** The
+  bets file holds only wagers selected at edge ≥ 6%, but selection is a
+  deterministic function of the *regressors*, not the outcome. Simulated with
+  `c_true = 0` and the same selection rule applied, the estimate is **−0.0285,
+  [−0.0891, +0.0322]** — includes zero.
+- **The market is devigged per book.** Devigging a best-of-N over against a
+  best-of-N under invents a market with almost no hold. The measured median
+  two-sided book hold is 6.78%, which also means **`MIN_PROP_EDGE = 0.06`
+  against a vigged price is about 2.6pp of real edge, not 6pp.**
+
+**An adversarial verification of this finding was attempted and did not run** —
+all four reviewer agents failed on a session limit. The three checks above were
+run directly instead. The fourth lens, an attempt to find a profitable rule the
+analysis missed, was never run by an independent reviewer, and that gap is
+recorded rather than papered over.
+
 ## The model is a worse forecaster than the price it bets into
 
 **This is the deepest result in the repository and it should be read before
