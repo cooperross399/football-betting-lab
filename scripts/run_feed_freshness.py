@@ -21,6 +21,7 @@ import pandas as pd
 from football_betting_lab.config import OUTPUTS_DIR, PROCESSED_DIR, RAW_DIR
 from football_betting_lab.data.build_datasets import TEAM_GAMES_FILENAME
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
+from football_betting_lab.providers.team_names import abbreviations
 from football_betting_lab.reports import feed_freshness as ff
 
 #: Each feed, what it must contain, and what a stale copy would cost. The
@@ -80,9 +81,13 @@ def main(argv: list[str] | None = None) -> int:
                 day_to_week[day] = max(day_to_week.get(day, 0), int(wk))
     week = ff.expected_week(day_to_week, as_of)
     season_started = week is not None
-    expected_clubs = len(league.club_abbreviations()) if hasattr(
-        league, "club_abbreviations"
-    ) else 32
+    # From the registry's own club list, not a literal. The previous version
+    # read `len(league.club_abbreviations()) if hasattr(...) else 32`, and
+    # `League` has no such attribute — so the fallback fired every single time
+    # and the check was a hardcoded 32 wearing a registry's clothes. Correct
+    # for the NFL by accident, and it would have passed a college schedule
+    # that had lost a hundred of its teams.
+    expected_clubs = len(abbreviations(league))
 
     result = ff.FreshnessResult(as_of=as_of.isoformat(), week=week)
     for name, template, needs_clubs, consequence in FEEDS:

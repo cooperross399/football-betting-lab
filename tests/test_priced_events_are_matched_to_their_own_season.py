@@ -47,6 +47,15 @@ DOES_NOT_SETTLE = {
     # key (event, market, player, selection, line). It never maps an event
     # to a season, so there is no season for it to get wrong.
     "run_inactives_value.py",
+    # Same shape as run_inactives_value.py: joins a devigged price to
+    # ALREADY-SETTLED bets on the wager key (event, market, identity, line) and
+    # inherits each row's season from the settled bet rather than assigning one.
+    # It does not argue this — it CHECKS it at runtime on the real frame, and
+    # refuses to report if any event spans two seasons or the join duplicates a
+    # wager. Measured on the full population: 762 events, 0 spanning, max 1 row
+    # per wager key. CI cannot run that check because the price cache is not
+    # committed, which is why the guard lives in the script.
+    "run_encompassing.py",
 }
 
 
