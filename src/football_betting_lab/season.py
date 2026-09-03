@@ -75,10 +75,23 @@ def row_game_date(row: object, league: League) -> str:
     return game_date(commence or clean_text(getattr(row, "date", "")), league)
 
 
-#: A complete NFL season schedule names all 32 clubs. A cache with fewer has
-#: games it simply does not know about, and cannot be used to judge whether a
-#: fixture is preseason.
-EXPECTED_NFL_CLUBS = 32
+#: A complete season schedule names every club the league has. A cache with
+#: fewer has games it simply does not know about, and cannot be used to judge
+#: whether a fixture is preseason.
+#:
+#: **Counted from the registry's own club list rather than written here.** This
+#: was `EXPECTED_NFL_CLUBS = 32`, a league literal sitting outside the registry
+#: — and it escaped `test_league_registry_is_the_only_place.py` because that
+#: test bans league keys and sport-key prefixes, not magic counts. Correct for
+#: the NFL, and a check that a 136-team college schedule would have passed
+#: while missing a hundred of its teams.
+
+
+def expected_clubs(league: League) -> int:
+    """How many clubs a complete schedule for this league must name."""
+    from football_betting_lab.providers.team_names import abbreviations
+
+    return len(abbreviations(league))
 
 
 def schedule_path(league: League, raw_dir: Path) -> Path:
@@ -145,4 +158,4 @@ def schedule_cache_is_complete(
     """
     known = known_regular_season_games(league, raw_dir, season=season)
     clubs = {team for _, home, away in known for team in (home, away)}
-    return len(clubs) >= EXPECTED_NFL_CLUBS, len(clubs)
+    return len(clubs) >= expected_clubs(league), len(clubs)

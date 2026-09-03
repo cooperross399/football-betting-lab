@@ -144,3 +144,53 @@ def test_allowlisting_a_market_in_one_league_cannot_allowlist_it_in_another() ->
     assert len(keys) == len(LEAGUES)
     for league in LEAGUES.values():
         assert league.policy_key().endswith(f":{league.key}")
+
+
+def test_no_module_hardcodes_how_many_clubs_a_league_has() -> None:
+    """A club count is a league fact and belongs in the registry.
+
+    This test exists because two of them escaped. `EXPECTED_NFL_CLUBS = 32`
+    sat in `season.py`, and `run_feed_freshness.py` read
+    `len(league.club_abbreviations()) if hasattr(...) else 32` — where `League`
+    has no such attribute, so the literal fired every single time and the check
+    was a hardcoded 32 wearing a registry's clothes.
+
+    Both were correct for the NFL by accident, which is why nothing caught
+    them. Neither would have been correct for a league with a different number
+    of clubs, and a schedule cache that had lost a hundred teams would have
+    passed a 32-club completeness check trivially.
+
+    The existing discipline test bans league keys and sport-key prefixes. It
+    does not ban magic numbers, and a count is exactly as much a league literal
+    as a name is.
+    """
+    from football_betting_lab.providers.team_names import abbreviations
+
+    counts = {len(abbreviations(league)) for league in LEAGUES.values()}
+    offenders: list[str] = []
+    for path in python_files():
+        if path.name in {"leagues.py", "team_names.py"}:
+            continue
+        for number, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), start=1
+        ):
+            code = line.split("#")[0]
+            for count in counts:
+                # A bare club count compared against something, which is the
+                # shape both escapees had.
+                if f"= {count}" in code or f">= {count}" in code or f"else {count}" in code:
+                    offenders.append(f"{path.name}:{number}: {line.strip()}")
+    assert not offenders, (
+        "A league's club count is written here instead of read from the "
+        "registry:\n  " + "\n  ".join(offenders)
+    )
+
+
+def test_the_club_count_actually_comes_from_the_registry() -> None:
+    """The positive half: `expected_clubs` must move when the registry does,
+    which a hardcoded literal cannot do."""
+    from football_betting_lab.providers.team_names import abbreviations
+    from football_betting_lab.season import expected_clubs
+
+    for league in LEAGUES.values():
+        assert expected_clubs(league) == len(abbreviations(league))
