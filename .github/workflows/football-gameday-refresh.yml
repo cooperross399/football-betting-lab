@@ -89,6 +89,10 @@ on:
         description: "Rehearse a specific league date (YYYY-MM-DD). Leave blank for a real run. A rehearsal never touches the ledger or the card feed."
         required: false
         default: ""
+      respect_standdown:
+        description: "Stand down if today's card already published cleanly, exactly as a scheduled trigger would. Set by the automated dispatcher; leave false when a human wants the card to run regardless."
+        required: false
+        default: "false"
 
 permissions:
   # Write for exactly one ref: the card-feed branch. Nothing here pushes to
@@ -125,7 +129,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" != "schedule" ]; then
+          # A scheduled trigger always asks. A dispatch asks only when told
+          # to: GitHub fires none of this repository's crons on time (see the
+          # schedule block), so an external dispatcher now fires the card too,
+          # and it must not fetch a slate a cron already froze. A human
+          # dispatching by hand leaves the flag false and always runs.
+          if [ "${{ github.event_name }}" != "schedule" ] \
+             && [ "${{ inputs.respect_standdown || 'false' }}" != "true" ]; then
             echo "run=yes" >> "$GITHUB_OUTPUT"; exit 0
           fi
           REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"

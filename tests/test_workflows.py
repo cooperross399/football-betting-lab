@@ -402,3 +402,32 @@ def test_every_only_feed_named_in_a_workflow_is_a_real_feed() -> None:
         f"These workflows name feeds that do not exist: {bad}. "
         f"Known feeds: {sorted(known)}."
     )
+
+
+# -- the standdown must apply to an automated dispatch ------------------------
+
+def test_the_standdown_guard_honours_an_automated_dispatch() -> None:
+    """GitHub fires none of this repository's crons on time, so an external
+    dispatcher fires the card as a backstop. `workflow_dispatch` bypassed the
+    already-published guard entirely — correct for a human, who dispatches
+    because they want the card to run — but a daily automated dispatch would
+    then fetch a slate a cron had already frozen, every day, for credits.
+
+    So the guard has to read `respect_standdown`, and the input has to default
+    to false so a human's dispatch keeps its old meaning.
+    """
+    text = _without_comments(WORKFLOW_DIR / "football-gameday-refresh.yml")
+    loaded = _load(WORKFLOW_DIR / "football-gameday-refresh.yml")
+    on = loaded.get("on") or loaded.get(True)
+    inputs = on["workflow_dispatch"]["inputs"]
+    assert "respect_standdown" in inputs, "the dispatcher has no way to ask the guard to apply"
+    assert str(inputs["respect_standdown"]["default"]).lower() == "false", (
+        "respect_standdown must default to false, or a human dispatching by "
+        "hand is silently stood down on a day the card already ran."
+    )
+    assert "inputs.respect_standdown" in text, "the guard never reads the input"
+    # The guard's early exit must be conditional on BOTH: not a schedule AND
+    # not asked to respect the standdown.
+    guard = text[text.index("id: check"):text.index("card:")]
+    assert 'github.event_name }}" != "schedule"' in guard
+    assert 'respect_standdown' in guard
