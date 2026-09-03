@@ -1065,6 +1065,38 @@ rather than a better-informed one, and the ledger records `commence_time` and
 than on a note in a document. **Not engineered around**: an earlier November
 cron would fix two games by carding forty others with less information.
 
+## The card has three ways to fire, and none of them is assumed to work
+
+**As of 2026-09-03.** Every layer below exists because the one above it was
+measured not to be enough, and each is read rather than trusted.
+
+| layer | mechanism | why it exists | how you know it fired |
+|:--|:--|:--|:--|
+| 1 | thirteen hourly `schedule:` triggers, 09:00–21:00 UTC | GitHub fires this repository's crons 115–443 min late (n=11) | `gh run list` shows `event: schedule` |
+| 2 | **`NFL CARD DISPATCHER`** cloud routine, `trig_01HTMtmrT3Mx7BfupBvntZBm`, 13:00 UTC daily in season | with 13 triggers configured GitHub fired **three** on 2026-09-02, at the same times as with three configured — cron count may not be the lever; `workflow_dispatch` skips the cron queue | `gh run list` shows `event: workflow_dispatch`; the routine's final message names the run id |
+| 3 | a human running `gh workflow run` | both above share one account rate limit and one GitHub scheduler | you did it |
+
+**The dispatcher is a backstop, not a second card.** It passes
+`respect_standdown=true`, which makes the workflow's own already-published
+guard apply to a dispatch exactly as it does to a cron. On a day a cron got
+there first, the dispatched run stands down in seconds and fetches nothing. A
+human's dispatch leaves the flag at its default `false` and always runs, so
+"run it anyway" still means that.
+
+**13:00 UTC, and not 15:00.** Four hours before a 17:00 UTC (13:00 ET EDT)
+kickoff, five before 18:00 UTC in EST, and clear of the BRIEF routine's 15:07
+UTC slot — because a scheduled routine on this account can be **rejected
+outright by the five-hour rate limit** (the BRIEF's 2026-09-02 fire was, in one
+turn), and two routines in the same window compete for the same allowance.
+
+**What was verified, and what was not.** Verified 2026-09-03 by a manual fire with a one-time calendar override, reverted immediately after: the routine provisioned, cloned the private repository, found that its environment has **no `gh` CLI**, and dispatched through the GitHub MCP tool `mcp__github__actions_run_trigger` with `respect_standdown=true`. Run 33727766819 was created **34 seconds** after the fire, both jobs succeeded, and the routine's final message named the run and sent no push. The prompt now names the MCP tool as the primary method and `gh` as the fallback, because the first run succeeded only by improvising — a stricter run would have reported a false failure. **Not verified:** a fire that lands inside the account's five-hour rate-limit window; the BRIEF's 2026-09-02 fire was rejected that way and left no run.
+
+**A dispatch that never fires looks like a healthy day.** The routine pushes a
+notification only when the dispatch itself fails; a fire the scheduler skipped
+or the rate limit rejected leaves no run and no push. So the operating-home
+post — one per card run, always — remains the only proof a day was carded.
+Read it.
+
 ## GitHub fires none of this repository's crons on time, so the schedule is a net
 
 **Measured 2026-09-02, and it supersedes the trigger design recorded below.**
