@@ -90,3 +90,38 @@ def test_claude_md_still_quotes_the_figure_this_test_pins(
         "on purpose — in which case drop the entry from CLAIMS — or a figure "
         "was silently reworded and this check had stopped checking anything."
     )
+
+
+# -- figures that come from a CSV, not a report ------------------------------
+
+def test_the_per_season_backtest_row_matches_the_committed_bets_file() -> None:
+    """The sixth stale figure found in two days, and the only one with no report
+    to check against: the per-season backtest counts live in prose because
+    `run_props_backtest.py` writes ONE report for whichever season ran last.
+
+    So this recomputes them from the committed pooled bets file — staked bets
+    and ROI per season — and asserts CLAUDE.md quotes exactly those. When the
+    file regenerates, the numbers move and this fails until the prose does.
+    """
+    import pandas as pd
+
+    path = OUTPUTS_DIR / "nfl_props_backtest_bets.csv"
+    assert path.is_file(), "the pooled bets file is not committed"
+    bets = pd.read_csv(path, low_memory=False)
+    staked = bets[bets["outcome"] != "void"]
+    text = _both_spellings(CLAUDE_MD.read_text(encoding="utf-8"))
+    for season, group in staked.groupby("season"):
+        count = f"{len(group):,}"
+        roi = f"{group['profit'].sum() / len(group) * 100:+.1f}%".replace("+", "")
+        # CLAUDE.md writes negatives with a unicode minus and bold; the value
+        # is what matters, so both spellings are accepted and bold is stripped.
+        expected_count = f"({count})"
+        expected_roi = roi if roi.startswith("-") else f"+{roi}"
+        assert expected_count in text, (
+            f"CLAUDE.md does not quote {count} staked bets for {season}; the "
+            f"committed bets file says so. Recompute the Backtest row."
+        )
+        assert expected_roi in text.replace("**", ""), (
+            f"CLAUDE.md does not quote {expected_roi} for {season}; the "
+            f"committed bets file says so. Recompute the Backtest row."
+        )
