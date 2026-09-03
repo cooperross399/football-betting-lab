@@ -26,6 +26,17 @@ Every other instrument here asks whether a *return* is real. This one asks the q
 | `b  logit(market)` | +0.8904 | 0.0342 | [+0.8233, +0.9575] | excludes zero |
 | `c  logit(model)` | +0.0685 | 0.0238 | [+0.0218, +0.1152] | excludes zero |
 
+## The interval, checked against a resample rather than asserted
+
+The clustered standard error is a hand-rolled sandwich, and this repository has shipped two interval defects — one sqrt(games) too narrow on the forward ledger, one pairing a ratio point estimate with an unweighted standard error. So `c` is also estimated by resampling **games** with replacement.
+
+| | standard error | 95% interval |
+|:--|--:|:--|
+| sandwich | 0.01894 | [+0.0324, +0.1066] |
+| bootstrap over games | 0.01960 | [+0.0352, +0.1089] |
+
+The sandwich is **0.966x** the resample. Both intervals exclude zero.
+
 ## The placebo, which runs every time
 
 The model probability is shuffled within market and the fit repeated. A harness that returns a positive `c` on shuffled input is measuring its own plumbing.
