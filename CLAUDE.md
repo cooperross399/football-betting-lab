@@ -429,8 +429,8 @@ Over on 92% of sacks and lost.
 
 | Instrument | What it says now |
 |:---|:---|
-| Null baseline | Betting everything returns **−9.47% over 366,725 bets**. The harness is sound. |
-| Backtest | 2023 **−1.6%** (18,062), 2024 **−2.1%** (29,394), 2025 **−5.2%** (31,317). |
+| Null baseline | Betting everything returns **−9.29% over 366,725 bets**. The harness is sound. |
+| Backtest | 2023 **−1.6%** (18,062), 2024 **−2.1%** (29,394), 2025 **−5.2%** (31,317). **No committed report carries these three figures** — `nfl_props_backtest.md` covers 2025 only. They need regenerating before being quoted again. |
 | Replication | **Nothing replicates** on a season it was not selected on. `tackles_assists` was the lone exception until its summation bug was fixed; it is now −1.0% over 2,758 held-out bets. |
 | Settlement screen | **Every market agrees with its price.** `tackles_assists` was the only suspect; post-fix its gap is −1% over 6,575 featured wagers. |
 | Price sensitivity | **No market is profitable at the consensus price.** `tackles_assists` is +0.9% there and positive at only 3 of 8 books. |
@@ -439,8 +439,10 @@ Over on 92% of sacks and lost.
 Every one of the eighteen markets returns **no demonstrated edge** on its
 held-out seasons — that is the phrase and it is meant literally: the
 family-corrected interval includes zero in every case. The best held-out
-numbers are `rush_yards` **+1.6% over 7,502 bets** and `pass_yards` **+1.1%
-over 4,502**, both with intervals spanning zero several times over.
+numbers are `rush_yards` **+2.2% over 7,780 bets** and `pass_yards` **+1.5%
+over 4,469**, both with intervals spanning zero several times over.
+(Corrected 2026-09-03: these read +1.6%/7,502 and +1.1%/4,502, from before the
+settlement-join fix. `nfl_props_replication.md` is the source.)
 
 ## Two calendars for one slate, and the watchdog that never fetched either
 
@@ -583,14 +585,14 @@ price, positive at 10 of 11 books**, and called it the last thing standing.
 Both readings were computed on cross-season-settled bets with a leaked yardage
 distribution. Neither survives.
 
-| Test | Result now |
-|:---|:---|
-| Three seasons | −0.4%, +2.8%, −0.5% |
-| Held-out pooled | **+1.6% over 7,502 bets** — interval includes zero, **no demonstrated edge** |
-| Settlement screen | 2-point gap, agrees with the price |
-| **Consensus price** | **−1.0%** |
-| **Best of N books** | +0.9% |
-| **By book** | positive at **2 of 10** |
+| Test | Result now | Source |
+|:---|:---|:---|
+| Three seasons | +1.3% (2,971), +2.8% (4,809), +0.4% (4,274) | `nfl_props_replication.md` |
+| Held-out pooled | **+2.2% over 7,780 bets** — interval includes zero, **no demonstrated edge** | `nfl_props_replication.md` |
+| Settlement screen | agrees with the price | `nfl_settlement_agreement.md` |
+| **Consensus price** | **−0.6%** | `nfl_price_sensitivity.md` |
+| **Best of N books** | **+1.2%** over 11,573 bets | `nfl_price_sensitivity.md` |
+| **By book** | positive at **2 of 10** | `nfl_price_sensitivity.md` |
 
 It is a **shopping premium at best**: whatever is left exists only as the
 maximum of ten quotes, and it is negative at the median price. A number that
@@ -767,18 +769,25 @@ The model is wildly overconfident; the market is nearly perfect:
 
 | Model says | Bets | Actually happens | Market says | Model error | Market error |
 |:---|---:|---:|---:|---:|---:|
-| 0.60-0.65 | 14,417 | 0.485 | 0.510 | **−0.139** | −0.024 |
-| 0.70-0.80 | 11,487 | 0.507 | 0.523 | **−0.235** | −0.017 |
-| 0.80-1.00 | 4,700 | 0.547 | 0.523 | **−0.314** | +0.024 |
+| (0.6, 0.65] | 15,131 | 0.491 | 0.510 | **−0.134** | −0.019 |
+| (0.7, 0.8] | 12,504 | 0.512 | 0.525 | **−0.230** | −0.013 |
+| (0.8, 1.0] | 5,060 | 0.545 | 0.525 | **−0.316** | +0.020 |
 
-**Brier over 74,345 bets: model 0.26057, market 0.22703.** Walk-forward
+**Brier over 78,253 bets: model 0.26106, market 0.22782.** Walk-forward
 isotonic calibration — the map fitted on prior seasons only — closes most of
 that gap and never crosses it:
 
-| Season | Model | **Calibrated** | Market | Beats the price? |
-|:---|---:|---:|---:|:---|
-| 2024 | 0.26153 | **0.23104** | 0.22756 | no |
-| 2025 | 0.25710 | **0.22524** | 0.22329 | no |
+| Season | Bets | Model | **Calibrated** | Market | Beats the price? |
+|:---|---:|---:|---:|---:|:---|
+| 2024 | 29,165 | 0.26222 | **0.23178** | 0.22827 | no |
+| 2025 | 31,393 | 0.25691 | **0.22573** | 0.22390 | no |
+
+**These figures were stale until 2026-09-03.** This table read 74,345 bets,
+0.26057/0.22703 and a 2024 row of 0.26153/0.23104/0.22756 — the numbers from
+before the settlement-join fix, which changed the bet population and every
+count with it. `data/outputs/nfl_forecast_skill.md` had carried the corrected
+values since, and nothing compared the two. The conclusion never moved; the
+digits did.
 
 The market's implied probability still has the **vig in it**, so it is an
 over-estimate being scored with a handicap. The model loses anyway.
@@ -822,7 +831,7 @@ the exponential tilt and the exact push mass at 3 and 7 do their work.
 
 Per season: 2023 −4.1%, 2024 −10.1%, 2025 −15.0%. It gets worse, not better.
 
-**−9.8% is about the props null baseline (−9.47%)**, so the team model on
+**−9.8% is about the props null baseline (−9.29%)**, so the team model on
 ladders is no better than betting them blind. Giving the model the friendliest
 price it could ever see did not help, which is the same answer the Brier
 comparison gives from a different direction.
