@@ -9,9 +9,18 @@ any feature work has a point:
 
 **If `c` is indistinguishable from zero the model adds nothing to the price**,
 and no threshold, subgroup or filter built on it can be profitable except by
-chance. If `c > 0` the model carries something the price does not — and the
-correct product is then a *shrunk blend*, not a standalone bettor, because `b`
-says how much of the answer the market already holds.
+chance. If `c > 0` the model carries something the price does not *fully
+absorb* — and the correct product is then a *shrunk blend*, not a standalone
+bettor, because `b` says how much of the answer the market already holds.
+
+"Does not fully absorb" is the careful phrase, and it is deliberate. On the
+carded population the sign of `logit(model) − logit(market)` IS the bet side on
+99.997% of rows, so `c` is identified almost entirely by side, and there is a
+side asymmetry in the market itself: unders land about 2.4pp more often than
+the devigged median says. A fit with a bet-side dummy is therefore reported
+beside the plain one. If `c` survives the dummy, it is model information; if it
+does not, the placebo cannot tell model information from a side-specific market
+miscalibration, because shuffling destroys the model–side correlation too.
 
 ## Why this is not the Brier comparison again
 
@@ -182,19 +191,28 @@ class Fit:
 
 
 NAMES = ("intercept", "b  logit(market)", "c  logit(model)")
+SIDE_NAME = "d  over side"
 
 
-def fit(frame: pd.DataFrame, label: str) -> Fit | None:
-    """One encompassing fit on a frame carrying y, p_market, p_model, event_id."""
+def fit(frame: pd.DataFrame, label: str, *, side: bool = False) -> Fit | None:
+    """One encompassing fit on a frame carrying y, p_market, p_model, event_id.
+
+    `side=True` adds a bet-side dummy (`side_over`, 1 for an over bet). Because
+    side and the model term are almost collinear on a carded population, this
+    is the fit that says whether `c` is model information or a side effect.
+    """
     if len(frame) < 400 or frame["event_id"].nunique() < MIN_GAMES:
         return None
-    X = np.column_stack(
-        [
-            np.ones(len(frame)),
-            logit(frame["p_market"]),
-            logit(frame["p_model"]),
-        ]
-    )
+    columns = [
+        np.ones(len(frame)),
+        logit(frame["p_market"]),
+        logit(frame["p_model"]),
+    ]
+    names = list(NAMES)
+    if side:
+        columns.append(frame["side_over"].to_numpy(dtype=float))
+        names.append(SIDE_NAME)
+    X = np.column_stack(columns)
     y = frame["y"].to_numpy(dtype=float)
     beta = fit_logistic(X, y)
     se, games = cluster_se(X, y, beta, frame["event_id"].to_numpy())
@@ -204,7 +222,7 @@ def fit(frame: pd.DataFrame, label: str) -> Fit | None:
         games=games,
         coefficients=[
             Coefficient(name=n, value=float(b), se=float(s), games=games)
-            for n, b, s in zip(NAMES, beta, se)
+            for n, b, s in zip(names, beta, se)
         ],
     )
 
@@ -251,10 +269,12 @@ def render(
     per_market: list[Fit],
     *,
     bootstrap: tuple[float, float, float] | None = None,
+    with_side: Fit | None = None,
     briers: dict[str, float],
     rules: list[tuple[str, tuple[float, float, float, int, int]]],
     median_hold: float,
-    share_over_half_hold: float,
+    share_positive: float,
+    positive_count: int,
     blend_edge_mean: float,
     blend_edge_median: float,
     model_edge_median: float,
@@ -298,6 +318,14 @@ def render(
             "devigged price does not."
         )
     add("")
+    add(
+        "**Multiplicity.** The single out-of-sample fit below is one of several "
+        "dozen specifications this report and its checks examine; on its own it "
+        "would not survive a correction for that. The finding rests on the "
+        "holdout season being independent of the fit, on replicating in every "
+        "season, and on the placebo — not on any one p-value."
+    )
+    add("")
     for f in (pooled, out_of_sample):
         add(f"**{f.label}** — {f.wagers:,} wagers, {f.games:,} games")
         add("")
@@ -337,6 +365,45 @@ def render(
             f"The sandwich is **{ratio:.3f}x** the resample. Both intervals "
             f"{'exclude' if low_boot > 0 or high_boot < 0 else 'include'} zero."
         )
+        add("")
+
+    if with_side is not None and with_side.c is not None:
+        wc = with_side.c
+        add("## What identifies `c`: model information, or the bet side?")
+        add("")
+        add(
+            "On a carded population the sign of `logit(model) − logit(market)` "
+            "is the bet side on almost every row, so `c` and the side are "
+            "nearly collinear — and the market has a side asymmetry of its own "
+            "(unders land a few points more often than the devigged median "
+            "says). Adding a bet-side dummy separates the two."
+        )
+        add("")
+        add("| term | estimate | SE | 95% interval | |")
+        add("|:--|--:|--:|:--|:--|")
+        for coefficient in with_side.coefficients:
+            note = "includes zero" if coefficient.includes_zero else "excludes zero"
+            add(
+                f"| `{coefficient.name}` | {coefficient.value:+.4f} | "
+                f"{coefficient.se:.4f} | [{coefficient.low:+.4f}, "
+                f"{coefficient.high:+.4f}] | {note} |"
+            )
+        add("")
+        if wc.includes_zero:
+            add(
+                f"**With the side dummy, `c` = {wc.value:+.4f} and its interval "
+                "includes zero.** The point estimate barely moves — this is "
+                "collinearity, not refutation — but it means the placebo above "
+                "cannot distinguish model information from a side-specific "
+                "market miscalibration, and \"the model knows something the "
+                "price does not\" must be read as \"the price does not fully "
+                "absorb something correlated with the model's side.\""
+            )
+        else:
+            add(
+                f"**With the side dummy, `c` = {wc.value:+.4f} and its interval "
+                "still excludes zero**, so the signal is not just the bet side."
+            )
         add("")
 
     if sham is not None:
@@ -383,12 +450,16 @@ def render(
     )
     add("")
     add(
-        f"The blend's own edge on the wagers the card selected is **negative**: "
-        f"mean {blend_edge_mean:+.4f}, median {blend_edge_median:+.4f}, against a "
-        f"raw model edge whose median is {model_edge_median:+.4f}. The median "
-        f"two-sided book hold is **{median_hold:.2%}**, so a wager must beat a "
-        f"half-hold of {median_hold / 2:.2%} to be worth taking, and only "
-        f"**{share_over_half_hold:.2%}** of them do."
+        f"The blend's own edge on the wagers the card selected — measured "
+        "against the **vigged price actually bought**, so already net of the "
+        f"full hold — is **negative** on average: mean {blend_edge_mean:+.4f}, "
+        f"median {blend_edge_median:+.4f}, against a raw model edge whose "
+        f"median is {model_edge_median:+.4f}. Only **{share_positive:.1%}** "
+        f"(n = {positive_count:,}) of them have a positive blend edge at all, "
+        "and that bucket's return is the first filtered row below. (The median "
+        f"two-sided book hold is {median_hold:.2%}, stated for scale; it is "
+        "NOT deducted again — an earlier version of this report compared the "
+        "already-net edge to a half-hold and so charged the vig twice.)"
     )
     add("")
     add("### Betting the blend, out of sample")

@@ -691,12 +691,13 @@ against the ~774 needed for a 2.5-point half-width.
 improvement. A better forecaster is worth having before it is a profitable one.
 **Not worth the degrees of freedom:** everything else.
 
-## Does the model know anything the price does not? A little, and it is worth nothing
+## Does the model know anything the price does not? Something, not fully absorbed, and worth nothing
 
-**Measured 2026-09-02.** `scripts/run_encompassing.py`,
-`data/outputs/nfl_encompassing.md`. This is the question underneath the Brier
-comparison: a model can lose on Brier either because it is noise, or because it
-is noisy while carrying a real signal the market lacks. Fitting
+**Measured 2026-09-02, adversarially verified 2026-09-03.**
+`scripts/run_encompassing.py`, `data/outputs/nfl_encompassing.md`. This is
+the question underneath the Brier comparison: a model can lose on Brier either
+because it is noise, or because it is noisy while carrying a real signal the
+market lacks. Fitting
 
     logit P(over) = a + b*logit(p_market_devigged) + c*logit(p_model)
 
@@ -705,56 +706,85 @@ separates the two, because `c` is estimated **holding the price fixed**.
 **`c` = +0.0695, interval [+0.0324, +0.1066] over 61,267 wagers across 762
 games** — excludes zero. Out of sample, fitted without 2025, `c` = **+0.0685,
 [+0.0218, +0.1152]**. It replicates on all three seasons (+0.062, +0.071,
-+0.078) and survives mean-vs-median devigging and a books ≥ 5 restriction. So
-**the model does carry a little information the devigged price does not**, and
-"every feature idea is dead on arrival" would be too strong.
++0.078). On the **full unselected wager universe** — 141,293 wagers, both sides,
+every edge including negative — `c` = **+0.0727, [+0.0354, +0.1099]**, and on
+the wagers the card *rejected* alone, **+0.089, [+0.010, +0.168]**. So
+selection is not what produces it. **`b` = 0.89, not 1**: the devigged market
+logit is itself slightly overconfident.
+
+**Read "the model knows something" carefully; the honest phrase is "the price
+does not fully absorb something correlated with the model."** On a carded
+population the sign of `logit(model) − logit(market)` *is* the bet side on
+99.997% of rows, so `c` and the side are nearly collinear — and the market has
+a side asymmetry of its own: unders land about 2.4pp more often than the
+devigged median says. With a bet-side dummy in the fit, `c` = **+0.0603,
+[−0.0040, +0.1246] — includes zero**, while the point estimate barely moves.
+That is collinearity, not refutation, but it means the placebo (below) cannot
+distinguish model information from a side-specific market miscalibration,
+because shuffling destroys the model–side correlation too.
+
+**Multiplicity.** The single 2023-24 fit (z = 2.88) would not survive
+correction for the several dozen specifications examined. The result rests on
+the independent 2025 holdout (z = 2.97) and the pooled universe (z = 3.83).
 
 **What it is worth decides the matter, and it is almost nothing.** Adding the
 model to the price improves out-of-sample Brier from 0.24728 to **0.24700 — a
-gain of 0.00028**. This lab declared a **0.002** threshold in advance for
-whether crossing the inactives deadline was worth anything and called that no at
-+0.00085. This is a third of the number already judged too small to matter.
+gain of 0.00028**, a third of the +0.00085 this lab already judged too small to
+matter against a 0.002 threshold declared in advance.
 
-**The blend's edge is negative on the wagers the card selects**: mean −0.0107,
-median −0.0143, against a raw model edge whose median is +0.1357. The model's
-apparent 6-14% edges are almost entirely the model being wrong. The median
-two-sided book hold is **6.78%**, so a wager must clear a 3.39% half-hold and
-only **1.5%** of them do. No filter threshold produces an interval excluding
-zero, and the returns rise then fall (+1.30%, +3.09%, −0.35%, −4.20%, −20.10%),
-which is what a threshold scan does to noise.
+**The blend's edge on the wagers the card selects is negative**, measured
+against the vigged price actually bought and so already net of the hold: mean
+−0.0107, median −0.0143, against a raw model edge whose median is +0.1357. Only
+**18.4% (n = 3,593)** of carded 2025 wagers have a positive blend edge at all,
+and those returned **+1.30%, [−3.23%, +5.82%]**. No threshold, side, market,
+blend weight, Kelly staking, or per-game top-N rule — on the card or on the
+full universe — produces an out-of-sample interval excluding zero in more than
+one season. The median two-sided book hold is 6.78%, stated for scale; **an
+earlier version of this section said only 1.5% of wagers cleared a half-hold,
+which charged the vig twice. Withdrawn.**
 
-**`b` = 0.89, not 1.** The devigged market logit is itself slightly
-overconfident; shrinking it toward a half improves the fit. That is a small
-finding about the market, not about this model.
+**The one rule that replicates is not the model.** A forward search over 275
+rules (threshold × side × market × blend weight), chosen on 2024 with a blend
+fitted on 2023 only, picks `rush_attempts` **under** at blend edge ≥ 0.005;
+on 2025 it returns **+10.8%, [+0.6%, +21.0%]** over 450 bets. It dissolves on
+inspection: *all* 2025 `rush_attempts` unders return **+12.1%, [+4.3%,
++20.0%]** with no model at all, the blend-selected subset did worse than the
+rows it dropped, the same rule was **−5.4% in 2023**, and `c` inside
+`rush_attempts` includes zero in every season (+0.0605, [−0.011, +0.132]). A
+2024-25 market/side quirk with a story attached — the exact object
+`docs/preregistered_subgroup_search.md` warns about.
 
 **Where the signal is:** receiving. `receptions` +0.104, `reception_yards`
 +0.091, `reception_longest` +0.097, `tackles_assists` +0.110. Passing is
 nothing — `pass_yards` −0.013, `pass_completions` −0.004.
 
-**Four things make this believable rather than another retraction:**
+**What makes this believable rather than the fourth retraction:**
 
-- **A placebo runs every time.** The model probability is shuffled within
-  market: `c` falls to **+0.0081, [−0.0101, +0.0262]**. The harness does not
-  manufacture the result.
-- **The interval is checked against a resample, not asserted.** The hand-rolled
-  sandwich is **0.966×** a bootstrap over games (SE 0.01894 against 0.01960),
-  and both intervals exclude zero. Two interval defects have already shipped
-  here; a closed form nobody checked was the third waiting to happen.
-- **Selection does not bias it, and that is simulated rather than argued.** The
-  bets file holds only wagers selected at edge ≥ 6%, but selection is a
-  deterministic function of the *regressors*, not the outcome. Simulated with
-  `c_true = 0` and the same selection rule applied, the estimate is **−0.0285,
-  [−0.0891, +0.0322]** — includes zero.
-- **The market is devigged per book.** Devigging a best-of-N over against a
-  best-of-N under invents a market with almost no hold. The measured median
-  two-sided book hold is 6.78%, which also means **`MIN_PROP_EDGE = 0.06`
-  against a vigged price is about 2.6pp of real edge, not 6pp.**
+- **A placebo runs every time.** Shuffled within market, `c` falls to
+  **+0.0081, [−0.0101, +0.0262]**.
+- **The interval is checked against a resample.** The hand-rolled sandwich is
+  **0.966×** a bootstrap over games (SE 0.01894 against 0.01960); an
+  independent 400-replicate bootstrap on the 2023-24 fit gave SD 0.0242
+  against sandwich 0.0238, 0 of 400 replicates ≤ 0. Player, player-season,
+  season-week and two-way clusters all exclude zero.
+- **Selection is simulated AND measured.** With `c_true = 0` and the same
+  edge ≥ 6% rule, the estimate is −0.0285, [−0.0891, +0.0322]; and the full
+  unselected universe above says the same thing with real data.
+- **Errors-in-variables cannot manufacture it.** Injecting noise into the
+  market logit up to SD 0.40 (measured across-book SD is 0.022) moves `c` only
+  to +0.089; corr(logit market, logit model) is 0.12.
+- **The market is devigged per book.** Devigging best-of-N against best-of-N
+  invents a market with almost no hold. Median hold 6.78% — so
+  **`MIN_PROP_EDGE = 0.06` against a vigged price is about 2.6pp of real edge.**
 
-**An adversarial verification of this finding was attempted and did not run** —
-all four reviewer agents failed on a session limit. The three checks above were
-run directly instead. The fourth lens, an attempt to find a profitable rule the
-analysis missed, was never run by an independent reviewer, and that gap is
-recorded rather than papered over.
+**Adversarial verification ran on 2026-09-03** — three independent lenses
+(plumbing, inference, economics) and a judge, after a first attempt died on
+the account's session limit the day before. Every reported number reproduced.
+**Nothing was refuted; two claims were weakened** ("orthogonal" → "not fully
+absorbed"; the single fit's p-value → the holdout and the universe) **and one
+bullet was withdrawn** (the double-charged half-hold). The report and this
+section carry the weakened wording, and the side-dummy fit is now generated by
+the script rather than asserted here.
 
 ## The model is a worse forecaster than the price it bets into
 
