@@ -123,12 +123,14 @@ def main(argv: list[str] | None = None) -> int:
     over = frame["selection"].astype(str).str.lower().eq("over")
     # Both regressors must describe the SAME side, or `c` measures the flip.
     frame["p_model"] = np.where(over, frame["model_probability"], 1.0 - frame["model_probability"])
+    frame["side_over"] = over.astype(float)
 
     pooled = encompassing.fit(frame, "pooled, in sample")
     if pooled is None:
         print("::error::Too few wagers or games to fit.", file=sys.stderr)
         return 2
     sham = encompassing.placebo(frame)
+    with_side = encompassing.fit(frame, "pooled, with a bet-side dummy", side=True)
 
     train = frame[frame["season"] != args.holdout_season]
     test = frame[frame["season"] == args.holdout_season].copy()
@@ -172,18 +174,22 @@ def main(argv: list[str] | None = None) -> int:
         f for f in (encompassing.fit(g, f"`{m}`") for m, g in frame.groupby("market") if len(g) >= 1000) if f
     ]
 
-    half_hold = float(frame["hold"].median()) / 2.0
+    # edge_blend is already net of the vigged price actually bought. It must
+    # NOT be compared to a half-hold: that charges the vig twice, and an earlier
+    # version of this script did exactly that.
+    positive = test["edge_blend"] > 0
     boot = (
         encompassing.bootstrap_c(frame, draws=args.bootstrap)
         if args.bootstrap
         else None
     )
     report = encompassing.render(
-        pooled, out, sham, per_season, per_market, bootstrap=boot,
+        pooled, out, sham, per_season, per_market, bootstrap=boot, with_side=with_side,
         briers=briers,
         rules=rules,
         median_hold=float(frame["hold"].median()),
-        share_over_half_hold=float((test["edge_blend"] > half_hold).mean()),
+        share_positive=float(positive.mean()),
+        positive_count=int(positive.sum()),
         blend_edge_mean=float(test["edge_blend"].mean()),
         blend_edge_median=float(test["edge_blend"].median()),
         model_edge_median=float(test["edge_model"].median()),

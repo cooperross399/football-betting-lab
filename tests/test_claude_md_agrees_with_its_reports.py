@@ -46,6 +46,8 @@ CLAIMS = [
     ("forecast skill, 2025 calibrated", "0.22573", "nfl_forecast_skill.md"),
     ("encompassing, c", "+0.0695", "nfl_encompassing.md"),
     ("encompassing, placebo c", "+0.0081", "nfl_encompassing.md"),
+    ("encompassing, c with a side dummy", "+0.0603", "nfl_encompassing.md"),
+    ("encompassing, share with positive blend edge", "18.4%", "nfl_encompassing.md"),
     ("team ladder, pooled ROI", "-9.8%", "nfl_team_ladder_backtest.md"),
     ("team ladder, pooled bets", "54,641", "nfl_team_ladder_backtest.md"),
     ("team ladder, worst market", "-17.4%", "nfl_team_ladder_backtest.md"),

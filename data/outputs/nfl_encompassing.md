@@ -10,6 +10,8 @@ Every other instrument here asks whether a *return* is real. This one asks the q
 
 **`c` = +0.0695, 95% interval [+0.0324, +0.1066] over 61,267 wagers across 762 games.** The interval excludes zero: the model carries a little information the devigged price does not.
 
+**Multiplicity.** The single out-of-sample fit below is one of several dozen specifications this report and its checks examine; on its own it would not survive a correction for that. The finding rests on the holdout season being independent of the fit, on replicating in every season, and on the placebo — not on any one p-value.
+
 **pooled, in sample** — 61,267 wagers, 762 games
 
 | term | estimate | SE | 95% interval | |
@@ -37,6 +39,19 @@ The clustered standard error is a hand-rolled sandwich, and this repository has 
 
 The sandwich is **0.966x** the resample. Both intervals exclude zero.
 
+## What identifies `c`: model information, or the bet side?
+
+On a carded population the sign of `logit(model) − logit(market)` is the bet side on almost every row, so `c` and the side are nearly collinear — and the market has a side asymmetry of its own (unders land a few points more often than the devigged median says). Adding a bet-side dummy separates the two.
+
+| term | estimate | SE | 95% interval | |
+|:--|--:|--:|:--|:--|
+| `intercept` | -0.0454 | 0.0363 | [-0.1166, +0.0258] | includes zero |
+| `b  logit(market)` | +0.9155 | 0.0405 | [+0.8360, +0.9949] | excludes zero |
+| `c  logit(model)` | +0.0603 | 0.0328 | [-0.0040, +0.1246] | includes zero |
+| `d  over side` | +0.0240 | 0.0606 | [-0.0947, +0.1427] | includes zero |
+
+**With the side dummy, `c` = +0.0603 and its interval includes zero.** The point estimate barely moves — this is collinearity, not refutation — but it means the placebo above cannot distinguish model information from a side-specific market miscalibration, and "the model knows something the price does not" must be read as "the price does not fully absorb something correlated with the model's side."
+
 ## The placebo, which runs every time
 
 The model probability is shuffled within market and the fit repeated. A harness that returns a positive `c` on shuffled input is measuring its own plumbing.
@@ -54,7 +69,7 @@ The model probability is shuffled within market and the fit repeated. A harness 
 
 **Adding the model to the price improves out-of-sample Brier by 0.00028.** For scale, this lab declared a 0.002 threshold in advance for whether crossing the inactives deadline was worth anything, and called the answer no at +0.00085. This is smaller than that.
 
-The blend's own edge on the wagers the card selected is **negative**: mean -0.0107, median -0.0143, against a raw model edge whose median is +0.1357. The median two-sided book hold is **6.78%**, so a wager must beat a half-hold of 3.39% to be worth taking, and only **1.52%** of them do.
+The blend's own edge on the wagers the card selected — measured against the **vigged price actually bought**, so already net of the full hold — is **negative** on average: mean -0.0107, median -0.0143, against a raw model edge whose median is +0.1357. Only **18.4%** (n = 3,593) of them have a positive blend edge at all, and that bucket's return is the first filtered row below. (The median two-sided book hold is 6.78%, stated for scale; it is NOT deducted again — an earlier version of this report compared the already-net edge to a half-hold and so charged the vig twice.)
 
 ### Betting the blend, out of sample
 
