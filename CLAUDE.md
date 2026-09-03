@@ -430,7 +430,7 @@ Over on 92% of sacks and lost.
 | Instrument | What it says now |
 |:---|:---|
 | Null baseline | Betting everything returns **−9.29% over 366,725 bets**. The harness is sound. |
-| Backtest | 2023 **−1.6%** (18,062), 2024 **−2.1%** (29,394), 2025 **−5.2%** (31,317). **No committed report carries these three figures** — `nfl_props_backtest.md` covers 2025 only. They need regenerating before being quoted again. |
+| Backtest | 2023 **−2.6%** (18,329), 2024 **−2.5%** (30,119), 2025 **−5.4%** (32,557) — staked bets per season, computed from the committed `nfl_props_backtest_bets.csv` and pinned by a test that recomputes them. (Corrected 2026-09-03: read −1.6%/18,062, −2.1%/29,394, −5.2%/31,317 from before the settlement-join fix.) |
 | Replication | **Nothing replicates** on a season it was not selected on. `tackles_assists` was the lone exception until its summation bug was fixed; it is now −1.0% over 2,758 held-out bets. |
 | Settlement screen | **Every market agrees with its price.** `tackles_assists` was the only suspect; post-fix its gap is −1% over 6,575 featured wagers. |
 | Price sensitivity | **No market is profitable at the consensus price.** `tackles_assists` is +0.9% there and positive at only 3 of 8 books. |
