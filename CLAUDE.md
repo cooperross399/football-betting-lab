@@ -1309,7 +1309,22 @@ an NFL record.
   credential is the GitHub secret `FOOTBALL_ODDS_API_KEY`; `.env` is
   local-only and gitignored; `tests/test_no_secrets_committed.py` enforces it.
 - **Never weaken a gate**, never sign a human acceptance receipt on Cooper's
-  behalf, never merge with failing CI, never force-push.
+  behalf, never merge with failing CI, never force-push. "Never merge with
+  failing CI" is enforced, not asked: `main` is protected, `Tests` is the
+  required status check, and `tests/test_workflows.py` pins that job — its
+  name, its pytest invocation, its evidence chain — by parsing the workflow
+  and executing its run blocks under stubs. A guard that greps for a spelling
+  proves only that the spelling is absent.
+- **The hard-rule guards cannot be dropped from a run.** `conftest.py` exits
+  the session when a required guard module collected nothing;
+  `tests/test_the_guards_exist.py` asserts each is tracked and still defines
+  tests; `scripts/check_test_results.py` reads the junit evidence in CI and
+  fails on a skip, an xfail, an empty run, or a missing guard. The three hold
+  one list. There is no skip allowlist and there will not be one.
+- **The experiment ledger is append-only, and that is checked at the diff.**
+  `scripts/check_ledger_append_only.py`, run by `Ledger Guard` on every pull
+  request, refuses a removed key, a count drop, a rewritten outcome or a
+  same-key contradiction; `save()` takes an explicit floor.
 - **Never spend API credits beyond a small measurement budget without asking.**
 - **Never pool leagues into one number.** Fitted per league, reported per
   league, recorded per league, receipted per league.
