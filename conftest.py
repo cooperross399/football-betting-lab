@@ -24,9 +24,9 @@ A MODULE FLOOR IS NOT A TEST FLOOR, and that was the hole. Deselecting ONE
 test out of a guard leaves the module contributing dozens of items, so the
 count above never notices. Measured on this repository before the fix:
 `addopts = "--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked"`
-in `pyproject.toml` produced `987 passed, 1 deselected`, pytest exit 0, and
-`scripts/check_test_results.py` exit 0 — a guard test removed with three
-layers green. `PYTEST_ADDOPTS` carrying the same string, and `-c ci.ini`
+in `pyproject.toml` produced `1 deselected` and a pass count one below the
+control, pytest exit 0, and `scripts/check_test_results.py` exit 0 — a guard
+test removed with three layers green. `PYTEST_ADDOPTS` carrying the same string, and `-c ci.ini`
 carrying it in an alternate config, each did the same.
 
 Two things close it, and neither is a spelling check. `check_test_results.py`
