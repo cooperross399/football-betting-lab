@@ -15,13 +15,49 @@ So this is an **append-only** record of every hypothesis ever put to the data,
 across every search, and the correction factor it hands back grows with the
 count. The fiftieth test does not get the first test's benefit of the doubt.
 
-## Why append-only, enforced
+## Why append-only, and what enforces it
 
 The tempting edit is to drop the tests that failed, on the reasoning that they
 were exploratory. That reasoning is exactly backwards: the failed tests are
 what make the surviving one unlikely to be chance. A ledger that can shrink is
 a ledger that will, one honest-seeming commit at a time, and the correction it
 reports afterwards is smaller than the truth.
+
+This heading used to read "enforced", and it was half enforced. `save()`
+refused a shrink by re-reading the file it was about to overwrite. That guard
+DOES fire on an in-process shrink, and the previous version of this paragraph
+said it "could never fire", which was wrong. Measured 2026-09-04 with the
+pre-floor `save()` restored from `ac6d9b2`: load the real 53-entry ledger,
+drop eighteen entries from the in-memory object, save — it raised `The
+experiment ledger would fall from 53 entries to 35`.
+
+What it could not see is the edit that was actually made. `scripts/
+record_experiments.py` loads the file, mutates, and saves back to the same
+path, so when the file on disk has ALREADY been shrunk by hand and committed,
+the floor `save()` re-reads is the shrunken count and the comparison is n
+against n. Reproduced: hand-delete eighteen entries from the tracked JSON,
+commit, run the recorder with no arguments — exit 0, `35 distinct hypotheses
+(+0)`, and the render moved 53 -> 35 and x1.69 -> x1.63 in the same prose.
+Nothing self-heals: the recorder appends only what it is asked for, and the
+workflow asks for nothing.
+
+Two things enforce it now, and each covers what the other cannot:
+
+* `save()` takes the caller's pre-mutation entry count as an explicit `floor`,
+  so an in-process shrink — a filter, a rebuild, a bug — is refused at the
+  write. The recorder also reads the count committed at `HEAD` and passes the
+  larger of the two, so a ledger edited by hand *before* the run is refused
+  from inside a git checkout as well.
+* `scripts/check_ledger_append_only.py`, run by `.github/workflows/ledger-guard.yml`
+  on every pull request, diffs the ledger on the branch against the ledger at
+  the PR base and refuses a removed key, a count drop, a rewritten outcome or
+  date, and a same-key contradiction on either side. That is the half no
+  runtime check reaches: a PR diff never calls `save()`.
+
+What neither reaches: an appended hypothesis is taken on trust, and an edit
+that survives both is one made in a checkout with no `HEAD` copy and merged
+past a red required check — which branch protection on this repository does
+not allow.
 
 ## What this is not
 
@@ -127,25 +163,43 @@ def load(path: Path) -> ExperimentLedger:
     )
 
 
-def save(ledger: ExperimentLedger, path: Path) -> Path:
-    """Write the ledger, refusing to shrink it.
+def save(ledger: ExperimentLedger, path: Path, *, floor: int) -> Path:
+    """Write the ledger, refusing to shrink it below `floor` entries.
 
     The guard is the point. The tempting edit is to drop the tests that failed
     because they were "exploratory"; the failed tests are precisely what make a
     surviving one unlikely to be chance. This raises rather than warns, because
     a warning in a workflow log is not a guard.
+
+    `floor` is required and it is the caller's pre-mutation count — how many
+    entries the ledger held before this run touched it. It used to be measured
+    here by re-reading `path`. That measured something real — an in-process
+    shrink is refused by it, and
+    `test_the_old_shape_fires_on_an_in_process_shrink` runs the old code and
+    watches it raise — but it was blind in exactly the direction that mattered:
+    the only caller loads `path`, mutates the object, and saves it back to
+    `path`, so a file ALREADY shrunk on disk was its own floor and the
+    comparison was n against n.
+    `test_a_hand_edited_ledger_is_refused_by_the_floor` is that reproduction,
+    and `test_the_old_shape_cannot_see_a_ledger_edited_on_disk` is the same
+    edit run against the old code, which passes it. The file is still read as
+    a second floor, because it costs nothing and it is the one that stays
+    correct if a caller passes a floor of zero; but it is the explicit floor
+    that makes the guard cover the case it was named for.
     """
+    if not isinstance(floor, int) or isinstance(floor, bool) or floor < 0:
+        raise TypeError(f"floor must be a non-negative int, got {floor!r}")
     target = Path(path)
-    if target.is_file():
-        existing = load(target)
-        if len(ledger.hypotheses) < len(existing.hypotheses):
-            raise ValueError(
-                f"The experiment ledger would fall from "
-                f"{len(existing.hypotheses)} entries to {len(ledger.hypotheses)}. "
-                "It is append-only: the tests that failed are what make a "
-                "surviving one unlikely to be chance, and a ledger that can "
-                "shrink reports a correction smaller than the truth."
-            )
+    on_disk = len(load(target).hypotheses) if target.is_file() else 0
+    lowest_permitted = max(floor, on_disk)
+    if len(ledger.hypotheses) < lowest_permitted:
+        raise ValueError(
+            f"The experiment ledger would fall from {lowest_permitted} entries "
+            f"to {len(ledger.hypotheses)}. "
+            "It is append-only: the tests that failed are what make a "
+            "surviving one unlikely to be chance, and a ledger that can "
+            "shrink reports a correction smaller than the truth."
+        )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
         json.dumps(

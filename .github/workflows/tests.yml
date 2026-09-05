@@ -1,8 +1,41 @@
 name: Tests
 
-# Every push and every pull request. Nothing merges with this red — that rule
-# is in CLAUDE.md and this workflow is what makes it enforceable rather than
-# aspirational.
+# Every push to main and every pull request. Nothing merges with this red —
+# and that sentence is now TRUE rather than aspirational: this repository is
+# public, branch protection on `main` lists the `Tests` context as a required
+# status check, enforced for administrators too, with force-pushes and
+# deletions refused. The CBB lab is the exception while it stays private, since
+# GitHub does not enforce required checks on a private repository at its plan.
+# The rule is in CLAUDE.md; this workflow is what makes it enforceable.
+#
+# The job that carries the `Tests` name is therefore the thing an edit to this
+# file could quietly disarm: rename it, empty it, condition it, narrow the
+# pytest invocation, or swallow its failure, and the required check goes green
+# over nothing. tests/test_workflows.py parses this file and pins each of
+# those — and EXECUTES each run block under stubs to observe that a failing
+# command fails the step. Do not add an `if:`, a `needs:`, a
+# `continue-on-error:`, a `shell:` override or a flag here to quiet a run.
+#
+# WHAT IS PINNED, AND WHAT IS NOT. Pinned: exactly one job in the repository
+# carries `name: Tests`; it takes no `if:`, `needs:`, `strategy:`,
+# `continue-on-error:`, `defaults:` or `container:`, and no OTHER job in this
+# file takes an `if:` either — a required job that `needs:` a job GitHub
+# skipped is reported to branch protection as Success, so `needs:` is `if:
+# false` with one more step of indirection. The suite line may carry only the
+# arguments on a whitelist (`-q`, `-rs`, `--junit-xml=<path>`); anything else,
+# including the exit-0-and-write-nothing `--version` and `--help`, is refused.
+# The junit path must live under $RUNNER_TEMP and match no tracked path, so a
+# committed junit cannot stand in as this run's evidence. The gate line is
+# pinned as a whole command, not as a substring, and is executed under stubs
+# to observe that python really receives the script.
+#
+# NOT pinned, and stated so nobody reads more into the green tick than is
+# there: branch protection itself, which lives in the repository settings and
+# not in this file; whether the `Tests` context is still required (that is
+# Cooper's to change, and tests/test_workflows.py holds the name as a literal
+# so drift goes red rather than adapting); and the contents of the suite —
+# this file guarantees that the whole suite ran and that every skip is red,
+# not that the tests it ran are good ones.
 #
 # No secret is available to this workflow, deliberately. The tests must pass
 # without a credential, which is what keeps them runnable on a fork and proves
@@ -25,8 +58,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           # The secrets guard runs `git ls-files`, so it needs a real
-          # repository rather than an export.
-          fetch-depth: 1
+          # repository rather than an export; the ledger check below reads a
+          # blob out of the pull request's base commit, so it needs history.
+          fetch-depth: 0
+          # Nothing in this job authenticates to git.
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,13 +75,82 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install -e .
 
+      # `compileall` prints "Can't list 'src'" and EXITS 0 when a path names
+      # nothing, so a rename or a bad checkout would turn this step into a
+      # green report about no files at all. The existence check is the gate.
+      # -f forces recompilation past a stale __pycache__.
       - name: Compile
-        run: python -m compileall -q src scripts
+        run: |
+          set -euo pipefail
+          for d in src scripts; do
+            [ -d "$d" ] || { echo "::error::$d is missing — the byte-compile gate would have passed on nothing."; exit 1; }
+          done
+          python -m compileall -q -f src scripts
 
+      # The whole suite, every time. No -x, no --maxfail, no -k, no -m, no
+      # --ignore, no --deselect, no positional path, no PYTEST_ADDOPTS: the
+      # junit file must account for every test, and a run that stops early
+      # cannot. -rs so the reason for each skip is in the log beside the gate
+      # that fails on it. junit.xml goes to $RUNNER_TEMP and never into the
+      # workspace, so the clean-tree check below stays meaningful.
+      # PYTHONSAFEPATH keeps the working directory OFF sys.path. Without it
+      # `python -m pytest` puts the checkout ahead of site-packages, so a
+      # tracked `pytest.py` or `coverage.py` at the root shadows the real
+      # thing and the suite line runs a file the repository controls. Measured
+      # on this lab: a three-line tracked `pytest.py` printing "all tests
+      # passed" made `python -m pytest -q -rs --junit-xml=...` exit 0 and write
+      # no junit at all. tests/test_the_guards_exist.py asserts no such
+      # basename is tracked; this flag is the belt beside it, and
+      # tests/test_workflows.py requires it here.
       - name: Tests
         env:
           PYTHONPATH: src
-        run: python -m pytest -q
+          PYTHONSAFEPATH: "1"
+        run: python -m pytest -q -rs --junit-xml="$RUNNER_TEMP/junit.xml"
+
+      # THE SKIP GATE. `python -m pytest -q` exits 0 on a skip and on an xfail,
+      # so green above means "the suite did not object". This step reads the
+      # junit evidence and fails on a skip, an xfail, an empty run, or a
+      # hard-rule guard module that contributed no testcase. It is a tested
+      # script (tests/test_check_test_results.py), standard library only, and
+      # it exposes no allowlist, no env var and no flag that tolerates a skip.
+      # `always()` so a failing run is still accounted for. The call is bare:
+      # `python` on a missing path exits 2, so deleting the script is red.
+      - name: Fail on a skip, an xfail, a missing guard module, or an empty run
+        if: always()
+        run: python scripts/check_test_results.py "$RUNNER_TEMP/junit.xml"
+
+      # A full run must leave the tree clean: a test that writes into
+      # data/outputs/ is how a committed measurement gets regenerated by CI
+      # and reviewed by nobody. `always()` because the run that most needs
+      # this check is the one where something else already went wrong.
+      - name: Fail if the suite wrote into the working tree
+        if: always()
+        run: test -z "$(git status --porcelain)" || { git status --porcelain; echo '::error::The suite wrote into the working tree.'; exit 1; }
+
+      # THE LEDGER IS APPEND-ONLY, AND ONLY THIS JOB BLOCKS A MERGE. The
+      # `Ledger Guard` workflow runs the same comparison on every push and
+      # every pull request with its own red tick, but branch protection
+      # requires `Tests` alone — so the pull-request half of the comparison
+      # runs here too, where red means the merge button is grey. A base it
+      # cannot resolve is a hard stop, never a pass; the script is
+      # scripts/check_ledger_append_only.py, tested in
+      # tests/test_check_ledger_append_only.py, with no waiver of any kind.
+      - name: Refuse a removed or rewritten hypothesis
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE}^{commit}" || { echo "::error::Cannot resolve the pull request base ${BASE}. The append-only check did not run; that is a broken guard, NOT evidence that the ledger is intact."; exit 1; }
+          if git cat-file -e "${BASE}:data/outputs/experiment_ledger.json" 2>/dev/null; then
+            TMP="$(mktemp)"
+            git show "${BASE}:data/outputs/experiment_ledger.json" > "${TMP}"
+            [ -s "${TMP}" ] || { echo "::error::The base ledger exists but came back empty."; exit 1; }
+            python scripts/check_ledger_append_only.py --base "${TMP}" --head data/outputs/experiment_ledger.json
+          else
+            python scripts/check_ledger_append_only.py --base-absent --head data/outputs/experiment_ledger.json
+          fi
 
       - name: The cost arithmetic still runs and still spends nothing
         env:
@@ -57,5 +162,18 @@ jobs:
           PYTHONPATH: src
         run: |
           # A dry run must stay a dry run. If this ever starts needing a
-          # credential, the default has stopped being safe.
+          # credential, the default has stopped being safe. pipefail, because
+          # GitHub's default shell is `bash -e` without it and a failing probe
+          # would report grep's status.
+          set -o pipefail
           python scripts/run_retention_probe.py | tail -1 | grep -q "no credit was spent"
+
+      # The junit file IS the evidence that the gate ran, so a missing file
+      # must be an error, never a warning.
+      - name: Upload the test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/junit.xml
+          if-no-files-found: error

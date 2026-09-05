@@ -94,6 +94,13 @@ def offending_strings(path: Path) -> list[tuple[int, str]]:
     return problems
 
 
+def test_the_corpus_is_not_empty() -> None:
+    """An empty parametrisation collects nothing and reports green."""
+    files = python_files()
+    assert len(files) > 50, f"only {len(files)} Python files found; the roots are wrong"
+    assert REGISTRY not in files and REGISTRY.is_file()
+
+
 @pytest.mark.parametrize("path", python_files(), ids=lambda p: str(p.name))
 def test_no_module_outside_the_registry_writes_a_league_literal(path: Path) -> None:
     problems = offending_strings(path)

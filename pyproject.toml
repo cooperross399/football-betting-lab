@@ -14,3 +14,6 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# An xpass must reach the junit file as a <failure>, or the skip gate in
+# scripts/check_test_results.py cannot see it.
+xfail_strict = true
