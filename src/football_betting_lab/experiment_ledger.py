@@ -38,8 +38,10 @@ the floor `save()` re-reads is the shrunken count and the comparison is n
 against n. Reproduced: hand-delete eighteen entries from the tracked JSON,
 commit, run the recorder with no arguments — exit 0, `35 distinct hypotheses
 (+0)`, and the render moved 53 -> 35 and x1.69 -> x1.63 in the same prose.
-Nothing self-heals: the recorder appends only what it is asked for, and the
-workflow asks for nothing.
+Nothing self-healed in that run: the recorder appended what it was asked for,
+which was nothing, and the workflow asks for nothing either. Re-running a test
+already in the ledger leaves the count where it was —
+`tests/test_experiment_ledger.py::test_re_running_the_same_test_does_not_inflate_the_correction`.
 
 Two things enforce it now, and each covers what the other cannot:
 

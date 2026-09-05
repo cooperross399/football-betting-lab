@@ -27,20 +27,27 @@ The required check is pinned three ways:
   takes no `if:`, no `needs:` and no `strategy:`, and NO OTHER JOB in
   `tests.yml` takes an `if:` either, because GitHub reports a
   conditionally-skipped required check as Success and `needs: a-skipped-job`
-  is `if: false` with one more step of indirection. Its suite step carries no
-  `if:`, no `continue-on-error`, no `shell:` override and no
-  `defaults.run.shell`. The pytest invocation is checked against a WHITELIST
-  of the arguments it may carry rather than a blocklist of the ones it may
-  not, because the flags nobody thought of were `--version`, `-h` and
-  `--help`, each of which exits 0 having run nothing. The junit path must sit
-  under `$RUNNER_TEMP` and match no tracked path, so a committed junit cannot
-  stand in as this run's evidence. The gate line is pinned as a whole command
-  and then EXECUTED under stubs, because a substring pin is satisfied by
+  is `if: false` with one more step of indirection. EVERY STEP of that job is
+  held the same way and not only the two that run the chain, because a step
+  GitHub skips does not fail its job either — graded at 5304f79, `if: false`
+  on the compile step, on the checkout and on the upload was rejected by none
+  of the twenty-nine rules that existed then. The clean-tree step and the
+  append-only step must also be present, deleting either having passed every
+  rule at 5304f79 as well. The pytest invocation is checked against a
+  WHITELIST of the arguments it may carry rather than a blocklist of the ones
+  it may not, because the flags nobody thought of were `--version`, `-h` and
+  `--help`, each of which exits 0 having run nothing. The junit path written
+  on the suite line must sit under `$RUNNER_TEMP` and match no tracked path,
+  which stops a junit committed to the repository being gated out of the
+  workspace; it does not stop a step that copies one onto the gated path
+  through a shell variable, and that route is asserted open below rather than
+  claimed shut. The gate line is pinned as a whole command and then EXECUTED
+  under stubs, because a substring pin is satisfied by
   `: python scripts/check_test_results.py <path>`. `PYTEST_ADDOPTS` appears
   in no `env:` and no run block; nothing rebinds `PATH` or `PYTHONHOME`; the
   `pull_request` trigger carries no `paths:`, `paths-ignore:` or `branches:`;
-  and the junit path pytest writes is the path the gate reads, with nothing
-  in between writing it.
+  and the junit path pytest writes is the path the gate reads, with no step
+  in between NAMING it.
 * EXECUTION — every run block in `tests.yml` and `ledger-guard.yml` is run
   with every command failing, and then with each failing alone, and the block
   must exit non-zero every time a top-level command failed. That is what
@@ -83,8 +90,11 @@ from football_betting_lab.config import PROJECT_ROOT
 WORKFLOW_DIR = PROJECT_ROOT / ".github" / "workflows"
 
 #: The status check branch protection requires on `main`, by the name GitHub
-#: matches it under — the JOB's `name:`. Verified against the repository's
-#: protection rule on 2026-09-04; if that rule changes, this changes with it.
+#: matches it under — the JOB's `name:`. Read back off the protection rule
+#: with `gh api repos/<owner>/<repo>/branches/main/protection` on 2026-09-05:
+#: required contexts `['Tests']`, `enforce_admins` true, force-pushes and
+#: deletions refused, on a public repository. If that rule changes, this
+#: changes with it — nothing in this file can see the change happen.
 REQUIRED_CHECK_CONTEXT = "Tests"
 REQUIRED_CHECK_WORKFLOW = "tests.yml"
 
@@ -252,6 +262,20 @@ SHELL_OPERATOR_TOKENS = frozenset(
 COMMAND_TERMINATORS = frozenset(";|&<>(){}\n")
 SAFE_SHELLS = frozenset({"bash", "sh"})
 PERMITTED_CHAIN_CONDITION = "always()"
+
+#: The one NARROWING condition permitted anywhere in the required job, and it
+#: is permitted on one step: the append-only comparison reads the pull
+#: request's base commit, and a push has no base to read. Allowing the same
+#: three words file-wide would let them switch the compile step or the
+#: clean-tree step off for every push to main, so the rule below pins the
+#: condition to the step that needs it.
+PULL_REQUEST_ONLY_CONDITION = "github.event_name == 'pull_request'"
+
+#: Two more steps of the required job that carry neither pytest nor the gate
+#: script, so `_is_a_chain_step` does not see them and neither did any rule
+#: here until the step-conditional and presence rules below.
+LEDGER_SCRIPT = "check_ledger_append_only.py"
+CLEAN_TREE_COMMAND = "git status --porcelain"
 
 
 def commands(block: str) -> list[str]:
@@ -1639,6 +1663,154 @@ def check_the_compile_step_fails_on_a_missing_directory(path: Path) -> None:
             )
 
 
+def check_no_step_of_the_required_job_is_conditional(path: Path) -> None:
+    """EVERY step of the required job, not only the two that run the chain.
+
+    `check_no_condition_disables_the_chain` reads the steps whose `run:`
+    mentions pytest or the gate script, which left every OTHER step of the
+    required job unconditioned by anything. That is not a smaller version of
+    the same hole, it is the same hole: GitHub does not fail a job because a
+    step was skipped, it reports the job as Success with the step marked
+    skipped. So a one-line `if: false` on the compile step, on the clean-tree
+    step, on the append-only step or on the evidence upload deletes that
+    guarantee and leaves the merge button green.
+
+    Observed on this file's own control workflow before this rule existed:
+    at 5304f79, `if: false` on the Compile step, on the checkout and on the
+    upload step was rejected by 0 of the 29 rules then in `ALL_RULES`, and so
+    was `if: github.event_name == 'pull_request'` on the Compile step, which
+    switches that step off for every push to main. The cases are in
+    REJECTIONS under `compile_step_if_false`, `checkout_step_if_false`,
+    `upload_step_if_false`, `clean_tree_step_if_false` and
+    `ledger_step_if_false`.
+
+    The whitelist, by condition and by step:
+
+    * `always()` on any step. It adds the case where an earlier step already
+      failed; it does not take away a run the default would have made.
+    * `github.event_name == 'pull_request'` on the append-only step alone. It
+      narrows, so it is pinned to the one step that has a reason: there is no
+      base commit to compare against on a push. The same three words on the
+      compile step are a rejection case.
+
+    Anything else is refused whether or not anybody has thought about what it
+    evaluates to, which is the property a blocklist of `false` cannot have.
+    """
+    found = required_check_jobs(path)
+    assert len(found) == 1, (
+        f"{path.name}: {len(found)} jobs carry `name: {REQUIRED_CHECK_CONTEXT}`."
+    )
+    _, job = found[0]
+    for index, step in enumerate(steps_of(job)):
+        condition = _condition(step)
+        if condition is None or condition == PERMITTED_CHAIN_CONDITION:
+            continue
+        name = step.get("name", f"step {index}")
+        run = step.get("run")
+        is_the_ledger_step = isinstance(run, str) and LEDGER_SCRIPT in run
+        assert condition == PULL_REQUEST_ONLY_CONDITION and is_the_ledger_step, (
+            f"{path.name}: step {name!r} of the required job carries "
+            f"`if: {condition}`. A skipped step does not fail its job — the "
+            f"required check reports Success with the step switched off. The "
+            f"only conditions permitted here are `{PERMITTED_CHAIN_CONDITION}` "
+            f"on any step and `{PULL_REQUEST_ONLY_CONDITION}` on the "
+            f"{LEDGER_SCRIPT} step."
+        )
+
+
+def check_the_clean_tree_step_is_present(path: Path) -> None:
+    """Deleting this step passed every rule, so its presence is now a rule.
+
+    A run that writes into `data/outputs/` is how a committed measurement
+    gets regenerated by CI and reviewed by nobody. Nothing else here reads
+    that step, so `git rm`-ing it out of the job — or leaving it in place with
+    its verdict ignored — was invisible.
+
+    Presence is the cheap half. The other half is executed: the block is run
+    under stubs with `git status --porcelain` printing a modified path, and
+    must exit non-zero; then with it printing nothing, and must exit 0. A step
+    that reports a dirty tree and carries on fails the first; a step that
+    fails on a clean tree fails the second.
+    """
+    found = required_check_jobs(path)
+    assert len(found) == 1
+    _, job = found[0]
+    blocks = [
+        (step.get("name", "a step"), step["run"]) for step in steps_of(job)
+        if isinstance(step.get("run"), str)
+        and any(CLEAN_TREE_COMMAND in line for line in commands(step["run"]))
+    ]
+    assert len(blocks) == 1, (
+        f"{path.name}: {len(blocks)} steps of the required job run "
+        f"`{CLEAN_TREE_COMMAND}`; exactly one must."
+    )
+    name, block = blocks[0]
+    with tempfile.TemporaryDirectory() as directory:
+        dirty = run_block_under_stubs(
+            block, set(), Path(directory),
+            outputs={"git": " M data/outputs/experiment_ledger.json"},
+        )
+        assert dirty.exit_code != 0, (
+            f"{path.name}: step {name!r} exited 0 with `{CLEAN_TREE_COMMAND}` "
+            f"reporting a modified file: {dirty.stdout!r}"
+        )
+    with tempfile.TemporaryDirectory() as directory:
+        clean = run_block_under_stubs(block, set(), Path(directory), outputs={"git": ""})
+        assert clean.exit_code == 0 and not clean.unmodelled, (
+            f"{path.name}: step {name!r} does not pass on a clean tree: "
+            f"{clean.exit_code} {clean.unmodelled} {clean.stderr}"
+        )
+
+
+def check_the_append_only_step_is_present(path: Path) -> None:
+    """The same for the ledger comparison, and for the same reason.
+
+    Branch protection requires `Tests` and nothing else, so the pull-request
+    half of the append-only comparison runs inside this job. Deleting the step
+    left the `Ledger Guard` workflow's own tick, which does not block a merge.
+
+    Executed: the block is run under stubs and `python` must be OBSERVED
+    receiving `scripts/check_ledger_append_only.py`, so `echo python ...` and
+    a leading `:` do not satisfy it; then again with `python` failing, where
+    the block must exit non-zero rather than carry on.
+    """
+    found = required_check_jobs(path)
+    assert len(found) == 1
+    _, job = found[0]
+    blocks = [
+        (step.get("name", "a step"), step["run"]) for step in steps_of(job)
+        if isinstance(step.get("run"), str) and LEDGER_SCRIPT in step["run"]
+    ]
+    assert len(blocks) == 1, (
+        f"{path.name}: {len(blocks)} steps of the required job invoke "
+        f"{LEDGER_SCRIPT}; exactly one must. Only this job blocks a merge."
+    )
+    name, block = blocks[0]
+    # `mktemp` prints a name the block then redirects into, so the
+    # non-empty-base check ahead of the comparison is satisfied in the sandbox.
+    outputs = {"mktemp": "base_ledger.json"}
+    with tempfile.TemporaryDirectory() as directory:
+        ran = run_block_under_stubs(block, set(), Path(directory), outputs=outputs)
+    assert not ran.unmodelled, (path.name, ran.unmodelled)
+    reached = [
+        call for call in ran.invocations
+        if call.word in {"python", "python3"}
+        and call.arguments.split()[:1] == [f"scripts/{LEDGER_SCRIPT}"]
+    ]
+    assert reached, (
+        f"{path.name}: step {name!r} names {LEDGER_SCRIPT} and never runs it. "
+        f"Invoked: {[(c.word, c.arguments) for c in ran.invocations]}"
+    )
+    with tempfile.TemporaryDirectory() as directory:
+        refused = run_block_under_stubs(
+            block, {"python", "python3"}, Path(directory),
+            outputs=outputs, append_colon=False,
+        )
+    assert refused.exit_code != 0, (
+        f"{path.name}: step {name!r} exited 0 with {LEDGER_SCRIPT} failing."
+    )
+
+
 REQUIRED_CHECK_RULES: dict[str, Callable[[Path], None]] = {
     "the_required_check_job_is_pinned": check_the_required_check_job_is_pinned,
     "no_job_in_the_required_workflow_is_conditional": check_no_job_in_the_required_workflow_is_conditional,
@@ -1652,6 +1824,9 @@ REQUIRED_CHECK_RULES: dict[str, Callable[[Path], None]] = {
     "the_suite_and_the_gate_are_both_present": check_the_suite_and_the_gate_are_both_present,
     "the_gate_reads_the_evidence_this_run_wrote": check_the_gate_reads_the_evidence_this_run_wrote,
     "no_condition_disables_the_chain": check_no_condition_disables_the_chain,
+    "no_step_of_the_required_job_is_conditional": check_no_step_of_the_required_job_is_conditional,
+    "the_clean_tree_step_is_present": check_the_clean_tree_step_is_present,
+    "the_append_only_step_is_present": check_the_append_only_step_is_present,
 }
 
 EVIDENCE_RULES: dict[str, Callable[[Path], None]] = {
@@ -1998,6 +2173,24 @@ jobs:
       - name: Gate on the results
         if: always()
         run: python scripts/check_test_results.py "$RUNNER_TEMP/junit.xml"
+      - name: Fail if the suite wrote into the working tree
+        if: always()
+        run: test -z "$(git status --porcelain)" || { git status --porcelain; echo '::error::dirty'; exit 1; }
+      - name: Refuse a removed or rewritten hypothesis
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE}^{commit}" || { echo '::error::no base'; exit 1; }
+          if git cat-file -e "${BASE}:data/outputs/experiment_ledger.json" 2>/dev/null; then
+            TMP="$(mktemp)"
+            git show "${BASE}:data/outputs/experiment_ledger.json" > "${TMP}"
+            [ -s "${TMP}" ] || { echo '::error::empty base'; exit 1; }
+            python scripts/check_ledger_append_only.py --base "${TMP}" --head data/outputs/experiment_ledger.json
+          else
+            python scripts/check_ledger_append_only.py --base-absent --head data/outputs/experiment_ledger.json
+          fi
       - name: Upload the test evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -2017,6 +2210,28 @@ GATE_STEP = (
 JOB_HEAD = "  tests:\n    name: Tests\n    runs-on: ubuntu-latest\n"
 TRIGGER_LINE = '"on": [push, pull_request]'
 COMPILE_LINE = "python -m compileall -q -f src scripts"
+CLEAN_TREE_STEP = """\
+      - name: Fail if the suite wrote into the working tree
+        if: always()
+        run: test -z "$(git status --porcelain)" || { git status --porcelain; echo '::error::dirty'; exit 1; }
+"""
+LEDGER_STEP = """\
+      - name: Refuse a removed or rewritten hypothesis
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE}^{commit}" || { echo '::error::no base'; exit 1; }
+          if git cat-file -e "${BASE}:data/outputs/experiment_ledger.json" 2>/dev/null; then
+            TMP="$(mktemp)"
+            git show "${BASE}:data/outputs/experiment_ledger.json" > "${TMP}"
+            [ -s "${TMP}" ] || { echo '::error::empty base'; exit 1; }
+            python scripts/check_ledger_append_only.py --base "${TMP}" --head data/outputs/experiment_ledger.json
+          else
+            python scripts/check_ledger_append_only.py --base-absent --head data/outputs/experiment_ledger.json
+          fi
+"""
 
 
 def mutate(anchor: str, replacement: str, text: str = GOOD_WORKFLOW) -> str:
@@ -2191,6 +2406,42 @@ REJECTIONS: dict[str, tuple[str, str]] = {
         'run: python scripts/check_test_results.py "$RUNNER_TEMP/junit.xml"',
         'run: |\n          python scripts/check_test_results.py "$RUNNER_TEMP/junit.xml"\n'
         "          echo done")),
+
+    # -- G. a step of the required job that GitHub skips -------------------
+    # GitHub reports a job whose step was skipped as Success. Before
+    # `no_step_of_the_required_job_is_conditional` existed, each of these
+    # passed all twenty-nine rules — the conditional rule only read the steps
+    # whose `run:` mentions pytest or the gate script.
+    "compile_step_if_false": ("no_step_of_the_required_job_is_conditional", mutate(
+        "      - name: Compile\n", "      - name: Compile\n        if: false\n")),
+    "checkout_step_if_false": ("no_step_of_the_required_job_is_conditional", mutate(
+        "      - name: Check out repository\n",
+        "      - name: Check out repository\n        if: false\n")),
+    "upload_step_if_false": ("no_step_of_the_required_job_is_conditional", mutate(
+        "      - name: Upload the test evidence\n        if: always()\n",
+        "      - name: Upload the test evidence\n        if: false\n")),
+    "clean_tree_step_if_false": ("no_step_of_the_required_job_is_conditional", mutate(
+        "      - name: Fail if the suite wrote into the working tree\n        if: always()\n",
+        "      - name: Fail if the suite wrote into the working tree\n        if: false\n")),
+    "ledger_step_if_false": ("no_step_of_the_required_job_is_conditional", mutate(
+        "        if: github.event_name == 'pull_request'\n", "        if: false\n")),
+    # The pull-request condition is legitimate on the append-only step and on
+    # nothing else: on the compile step it switches that step off for every
+    # push to main.
+    "compile_step_narrowed_to_pull_requests": ("no_step_of_the_required_job_is_conditional", mutate(
+        "      - name: Compile\n",
+        "      - name: Compile\n        if: github.event_name == 'pull_request'\n")),
+
+    # -- H. the two steps whose deletion nothing read ---------------------
+    "clean_tree_step_deleted": ("the_clean_tree_step_is_present", mutate(CLEAN_TREE_STEP, "")),
+    "clean_tree_verdict_ignored": ("the_clean_tree_step_is_present", mutate(
+        CLEAN_TREE_STEP,
+        "      - name: Fail if the suite wrote into the working tree\n        if: always()\n"
+        "        run: git status --porcelain\n")),
+    "ledger_step_deleted": ("the_append_only_step_is_present", mutate(LEDGER_STEP, "")),
+    "ledger_step_echoed": ("the_append_only_step_is_present", mutate(
+        "            python scripts/check_ledger_append_only.py --base",
+        "            echo python scripts/check_ledger_append_only.py --base")),
 
     # -- F. the shadow-module belt ----------------------------------------
     "suite_without_safe_path": ("the_suite_step_is_pinned", mutate(SUITE_ENV, "")),
@@ -2490,6 +2741,15 @@ def test_the_disclosed_holes_are_real(tmp_path: Path) -> None:
       as the same path, is inside the window and would be read as this run's.
       The path pin and the tracked-path pin are what stand between that and a
       committed junit; the timestamp only rules out the stale one.
+    * A PLANT THROUGH A SHELL VARIABLE. The rules above read the junit path as
+      it is WRITTEN on the line. A step that puts the path in a variable first
+      —  `D="$RUNNER_TEMP"; cp fixtures/green.xml "$D/junit.xml"` — names no
+      literal the rule can match, and is refused by none of them. The literal
+      form (`gate_planted` in REJECTIONS) is caught. tests.yml's header used
+      to say a committed junit could not stand in as this run's evidence; it
+      now says what is actually pinned. The report's timestamp is the thing
+      that would still have to be got past, and it is a six-hour window rather
+      than a proof of origin.
     * A GUARD THAT RUNS AND ASSERTS NOTHING. Every floor in the repository is
       a count, and `assert True` satisfies a count. See
       `tests/test_the_guards_exist.py::test_known_gaps_in_the_guard_floors`.
@@ -2527,6 +2787,21 @@ def test_the_disclosed_holes_are_real(tmp_path: Path) -> None:
         'python -c "import os; print(os.environ[\'FOOTBALL_ODDS_API_KEY\'])"\n', set(), tmp_path,
         environment={"FOOTBALL_ODDS_API_KEY": CANARY},
     ).invocations if CANARY in c.arguments]
+
+    # The plant through a shell variable, run rather than described: the
+    # literal form is refused and the variable form is not.
+    literal = workflow(tmp_path, mutate(
+        SUITE_STEP,
+        SUITE_STEP + '      - name: Plant\n        run: cp green.xml "$RUNNER_TEMP/junit.xml"\n',
+    ), "literal_plant.yml")
+    assert_rejects(check_the_gate_reads_the_evidence_this_run_wrote, literal)
+    through_a_variable = workflow(tmp_path, mutate(
+        SUITE_STEP,
+        SUITE_STEP + "      - name: Plant\n        run: |\n"
+        '          D="$RUNNER_TEMP"\n          cp green.xml "$D/junit.xml"\n',
+    ), "variable_plant.yml")
+    for rule in ALL_RULES.values():
+        rule(through_a_variable)  # asserted OPEN: no rule here refuses it
 
     # Branch protection is outside this repository: the most these rules can
     # do is pin the name and refuse to adapt when it drifts.

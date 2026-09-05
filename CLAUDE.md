@@ -1323,20 +1323,25 @@ an NFL record.
   name, its pytest invocation, its evidence chain — by parsing the workflow
   and executing its run blocks under stubs. A guard that greps for a spelling
   proves only that the spelling is absent.
-- **No guard TEST can be dropped from a run, not just no guard module.** This
-  bullet used to say "the hard-rule guards cannot be dropped from a run", and
-  the floors underneath it were per MODULE. Measured 2026-09-04:
+- **No guard TEST is dropped from a run silently — the floor is per test, not
+  per module.** This bullet used to say "the hard-rule guards cannot be
+  dropped from a run", and the floors underneath it were per MODULE. Measured
+  2026-09-04:
   `--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked`
   — from `pyproject.toml` addopts, from `PYTEST_ADDOPTS`, or from a `-c`
-  config file — produced `987 passed, 1 deselected`, pytest exit 0 and
-  `scripts/check_test_results.py` exit 0, with a guard test gone and every
-  layer green. Now: `conftest.py` exits the session when a required guard
-  module collected nothing AND when pytest received a `--deselect`, `-k`,
+  config file — produced `1 deselected`, a pass count one below the control,
+  pytest exit 0 and `scripts/check_test_results.py` exit 0, with a guard test
+  gone and every layer green. "Silently" is the load-bearing word: a guard
+  test deleted WITH its floor lowered in the same commit is a line in the diff
+  that says so, which is what `GUARD_TEST_FLOORS` converts the silent removal
+  into rather than preventing. Now: `conftest.py` exits the session when a
+  required guard module collected nothing AND when pytest received a `--deselect`, `-k`,
   `-m`, `--ignore`, an ini `addopts` or a `PYTEST_ADDOPTS` — read off
   `config`, so the route it arrived by does not matter;
   `scripts/check_test_results.py` floors each required module's recorded
   testcases against the `test_*` functions `ast` finds in the file, and
-  refuses evidence older than six hours; `tests/test_the_guards_exist.py`
+  refuses evidence older than six hours, floored against the checkout so no
+  count is written down anywhere; `tests/test_the_guards_exist.py`
   asserts each guard is tracked, still defines tests, and that no tracked
   `pytest.py`, `coverage.py`, `sitecustomize.py` or `usercustomize.py` can
   shadow the suite. The three hold one list. There is no skip allowlist and

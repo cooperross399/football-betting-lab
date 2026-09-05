@@ -9,12 +9,16 @@ runs a smaller suite and reports a smaller green.
 This hook counts the collected items per required module AFTER every other
 collection hook has deselected what it was going to (`trylast`, so `-k`, `-m`,
 `--deselect` and `--lf` have already run), and exits the session with status 1
-if any required module contributed zero. It is one of four layers and it is
-the only one that sees the collection itself: `scripts/check_test_results.py`
-reads the junit evidence after the run, and `tests/test_the_guards_exist.py`
-asserts the modules are tracked and still define tests. Delete this file and
-the other two still fire; edit the list here and
-`test_the_guards_exist.py` fails on the disagreement.
+if any required module contributed zero. It is not the only layer and it is
+the earliest — the one that sees the collection itself, before anything runs:
+`scripts/check_test_results.py` reads the junit evidence after the run, and
+`tests/test_the_guards_exist.py` asserts the modules are tracked and still
+define tests. Delete this file and the other two still fire; edit the list
+here and `test_the_guards_exist.py` fails on the disagreement. Run against a
+checkout of 5304f79 with `git rm tests/test_no_sibling_lab_import.py`: this
+hook exited pytest 1 having collected nothing; with `conftest.py` deleted as
+well, `test_the_guards_exist.py` failed collection; with that deleted too,
+the junit gate exited 1 naming both missing modules.
 
 A MODULE FLOOR IS NOT A TEST FLOOR, and that was the hole. Deselecting ONE
 test out of a guard leaves the module contributing dozens of items, so the
@@ -38,9 +42,11 @@ is read.
 The cost is deliberate and it is stated: a partial local run — `pytest
 tests/test_gates.py` — is refused too, and so is `pytest -k something`, now
 that a keyword expression is refused whether or not it happens to zero a
-guard. Run the whole suite; it takes under two minutes (1061 tests in 76.97s
-in a throwaway clone, `PYTHONPATH=src PYTHONSAFEPATH=1 python -m pytest -q
--rs`, 2026-09-04).
+guard. Run the whole suite. It is a minute or two rather than a few
+seconds — the executed workflow rules and the subprocess pytest collections
+are almost all of it — and the wall clock moves enough between machines and
+between runs on one machine that a figure written here would be a number
+nobody re-measures.
 
 Two things narrow a run past this hook, and both are edits to tracked files
 rather than flags. `--noconftest` drops the hook entirely: explicit, visible
@@ -48,9 +54,9 @@ in the command line, and refused on the CI suite line by the whitelist in
 `tests/test_workflows.py`. A `collect_ignore` written INTO this file, or into
 a `tests/conftest.py`, drops a module before any hook counts it — measured on
 a throwaway clone of this branch, `collect_ignore = ["tests/test_gates.py"]`
-here gave `1040 passed` against a control of `1061`, twenty-one tests gone,
-with pytest and the junit gate both exit 0. (A `tests/conftest.py` carrying
-the same line IS caught, at `pytest=1 gate=1`, because it shadows the root
+here dropped every test in that module — a smaller green, with pytest and
+the junit gate both exit 0. (A `tests/conftest.py` carrying the same line IS
+caught, at `pytest=1 gate=1`, because it shadows the root
 conftest this repository's manifest test imports — which is luck, not a rule.)
 That one is caught for the eight required guards, by the count below and by
 the per-test floor in `scripts/check_test_results.py`, and is not caught for

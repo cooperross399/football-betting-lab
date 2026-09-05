@@ -77,9 +77,10 @@ MINIMUM_TESTS_PER_GUARD = 5
 #: compares what RAN against what the file DEFINES, so deleting a guard test
 #: outright lowers both sides together. Measured on this branch before this
 #: list existed — delete `test_env_file_is_never_tracked` from the secrets
-#: guard, run the suite: `1050 passed` against a control of `1051` on the tree
-#: as it stood at that moment, pytest exit 0, gate exit 0, a guard test gone
-#: and nothing red. With this list in place the same edit is caught at
+#: guard, run the suite: one test fewer than the control, pytest exit 0, gate
+#: exit 0, a guard test gone and nothing red. The delta is the finding; the
+#: two pass counts moved the next time anyone added a test, which is why they
+#: are not written here. With this list in place the same edit is caught at
 #: pytest=1 gate=1.
 #:
 #: It is an append-only list in the ledger's sense rather than a wall: someone
@@ -414,8 +415,9 @@ def test_the_shadow_rule_would_see_a_shadow(tmp_path: Path) -> None:
 #: Each of these removes exactly ONE test from a guard module and leaves every
 #: other layer green: the module still collects dozens of items, the junit
 #: still records the module, and the file on disk still defines every test it
-#: ever did. Measured on this repository before the fix: `987 passed, 1
-#: deselected`, pytest exit 0 and `scripts/check_test_results.py` exit 0.
+#: ever did. Measured on this repository before the fix: one deselected, a pass
+#: count one below the control, pytest exit 0 and
+#: `scripts/check_test_results.py` exit 0.
 _SINGLE_TEST = "tests/test_no_secrets_committed.py::test_env_file_is_never_tracked"
 
 SINGLE_TEST_NARROWINGS = {
@@ -527,17 +529,20 @@ def test_the_narrowing_observation_reads_the_environment(monkeypatch) -> None:
 def test_known_gaps_in_the_guard_floors(tmp_path: Path) -> None:
     """What still gets through, asserted OPEN so it goes red when closed.
 
-    Each of these was run against this branch on 2026-09-04, with the fixes
-    in place, and the numbers are what the run printed.
+    Each of these was run against this branch with the fixes in place, and
+    what is recorded is what the run did rather than what it counted — the
+    counts move with every test anyone adds, and a stale count in a file whose
+    whole job is to be trusted is worse than no count.
 
     1. A `collect_ignore` in the ROOT `conftest.py`, naming a module that is
-       not on the required list. Measured 2026-09-04 in a throwaway clone of
-       this branch: `1040 passed` against a control of `1061`, pytest exit 0,
-       `check_test_results.py` exit 0. Twenty-one tests dropped, nothing red. Every floor in this repository is aimed at the
-       eight hard-rule guards; a non-required module has no floor at all, and
-       giving one to every module would mean a recorded count for forty-three
-       files that changes on every commit. The mitigation is that the edit is
-       a line in `conftest.py`, which is a file reviewers read.
+       not on the required list. Run in a throwaway clone of this branch: every
+       test in the named module was dropped, pytest exit 0,
+       `check_test_results.py` exit 0 — a smaller green, nothing red. Every
+       floor in this repository is aimed at the eight hard-rule guards; a
+       non-required module has no floor at all, and giving one to every module
+       would mean a recorded count for every test file in the suite that
+       changes on every commit. The mitigation is that the edit is a line in
+       `conftest.py`, which is a file reviewers read.
 
     2. A guard test deleted outright, WITH the matching floor lowered in the
        same commit. `GUARD_TEST_FLOORS` cannot stop that and is not meant to:
