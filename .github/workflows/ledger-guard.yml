@@ -1,17 +1,29 @@
 # Ledger Guard — the append-only rule, checked at the diff instead of at runtime.
 #
 # `ExperimentLedger.save()` in src/football_betting_lab/experiment_ledger.py
-# refuses a shrink, and until this round it could not fire: it measured its
-# floor by re-reading the file it was about to overwrite, and the only caller
-# loads that file first, so it compared the ledger with itself. Eighteen
-# hypotheses hand-deleted from data/outputs/experiment_ledger.json (53 -> 35)
-# re-rendered clean and printed a smaller correction (x1.69 -> x1.63) with CI
-# green. `save()` now takes an explicit floor — but a PR diff never calls
-# `save()` at all, and a PR diff is exactly how a ledger reaches main. This
-# workflow is that missing half: it compares the ledger on the head against the
-# ledger at the base and refuses any run in which a recorded hypothesis was
-# removed or rewritten. Lose entries quietly and the lab reports a correction
-# smaller than the truth, which is the failure the rule names.
+# refuses a shrink. It measured its floor by re-reading the file it was about
+# to overwrite, and this comment used to say that meant it "could not fire".
+# Corrected 2026-09-04 by restoring the pre-floor save() from ac6d9b2 and
+# running it: an IN-PROCESS shrink of the real ledger — load 53, drop eighteen
+# in memory, save — raised `The experiment ledger would fall from 53 entries
+# to 35`. The old guard fired.
+#
+# What it could not see is the edit that was actually made: eighteen
+# hypotheses hand-deleted from data/outputs/experiment_ledger.json ON DISK
+# (53 -> 35) and committed. The recorder then loads a file that is already
+# short, so the floor it re-reads is 35 and the comparison is 35 against 35.
+# Measured: exit 0, `35 distinct hypotheses (+0)`, the .md re-rendered from
+# x1.69 to x1.63, and CI green. Nothing is re-added — the recorder only
+# appends what it is asked for, and it is run here with no arguments.
+#
+# save() now takes an explicit floor and the recorder passes the count
+# committed at HEAD, which closes the on-disk edit for anything that runs
+# inside a checkout. But a PR diff never calls save() at all, and a PR diff is
+# exactly how a ledger reaches main. This workflow is that missing half: it
+# compares the ledger on the head against the ledger at the base and refuses
+# any run in which a recorded hypothesis was removed or rewritten. Lose
+# entries quietly and the lab reports a correction smaller than the truth,
+# which is the failure the rule names.
 #
 # This workflow READS and never writes. It holds `contents: read`, so it cannot
 # commit, push, or "repair" a ledger — a guard that can rewrite the evidence has
@@ -38,10 +50,16 @@ on:
   # `branches:` filter on the pull request either: a ledger edited on a side
   # branch reaches main through a merge, and the check runs BEFORE the merge.
   #
-  # The cost, stated: the FIRST push of a new branch carries an all-zeros
-  # `github.event.before`, which the resolve step treats as a hard stop. That
-  # run is red because nothing was compared, which is the honest report; the
-  # branch's PR run compares it properly against the base.
+  # The FIRST push of a new branch carries an all-zeros `github.event.before`,
+  # because there is no previous tip of a ref that did not exist. This used to
+  # be a hard stop, so every new branch's first push was red. Fail-closed is
+  # the right instinct and that was the wrong place to apply it: a check that
+  # is red on every branch's first push is a check people learn to scroll
+  # past, and a guard nobody reads is a guard that is not running. The zeros
+  # are not an unresolvable base — they are a base that has to be resolved
+  # differently, as `git merge-base HEAD origin/main`, which is exactly the
+  # range the push introduced. Every OTHER unresolvable base is still a hard
+  # stop.
   pull_request:
   push:
   workflow_dispatch:
@@ -89,9 +107,25 @@ jobs:
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
+          # GitHub's all-zeros sentinel for "this ref did not exist before".
+          ZEROS="0000000000000000000000000000000000000000"
           case "${EVENT_NAME}" in
             pull_request) BASE="${PR_BASE_SHA}" ;;
-            push)         BASE="${PUSH_BEFORE_SHA}" ;;
+            push)
+              if [ "${PUSH_BEFORE_SHA}" = "${ZEROS}" ]; then
+                # A branch's first push. There is no previous tip to compare
+                # against, so the range this push introduced is everything
+                # since it left main — which is what merge-base names. Fetch
+                # first: a checkout may hold no remote-tracking main, and
+                # resolving against a ref that is not there would be the same
+                # false red in a new costume.
+                git fetch --no-tags --quiet origin main || { echo "::error::Cannot fetch origin/main to resolve the base of a first push. The append-only check did not run. This is a broken guard, NOT evidence that the ledger is intact."; exit 1; }
+                BASE="$(git merge-base HEAD FETCH_HEAD)" || { echo "::error::No merge base between HEAD and origin/main. The append-only check did not run. This is a broken guard, NOT evidence that the ledger is intact."; exit 1; }
+                echo "First push of this ref: comparing against the merge base with origin/main."
+              else
+                BASE="${PUSH_BEFORE_SHA}"
+              fi
+              ;;
             workflow_dispatch) BASE="origin/main" ;;
             *)
               echo "::error::Unhandled event ${EVENT_NAME}. The append-only check did not run. This is a broken guard, NOT evidence that the ledger is intact."
@@ -102,9 +136,11 @@ jobs:
             echo "::error::No base ref for event ${EVENT_NAME}. The append-only check did not run. This is a broken guard, NOT evidence that the ledger is intact."
             exit 1
           fi
-          # An all-zeros `before`, a force-pushed-away sha, or a shallow clone
-          # all land here. Every one means the comparison cannot be made —
-          # which is a failure, never a pass.
+          # A force-pushed-away sha, a shallow clone, or a merge base that
+          # resolved to something git no longer has all land here. Every one
+          # means the comparison cannot be made — which is a failure, never a
+          # pass. The all-zeros `before` is handled above and does not reach
+          # this line: it is resolvable, just not by cat-file.
           if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
             echo "::error::Cannot resolve the base commit ${BASE}. The append-only check did not run. This is a broken guard, NOT evidence that the ledger is intact."
             exit 1

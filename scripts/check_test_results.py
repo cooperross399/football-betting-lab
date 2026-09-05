@@ -31,6 +31,39 @@ session at collection time when a required module contributed nothing, and
 tests. This one reads the evidence file, so it still fires when the other two
 were deleted alongside the guard.
 
+THE FLOOR IS PER TEST, NOT PER MODULE, and it was per module until now. A
+module floor asks "did this guard run at all", which one deselected test
+answers with a comfortable yes. Measured on this repository:
+`--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked`
+— written into `pyproject.toml`, into `PYTEST_ADDOPTS`, or into a `-c` config
+file — produced `987 passed, 1 deselected`, pytest exit 0 and this script exit
+0, with the guard test gone. So each required module's recorded testcases are
+now floored against the `test_*` functions `ast` reads out of the file. That
+is a floor and not an equality: parametrisation multiplies one function into
+many testcases, so recorded sits well above the count. Measured on this suite
+on 2026-09-04 over a real junit of 1061 tests, recorded against defined:
+31/29, 8/5, 10/10, 87/8, 277/37, 48/21, 33/30, 39/24 — every module clear, the
+tightest margin zero (`tests/test_contract_strings.py`, which parametrises
+nothing) and the widest 240 testcases.
+
+A shortfall is not literally impossible in an honest run, and the two ways it
+could happen are worth knowing before anyone debugs one: a `test_*` function
+nested INSIDE another function is counted by `ast` and never collected by
+pytest, and a `test_*` method on a class pytest declines to collect (one with
+an `__init__`) is counted here too. Neither exists in the eight guards today.
+Both would surface as a red build naming the module, which is the safe
+direction to be wrong in.
+
+THE EVIDENCE MUST BE THIS RUN'S. `--version`, `-h` and `--help` make pytest
+exit 0 and write no junit at all, so a junit committed to the repository at
+the gated path used to satisfy both this gate and the clean-tree check that
+follows it. `tests/test_workflows.py` now refuses a junit path that is not
+under `$RUNNER_TEMP` and refuses one that matches a tracked path; this script
+carries the other half, which needs no workflow at all to be true: a report
+whose `<testsuite timestamp>` is older than `MAXIMUM_EVIDENCE_AGE` did not
+come from the job reading it. A missing or unparseable timestamp is a failure
+for the same reason every other missing thing here is.
+
 Standard library only, and nothing from src/: the workflow step invokes this
 with no PYTHONPATH, and the gate has to still run and still report when the
 package itself is broken.
@@ -44,10 +77,29 @@ invisible here.
 
 from __future__ import annotations
 
+import ast
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from xml.etree.ElementTree import Element
+
+#: The checkout this script is part of. The per-test floor reads the guard
+#: modules out of it, so the floor is measured against the same commit that
+#: produced the evidence rather than against a number written down here.
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+
+#: How old a junit report may be and still be read as THIS run's evidence.
+#: The whole job takes minutes; anything measured in hours came from somewhere
+#: else. Generous enough that a slow runner or a clock a little out of step is
+#: not a false red, tight enough that nothing committed to the repository can
+#: pass as fresh.
+MAXIMUM_EVIDENCE_AGE = timedelta(hours=6)
+
+#: And the other direction, because a forged timestamp is as easy to put in
+#: the future as in the past. A runner whose clock is an hour fast is
+#: plausible; a report stamped tomorrow is not.
+MAXIMUM_EVIDENCE_SKEW = timedelta(hours=1)
 
 #: Every module that must show up in the evidence AND must have contributed at
 #: least one testcase. Checked against the classnames the XML actually records,
@@ -72,6 +124,77 @@ def module_key(module: str) -> str:
     return module[:-3].replace("/", ".") if module.endswith(".py") else module
 
 
+def test_functions_in(path: Path) -> int | None:
+    """`def test_*` in a file, by AST. `None` when the file cannot be read.
+
+    The same counting rule as `tests/test_the_guards_exist.count_test_functions`
+    — every `test_*` function anywhere in the tree, module level or inside a
+    class — and `tests/test_the_guards_exist.py` asserts the two agree on
+    every required module, so the floor and the manifest cannot drift apart.
+    """
+    try:
+        source = Path(path).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        tree = ast.parse(source, filename=str(path))
+    except SyntaxError:
+        return None
+    return sum(
+        1 for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name.startswith("test_")
+    )
+
+
+def evidence_age_problems(suites: list[Element], now: datetime) -> list[str]:
+    """Whether the report is recent enough to be the run that is reading it.
+
+    A `<testsuite>` with no timestamp, or one this parser cannot read, is a
+    report that cannot say when it was written — which is not a pass. pytest
+    writes an ISO 8601 stamp; older versions wrote it without an offset, so a
+    naive value is read as local time, which is what those versions meant.
+    """
+    problems: list[str] = []
+    for suite in suites:
+        raw = (suite.get("timestamp") or "").strip()
+        if not raw:
+            problems.append(
+                "a <testsuite> carries no `timestamp`, so nothing says this "
+                "report came from the run that is reading it. Evidence that "
+                "cannot be dated is not this run's evidence."
+            )
+            continue
+        try:
+            written = datetime.fromisoformat(raw)
+        except ValueError:
+            problems.append(
+                f"a <testsuite> carries an unreadable `timestamp` ({raw!r}). "
+                "A report that cannot be dated is not this run's evidence."
+            )
+            continue
+        if written.tzinfo is None:
+            written = written.astimezone()
+        age = now - written
+        if age > MAXIMUM_EVIDENCE_AGE:
+            problems.append(
+                f"the report was written at {raw} — {age} ago, older than the "
+                f"{MAXIMUM_EVIDENCE_AGE} this gate will read as the current "
+                "run. A junit that predates the job is a file from somewhere "
+                "else: a tracked one, a stale one, or one a previous step "
+                "planted. `pytest --version` exits 0 and writes nothing, so "
+                "stale evidence is exactly how a suite that never ran reports "
+                "a pass."
+            )
+        elif -age > MAXIMUM_EVIDENCE_SKEW:
+            problems.append(
+                f"the report claims it was written at {raw}, which is "
+                f"{-age} in the future. A forged timestamp is as easy to put "
+                "ahead of the clock as behind it."
+            )
+    return problems
+
+
 def _describe(case: Element, child: Element) -> str:
     where = f"{case.get('classname') or '?'}::{case.get('name') or '?'}"
     message = child.get("message") or (child.text or "").strip().splitlines()[:1]
@@ -80,13 +203,27 @@ def _describe(case: Element, child: Element) -> str:
     return f"{where}: {message}" if message else where
 
 
-def check(path: Path) -> tuple[list[str], str]:
+def check(
+    path: Path,
+    *,
+    source_root: Path | None = None,
+    now: datetime | None = None,
+) -> tuple[list[str], str]:
     """Return (reasons this run is not a pass, one-line summary of what ran).
 
     An empty reason list is the only thing that counts as a pass. Every early
     return here is a case where the evidence itself is missing or unreadable,
     and those return no summary because nothing was verified.
+
+    `source_root` is the checkout the per-test floor is measured against and
+    `now` is the clock the evidence's age is measured against. Both default to
+    the real thing; they are parameters so a test can build a tree and a
+    moment rather than mutate the environment, and NEITHER is read from the
+    environment or from a flag. An input a workflow could pass is a waiver,
+    and this gate does not have one.
     """
+    source_root = REPOSITORY_ROOT if source_root is None else Path(source_root)
+    now = datetime.now(timezone.utc) if now is None else now
     try:
         root = ET.parse(path).getroot()
     except FileNotFoundError:
@@ -106,7 +243,7 @@ def check(path: Path) -> tuple[list[str], str]:
 
     cases = [case for suite in suites for case in suite.iter("testcase")]
 
-    problems: list[str] = []
+    problems: list[str] = evidence_age_problems(suites, now)
     skips: list[str] = []
     xfails: list[str] = []
     failures: list[str] = []
@@ -188,6 +325,31 @@ def check(path: Path) -> tuple[list[str], str]:
         )
         per_module[module] = count
         if count:
+            # The per-TEST floor. A module that ran SOMETHING has answered the
+            # module-level question; this is the one that catches a single
+            # deselected guard test, which leaves the module full.
+            defined = test_functions_in(source_root / module)
+            if defined is None:
+                problems.append(
+                    f"{module} recorded {count} testcase(s), and its source "
+                    f"could not be read under {source_root} to floor them. A "
+                    "floor that could not be measured has not been checked, "
+                    "and an unmeasured floor is not a pass."
+                )
+            elif count < defined:
+                problems.append(
+                    f"{module} defines {defined} test function(s) and the "
+                    f"evidence records only {count} testcase(s). "
+                    "Parametrisation multiplies a function into MORE "
+                    "testcases, so a shortfall almost always means tests were "
+                    "deselected, ignored or filtered out of this run — one "
+                    "deselected guard test leaves the module non-empty and is "
+                    "invisible to every count that stops at the module. The "
+                    "innocent explanations are a `test_*` function nested "
+                    "inside another function, or a `test_*` method on a class "
+                    "pytest declines to collect; both are counted here and "
+                    "collected by nobody."
+                )
             continue
         if key in seen:
             problems.append(
@@ -204,12 +366,14 @@ def check(path: Path) -> tuple[list[str], str]:
             )
 
     leanest = min(per_module, key=lambda m: per_module[m]) if per_module else ""
+    floor = test_functions_in(source_root / leanest) if leanest else None
     summary = (
         f"{len(cases)} testcases recorded across {len(seen)} classnames "
         f"({recorded} reported by the run): {len(skips)} skipped, "
         f"{len(xfails)} xfailed, {len(failures)} failed, {len(errors)} errored. "
         f"{len(REQUIRED_MODULES)} required modules checked, thinnest is "
-        f"{leanest} at {per_module.get(leanest, 0)} tests."
+        f"{leanest} at {per_module.get(leanest, 0)} tests "
+        f"against a floor of {'?' if floor is None else floor} defined."
     )
     return problems, summary
 

@@ -31,6 +31,7 @@ import os
 import random
 import subprocess
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -47,20 +48,50 @@ def case(classname: str, name: str, body: str = "") -> str:
     return f'<testcase classname="{classname}" name="{name}" time="0.001"{inner}'
 
 
-def suite(cases: list[str], *, skipped: int = 0, failures: int = 0, errors: int = 0) -> str:
+def now_stamp() -> str:
+    """A timestamp the gate reads as "this run", in pytest's own spelling."""
+    return datetime.now().astimezone().isoformat()
+
+
+def suite(
+    cases: list[str],
+    *,
+    skipped: int = 0,
+    failures: int = 0,
+    errors: int = 0,
+    timestamp: str | None = None,
+) -> str:
     """A junit document shaped as pytest writes one, with the counts passed
-    separately so a fixture can make them disagree with the elements."""
+    separately so a fixture can make them disagree with the elements.
+
+    The timestamp defaults to now because every fixture that is not about
+    staleness must look like fresh evidence; the staleness cases pass their
+    own.
+    """
+    stamped = now_stamp() if timestamp is None else timestamp
+    attribute = f' timestamp="{stamped}"' if stamped else ""
     return (
         '<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests">'
         f'<testsuite name="pytest" errors="{errors}" failures="{failures}" '
-        f'skipped="{skipped}" tests="{len(cases)}" time="0.9">'
+        f'skipped="{skipped}" tests="{len(cases)}" time="0.9"{attribute}>'
         + "".join(cases)
         + "</testsuite></testsuites>"
     )
 
 
+def defined_in(module: str) -> int:
+    """How many `test_*` functions the real guard module defines."""
+    return gate.test_functions_in(gate.REPOSITORY_ROOT / module) or 0
+
+
 def full_run(extra: list[str] | None = None, drop: str | None = None) -> list[str]:
-    """Two testcases for every required module, plus whatever a case adds."""
+    """Every required module, at or above the per-test floor it is held to.
+
+    Two testcases used to be enough here. They no longer are: the gate floors
+    each module's recorded testcases against the `test_*` functions its source
+    defines, so a fixture that stands in for a clean run has to clear that
+    floor the way a clean run does.
+    """
     cases: list[str] = []
     for module in gate.REQUIRED_MODULES:
         if module == drop:
@@ -70,6 +101,8 @@ def full_run(extra: list[str] | None = None, drop: str | None = None) -> list[st
         # A test inside a class is recorded as `<module>.<Class>`; it must
         # still count toward its module.
         cases.append(case(f"{key}.TestGroup", "test_two"))
+        for index in range(max(0, defined_in(module) - 2)):
+            cases.append(case(key, f"test_filler_{index}"))
     return cases + (extra or [])
 
 
@@ -82,7 +115,7 @@ def write(tmp_path: Path, xml: str, name: str = "junit.xml") -> Path:
 def test_a_clean_run_passes(tmp_path: Path) -> None:
     problems, summary = gate.check(write(tmp_path, suite(full_run())))
     assert problems == []
-    assert f"{2 * len(gate.REQUIRED_MODULES)} testcases recorded" in summary
+    assert f"{len(full_run())} testcases recorded" in summary
     assert "0 skipped, 0 xfailed, 0 failed, 0 errored" in summary
     assert gate.main(["check_test_results.py", str(write(tmp_path, suite(full_run())))]) == 0
 
@@ -215,7 +248,7 @@ def test_an_empty_run_fails(tmp_path: Path) -> None:
 
 
 def test_a_report_that_contradicts_its_own_count_fails(tmp_path: Path) -> None:
-    xml = suite(full_run()).replace(f'tests="{2 * len(gate.REQUIRED_MODULES)}"', 'tests="0"')
+    xml = suite(full_run()).replace(f'tests="{len(full_run())}"', 'tests="0"')
     problems, _ = gate.check(write(tmp_path, xml))
     assert any("totals tests=0" in p for p in problems)
 
@@ -351,3 +384,180 @@ def test_the_gate_against_a_real_junit_of_this_suite(tmp_path: Path) -> None:
 def test_wrong_invocation_is_not_a_pass() -> None:
     assert gate.main(["check_test_results.py"]) == 2
     assert gate.main(["check_test_results.py", "a", "b"]) == 2
+
+
+# --------------------------------------------------------------------------
+# The evidence has to be THIS run's.
+# --------------------------------------------------------------------------
+
+
+def test_evidence_older_than_the_job_is_not_the_jobs_evidence(tmp_path: Path) -> None:
+    """`pytest --version` exits 0 and writes no junit, so a junit left lying
+    at the gated path is how a suite that never ran reports a pass. A report
+    stamped hours ago did not come from the job reading it."""
+    stale = (datetime.now().astimezone() - gate.MAXIMUM_EVIDENCE_AGE - timedelta(minutes=1)).isoformat()
+    problems, _ = gate.check(write(tmp_path, suite(full_run(), timestamp=stale)))
+    assert any("older than the" in p for p in problems), problems
+    assert gate.main(["check_test_results.py", str(write(tmp_path, suite(full_run(), timestamp=stale)))]) == 1
+
+    # ...and the same document one minute inside the window is a pass, so the
+    # rule is a bound and not a blanket refusal.
+    fresh = (datetime.now().astimezone() - gate.MAXIMUM_EVIDENCE_AGE + timedelta(minutes=1)).isoformat()
+    assert gate.check(write(tmp_path, suite(full_run(), timestamp=fresh)))[0] == []
+
+
+def test_evidence_that_cannot_be_dated_is_not_a_pass(tmp_path: Path) -> None:
+    """Absence is never a pass, and neither is an unreadable stamp."""
+    for timestamp, expected in (
+        ("", "carries no `timestamp`"),
+        ("not-a-date", "unreadable `timestamp`"),
+        ("2026-13-45T99:99:99", "unreadable `timestamp`"),
+    ):
+        problems, _ = gate.check(write(tmp_path, suite(full_run(), timestamp=timestamp)))
+        assert any(expected in p for p in problems), (timestamp, problems)
+
+
+def test_evidence_stamped_in_the_future_is_refused(tmp_path: Path) -> None:
+    """A forged timestamp is as easy to put ahead of the clock as behind it."""
+    ahead = (datetime.now().astimezone() + gate.MAXIMUM_EVIDENCE_SKEW + timedelta(minutes=5)).isoformat()
+    problems, _ = gate.check(write(tmp_path, suite(full_run(), timestamp=ahead)))
+    assert any("in the future" in p for p in problems), problems
+    # A clock a little fast is not a false red.
+    near = (datetime.now().astimezone() + timedelta(minutes=5)).isoformat()
+    assert gate.check(write(tmp_path, suite(full_run(), timestamp=near)))[0] == []
+
+
+def test_a_naive_timestamp_is_read_as_local_time(tmp_path: Path) -> None:
+    """Older pytest wrote no offset. That is a report to read, not to refuse."""
+    naive = datetime.now().replace(microsecond=0).isoformat()
+    assert gate.check(write(tmp_path, suite(full_run(), timestamp=naive)))[0] == []
+
+
+# --------------------------------------------------------------------------
+# The floor is per test, not per module.
+# --------------------------------------------------------------------------
+
+
+def test_one_deselected_guard_test_is_a_shortfall(tmp_path: Path) -> None:
+    """The hole this closes, in the shape it was measured in.
+
+    `--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked`
+    — from pyproject addopts, from PYTEST_ADDOPTS, or from a -c config file —
+    left the module contributing dozens of testcases, so every count that
+    stopped at the module was satisfied. Only comparing against what the file
+    DEFINES sees it.
+    """
+    module = "tests/test_no_secrets_committed.py"
+    key = gate.module_key(module)
+    cases = full_run()
+    shortened = cases[:]
+    for index, entry in enumerate(shortened):
+        if f'classname="{key}"' in entry:
+            del shortened[index]
+            break
+    else:  # pragma: no cover - the module is in the manifest by construction
+        pytest.fail(f"no testcase for {module} in the fixture")
+
+    assert gate.check(write(tmp_path, suite(cases)))[0] == []
+    problems, _ = gate.check(write(tmp_path, suite(shortened)))
+    assert any(module in p and "test function(s)" in p for p in problems), problems
+
+
+def test_the_floor_is_a_floor_and_not_an_equality(tmp_path: Path) -> None:
+    """Parametrisation multiplies one function into many testcases, so more
+    than the count defined must stay a pass. Measured on this suite
+    (2026-09-04): tests/test_workflows.py defines 37 functions and records 277
+    testcases."""
+    module = "tests/test_workflows.py"
+    key = gate.module_key(module)
+    generous = full_run([case(key, f"test_param_{i}") for i in range(200)])
+    assert gate.check(write(tmp_path, suite(generous)))[0] == []
+
+
+def test_an_unreadable_guard_source_is_not_a_pass(tmp_path: Path) -> None:
+    """A floor that could not be measured has not been checked."""
+    problems, _ = gate.check(write(tmp_path, suite(full_run())), source_root=tmp_path)
+    assert len(problems) == len(gate.REQUIRED_MODULES)
+    assert all("could not be read" in p for p in problems), problems
+
+
+def test_the_gate_counts_test_functions_the_way_the_manifest_does() -> None:
+    """Two counters, one rule. `tests/test_the_guards_exist.py` holds the same
+    floor against the same files; if they ever disagreed, one of them would be
+    flooring a module against a number the other does not recognise."""
+    import test_the_guards_exist as manifest
+
+    for module in gate.REQUIRED_MODULES:
+        path = gate.REPOSITORY_ROOT / module
+        assert gate.test_functions_in(path) == manifest.count_test_functions(path), module
+
+
+def test_the_gates_counter_reads_a_tree_and_not_a_name(tmp_path: Path) -> None:
+    hollow = tmp_path / "test_hollow.py"
+    hollow.write_text('"""A guard in name only."""\n\ndef helper():\n    pass\n', encoding="utf-8")
+    assert gate.test_functions_in(hollow) == 0
+    real = tmp_path / "test_real.py"
+    real.write_text(
+        "def test_a(): pass\nclass TestB:\n    def test_b(self): pass\n"
+        "async def test_c(): pass\n", encoding="utf-8",
+    )
+    assert gate.test_functions_in(real) == 3
+    broken = tmp_path / "test_broken.py"
+    broken.write_text("def test_a(:\n", encoding="utf-8")
+    assert gate.test_functions_in(broken) is None
+    assert gate.test_functions_in(tmp_path / "never_written.py") is None
+
+
+# --------------------------------------------------------------------------
+# Collection-phase skips: what pytest_runtest_logreport would never see.
+# --------------------------------------------------------------------------
+
+
+COLLECTION_SKIPS = {
+    "module_level_skip": (
+        "import pytest\n"
+        'pytest.skip("the table lives outside the repo", allow_module_level=True)\n'
+        "\n\ndef test_never_runs():\n    assert True\n"
+    ),
+    "module_level_importorskip": (
+        "import pytest\n"
+        'pytest.importorskip("a_module_this_lab_does_not_have")\n'
+        "\n\ndef test_never_runs():\n    assert True\n"
+    ),
+}
+
+
+@pytest.mark.parametrize("shape", sorted(COLLECTION_SKIPS), ids=sorted(COLLECTION_SKIPS))
+def test_a_collection_phase_skip_reaches_the_gate(tmp_path: Path, shape: str) -> None:
+    """Observed on a real tree, not asserted about the implementation.
+
+    A module-level `pytest.skip(allow_module_level=True)` and a module-level
+    `importorskip` never reach `pytest_runtest_logreport` — they arrive as
+    CollectReports — so a skip gate written as a runtest hook cannot see
+    either. This gate reads the junit file instead, and pytest's junit writer
+    records a collection skip as a `<testcase>` carrying `<skipped>`. That is
+    the reason this lab's gate survives the shape, and it is worth an
+    observation rather than an argument: a real pytest writes a real report
+    and the gate's exit code is read off it.
+
+    Defect 7 was this exact shape — twenty permanent skips on a gitignored
+    table, and the build green.
+    """
+    tree = tmp_path / "repo"
+    (tree / "tests").mkdir(parents=True)
+    (tree / "tests" / "test_fine.py").write_text("def test_ok():\n    assert True\n", encoding="utf-8")
+    (tree / "tests" / "test_skipped.py").write_text(COLLECTION_SKIPS[shape], encoding="utf-8")
+    evidence = tmp_path / "junit.xml"
+    completed = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+         "--noconftest", f"--junit-xml={evidence}", "tests"],
+        cwd=tree, capture_output=True, text=True,
+        env=dict(os.environ, PYTEST_ADDOPTS=""),
+    )
+    # pytest itself is GREEN on this tree. That is the whole problem.
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert evidence.is_file()
+
+    problems, _ = gate.check(evidence, source_root=tree)
+    assert any("skipped test(s)" in p for p in problems), problems
+    assert gate.main(["check_test_results.py", str(evidence)]) == 1

@@ -5,17 +5,36 @@
     python scripts/check_ledger_append_only.py --base-absent --head HEAD.json
 
 `ExperimentLedger.save()` raises when a ledger would shrink, but it only sees
-writes that travel through the code. `scripts/record_experiments.py` loads the
-ledger and saves that same object back to the same path, and until this round
-`save()` measured the floor by re-reading the file it was about to overwrite —
-so it compared n against n on every run and could never fire. Reproduced on
-this lab before the fix: hand-delete eighteen entries from the tracked JSON
-(53 -> 35), run the recorder, and it re-rendered the shrunken ledger without
-complaint and printed a smaller correction (x1.69 -> x1.63) in the same
-confident prose. `git diff --exit-code` stays clean because the render agrees
-with the file it was rendered from. Nothing in the repository noticed. This
-script is the half that reads the base commit, so a removal has to get past a
-comparison rather than past a no-op.
+writes that travel through the code, and this docstring used to overstate how
+little it saw. Corrected 2026-09-04, by running the old code rather than
+reading it.
+
+What the OLD `save()` did: it re-read the file it was about to overwrite and
+refused a write holding fewer entries than that file. **It fires.** Measured
+against the real 53-entry ledger with the pre-floor `save()` restored from
+`ac6d9b2` — load it, drop eighteen entries from the in-memory object, save —
+it raised `The experiment ledger would fall from 53 entries to 35`. An
+in-process shrink, from a filter or a rebuild or a bug, was refused then and
+is refused now.
+
+What the OLD `save()` could NOT see is the edit that was actually made: a
+ledger shrunk **on disk** and committed, before any of this code runs.
+Measured the same way — hand-delete eighteen entries from the tracked JSON
+(53 -> 35), commit, run `scripts/record_experiments.py` — the recorder loaded
+a file that was already short, so the floor it re-read was 35 and the
+comparison really was n against n. It exited 0, printed
+`35 distinct hypotheses (+0). Any new 95% interval widens by x1.63.`, and
+re-rendered the .md at x1.63 against the committed x1.69. (`+0`: the recorder
+does not re-add anything without `--backfill`, so nothing self-heals. 53 - 18
+= 35, and the factors are the package's own: 53 -> x1.69, 35 -> x1.63.)
+`git diff --exit-code` stays clean because the render agrees with the file it
+was rendered from. Nothing in the repository noticed.
+
+So there were two halves, not one hole. `save()` now takes an explicit floor
+and the recorder passes the count committed at HEAD, which closes the on-disk
+edit for anything that runs inside a checkout. This script is the other half
+and the one no runtime check reaches: a PR diff never calls `save()` at all,
+so a removal has to get past a comparison with the base commit.
 
 A count check alone is not that comparison. Drop the hypothesis that failed,
 append a fresh one in its place, and the count is unchanged while the

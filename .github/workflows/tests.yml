@@ -11,10 +11,31 @@ name: Tests
 # The job that carries the `Tests` name is therefore the thing an edit to this
 # file could quietly disarm: rename it, empty it, condition it, narrow the
 # pytest invocation, or swallow its failure, and the required check goes green
-# over nothing. tests/test_workflows.py parses this file and pins every one of
+# over nothing. tests/test_workflows.py parses this file and pins each of
 # those — and EXECUTES each run block under stubs to observe that a failing
-# command fails the step. Do not add an `if:`, a `continue-on-error:`, a
-# `shell:` override or a narrowing flag here to quiet a run.
+# command fails the step. Do not add an `if:`, a `needs:`, a
+# `continue-on-error:`, a `shell:` override or a flag here to quiet a run.
+#
+# WHAT IS PINNED, AND WHAT IS NOT. Pinned: exactly one job in the repository
+# carries `name: Tests`; it takes no `if:`, `needs:`, `strategy:`,
+# `continue-on-error:`, `defaults:` or `container:`, and no OTHER job in this
+# file takes an `if:` either — a required job that `needs:` a job GitHub
+# skipped is reported to branch protection as Success, so `needs:` is `if:
+# false` with one more step of indirection. The suite line may carry only the
+# arguments on a whitelist (`-q`, `-rs`, `--junit-xml=<path>`); anything else,
+# including the exit-0-and-write-nothing `--version` and `--help`, is refused.
+# The junit path must live under $RUNNER_TEMP and match no tracked path, so a
+# committed junit cannot stand in as this run's evidence. The gate line is
+# pinned as a whole command, not as a substring, and is executed under stubs
+# to observe that python really receives the script.
+#
+# NOT pinned, and stated so nobody reads more into the green tick than is
+# there: branch protection itself, which lives in the repository settings and
+# not in this file; whether the `Tests` context is still required (that is
+# Cooper's to change, and tests/test_workflows.py holds the name as a literal
+# so drift goes red rather than adapting); and the contents of the suite —
+# this file guarantees that the whole suite ran and that every skip is red,
+# not that the tests it ran are good ones.
 #
 # No secret is available to this workflow, deliberately. The tests must pass
 # without a credential, which is what keeps them runnable on a fork and proves
@@ -72,9 +93,19 @@ jobs:
       # cannot. -rs so the reason for each skip is in the log beside the gate
       # that fails on it. junit.xml goes to $RUNNER_TEMP and never into the
       # workspace, so the clean-tree check below stays meaningful.
+      # PYTHONSAFEPATH keeps the working directory OFF sys.path. Without it
+      # `python -m pytest` puts the checkout ahead of site-packages, so a
+      # tracked `pytest.py` or `coverage.py` at the root shadows the real
+      # thing and the suite line runs a file the repository controls. Measured
+      # on this lab: a three-line tracked `pytest.py` printing "all tests
+      # passed" made `python -m pytest -q -rs --junit-xml=...` exit 0 and write
+      # no junit at all. tests/test_the_guards_exist.py asserts no such
+      # basename is tracked; this flag is the belt beside it, and
+      # tests/test_workflows.py requires it here.
       - name: Tests
         env:
           PYTHONPATH: src
+          PYTHONSAFEPATH: "1"
         run: python -m pytest -q -rs --junit-xml="$RUNNER_TEMP/junit.xml"
 
       # THE SKIP GATE. `python -m pytest -q` exits 0 on a skip and on an xfail,

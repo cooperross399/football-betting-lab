@@ -1315,16 +1315,39 @@ an NFL record.
   name, its pytest invocation, its evidence chain — by parsing the workflow
   and executing its run blocks under stubs. A guard that greps for a spelling
   proves only that the spelling is absent.
-- **The hard-rule guards cannot be dropped from a run.** `conftest.py` exits
-  the session when a required guard module collected nothing;
-  `tests/test_the_guards_exist.py` asserts each is tracked and still defines
-  tests; `scripts/check_test_results.py` reads the junit evidence in CI and
-  fails on a skip, an xfail, an empty run, or a missing guard. The three hold
-  one list. There is no skip allowlist and there will not be one.
+- **No guard TEST can be dropped from a run, not just no guard module.** This
+  bullet used to say "the hard-rule guards cannot be dropped from a run", and
+  the floors underneath it were per MODULE. Measured 2026-09-04:
+  `--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked`
+  — from `pyproject.toml` addopts, from `PYTEST_ADDOPTS`, or from a `-c`
+  config file — produced `987 passed, 1 deselected`, pytest exit 0 and
+  `scripts/check_test_results.py` exit 0, with a guard test gone and every
+  layer green. Now: `conftest.py` exits the session when a required guard
+  module collected nothing AND when pytest received a `--deselect`, `-k`,
+  `-m`, `--ignore`, an ini `addopts` or a `PYTEST_ADDOPTS` — read off
+  `config`, so the route it arrived by does not matter;
+  `scripts/check_test_results.py` floors each required module's recorded
+  testcases against the `test_*` functions `ast` finds in the file, and
+  refuses evidence older than six hours; `tests/test_the_guards_exist.py`
+  asserts each guard is tracked, still defines tests, and that no tracked
+  `pytest.py`, `coverage.py`, `sitecustomize.py` or `usercustomize.py` can
+  shadow the suite. The three hold one list. There is no skip allowlist and
+  there will not be one. What is still NOT covered: a `--noconftest` run,
+  which is explicit and banned from CI, and a guard whose tests are all
+  present and all vacuous.
 - **The experiment ledger is append-only, and that is checked at the diff.**
   `scripts/check_ledger_append_only.py`, run by `Ledger Guard` on every pull
   request, refuses a removed key, a count drop, a rewritten outcome or a
-  same-key contradiction; `save()` takes an explicit floor.
+  same-key contradiction; `save()` takes an explicit floor. **Correction,
+  2026-09-04:** five places in this repository said the old pre-floor `save()`
+  "could never fire" because it "compared the ledger with itself". Measured by
+  restoring it from `ac6d9b2` and running it: it RAISES on an in-process
+  shrink (53 entries in the file, 35 in memory → `would fall from 53 entries
+  to 35`). What it could not see is a ledger shrunk on disk and committed
+  first — then the floor it re-reads is already 35, and the recorder exits 0
+  printing `35 distinct hypotheses (+0)` with the render moving x1.69 → x1.63.
+  That is the half the diff-level guard exists for, and the recorder
+  self-heals nothing: it appends only what it is asked for.
 - **Never spend API credits beyond a small measurement budget without asking.**
 - **Never pool leagues into one number.** Fitted per league, reported per
   league, recorded per league, receipted per league.

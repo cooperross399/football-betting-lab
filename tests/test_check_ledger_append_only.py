@@ -4,11 +4,20 @@
 real, and a workflow can only be tested by merging it. So the comparison lives
 in a script and the script's failures live here: every one of these cases is an
 edit that reached `main` green before this round. The removal case is not
-hypothetical — `scripts/record_experiments.py` loads and saves the same ledger
+hypothetical. `scripts/record_experiments.py` loads and saves the same ledger
 object to the same path, and `save()` used to measure its floor by re-reading
-that path, so the runtime shrink guard compared n against n on every run and
-could not fire. Eighteen hypotheses hand-deleted from the tracked ledger (53 ->
-35) re-rendered clean and printed a smaller correction (x1.69 -> x1.63).
+that path — so when the file on disk had ALREADY been shrunk by hand and
+committed, the recorder loaded 35, compared 35 against 35, and wrote. Measured
+2026-09-04 with the pre-floor `save()` restored: eighteen hypotheses
+hand-deleted from the tracked ledger (53 -> 35), committed, recorder run with
+no flags — exit 0, `35 distinct hypotheses (+0)`, and the .md re-rendered from
+x1.69 to x1.63.
+
+An earlier version of this docstring said the old guard "could not fire", and
+that was wrong. `test_the_old_shape_fires_on_an_in_process_shrink` in
+`tests/test_experiment_ledger.py` runs the old code and shows it raising on an
+in-memory shrink. What it could not see is the edit made on disk, which is why
+the diff-level check in this file exists: a PR diff never calls `save()`.
 
 The tests that matter most are the equal-count ones. A gate that only counts
 passes an edit that drops the failure and appends a replacement, and that edit
@@ -121,7 +130,9 @@ def test_the_scripts_arithmetic_matches_the_package() -> None:
 def test_the_audits_reproduction_is_now_caught(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
-    """53 -> 35 by hand, re-rendered green. The exact shape the audit ran."""
+    """53 -> 35 by hand on disk, re-rendered green. The shape the audit ran,
+    and the one the old runtime floor could not see because the file it
+    re-read was the file that had already been edited."""
     base = [entry(f"hypothesis {index}") for index in range(53)]
     head = base[:35]
 

@@ -23,12 +23,23 @@ what make the surviving one unlikely to be chance. A ledger that can shrink is
 a ledger that will, one honest-seeming commit at a time, and the correction it
 reports afterwards is smaller than the truth.
 
-This heading used to read "enforced", and it was not. `save()` refused a
-shrink by re-reading the file it was about to overwrite, and the only caller —
-`scripts/record_experiments.py` — loads that same file first, so the guard
-compared n against n and could never fire. Reproduced on this lab: hand-delete
-eighteen entries from the tracked JSON, run the recorder, and it re-rendered
-53 -> 35 without complaint and printed x1.69 -> x1.63 in the same prose.
+This heading used to read "enforced", and it was half enforced. `save()`
+refused a shrink by re-reading the file it was about to overwrite. That guard
+DOES fire on an in-process shrink, and the previous version of this paragraph
+said it "could never fire", which was wrong. Measured 2026-09-04 with the
+pre-floor `save()` restored from `ac6d9b2`: load the real 53-entry ledger,
+drop eighteen entries from the in-memory object, save — it raised `The
+experiment ledger would fall from 53 entries to 35`.
+
+What it could not see is the edit that was actually made. `scripts/
+record_experiments.py` loads the file, mutates, and saves back to the same
+path, so when the file on disk has ALREADY been shrunk by hand and committed,
+the floor `save()` re-reads is the shrunken count and the comparison is n
+against n. Reproduced: hand-delete eighteen entries from the tracked JSON,
+commit, run the recorder with no arguments — exit 0, `35 distinct hypotheses
+(+0)`, and the render moved 53 -> 35 and x1.69 -> x1.63 in the same prose.
+Nothing self-heals: the recorder appends only what it is asked for, and the
+workflow asks for nothing.
 
 Two things enforce it now, and each covers what the other cannot:
 
@@ -162,13 +173,19 @@ def save(ledger: ExperimentLedger, path: Path, *, floor: int) -> Path:
 
     `floor` is required and it is the caller's pre-mutation count — how many
     entries the ledger held before this run touched it. It used to be measured
-    here by re-reading `path`, and that was a guard that could not fire: the
-    only caller loads `path`, mutates the object, and saves it back to `path`,
-    so the file on disk always held exactly what was loaded and the comparison
-    was n against n. `test_a_hand_edited_ledger_is_refused_by_the_floor` is
-    the reproduction. The file is still read as a second floor, because it
-    costs nothing and it is the one that stays correct if a caller passes a
-    floor of zero; but it is the explicit floor that makes the guard real.
+    here by re-reading `path`. That measured something real — an in-process
+    shrink is refused by it, and
+    `test_the_old_shape_fires_on_an_in_process_shrink` runs the old code and
+    watches it raise — but it was blind in exactly the direction that mattered:
+    the only caller loads `path`, mutates the object, and saves it back to
+    `path`, so a file ALREADY shrunk on disk was its own floor and the
+    comparison was n against n.
+    `test_a_hand_edited_ledger_is_refused_by_the_floor` is that reproduction,
+    and `test_the_old_shape_cannot_see_a_ledger_edited_on_disk` is the same
+    edit run against the old code, which passes it. The file is still read as
+    a second floor, because it costs nothing and it is the one that stays
+    correct if a caller passes a floor of zero; but it is the explicit floor
+    that makes the guard cover the case it was named for.
     """
     if not isinstance(floor, int) or isinstance(floor, bool) or floor < 0:
         raise TypeError(f"floor must be a non-negative int, got {floor!r}")

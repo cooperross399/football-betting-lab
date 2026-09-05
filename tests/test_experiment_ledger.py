@@ -219,3 +219,157 @@ def test_an_empty_ledger_does_not_read_as_a_clean_bill_of_health() -> None:
 
     assert "Nothing has been recorded yet" in text
     assert "must be widened by" not in text
+
+
+# --------------------------------------------------------------------------
+# The old shape, run rather than described.
+# --------------------------------------------------------------------------
+#
+# Four files in this repository used to say the pre-floor `save()` "could
+# never fire" and "compared the ledger with itself". Half of that was false,
+# and nothing checked it because the old code was described rather than
+# executed. So the old body is reconstructed here — verbatim from the commit
+# it was replaced in, `ac6d9b2` — and both halves are measured.
+
+
+def _old_save(ledger: ExperimentLedger, path) -> None:
+    """`save()` exactly as it stood before the explicit floor (`ac6d9b2`).
+
+    Reconstructed rather than imported, because the point is to exercise
+    behaviour that no longer exists in the package. The write itself is
+    reduced to what the assertions need; the guard is copied unchanged, and
+    `test_the_reconstruction_matches_the_commit_it_claims_to` holds it against
+    the real blob.
+    """
+    import json
+    from pathlib import Path
+
+    target = Path(path)
+    if target.is_file():
+        existing = load(target)
+        if len(ledger.hypotheses) < len(existing.hypotheses):
+            raise ValueError(
+                f"The experiment ledger would fall from "
+                f"{len(existing.hypotheses)} entries to {len(ledger.hypotheses)}. "
+                "It is append-only: the tests that failed are what make a "
+                "surviving one unlikely to be chance, and a ledger that can "
+                "shrink reports a correction smaller than the truth."
+            )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        json.dumps({"hypotheses": [
+            {"search": h.search, "name": h.name, "tested_on": h.tested_on,
+             "seasons": list(h.seasons), "outcome": h.outcome}
+            for h in ledger.hypotheses
+        ]}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+#: The commit whose `save()` the reconstruction below copies. Written in full
+#: rather than abbreviated: an abbreviation is a prefix that can stop being
+#: unique, and a test that fails because two objects now share seven
+#: characters is a test nobody trusts.
+PRE_FLOOR_COMMIT = "ac6d9b2c3841d3fd97652ef6753a3fd5785b86c9"
+
+
+def test_the_reconstruction_matches_the_commit_it_claims_to() -> None:
+    """A reconstruction nobody checked is a claim, not a measurement.
+
+    The guard's own lines are compared against the blob at `PRE_FLOOR_COMMIT`,
+    so the two tests below exercise the code that shipped rather than a
+    plausible retelling of it. If git cannot produce the blob this FAILS: an
+    unverifiable reconstruction proves nothing about the old behaviour, and
+    "I could not check" must not read the same as "I checked".
+
+    It therefore needs the repository's history, which is why
+    `.github/workflows/tests.yml` checks out with `fetch-depth: 0` —
+    `tests/test_workflows.py::check_the_required_check_job_checks_out_history`
+    pins that, so this test's premise cannot be removed by a workflow edit.
+    """
+    import inspect
+    import subprocess
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    completed = subprocess.run(
+        ["git", "show", f"{PRE_FLOOR_COMMIT}:src/football_betting_lab/experiment_ledger.py"],
+        cwd=root, capture_output=True, text=True,
+    )
+    assert completed.returncode == 0, (
+        f"cannot read the pre-floor save() out of {PRE_FLOOR_COMMIT}: "
+        f"{completed.stderr}. The reconstruction below cannot be checked, and "
+        "an unchecked reconstruction is not evidence about the old code. A "
+        "shallow clone is the usual cause; CI checks out with fetch-depth: 0."
+    )
+    original = completed.stdout
+    for line in (
+        "    target = Path(path)",
+        "    if target.is_file():",
+        "        existing = load(target)",
+        "        if len(ledger.hypotheses) < len(existing.hypotheses):",
+    ):
+        assert line in original, line
+        assert line in inspect.getsource(_old_save), line
+
+
+def test_the_old_shape_fires_on_an_in_process_shrink(tmp_path) -> None:
+    """The false claim, corrected by running the code.
+
+    Four files said the pre-floor guard "could never fire" and "compared the
+    ledger with itself". It compared the in-memory object against the FILE, so
+    a run that shrinks the ledger while holding it is refused — which is a
+    filter, a rebuild, or a bug, and is the case the guard was written for.
+    """
+    path = tmp_path / "experiment_ledger.json"
+    full = ExperimentLedger()
+    full.record(*[_h(f"h{index}") for index in range(53)])
+    _old_save(full, path)
+
+    shrunk = ExperimentLedger(hypotheses=load(path).hypotheses[:35])
+    with pytest.raises(ValueError, match="from 53 entries to 35"):
+        _old_save(shrunk, path)
+
+
+def test_the_old_shape_cannot_see_a_ledger_edited_on_disk(tmp_path) -> None:
+    """And the half that WAS open, which is the edit somebody would make.
+
+    Shrink the file itself and commit it, and the recorder's load/mutate/save
+    round trip re-reads the shrunken file as its own floor. 53 -> 35 goes
+    through, silently, and the correction it renders afterwards is smaller
+    than the truth. The explicit floor is what closes this, and the
+    diff-level guard is what closes it for a PR that never runs the recorder.
+    """
+    path = tmp_path / "experiment_ledger.json"
+    full = ExperimentLedger()
+    full.record(*[_h(f"h{index}") for index in range(53)])
+    _old_save(full, path)
+
+    _hand_edit(path, keep=35)
+    reloaded = load(path)
+    assert len(reloaded.hypotheses) == 35
+
+    _old_save(reloaded, path)  # no exception: this is the hole
+    assert len(load(path).hypotheses) == 35
+
+    # ...and the same round trip against today's save() is refused, given the
+    # floor the recorder measures before the edit.
+    with pytest.raises(ValueError, match="from 53 entries to 35"):
+        save(reloaded, path, floor=53)
+
+
+def test_the_correction_the_shrink_would_have_reported(tmp_path) -> None:
+    """The arithmetic in the prose, recomputed rather than quoted.
+
+    Every file that tells this story quotes 53 -> 35 and x1.69 -> x1.63. Those
+    are the package's own factors at those counts and 53 - 18 = 35; asserted
+    here so a future edit to the constants makes the prose go red instead of
+    going stale.
+    """
+    fifty_three = ExperimentLedger()
+    fifty_three.record(*[_h(f"h{index}") for index in range(53)])
+    thirty_five = ExperimentLedger(hypotheses=fifty_three.hypotheses[:35])
+
+    assert len(fifty_three.hypotheses) - 18 == len(thirty_five.hypotheses)
+    assert f"{fifty_three.correction_factor():.2f}" == "1.69"
+    assert f"{thirty_five.correction_factor():.2f}" == "1.63"
