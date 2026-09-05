@@ -21,11 +21,34 @@ name: Tests
 # `continue-on-error:`, `defaults:` or `container:`, and no OTHER job in this
 # file takes an `if:` either — a required job that `needs:` a job GitHub
 # skipped is reported to branch protection as Success, so `needs:` is `if:
-# false` with one more step of indirection. The suite line may carry only the
-# arguments on a whitelist (`-q`, `-rs`, `--junit-xml=<path>`); anything else,
-# including the exit-0-and-write-nothing `--version` and `--help`, is refused.
-# The junit path must live under $RUNNER_TEMP and match no tracked path, so a
-# committed junit cannot stand in as this run's evidence. The gate line is
+# false` with one more step of indirection.
+#
+# EVERY STEP of that job is pinned the same way, and not only the two that run
+# the suite and the gate. A skipped step does not fail its job either: GitHub
+# reports the job as Success with the step marked skipped. So a one-line
+# `if: false` on the Compile step, on the checkout, on the clean-tree step or
+# on the evidence upload was a green required check over a guarantee that had
+# stopped running. Graded at 5304f79 against the twenty-nine rules that
+# existed then, each of those was rejected by none of them. The only
+# conditions a step here may carry now are `always()` anywhere, and
+# `github.event_name == 'pull_request'` on the append-only step alone, which
+# has no base commit to read on a push. The clean-tree step and the
+# append-only step must also BE here — deleting either one outright passed
+# every rule at 5304f79 as well — and the clean-tree block is executed under
+# stubs with `git status --porcelain` printing a path, where it must exit
+# non-zero.
+#
+# The suite line may carry only the arguments on a whitelist (`-q`, `-rs`,
+# `--junit-xml=<path>`); anything else, including the exit-0-and-write-nothing
+# `--version` and `--help`, is refused. The junit path written on the suite
+# line must live under $RUNNER_TEMP and match no tracked path, and the gate
+# must read the path the suite wrote — which is what stops a junit committed
+# to the repository being gated straight out of the workspace. It does NOT
+# stop every plant, and the sentence used to say it did: a step that copies a
+# file onto the gated path through a SHELL VARIABLE names no literal path, and
+# the rule reads literal paths. What stands between that and a pass is the
+# report's own timestamp, not this pin. The route is asserted open in
+# tests/test_workflows.py::test_the_disclosed_holes_are_real. The gate line is
 # pinned as a whole command, not as a substring, and is executed under stubs
 # to observe that python really receives the script.
 #

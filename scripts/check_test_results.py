@@ -24,27 +24,37 @@ anybody having to make the case for it.
 REQUIRED_MODULES is the other half, and it is aimed at a specific failure.
 `git rm` of the hard-rule guards drops every test in those files and STAYS
 GREEN — pytest has no way to say that a module it never saw is missing.
-Counting what ran is the only way a deletion reads as red instead of as a
-smaller green. This is the second of three layers: `conftest.py` refuses the
-session at collection time when a required module contributed nothing, and
-`tests/test_the_guards_exist.py` asserts each one is tracked and still defines
-tests. This one reads the evidence file, so it still fires when the other two
-were deleted alongside the guard.
+Counting what ran is how the deletion reads as red HERE rather than as a
+smaller green. It is not the only way it reads as red, and writing that it
+were would tell a reader to stop looking at the other two. This is the second
+of three layers: `conftest.py` refuses the session at collection time when a
+required module contributed nothing, and `tests/test_the_guards_exist.py`
+asserts each one is tracked and still defines tests. Each was run alone
+against a checkout of 5304f79 carrying
+`git rm tests/test_no_sibling_lab_import.py`, and each fired: the conftest
+hook exited pytest 1 having collected nothing; with `conftest.py` removed as
+well, `test_the_guards_exist.py` failed collection; with that removed too,
+this script exited 1 naming both missing modules. That last run is why this
+layer is here — it reads the evidence file, so it still fires when the other
+two were deleted alongside the guard.
 
 THE FLOOR IS PER TEST, NOT PER MODULE, and it was per module until now. A
 module floor asks "did this guard run at all", which one deselected test
 answers with a comfortable yes. Measured on this repository:
 `--deselect tests/test_no_secrets_committed.py::test_env_file_is_never_tracked`
 — written into `pyproject.toml`, into `PYTEST_ADDOPTS`, or into a `-c` config
-file — produced `987 passed, 1 deselected`, pytest exit 0 and this script exit
-0, with the guard test gone. So each required module's recorded testcases are
-now floored against the `test_*` functions `ast` reads out of the file. That
-is a floor and not an equality: parametrisation multiplies one function into
-many testcases, so recorded sits well above the count. Measured on this suite
-on 2026-09-04 over a real junit of 1061 tests, recorded against defined:
-31/29, 8/5, 10/10, 87/8, 277/37, 48/21, 33/30, 39/24 — every module clear, the
-tightest margin zero (`tests/test_contract_strings.py`, which parametrises
-nothing) and the widest 240 testcases.
+file — produced a pass count one below the control with `1 deselected`, pytest
+exit 0 and this script exit 0, with the guard test gone. So each required
+module's recorded testcases are now floored against the `test_*` functions `ast` reads out of the file. That
+is a floor and not an equality, and the shape of the margin follows from the
+files rather than from a table written down here: a guard that parametrises
+nothing sits exactly ON its floor — `tests/test_contract_strings.py` does —
+and every guard that parametrises sits above it, because one function becomes
+many testcases. `tests/test_check_test_results.py` asserts all three points on
+that line — a run recording exactly the defined count passes, one recording
+one fewer fails, one recording far more passes — and the floor is recomputed
+from the checkout on every run, so no count written here would be load-bearing
+and none is.
 
 A shortfall is not literally impossible in an honest run, and the two ways it
 could happen are worth knowing before anyone debugs one: a `test_*` function
