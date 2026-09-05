@@ -1340,9 +1340,12 @@ an NFL record.
   `config`, so the route it arrived by does not matter;
   `scripts/check_test_results.py` floors each required module's recorded
   testcases against the `test_*` functions `ast` finds in the file, and
-  refuses evidence older than six hours, floored against the checkout so no
-  count is written down anywhere; `tests/test_the_guards_exist.py`
-  asserts each guard is tracked, still defines tests, and that no tracked
+  refuses evidence older than six hours — floored against the checkout, so no
+  count is written down IN THAT SCRIPT; `tests/test_the_guards_exist.py`
+  holds the per-module counts in `GUARD_TEST_FLOORS` — that IS where they are
+  written down, and the same file re-derives them from `ast` so the table
+  cannot drift from the checkout — and asserts each guard is tracked, still
+  defines tests, and that no tracked
   `pytest.py`, `coverage.py`, `sitecustomize.py` or `usercustomize.py` can
   shadow the suite. The three hold one list. There is no skip allowlist and
   there will not be one. What is still NOT covered: a `--noconftest` run,
@@ -1359,8 +1362,17 @@ an NFL record.
   to 35`). What it could not see is a ledger shrunk on disk and committed
   first — then the floor it re-reads is already 35, and the recorder exits 0
   printing `35 distinct hypotheses (+0)` with the render moving x1.69 → x1.63.
-  That is the half the diff-level guard exists for, and the recorder
-  self-heals nothing: it appends only what it is asked for.
+  That is the half the diff-level guard exists for. (The narrower claim is the
+  one that was run, and it is the one `experiment_ledger.py` carries: nothing
+  self-healed in that run — the recorder appended what it was asked for, which
+  was nothing. "The recorder self-heals nothing" as an absolute was never
+  tested here and is not asserted.)
+
+  Measured 2026-09-05 on this branch: shrinking the file to 20 entries and
+  re-running the recorder RAISES — `would fall from 53 entries to 20` — because
+  the floor is `max(len(loaded), committed_entry_count(path))` and the second
+  term shells out to `git show HEAD:<path>`, an observation the working file
+  cannot influence.
 - **Never spend API credits beyond a small measurement budget without asking.**
 - **Never pool leagues into one number.** Fitted per league, reported per
   league, recorded per league, receipted per league.

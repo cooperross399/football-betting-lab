@@ -470,7 +470,9 @@ def test_the_floor_is_a_floor_and_not_an_equality(tmp_path: Path) -> None:
     over every workflow and every mutation over its rule — and the ratio moves
     with each rule and each mutation added, which is why it is not written
     down. `tests/test_contract_strings.py` parametrises nothing and so sits
-    exactly ON its floor; both ends are exercised below."""
+    exactly ON its floor. The generous end is exercised below; the exact-on-floor
+    end is exercised above, in test_one_deselected_guard_test_is_a_shortfall,
+    whose control run builds exactly the defined count per module."""
     module = "tests/test_workflows.py"
     key = gate.module_key(module)
     generous = full_run([case(key, f"test_param_{i}") for i in range(200)])
