@@ -188,7 +188,10 @@ that is the correct state.**
   present and asserted by test.
 - **2022 has 271 regular-season games, not 272.** Buffalo-Cincinnati was
   abandoned and never replayed. A build that "corrected" this to 272 would be
-  inventing a game; a test pins it.
+  inventing a game; `tests/test_schedule_facts_a_fresh_clone_can_check.py`
+  pins it **against the committed schedule**, so it now runs in CI — the
+  version that pinned it before needed gitignored processed tables and was
+  skipped in every CI run.
 - **`anytime_td` settles on touchdowns SCORED, never `passing_tds`.** A
   quarterback who throws four has scored none. Reading the passing column
   would make every quarterback the likeliest scorer on the field. Of 105 QB
@@ -200,8 +203,13 @@ that is the correct state.**
   "fixing" it would invent data.
 - **The weekly stats and play-by-play disagree on 0.21% of single-reception
   games** (10 of 4,857; zero for rushes and completions) — laterals and
-  gamebook revisions, not a join fault. Bounded by a test at 1%, recorded, and
-  deliberately not reconciled: both sources describe the same play correctly.
+  gamebook revisions, not a join fault. Deliberately not reconciled: both
+  sources describe the same play correctly. **No test bounds this any more.**
+  The one that did needed the gitignored play-by-play, so it was skipped in
+  every CI run, and #31 deleted it rather than keep a guard that never fired.
+  The figure above is therefore a measurement from 2026-08-31, not a live
+  invariant, and it will not fail if the feeds drift. A test asserts that this
+  paragraph does not claim otherwise.
 - **`roster_weekly_2026.csv` is byte-identical to `roster_2026.csv`** and holds
   only week 1. Before a season starts the "weekly" roster is a single snapshot,
   so anything expecting role history from it finds none — silently.
