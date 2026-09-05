@@ -10,6 +10,8 @@ schedule, with clean intervals and good prose.
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from football_betting_lab.experiment_ledger import (
@@ -373,3 +375,156 @@ def test_the_correction_the_shrink_would_have_reported(tmp_path) -> None:
     assert len(fifty_three.hypotheses) - 18 == len(thirty_five.hypotheses)
     assert f"{fifty_three.correction_factor():.2f}" == "1.69"
     assert f"{thirty_five.correction_factor():.2f}" == "1.63"
+
+
+# -- the rule four labs found the hard way ------------------------------------
+#
+# A guard whose floor comes from the thing it is guarding is not a guard.
+#
+# Four instances across the sibling labs, each of which passed CI green:
+#   NHL #84   `_read()` swallowed a ParserError and returned an empty frame, so
+#             `len(merged) < len(theirs)` compared against the zero it had just
+#             failed to read. 500 rows -> 1 row, exit 0, pushed. Closing-line
+#             captures cannot be retaken.
+#   Football  `save()` re-read the file it was about to overwrite, so with an
+#             append-only `record()` the comparison was n >= n. 53 -> 35 passed
+#             clean and the published correction fell x1.69 -> x1.63.
+#   Football  `|| true` on the watchdog's fetch swallowed the exit code, so a
+#             frozen calendar reported the week intact.
+#   CBB       the same ledger shape independently: 30 -> 12, 1.60 -> 1.46.
+#
+# The common form: the guard's reference value is produced by the same
+# operation whose failure it exists to detect. The repair is that the reference
+# must come from a DIFFERENT observation — here `git show HEAD:<path>`, which
+# reads the object store rather than the working file.
+#
+# These tests state the rule as a demonstration rather than a comment, because
+# a comment is what this repository had before each of the four.
+
+
+def _gutted(path, payload: dict) -> None:
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_a_self_derived_floor_accepts_the_very_edits_it_exists_to_refuse(
+    tmp_path,
+) -> None:
+    """The rule, shown from both sides on one fixture.
+
+    Each edit below is offered to `save()` twice: once with the floor measured
+    from the file being guarded, once from an independent observation of the
+    same ledger before the edit. The self-derived floor accepts every one.
+    """
+    path = tmp_path / "ledger.json"
+    intact = ExperimentLedger(
+        hypotheses=[
+            Hypothesis(
+                search="s", name=f"h{i}", tested_on="2026-01-01",
+                seasons=(2025,), outcome="no demonstrated edge",
+            )
+            for i in range(53)
+        ]
+    )
+    save(intact, path, floor=0)
+    rows = json.loads(path.read_text(encoding="utf-8"))["hypotheses"]
+
+    edits = {
+        "gutted to an empty list": {"hypotheses": []},
+        "the key removed entirely": {},
+        "shrunk 53 to 35": {"hypotheses": rows[:35]},
+    }
+    for label, payload in edits.items():
+        _gutted(path, payload)
+        self_derived = len(load(path).hypotheses)
+
+        # The old shape: the floor is a count of the file under attack.
+        save(load(path), path, floor=self_derived)
+        assert len(load(path).hypotheses) == self_derived, label
+
+        # The repair: the floor is what an observation OUTSIDE the file says.
+        _gutted(path, payload)
+        with pytest.raises(ValueError):
+            save(load(path), path, floor=len(intact.hypotheses))
+
+
+def test_a_ledger_emptied_but_still_valid_json_rests_entirely_on_the_outside_floor(
+    tmp_path,
+) -> None:
+    """The case where the second floor contributes nothing.
+
+    `save()` also reads the file as a second floor, which is free and correct
+    when a caller passes zero. But a ledger emptied to `{"hypotheses": []}` is
+    still valid JSON, so that read returns 0 and `max(floor, 0)` is `floor`.
+    Everything then depends on the caller's independent observation — which is
+    why `record_experiments` must keep taking one.
+    """
+    path = tmp_path / "ledger.json"
+    save(
+        ExperimentLedger(
+            hypotheses=[
+                Hypothesis(search="s", name=f"h{i}", tested_on="2026-01-01",
+                           seasons=(2025,), outcome="no")
+                for i in range(12)
+            ]
+        ),
+        path,
+        floor=0,
+    )
+    _gutted(path, {"hypotheses": []})
+
+    assert len(load(path).hypotheses) == 0, (
+        "an emptied ledger must read as zero — if it raised, this test is "
+        "asserting the wrong hazard"
+    )
+    save(load(path), path, floor=0)  # nothing left to catch it
+    assert len(load(path).hypotheses) == 0
+
+
+def test_load_raises_on_a_damaged_ledger_rather_than_reading_it_as_empty(
+    tmp_path,
+) -> None:
+    """Football's immunity to NHL #84, pinned so a kindness cannot remove it.
+
+    NHL's `_read()` swallowed a `ParserError` and returned empty, and the
+    shrink guard's floor became the zero it had failed to read. `load()` here
+    does not catch `JSONDecodeError`, so a truncated or corrupted ledger stops
+    the run. Wrapping this in `except ... : return ExperimentLedger()` would
+    look like robustness and would import that defect wholesale.
+    """
+    path = tmp_path / "ledger.json"
+    path.write_text('{"hypotheses": [ truncated', encoding="utf-8")
+
+    with pytest.raises(json.JSONDecodeError):
+        load(path)
+
+
+def test_the_recorder_takes_its_floor_from_outside_the_file(tmp_path) -> None:
+    """The production caller, asserted by shape rather than by trust.
+
+    `record_experiments.main` computes `max(len(loaded), committed_entry_count(path))`.
+    The second term shells out to `git show HEAD:<path>` — the object store,
+    not the working file. A refactor that drops it leaves the guard resting on
+    a count of the thing it guards, which the first test above shows is no
+    guard at all.
+    """
+    import ast
+
+    from football_betting_lab.config import PROJECT_ROOT
+
+    source = (PROJECT_ROOT / "scripts" / "record_experiments.py").read_text(
+        encoding="utf-8"
+    )
+    tree = ast.parse(source)
+    calls = {
+        node.func.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    }
+    assert "committed_entry_count" in calls, (
+        "record_experiments no longer calls committed_entry_count, so its "
+        "floor is derived from the ledger file it is about to overwrite."
+    )
+    assert "git" in source and "HEAD:" in source, (
+        "committed_entry_count no longer reads HEAD, so the 'independent' "
+        "observation is no longer independent."
+    )
