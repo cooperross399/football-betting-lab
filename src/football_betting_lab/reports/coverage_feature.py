@@ -64,6 +64,13 @@ MIN_CHARTED_DROPBACKS = 200
 
 RECEIVING_MARKETS = ("reception_yards", "receptions", "reception_longest")
 
+#: A player-season below this many targets against a coverage gives a
+#: differential too noisy to be worth shrinking. Measured: only 85 of 496
+#: receivers cleared 30 against both in 2024.
+MIN_TARGETS_PER_COVERAGE = 25
+
+MAN_LABELS = (MAN, ZONE)
+
 
 def defence_of_each_play(participation: pd.DataFrame) -> np.ndarray:
     """The defending club: the side of the game id that is not in possession.
@@ -165,3 +172,87 @@ def attach_prior_season_man_rate(
             f"The man-rate join changed the row count ({before} -> {len(out)})."
         )
     return out
+
+
+def targets_by_coverage(participation: pd.DataFrame, pbp: pd.DataFrame) -> pd.DataFrame:
+    """One row per target, carrying the coverage it was thrown against.
+
+    `pbp` supplies the receiver and the yards; `participation` supplies whether
+    the defence was in man. They join on `(game_id, play_id)`.
+    """
+    joined = pbp.merge(
+        participation.rename(columns={"nflverse_game_id": "game_id"}),
+        on=["game_id", "play_id"],
+        how="inner",
+    )
+    targets = joined[
+        (joined["pass_attempt"] == 1)
+        & joined["receiver_player_id"].notna()
+        & joined["defense_man_zone_type"].isin(MAN_LABELS)
+    ].copy()
+    targets["is_man"] = targets["defense_man_zone_type"] == MAN
+    targets["receiving_yards"] = targets["receiving_yards"].fillna(0.0)
+    return targets
+
+
+def _differential(frame: pd.DataFrame, keys: list[str], minimum: int) -> pd.DataFrame:
+    """Yards per target against man minus against zone, per group."""
+    grouped = (
+        frame.groupby(keys + ["is_man"])["receiving_yards"]
+        .agg(["size", "sum"])
+        .reset_index()
+    )
+    wide = grouped.pivot_table(index=keys, columns="is_man", values=["size", "sum"]).fillna(0.0)
+    wide.columns = [f"{stat}_{'man' if flag else 'zone'}" for stat, flag in wide.columns]
+    wide = wide.reset_index()
+    for coverage in ("man", "zone"):
+        for stat in ("size", "sum"):
+            if f"{stat}_{coverage}" not in wide.columns:
+                wide[f"{stat}_{coverage}"] = 0.0
+    enough = (wide["size_man"] >= minimum) & (wide["size_zone"] >= minimum)
+    wide = wide[enough].copy()
+    wide["differential"] = (
+        wide["sum_man"] / wide["size_man"] - wide["sum_zone"] / wide["size_zone"]
+    )
+    return wide
+
+
+def split_half_reliability(targets: pd.DataFrame, *, minimum: int = 12) -> float:
+    """How much of a player-season differential is signal, by odd vs even weeks.
+
+    Measured 2026-09-07 over 2022-2025: the half-season halves correlate at
+    r = +0.109 over 278 player-seasons, which Spearman-Brown carries to about
+    **0.20 for a full season**. Four fifths of a measured man-versus-zone
+    differential is noise, so an unshrunk one is mostly a random number wearing
+    a player's name — and shrinking by this factor is what gives the feature
+    its fairest chance rather than its flattering one.
+    """
+    halved = targets.copy()
+    halved["half"] = np.where(halved["week"] % 2 == 1, "odd", "even")
+    parts = _differential(halved, ["season", "receiver_player_id", "half"], minimum)
+    wide = parts.pivot_table(
+        index=["season", "receiver_player_id"], columns="half", values="differential"
+    ).dropna()
+    if len(wide) < 30 or "odd" not in wide or "even" not in wide:
+        raise ValueError("Too few player-seasons to measure reliability.")
+    half = float(wide["odd"].corr(wide["even"]))
+    whole = 2.0 * half / (1.0 + half)
+    return max(0.0, min(1.0, whole))
+
+
+def player_coverage_differential(
+    targets: pd.DataFrame, *, minimum: int = MIN_TARGETS_PER_COVERAGE
+) -> pd.DataFrame:
+    """Per player-season: the man-minus-zone differential, raw and shrunk.
+
+    The shrunk column is the one a feature should use. Shrinking a differential
+    whose reliability is 0.20 by that factor is not conservatism, it is the
+    correct posterior mean under the noise actually present.
+    """
+    reliability = split_half_reliability(targets)
+    per_season = _differential(targets, ["season", "receiver_player_id"], minimum)
+    per_season["reliability"] = reliability
+    grouped = per_season.groupby("season")["differential"]
+    centred = per_season["differential"] - grouped.transform("mean")
+    per_season["differential_shrunk"] = reliability * centred
+    return per_season.rename(columns={"receiver_player_id": "player_id"})

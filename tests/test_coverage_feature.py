@@ -165,3 +165,94 @@ def test_the_default_fit_is_untouched_by_the_new_arguments() -> None:
     assert [c.name for c in encompassing.fit(frame, "x").coefficients] == list(
         encompassing.NAMES
     )
+
+
+# --- the receiver's own man/zone split --------------------------------------
+
+def plays(rows) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """(participation, pbp) for a list of (game, play, man?, receiver, yards)."""
+    part = pd.DataFrame(
+        [(g, p, cov.MAN if man else cov.ZONE) for g, p, man, _, _ in rows],
+        columns=["nflverse_game_id", "play_id", "defense_man_zone_type"],
+    )
+    pbp = pd.DataFrame(
+        [(g, p, 1, r, y, 2024, 1) for g, p, _, r, y in rows],
+        columns=["game_id", "play_id", "pass_attempt", "receiver_player_id",
+                 "receiving_yards", "season", "week"],
+    )
+    return part, pbp
+
+
+def test_the_target_join_does_not_collide_on_season() -> None:
+    """Both frames carrying `season` makes pandas silently rename each to
+    season_x / season_y, and every later groupby on `season` then raises —
+    which is what happened the first time this was run."""
+    part, pbp = plays([("2024_01_KC_BAL", 1, True, "00-0001", 12.0)])
+    out = cov.targets_by_coverage(part, pbp)
+    assert "season" in out.columns
+    assert "season_x" not in out.columns and "season_y" not in out.columns
+
+
+def test_only_targets_against_a_charted_coverage_survive() -> None:
+    part, pbp = plays([
+        ("2024_01_KC_BAL", 1, True, "00-0001", 10.0),
+        ("2024_01_KC_BAL", 2, False, "00-0001", 4.0),
+    ])
+    part.loc[1, "defense_man_zone_type"] = ""      # a run, never charted
+    assert len(cov.targets_by_coverage(part, pbp)) == 1
+
+
+def test_the_differential_is_yards_per_target_man_minus_zone() -> None:
+    rows = [("2024_01_KC_BAL", i, True, "00-0001", 10.0) for i in range(30)]
+    rows += [("2024_01_KC_BAL", 100 + i, False, "00-0001", 4.0) for i in range(30)]
+    targets = cov.targets_by_coverage(*plays(rows))
+    out = cov._differential(targets, ["season", "receiver_player_id"], 25)
+    assert out["differential"].iloc[0] == pytest.approx(6.0)
+
+
+def test_a_player_short_of_targets_against_either_coverage_is_dropped() -> None:
+    rows = [("2024_01_KC_BAL", i, True, "00-0001", 10.0) for i in range(30)]
+    rows += [("2024_01_KC_BAL", 100 + i, False, "00-0001", 4.0) for i in range(5)]
+    targets = cov.targets_by_coverage(*plays(rows))
+    assert cov._differential(targets, ["season", "receiver_player_id"], 25).empty
+
+
+def test_the_differential_is_shrunk_by_its_measured_reliability(monkeypatch) -> None:
+    """Reliability measured 2026-09-07 is about 0.15-0.20, so four fifths of a
+    man-versus-zone differential is noise. Using it unshrunk would hand the
+    feature a number that is mostly a random draw wearing a player's name."""
+    monkeypatch.setattr(cov, "split_half_reliability", lambda *a, **k: 0.20)
+    rows = []
+    for player, man_yards in (("00-0001", 12.0), ("00-0002", 2.0)):
+        rows += [("2024_01_KC_BAL", hash((player, i)) % 10**6, True, player, man_yards)
+                 for i in range(30)]
+        rows += [("2024_01_KC_BAL", hash((player, i, "z")) % 10**6, False, player, 7.0)
+                 for i in range(30)]
+    out = cov.player_coverage_differential(cov.targets_by_coverage(*plays(rows)))
+    # Raw differentials are +5 and -5; centred they stay +5 and -5; shrunk, +-1.
+    assert sorted(out["differential"].round(3)) == [-5.0, 5.0]
+    assert sorted(out["differential_shrunk"].round(3)) == [-1.0, 1.0]
+
+
+def test_spearman_brown_lifts_the_half_season_correlation() -> None:
+    """A half-season correlation understates a full season's reliability, and
+    reporting the half as though it were the whole would overstate the noise."""
+    rng = np.random.default_rng(5)
+    n = 200
+    truth = rng.normal(0, 1, n)
+    odd = truth + rng.normal(0, 1, n)
+    even = truth + rng.normal(0, 1, n)
+    frame = pd.DataFrame({
+        "season": 2024, "receiver_player_id": np.repeat(np.arange(n), 2),
+        "half": np.tile(["odd", "even"], n),
+        "differential": np.column_stack([odd, even]).ravel(),
+    })
+    wide = frame.pivot_table(index="receiver_player_id", columns="half", values="differential")
+    half = wide["odd"].corr(wide["even"])
+    assert 2 * half / (1 + half) > half
+
+
+def test_reliability_refuses_a_sample_too_small_to_measure_it() -> None:
+    part, pbp = plays([("2024_01_KC_BAL", 1, True, "00-0001", 10.0)])
+    with pytest.raises(ValueError, match="Too few"):
+        cov.split_half_reliability(cov.targets_by_coverage(part, pbp))
