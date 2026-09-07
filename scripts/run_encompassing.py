@@ -27,44 +27,8 @@ from football_betting_lab.config import OUTPUTS_DIR, RAW_DIR
 from football_betting_lab.forward_evidence import american_to_implied
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import encompassing
-from football_betting_lab.reports.props_backtest import (
-    label_snapshots,
-    load_bought_prices,
-    normalise_name,
-)
-
-CACHE_DIRNAME = "historical_prices"
-
-
-def devigged_market(league, raw_dir) -> pd.DataFrame:
-    """Per-book devigged P(over) for every two-sided wager, then combined."""
-    prices = label_snapshots(load_bought_prices(raw_dir / league.data_dir_segment / CACHE_DIRNAME, league))
-    if "phase" in prices.columns:
-        prices = prices[prices["phase"] == "card"]
-    prices = prices.copy()
-    prices["line"] = pd.to_numeric(prices["line"], errors="coerce")
-    prices["american_odds"] = pd.to_numeric(prices["american_odds"], errors="coerce")
-    prices = prices.dropna(subset=["line", "american_odds"])
-    prices["identity"] = prices["player"].map(normalise_name)
-    sides = prices.pivot_table(
-        index=["event_id", "market", "identity", "line", "book"],
-        columns="selection",
-        values="american_odds",
-        aggfunc="max",
-    ).reset_index()
-    if "over" not in sides.columns or "under" not in sides.columns:
-        raise SystemExit("::error::No two-sided featured prices in the cache.")
-    sides = sides.dropna(subset=["over", "under"])
-    over = sides["over"].map(american_to_implied)
-    under = sides["under"].map(american_to_implied)
-    sides["hold"] = over + under - 1.0
-    sides["p_over_fair"] = over / (over + under)
-    return (
-        sides.groupby(["event_id", "market", "identity", "line"])
-        .agg(p_market=("p_over_fair", "median"), hold=("hold", "median"), books=("p_over_fair", "size"))
-        .reset_index()
-    )
-
+from football_betting_lab.reports.encompassing import devigged_market
+from football_betting_lab.reports.props_backtest import normalise_name
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)

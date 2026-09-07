@@ -194,14 +194,34 @@ NAMES = ("intercept", "b  logit(market)", "c  logit(model)")
 SIDE_NAME = "d  over side"
 
 
-def fit(frame: pd.DataFrame, label: str, *, side: bool = False) -> Fit | None:
+def fit(
+    frame: pd.DataFrame,
+    label: str,
+    *,
+    side: bool = False,
+    extra: tuple[tuple[str, str], ...] = (),
+    cluster: str = "event_id",
+) -> Fit | None:
     """One encompassing fit on a frame carrying y, p_market, p_model, event_id.
 
     `side=True` adds a bet-side dummy (`side_over`, 1 for an over bet). Because
     side and the model term are almost collinear on a carded population, this
     is the fit that says whether `c` is model information or a side effect.
+
+    `extra` adds further regressors as `(display name, column)` pairs, for
+    asking whether some candidate feature carries anything once the price is
+    held fixed.
+
+    `cluster` names the column the sandwich clusters on, and it must be chosen
+    to match the COARSEST regressor in the fit, not the finest. A team-season
+    feature takes one value across every wager that team-season supplies, so
+    clustering it by game treats a few dozen independent quantities as
+    thousands and narrows its interval by roughly the square root of the
+    wagers per cluster. That error has already been shipped twice here.
     """
     if len(frame) < 400 or frame["event_id"].nunique() < MIN_GAMES:
+        return None
+    if frame[cluster].nunique() < MIN_GAMES:
         return None
     columns = [
         np.ones(len(frame)),
@@ -212,10 +232,12 @@ def fit(frame: pd.DataFrame, label: str, *, side: bool = False) -> Fit | None:
     if side:
         columns.append(frame["side_over"].to_numpy(dtype=float))
         names.append(SIDE_NAME)
+    for display, column in extra:
+        columns.append(frame[column].to_numpy(dtype=float))
+        names.append(display)
     X = np.column_stack(columns)
     y = frame["y"].to_numpy(dtype=float)
-    beta = fit_logistic(X, y)
-    se, games = cluster_se(X, y, beta, frame["event_id"].to_numpy())
+    se, games = cluster_se(X, y, beta := fit_logistic(X, y), frame[cluster].to_numpy())
     return Fit(
         label=label,
         wagers=len(frame),
@@ -514,3 +536,48 @@ def render(
         "population the card actually bets."
     )
     return "\n".join(lines) + "\n"
+
+
+CACHE_DIRNAME = "historical_prices"
+
+
+def devigged_market(league, raw_dir) -> pd.DataFrame:
+    """Per-book devigged P(over) for every two-sided wager, then combined.
+
+    Lives here rather than in a runner because two scripts now ask the
+    encompassing question and a second copy of the devig would be the fifth
+    copy of an interval this repository has already unified once.
+    """
+    from football_betting_lab.forward_evidence import american_to_implied
+    from football_betting_lab.reports.props_backtest import (
+        label_snapshots,
+        load_bought_prices,
+        normalise_name,
+    )
+
+    prices = label_snapshots(load_bought_prices(raw_dir / league.data_dir_segment / CACHE_DIRNAME, league))
+    if "phase" in prices.columns:
+        prices = prices[prices["phase"] == "card"]
+    prices = prices.copy()
+    prices["line"] = pd.to_numeric(prices["line"], errors="coerce")
+    prices["american_odds"] = pd.to_numeric(prices["american_odds"], errors="coerce")
+    prices = prices.dropna(subset=["line", "american_odds"])
+    prices["identity"] = prices["player"].map(normalise_name)
+    sides = prices.pivot_table(
+        index=["event_id", "market", "identity", "line", "book"],
+        columns="selection",
+        values="american_odds",
+        aggfunc="max",
+    ).reset_index()
+    if "over" not in sides.columns or "under" not in sides.columns:
+        raise SystemExit("::error::No two-sided featured prices in the cache.")
+    sides = sides.dropna(subset=["over", "under"])
+    over = sides["over"].map(american_to_implied)
+    under = sides["under"].map(american_to_implied)
+    sides["hold"] = over + under - 1.0
+    sides["p_over_fair"] = over / (over + under)
+    return (
+        sides.groupby(["event_id", "market", "identity", "line"])
+        .agg(p_market=("p_over_fair", "median"), hold=("hold", "median"), books=("p_over_fair", "size"))
+        .reset_index()
+    )
