@@ -144,6 +144,34 @@ that is the correct state.**
   feed as `published_after_the_season` rather than in this paragraph, and the
   fetch CLI skips a season still being played instead of filing a guaranteed
   404 among real failures.
+- **Man coverage faced is no demonstrated edge, measured 2026-09-07.** The
+  first opponent term ever put to the props model, tested where it belongs —
+  `logit P(over) = a + b*logit(market) + c*logit(model) + d*man_rate_z`, so `d`
+  is estimated holding the closing price fixed. On receiving markets
+  (`reception_yards`, `receptions`, `reception_longest`): **d = +0.0094 per
+  standard deviation, 95% [-0.0520, +0.0709]** over **30,836 wagers across 96
+  defence-seasons**. Across all markets: **d = -0.0139, [-0.0548, +0.0271]**
+  over 61,267. Both include zero. The **placebo, which reassigns each rate to a
+  different defence, returned +0.0588 — six times the real estimate**, which is
+  what a null looks like when it is honest. Clustered by defence-season, not by
+  game: the feature takes one value across every wager a defence-season
+  supplies, and a game-level cluster would have narrowed its interval by roughly
+  the square root of the wagers per cluster. The sandwich was checked against a
+  400-draw resample of those clusters and agreed to three decimals. This does
+  not say coverage is irrelevant to football; it says the closing price already
+  holds what this measure of it knows, which is the expected answer for the most
+  public fact about a defence.
+- **The raw man rate is not comparable across seasons.** League-mean man
+  coverage by season, from the participation files: **2022 0.286, 2023 0.423,
+  2024 0.492, 2025 0.318** — swings of +13.7, +6.9 and **-17.4** points between
+  consecutive seasons. Thirty-two defences do not collectively abandon
+  seventeen points of man coverage in one offseason; that is the NGS charting
+  reclassifying, not football. Every rate must therefore be compared **within a
+  season only**, and the feature is a within-season z-score. A globally centred
+  raw rate would have made the regressor partly an indicator of which season
+  the wager came from — and the first run of this report did exactly that,
+  returning d = -0.1679 before the correction. Anyone quoting a cross-season
+  coverage rate, this lab or a vendor, inherits this.
 - **The five research feeds are fetched, and nothing reads them yet.**
   `participation` (2016 on) carries man or zone, the coverage shell, pass
   rushers, pressure, time to throw, route and personnel; the four `pfr_*`
