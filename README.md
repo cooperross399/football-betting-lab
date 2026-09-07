@@ -59,7 +59,8 @@ PYTHONPATH=src .venv/bin/python -m pytest -q
 
 ## Data attribution
 
-Game, play-by-play, roster, depth chart, snap count and injury data come from
+Game, play-by-play, participation charting, roster, depth chart, snap count,
+advanced split and injury data come from
 [nflverse](https://github.com/nflverse/nflverse-data), used under
 **CC-BY-4.0**. Prices come from [The Odds API](https://the-odds-api.com).
 Results never come from the odds provider.
