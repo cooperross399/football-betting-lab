@@ -255,8 +255,11 @@ order:
 
 Wire `nflverse.staleness_hours(league, raw_dir, now=...)` as the mtime half.
 It exists, its docstring explains that a cache with no manifest cannot answer "how
-old is this?", and **it currently has zero callers anywhere in `src`, `scripts` or
-`tests`.**
+old is this?", and **it still has zero callers in `src` or `scripts`** — only
+`tests/test_nflverse_manifest.py` exercises it. It now also takes
+`feed_season="pbp 2026"` and answers for that feed alone, which is the half this
+table actually wants: every row above names one feed, and after a `--only` or
+`--card-only` run the cache and any single feed in it have different ages.
 
 **Why it is a profit item and not hygiene.** Each of these failures writes a wrong
 opinion into a ledger that is never revised:

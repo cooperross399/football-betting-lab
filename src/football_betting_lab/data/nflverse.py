@@ -403,39 +403,132 @@ def read_manifest(league: League, raw_dir: Path) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _cached_file_is_gone(entry: Any, *, raw_dir: Path) -> bool:
+    """Whether an entry carried forward names a file no longer in the cache.
+
+    Absence has to be SHOWN. An entry that carries no usable path is kept,
+    because "cannot be checked" and "is not there" are different facts — the
+    same rule `is_provisional` applies to a date it cannot parse.
+    """
+    if not isinstance(entry, Mapping):
+        return False
+    relative = entry.get("path")
+    if not isinstance(relative, str) or not relative:
+        return False
+    try:
+        return not (Path(raw_dir) / relative).is_file()
+    except OSError:
+        return False
+
+
 def write_manifest(
     league: League, raw_dir: Path, entries: Mapping[str, Any], *, fetched_at: str
 ) -> Path:
-    """Record what was fetched and when.
+    """Record what was fetched and when, MERGED per feed-season.
 
     A cache with no manifest cannot answer "how old is this?", and a report
     built on data of unknown age is a report whose staleness is invisible —
     which is the shape every silent-shortfall bug in these labs has taken.
+
+    NO RUN IS THE WHOLE CACHE, and this used to set `"feeds"` to the entries of
+    the run that called it. `--only schedules` fetches one feed and leaves
+    thirty other cached files where they were; `--card-only` fetches eight and
+    leaves the five research feeds — 47 MB a season of `participation` among
+    them — untouched on disk. Writing a run's entries wholesale dropped every
+    feed it had not asked for, so the file whose stated job is the sentence
+    above answered *nothing at all* for most of the cache. Measured before this
+    merged: a full run of `player_stats` and `pbp` for 2022 followed by `--only
+    player_stats` left a manifest naming `player_stats 2022` alone, with
+    `pbp 2022` still cached and still readable. And because
+    `data/raw/nfl/nflverse_manifest.json` is TRACKED in a checkout several
+    sessions share, the truncated copy is committable by a session that never
+    ran a fetch.
+
+    So entries merge per feed-season, and each carries its OWN `fetched_at`.
+    A feed refetched today is dated today; a feed last fetched in August still
+    says August, because carrying an entry forward with today's date would be
+    worse than dropping it — a month-old file would read as fetched this
+    morning and nothing downstream could tell. The top-level `fetched_at` is
+    unchanged and still means what `staleness_hours` has always read it as:
+    when a fetch last ran.
+
+    The rule has two halves. The manifest may not forget a feed that is cached,
+    and it may not remember one that is not — a carried entry whose file is no
+    longer under `raw_dir` is dropped, on the showable-absence rule above.
     """
     path = Path(raw_dir) / league.data_dir_segment / MANIFEST_FILENAME
+    previous = read_manifest(league, raw_dir)
+    carried_feeds = previous.get("feeds")
+    # Every entry in the manifest as committed predates per-feed stamps, and
+    # each was written by the run whose top-level stamp it sits under. That is
+    # the true date for them; leaving them bare would make the per-feed
+    # question unanswerable for the whole existing cache.
+    carried_at = str(previous.get("fetched_at", "")) or None
+
+    feeds: dict[str, Any] = {}
+    if isinstance(carried_feeds, Mapping):
+        for label, entry in carried_feeds.items():
+            if _cached_file_is_gone(entry, raw_dir=raw_dir):
+                continue
+            if isinstance(entry, Mapping) and carried_at and "fetched_at" not in entry:
+                entry = {**entry, "fetched_at": carried_at}
+            feeds[str(label)] = entry
+    for label, entry in entries.items():
+        # Per feed-season, not per field: a refetched entry replaces its
+        # predecessor whole, so a `bytes` this run did not measure cannot
+        # survive as though it had.
+        feeds[str(label)] = (
+            {**entry, "fetched_at": fetched_at} if isinstance(entry, Mapping) else entry
+        )
+
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "league": league.key,
         "fetched_at": fetched_at,
         "attribution": ATTRIBUTION,
-        "feeds": dict(entries),
+        "feeds": feeds,
     }
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
 
 
-def staleness_hours(league: League, raw_dir: Path, *, now: datetime) -> float | None:
-    """How old the cache is, or None when it has never been fetched.
-
-    None is not zero, and callers must not treat it as such. "Never fetched"
-    and "fetched a moment ago" are opposite conditions.
-    """
-    manifest = read_manifest(league, raw_dir)
-    stamp = str(manifest.get("fetched_at", ""))
+def _hours_since(stamp: Any, *, now: datetime) -> float | None:
+    """Hours between an ISO stamp and `now`, or None when it says nothing."""
     try:
-        moment = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        moment = datetime.fromisoformat(str(stamp).replace("Z", "+00:00"))
     except ValueError:
         return None
     if moment.tzinfo is None:
         return None
     return (now.astimezone(timezone.utc) - moment).total_seconds() / 3600.0
+
+
+def staleness_hours(
+    league: League,
+    raw_dir: Path,
+    *,
+    now: datetime,
+    feed_season: str | None = None,
+) -> float | None:
+    """How old the cache is, or None when it has never been fetched.
+
+    None is not zero, and callers must not treat it as such. "Never fetched"
+    and "fetched a moment ago" are opposite conditions.
+
+    `feed_season` asks the narrower question, of one manifest label —
+    `"pbp 2025"`, or `"schedules"` for a feed published once for all seasons.
+    Since `write_manifest` merges, these are DIFFERENT questions after a
+    partial run: `--only schedules` leaves the cache written moments ago and
+    `pbp 2025` a month old, and only the per-feed answer says so. A label the
+    manifest does not carry is None for the same reason the whole cache is —
+    it was never fetched, which is not the same as fresh, and falling back to
+    the cache's own stamp would blur exactly that.
+    """
+    manifest = read_manifest(league, raw_dir)
+    if feed_season is None:
+        return _hours_since(manifest.get("fetched_at", ""), now=now)
+    feeds = manifest.get("feeds")
+    entry = feeds.get(feed_season) if isinstance(feeds, Mapping) else None
+    if not isinstance(entry, Mapping):
+        return None
+    return _hours_since(entry.get("fetched_at", ""), now=now)
