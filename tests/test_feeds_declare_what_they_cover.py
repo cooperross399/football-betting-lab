@@ -18,6 +18,7 @@ because the failure mode is silent: a feed added later just joins the download.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 from datetime import date as _DATE
 from pathlib import Path
 
@@ -257,3 +258,30 @@ def test_without_card_only_the_research_feeds_are_fetched(
     """The flag is the thing that narrows it; the default still fetches all."""
     _, asked = _run(tmp_path, monkeypatch, ["--seasons", "2025"])
     assert "participation" in {name for name, _ in asked}
+
+
+# --- the cache must not be committable ---------------------------------------
+
+#: The one feed whose cache is deliberately in the repository: the credit
+#: arithmetic has to stay re-checkable from a fresh clone.
+COMMITTED_FEED_CACHES = {"schedules"}
+
+
+def test_every_feed_cache_is_ignored_unless_it_is_deliberately_committed() -> None:
+    """`.gitignore` enumerated seven feed directories by hand until
+    2026-09-07, so a feed added later was not ignored at all. Several sessions
+    share this checkout and `git add -A` from any of them has swept another's
+    files into a commit twice — and `participation` is 47 MB a season. The
+    enumeration is now a rule, and this observes it for every feed there is,
+    including ones added after this was written.
+    """
+    wrong: list[str] = []
+    for feed in nflverse.FEEDS:
+        path = nflverse.feed_path(feed, NFL, Path("data/raw"), 2025)
+        ignored = subprocess.run(
+            ["git", "check-ignore", "-q", str(path)],
+            cwd=_ROOT, capture_output=True,
+        ).returncode == 0
+        if ignored is (feed.name in COMMITTED_FEED_CACHES):
+            wrong.append(f"{feed.name}: ignored={ignored}")
+    assert wrong == [], wrong
