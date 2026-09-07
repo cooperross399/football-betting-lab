@@ -133,6 +133,28 @@ that is the correct state.**
   feed publishes only after the post-season. Snap share (PFR, in season,
   lagged) and target share (from play-by-play, same lag) are available; routes
   run are not, and no report will imply otherwise.
+
+  **Measured 2026-09-07 from the release assets**, because a matchup layer
+  would rest on it: `pbp_participation_2025.csv` was created 2026-02-10 and
+  never updated, and the four `advstats_week_*_2025.csv` on 2026-02-11. Both
+  families land once, after the post-season, so during a live season they can
+  only ever supply the **prior** one. They cannot see a coordinator change, a
+  personnel change or any in-season adaptation, and no report may describe
+  anything built on them as current-season form. The fact is carried on the
+  feed as `published_after_the_season` rather than in this paragraph, and the
+  fetch CLI skips a season still being played instead of filing a guaranteed
+  404 among real failures.
+- **The five research feeds are fetched, and nothing reads them yet.**
+  `participation` (2016 on) carries man or zone, the coverage shell, pass
+  rushers, pressure, time to throw, route and personnel; the four `pfr_*`
+  splits (2018 on) carry the pressure a quarterback faced and what an
+  individual defender allowed in coverage. The player props model has **no
+  opponent term at all** — `fit_rates` builds a player's rates from his own
+  history and `simulate` draws from them — so this is the data a matchup term
+  would need. Whether it beats the price is unmeasured; `run_encompassing.py`
+  is the instrument that would answer it, and until it has, none of this is
+  an edge. `participation` is 47 MB a season, so the gameday card path fetches
+  `--card-only` and a test refuses any workflow that fetches the full set.
 - **No feed publishes inactives, so no player prop can produce a selection.**
   The availability gate has five states and **nothing can reach `confirmed`**:
   `excluded` (listed Out), `doubtful`, `questionable`, `undesignated` (a report

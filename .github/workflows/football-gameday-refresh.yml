@@ -222,7 +222,10 @@ jobs:
         run: |
           set -euo pipefail
           SEASONS="2022 2023 2024 2025 2026"
-          python scripts/fetch_football_data.py --seasons $SEASONS
+          # --card-only: the research feeds (participation, pfr_*) are 47 MB a
+          # season and nothing on this path reads them. Without the flag this
+          # step silently grows every time a feed is added.
+          python scripts/fetch_football_data.py --seasons $SEASONS --card-only
           python scripts/build_datasets.py --seasons $SEASONS
 
       - name: Render the card, freeze the opinions, settle what is final

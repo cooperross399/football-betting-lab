@@ -42,6 +42,23 @@ quarter or half. Those are the only reasons to pay for a season of play-by-play.
 `rosters`, `weekly_rosters` and `depth_charts` decide a player's club and role
 **now**, never from his last logged game. `injuries` is the availability gate's
 only feed and cannot confirm, only exclude. `snap_counts` is the usage signal.
+
+`participation` is the matchup half, and the player props model has no opponent
+term at all without it. Per play it carries man or zone, the coverage shell
+(`COVER_0` through `COVER_9`, `2_MAN`, `COMBO`), the number of pass rushers,
+whether the quarterback was pressured, time to throw, the route run and both
+personnel groupings. **Its coverage columns are populated on dropbacks only** —
+22,055 of 45,184 rows in 2025 — so a 49% fill rate is this feed working, not
+this feed broken. Anything computed from it is a rate per dropback, never per
+play, or it understates by half. Charting begins in 2016.
+
+The four `pfr_*` feeds are Pro Football Reference's weekly advanced splits,
+from 2018. `pfr_pass` is the pressure a quarterback faced — blitzed, hurried,
+hit, pressured, sacked, bad throws. `pfr_def` is what an individual defender
+allowed in coverage — targets, completions, yards, passer rating, average depth
+of target, yards after catch — and is the defender-level half of a receiving
+matchup. `pfr_rec` and `pfr_rush` carry drops, passer rating when targeted,
+broken tackles, and yards before and after contact.
 """
 
 from __future__ import annotations
@@ -66,8 +83,9 @@ NFLVERSE_BASE = "https://github.com/nflverse/nflverse-data/releases/download"
 ALLOWED_HOST = "github.com"
 
 ATTRIBUTION = (
-    "Game, play-by-play, roster, depth chart, snap count and injury data from "
-    "nflverse (https://github.com/nflverse/nflverse-data), used under CC-BY-4.0."
+    "Game, play-by-play, participation charting, roster, depth chart, snap "
+    "count, advanced split and injury data from nflverse "
+    "(https://github.com/nflverse/nflverse-data), used under CC-BY-4.0."
 )
 
 MANIFEST_FILENAME = "nflverse_manifest.json"
@@ -87,6 +105,41 @@ class Feed:
     #: Updated year-round rather than only in season, so a cached copy goes
     #: stale even in August.
     updates_year_round: bool = False
+    #: The earliest season nflverse publishes this feed for, when it does not
+    #: reach back as far as the rest. `None` means "no known floor".
+    first_season: int | None = None
+    #: Whether nflverse publishes this feed once, after the post-season, rather
+    #: than through the year. Measured 2026-09-07 from the release assets:
+    #: `pbp_participation_2025.csv` was created 2026-02-10 and never updated,
+    #: and the four `advstats_week_*_2025.csv` on 2026-02-11.
+    #:
+    #: A feed like this can only ever supply the PRIOR season during a live
+    #: one. It cannot see a coordinator change, a personnel change, or any
+    #: in-season adaptation, and nothing built on it may be described as
+    #: current-season form.
+    published_after_the_season: bool = False
+    #: Whether the gameday card path needs this feed. A research feed is
+    #: fetched by the script that studies it, not on a path with a kickoff
+    #: deadline — `participation` alone is 47 MB a season.
+    #:
+    #: The default is `True` on purpose, and the direction matters: a new feed
+    #: the card needs but nobody flagged gets fetched anyway, while a new
+    #: research feed merely costs a download until someone marks it. The other
+    #: default would make the card quietly short of data, which is the failure
+    #: this lab keeps finding and the one nobody notices.
+    needed_for_the_card: bool = True
+
+    def covers(self, season: int | None) -> bool:
+        """Whether nflverse publishes this feed for `season` at all.
+
+        Deliberately not a fetch. A feed charted from 2016 returning HTTP 404
+        for 2015 is, in a failure count, indistinguishable from the same feed
+        404ing for 2024 because a release was renamed — and those two mean
+        opposite things. Asking first is what keeps the second one loud.
+        """
+        if season is None or self.first_season is None:
+            return True
+        return season >= self.first_season
 
     def resolve(self, season: int | None = None) -> str:
         return self.filename.format(season=season)
@@ -166,6 +219,68 @@ FEEDS: tuple[Feed, ...] = (
         filename="snap_counts_{season}.csv",
         purpose="Snap share, from Pro Football Reference. The usage signal.",
     ),
+    Feed(
+        name="participation",
+        published_after_the_season=True,
+        needed_for_the_card=False,
+        release="pbp_participation",
+        filename="pbp_participation_{season}.csv",
+        first_season=2016,
+        purpose=(
+            "Per-play charting: man or zone, the coverage shell, pass rushers, "
+            "pressure, time to throw, route and personnel. Coverage columns "
+            "are on dropbacks only, so rates from it are per dropback."
+        ),
+    ),
+    Feed(
+        name="pfr_pass",
+        published_after_the_season=True,
+        needed_for_the_card=False,
+        release="pfr_advstats",
+        filename="advstats_week_pass_{season}.csv",
+        first_season=2018,
+        purpose=(
+            "Weekly passing detail: times blitzed, hurried, hit, pressured "
+            "and sacked, and bad throws. The quarterback's environment."
+        ),
+    ),
+    Feed(
+        name="pfr_rec",
+        published_after_the_season=True,
+        needed_for_the_card=False,
+        release="pfr_advstats",
+        filename="advstats_week_rec_{season}.csv",
+        first_season=2018,
+        purpose=(
+            "Weekly receiving detail: drops, passer rating when targeted, "
+            "broken tackles."
+        ),
+    ),
+    Feed(
+        name="pfr_rush",
+        published_after_the_season=True,
+        needed_for_the_card=False,
+        release="pfr_advstats",
+        filename="advstats_week_rush_{season}.csv",
+        first_season=2018,
+        purpose=(
+            "Weekly rushing detail: yards before and after contact, and "
+            "broken tackles."
+        ),
+    ),
+    Feed(
+        name="pfr_def",
+        published_after_the_season=True,
+        needed_for_the_card=False,
+        release="pfr_advstats",
+        filename="advstats_week_def_{season}.csv",
+        first_season=2018,
+        purpose=(
+            "Weekly coverage detail per defender: targets, completions and "
+            "yards allowed, passer rating allowed, average depth of target, "
+            "yards after catch. The defender half of a receiving matchup."
+        ),
+    ),
 )
 
 FEEDS_BY_NAME: dict[str, Feed] = {feed.name: feed for feed in FEEDS}
@@ -209,7 +324,7 @@ def is_provisional(game_day: str, *, as_of: date) -> bool:
     return as_of < played + timedelta(days=days_ahead)
 
 
-def _season_is_complete(season: int, *, today: date) -> bool:
+def season_is_complete(season: int, *, today: date) -> bool:
     """Whether a season's files can be treated as final.
 
     A season is over once its playoffs are, which is comfortably before March.
@@ -238,7 +353,7 @@ def fetch_feed(
     moment = today or date.today()
     target = feed_path(feed, league, raw_dir, season)
     if target.is_file() and not refresh:
-        if season is not None and _season_is_complete(season, today=moment):
+        if season is not None and season_is_complete(season, today=moment):
             return target, "cached (season complete, never refetched)"
         if not feed.updates_year_round and season is None:
             return target, "cached"

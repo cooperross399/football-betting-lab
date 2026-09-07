@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from football_betting_lab.config import RAW_DIR
@@ -35,6 +35,15 @@ def main(argv: list[str] | None = None) -> int:
         help=f"Limit to these feeds. Known: {sorted(nflverse.FEEDS_BY_NAME)}",
     )
     parser.add_argument(
+        "--card-only",
+        action="store_true",
+        help=(
+            "Fetch only the feeds the gameday card reads. The card path has a "
+            "kickoff deadline; research feeds are fetched by the scripts that "
+            "study them."
+        ),
+    )
+    parser.add_argument(
         "--refresh",
         action="store_true",
         help="Refetch even a completed season. Use when nflverse revises history.",
@@ -43,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
 
     league = league_for(args.league)
     wanted = args.only or list(nflverse.FEEDS_BY_NAME)
+    if args.card_only:
+        wanted = [n for n in wanted if nflverse.FEEDS_BY_NAME[n].needed_for_the_card]
     unknown = [name for name in wanted if name not in nflverse.FEEDS_BY_NAME]
     if unknown:
         print(f"Unknown feed(s): {unknown}", file=sys.stderr)
@@ -50,11 +61,33 @@ def main(argv: list[str] | None = None) -> int:
 
     entries: dict[str, object] = {}
     failures: list[str] = []
+    skipped: list[str] = []
     for name in wanted:
         feed = nflverse.FEEDS_BY_NAME[name]
         seasons = args.seasons if feed.per_season else [None]
         for season in seasons:
             label = f"{feed.name}" + (f" {season}" if season is not None else "")
+            if not feed.covers(season):
+                # Charting that begins in 2016 has nothing to say about 2015.
+                # Counted apart from `failures` on purpose: a feed that does
+                # not reach a season is a fact about the feed, and burying it
+                # among fetches that broke is how a real breakage gets read as
+                # one more expected gap.
+                skipped.append(label)
+                print(f"  {label}: not published before {feed.first_season} — skipped")
+                continue
+            if (
+                feed.published_after_the_season
+                and season is not None
+                and not nflverse.season_is_complete(season, today=date.today())
+            ):
+                # This feed lands once, after the post-season. Asking for a
+                # season still being played is a guaranteed 404, and a
+                # guaranteed 404 sitting in the failure list every week is how
+                # a real breakage stops being read.
+                skipped.append(label)
+                print(f"  {label}: published only after the post-season — skipped")
+                continue
             try:
                 path, what = nflverse.fetch_feed(
                     feed,
@@ -87,7 +120,10 @@ def main(argv: list[str] | None = None) -> int:
         fetched_at=datetime.now(timezone.utc).isoformat(),
     )
     print()
-    print(f"{len(entries)} feed-season(s) cached, {len(failures)} unavailable.")
+    print(
+        f"{len(entries)} feed-season(s) cached, {len(failures)} unavailable, "
+        f"{len(skipped)} not published for the season asked."
+    )
     print(nflverse.ATTRIBUTION)
     # An unavailable feed is not a failure of this script. The manifest records
     # what landed, and the build step refuses to proceed on what did not.
