@@ -158,7 +158,17 @@ def main(argv: list[str] | None = None) -> int:
     bets["line"] = pd.to_numeric(bets["line"], errors="coerce")
 
     market = devigged_market(league, args.raw_dir)
+    offered = len(bets)
     frame = bets.merge(market, on=["event_id", "market", "identity", "line"], how="inner")
+    unpriced = bets.merge(
+        market[["event_id", "market", "identity", "line"]].assign(_seen=1),
+        on=["event_id", "market", "identity", "line"], how="left",
+    )
+    unpriced = unpriced[unpriced["_seen"].isna()]
+    over_share = (
+        float(unpriced["selection"].astype(str).str.lower().eq("over").mean())
+        if len(unpriced) else 0.0
+    )
     frame = frame.dropna(subset=["actual", "line", "model_probability", "p_market"])
     frame = frame[frame["actual"] != frame["line"]].copy()
     if frame.empty:
@@ -400,6 +410,20 @@ def main(argv: list[str] | None = None) -> int:
         f"1-unit stake, against a receiving card that currently returns "
         f"{realised:.2f}%. That is an effect large enough to erase most of the "
         "hold, and this test did not reject it.",
+        "",
+        (
+            f"**A quarter of the card never reaches this fit, and it is not a "
+            f"random quarter.** {offered:,} wagers were scored; "
+            f"{len(unpriced):,} ({100 * len(unpriced) / max(offered, 1):.1f}%) "
+            f"have no two-sided price at their line and are dropped before "
+            f"anything is fitted — **{100 * over_share:.1f}% of them overs**, "
+            "because an over-only alternate line has no under to devig against. "
+            "`encompassing.py` argues that selection here is harmless since it "
+            "is a deterministic function of the regressors; that argument does "
+            "**not** cover this drop, because whether a book quoted two sides is "
+            "not a function of the price or the model. The null holds for the "
+            "two-sided-priced population and is untested outside it."
+        ),
         "",
         "**So the honest statement is the narrow one.** Not \"coverage carries "
         "nothing\", but: *a prior-season scheme proxy, measured over 96 "
