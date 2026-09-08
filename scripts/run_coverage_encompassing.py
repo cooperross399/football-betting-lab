@@ -38,6 +38,7 @@ from football_betting_lab.config import OUTPUTS_DIR, RAW_DIR
 from football_betting_lab.data import nflverse
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import coverage_feature as cov
+from football_betting_lab.reports import pressure_feature as pressure
 from football_betting_lab.reports import encompassing
 from football_betting_lab.reports.encompassing import devigged_market
 from football_betting_lab.reports.props_backtest import normalise_name
@@ -88,6 +89,18 @@ def load_pbp(league, raw_dir: Path, seasons) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
+def load_pfr(league, raw_dir: Path, feed_name: str, seasons) -> pd.DataFrame:
+    feed = nflverse.FEEDS_BY_NAME[feed_name]
+    frames = []
+    for season in sorted(set(seasons)):
+        path = nflverse.feed_path(feed, league, raw_dir, season)
+        if not path.is_file():
+            raise SystemExit(f"::error::No {feed_name} at {path}.")
+        frames.append(pd.read_csv(path, low_memory=False).assign(season=season))
+    frame = pd.concat(frames, ignore_index=True)
+    return frame[frame["game_type"] == "REG"] if "game_type" in frame else frame
+
+
 def load_rosters(league, raw_dir: Path, seasons) -> pd.DataFrame:
     feed = nflverse.FEEDS_BY_NAME["weekly_rosters"]
     return pd.concat(
@@ -103,8 +116,8 @@ def load_rosters(league, raw_dir: Path, seasons) -> pd.DataFrame:
     )
 
 
-def report(fits, extras) -> str:
-    lines = ["# Does man coverage say anything the price does not?", ""]
+def report(fits, extras, title: str) -> str:
+    lines = [f"# {title}", ""]
     for fit in fits:
         if fit is None:
             continue
@@ -131,11 +144,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--league", default=DEFAULT_LEAGUE_KEY)
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
     parser.add_argument(
-        "--markets", default="receiving", choices=("receiving", "all"),
-        help="Receiving markets are where a coverage scheme has a mechanism.",
+        "--markets", default="receiving", choices=("receiving", "all", "defensive"),
+        help=(
+            "Receiving markets are where a coverage scheme has a mechanism; "
+            "defensive (sacks, tackles+assists) is where a pass rush does."
+        ),
     )
     parser.add_argument(
-        "--feature", default="team", choices=("team", "player"),
+        "--feature", default="team", choices=("team", "player", "pressure"),
         help=(
             "team: the defence's man rate. player: that rate interacted with "
             "the receiver's own man-minus-zone differential, which is the "
@@ -153,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
     bets = pd.read_csv(bets_path, low_memory=False)
     if args.markets == "receiving":
         bets = bets[bets["market"].isin(cov.RECEIVING_MARKETS)]
+    elif args.markets == "defensive":
+        bets = bets[bets["market"].isin(pressure.DEFENSIVE_MARKETS)]
     bets = bets.copy()
     bets["identity"] = bets["player"].map(normalise_name)
     bets["line"] = pd.to_numeric(bets["line"], errors="coerce")
@@ -190,12 +208,51 @@ def main(argv: list[str] | None = None) -> int:
     frame = cov.opponent_of_each_wager(
         frame, load_rosters(league, args.raw_dir, seasons), schedule
     )
-    rates = cov.man_rate_by_defence(
-        load_participation(league, args.raw_dir, [s - 1 for s in seasons])
-    )
-    frame = cov.attach_prior_season_man_rate(frame, rates)
+    if args.feature == "pressure":
+        # No participation needed: this feature is pfr_advstats only, and
+        # gating on a man rate would drop wagers for a reason unrelated to it.
+        frame["rate_season"] = frame["season"].astype(int) - 1
+        frame["man_rate"] = 0.0
+        frame["man_rate_z"] = 0.0
+    else:
+        rates = cov.man_rate_by_defence(
+            load_participation(league, args.raw_dir, [s - 1 for s in seasons])
+        )
+        frame = cov.attach_prior_season_man_rate(frame, rates)
 
     reliability = None
+    if args.feature == "pressure":
+        prior = sorted({s - 1 for s in seasons})
+        bridge = pressure.crosswalk(pd.read_csv(
+            nflverse.feed_path(
+                nflverse.FEEDS_BY_NAME["players"], league, args.raw_dir, None
+            ),
+            low_memory=False, usecols=["gsis_id", "pfr_id"],
+        )).rename(columns={"gsis_id": "player_id"})
+        rushers = pressure.defender_pressure_rate(
+            load_pfr(league, args.raw_dir, "pfr_def", prior)
+        ).rename(columns={"season": "rate_season", "pfr_player_id": "pfr_id"})
+        blocking = pressure.offence_pressure_allowed(
+            load_pfr(league, args.raw_dir, "pfr_pass", prior)
+        ).rename(columns={"season": "rate_season", "team": "opponent"})
+        before = len(frame)
+        frame = frame.merge(bridge, on="player_id", how="left")
+        frame = frame.merge(
+            rushers[["rate_season", "pfr_id", "pressure_z"]],
+            on=["rate_season", "pfr_id"], how="left",
+        )
+        frame = frame.merge(
+            blocking[["rate_season", "opponent", "pressure_allowed_z"]],
+            on=["rate_season", "opponent"], how="left",
+        )
+        if len(frame) != before:
+            print(
+                f"::error::The pressure join duplicated wagers "
+                f"({before:,} -> {len(frame):,}). Every interval would be too "
+                "narrow.", file=sys.stderr,
+            )
+            return 2
+
     if args.feature == "player":
         prior = [s - 1 for s in seasons]
         # `season` comes from the play-by-play side only; carrying it on both
@@ -220,6 +277,8 @@ def main(argv: list[str] | None = None) -> int:
     have = frame["man_rate"].notna()
     if args.feature == "player":
         have &= frame["differential_shrunk"].notna()
+    if args.feature == "pressure":
+        have &= frame["pressure_z"].notna() & frame["pressure_allowed_z"].notna()
     if args.feature == "player":
         # This sentence used to be shared with the team report, where "a few
         # relocated clubs" is true. Here it is not: the exclusion is the
@@ -239,6 +298,12 @@ def main(argv: list[str] | None = None) -> int:
     else:
         coverage_line = (
             f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+            f"({100 * have.mean():.1f}%). Excluded rows are a defender with "
+            f"fewer than {pressure.MIN_GAMES} charted games in the prior season, "
+            "or an offence whose quarterbacks did not reach that either — not a "
+            "missing rate, and not imputed."
+            if args.feature == "pressure" else
+            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
             f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
             "relocated or expansion-less club-season and are excluded here rather "
             "than imputed."
@@ -255,7 +320,18 @@ def main(argv: list[str] | None = None) -> int:
     # would make this regressor partly an indicator of the season.
     frame["man_centred"] = frame["man_rate_z"]
 
-    if args.feature == "player":
+    if args.feature == "pressure":
+        frame["interaction"] = frame["pressure_z"] * frame["pressure_allowed_z"]
+        frame["player_season"] = (
+            frame["player_id"].astype(str) + "_" + frame["rate_season"].astype(str)
+        )
+        extra = (
+            ("d1 rusher pressures per game (z)", "pressure_z"),
+            ("d2 opposing line pressure allowed (z)", "pressure_allowed_z"),
+            ("d  the interaction (rusher x line)", "interaction"),
+        )
+        clusters = ("player_season", "defence_season")
+    elif args.feature == "player":
         # Both main effects go in beside the interaction, or the interaction
         # collects whatever either of them would have explained on its own.
         z = frame["differential_shrunk"]
@@ -274,6 +350,11 @@ def main(argv: list[str] | None = None) -> int:
         extra = ((D_NAME, "man_centred"),)
         clusters = ("defence_season",)
 
+    # The headline term is whichever regressor the chosen feature put last —
+    # the interaction where there is one, the single rate where there is not.
+    # Named here rather than after the fit, because the placebo needs it.
+    headline_name, feature_column = extra[-1]
+
     baseline = encompassing.fit(frame, "market and model only", cluster=clusters[0])
     withman = encompassing.fit(
         frame, f"with the {args.feature} feature", extra=extra, cluster=clusters[0]
@@ -286,20 +367,43 @@ def main(argv: list[str] | None = None) -> int:
         for c in clusters[1:]
     ]
 
-    # Placebo: reassign the rates ACROSS defence-seasons. Shuffling the column
-    # row-wise would break the within-cluster constancy that makes this feature
-    # what it is, and would flatter the interval.
+    # Placebo: reassign each feature ACROSS the clusters it is constant within.
+    # Shuffling a column row-wise would break that constancy and flatter the
+    # interval. And a placebo that permutes a column the fit does not use is
+    # WORSE than none — it returns the real coefficients and reads as a passed
+    # check, which is exactly what the first pressure run printed.
     rng = np.random.default_rng(11)
-    keys = frame["defence_season"].unique()
-    shuffled = dict(zip(keys, rng.permutation(
-        frame.groupby("defence_season")["man_centred"].first().reindex(keys).to_numpy()
-    )))
+
+    def reassign(source: pd.DataFrame, column: str, key: str) -> pd.Series:
+        keys = source[key].unique()
+        values = source.groupby(key)[column].first().reindex(keys).to_numpy()
+        return source[key].map(dict(zip(keys, rng.permutation(values))))
+
     sham_frame = frame.copy()
-    sham_frame["man_centred"] = sham_frame["defence_season"].map(shuffled)
-    if args.feature == "player":
-        sham_frame["interaction"] = sham_frame["player_diff_z"] * sham_frame["man_centred"]
+    if args.feature == "pressure":
+        sham_frame["pressure_z"] = reassign(sham_frame, "pressure_z", "player_season")
+        sham_frame["pressure_allowed_z"] = reassign(
+            sham_frame, "pressure_allowed_z", "defence_season"
+        )
+        sham_frame["interaction"] = (
+            sham_frame["pressure_z"] * sham_frame["pressure_allowed_z"]
+        )
+    else:
+        sham_frame["man_centred"] = reassign(sham_frame, "man_centred", "defence_season")
+        if args.feature == "player":
+            sham_frame["interaction"] = (
+                sham_frame["player_diff_z"] * sham_frame["man_centred"]
+            )
+    if (sham_frame[feature_column] == frame[feature_column]).all():
+        print(
+            "::error::The placebo did not move the feature it is supposed to "
+            "shuffle, so it tests nothing and would read as a passed check.",
+            file=sys.stderr,
+        )
+        return 2
     sham = encompassing.fit(
-        sham_frame, "placebo: rates reassigned across defences", extra=extra,
+        sham_frame, "placebo: the feature reassigned across its own clusters",
+        extra=extra,
         cluster=clusters[0],
     )
 
@@ -310,7 +414,7 @@ def main(argv: list[str] | None = None) -> int:
         *[frame[col].to_numpy(float) for _, col in extra],
     ])
     y = frame["y"].to_numpy(float)
-    groups = frame["defence_season"].to_numpy()
+    groups = frame[clusters[0]].to_numpy()
     unique = np.unique(groups)
     rows_by = {g: np.where(groups == g)[0] for g in unique}
     draws = []
@@ -320,8 +424,14 @@ def main(argv: list[str] | None = None) -> int:
         draws.append(encompassing.fit_logistic(X[rows], y[rows])[-1])
     lo, hi = np.percentile(draws, [2.5, 97.5])
 
-    d = next(c for c in withman.coefficients if c.name == D_NAME)
-    spread = frame["man_rate_z"].max() - frame["man_rate_z"].min()
+    subject = {
+        "team": "the defence's man rate",
+        "player": "a receiver's man-zone split against the defence's man rate",
+        "pressure": "a rusher's pressure rate against the line in front of him",
+    }[args.feature]
+
+    d = next(c for c in withman.coefficients if c.name == headline_name)
+    spread = frame[feature_column].max() - frame[feature_column].min()
     swing = abs(d.value) * spread
 
     # Power, and what the interval still allows. "No demonstrated edge" and "a
@@ -330,7 +440,6 @@ def main(argv: list[str] | None = None) -> int:
     se_d = (d.high - d.low) / (2 * 1.96)
     mde = 2.8 * se_d                      # 1.96 + 0.84, two-sided 5%, 80% power
     model_c = next(c for c in withman.coefficients if c.name.startswith("c ")).value
-    feature_column = dict(extra)[D_NAME] if isinstance(extra[0], tuple) else "man_centred"
     signed = frame[feature_column].to_numpy(float) * np.where(over, 1.0, -1.0)
     p_side = np.where(over, frame["p_market"], 1.0 - frame["p_market"])
     lifted = encompassing.expit(encompassing.logit(p_side) + d.high * signed)
@@ -359,18 +468,25 @@ def main(argv: list[str] | None = None) -> int:
             "**year-over-year** carryover, which is weaker still: r = +0.02 to "
             "+0.11 across gates, every interval crossing zero."
             if reliability is not None else
+            "The rusher's pressures per game is the most persistent feature in "
+            "this lab — carryover of relative position +0.884 over 2018-2025, "
+            "measured by scripts/run_feature_reliability.py. That is why it was "
+            "the one worth a real test, and it is also why the market has had "
+            "every year to price it."
+            if args.feature == "pressure" else
             "The feature is the defence's man rate alone; no receiver split enters it."
         ),
         "",
-        f"The within-season z-score spans **{frame['man_rate_z'].min():+.2f} to "
-        f"{frame['man_rate_z'].max():+.2f}** across the defence-seasons here. "
+        f"The feature spans **{frame[feature_column].min():+.2f} to "
+        f"{frame[feature_column].max():+.2f}**. "
         f"At `d = {d.value:+.4f}` per standard deviation, "
-        f"moving from the most zone defence to the most man one shifts the log-odds "
+        f"moving from one end of it to the other shifts the log-odds "
         f"of the over by **{swing:.4f}** — about "
         f"**{100 * (encompassing.expit(np.array([swing])) - 0.5)[0]:.2f} percentage points** "
         "at an even-money price.",
         "",
-        f"Bootstrap over {len(unique)} defence-seasons ({args.bootstrap} draws): "
+        f"Bootstrap over {len(unique):,} {clusters[0].replace(chr(95), chr(45))} clusters "
+        f"({args.bootstrap} draws): "
         f"`d` in **[{lo:+.4f}, {hi:+.4f}]**. The sandwich says "
         f"[{d.low:+.4f}, {d.high:+.4f}]; a closed form nobody checked against a "
         "resample is how this repository shipped two interval defects.",
@@ -386,13 +502,13 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "## What this test could not have found",
         "",
-        f"**`d` is identified by {len(unique)} quantities, not {len(frame):,}.** The "
-        "man rate is constant inside a defence-season, so every wager against one "
-        "defence carries the same value of the regressor. Dropping three quarters "
-        "of the *wagers* barely moves the standard error; dropping three quarters "
-        "of the *defence-seasons* moves it by the square root of four, as it "
-        "should. The wager count is the population the answer speaks for. It is "
-        "not the sample size.",
+        f"**`d` is identified by {len(unique):,} clusters, not {len(frame):,} "
+        f"wagers.** The feature is constant inside a "
+        f"{clusters[0].replace(chr(95), chr(45))}, so every wager sharing one "
+        "carries the same value of the regressor. Dropping three quarters of the "
+        "*wagers* barely moves the standard error; dropping three quarters of the "
+        "*clusters* moves it by the square root of four, as it should. The wager "
+        "count is the population the answer speaks for. It is not the sample size.",
         "",
         f"**Minimum detectable effect at 80% power: `d` = {mde:+.4f}.** Anything "
         f"smaller than that, this design would miss more often than not. For "
@@ -407,13 +523,14 @@ def main(argv: list[str] | None = None) -> int:
         f"feature favours the bet actually placed ({favoured:,} of "
         f"{len(frame):,}) would gain about **{roi_points:+.2f} ROI points** — "
         f"roughly **{units_per_season:+.0f} units a season** at the lab's flat "
-        f"1-unit stake, against a receiving card that currently returns "
+        f"1-unit stake, against a {args.markets} card that currently returns "
         f"{realised:.2f}%. That is an effect large enough to erase most of the "
         "hold, and this test did not reject it.",
         "",
         (
-            f"**A quarter of the card never reaches this fit, and it is not a "
-            f"random quarter.** {offered:,} wagers were scored; "
+            f"**{100 * len(unpriced) / max(offered, 1):.0f}% of the card never "
+            f"reaches this fit, and it is not a random part of it.** "
+            f"{offered:,} wagers were scored; "
             f"{len(unpriced):,} ({100 * len(unpriced) / max(offered, 1):.1f}%) "
             f"have no two-sided price at their line and are dropped before "
             f"anything is fitted — **{100 * over_share:.1f}% of them overs**, "
@@ -425,10 +542,11 @@ def main(argv: list[str] | None = None) -> int:
             "two-sided-priced population and is untested outside it."
         ),
         "",
-        "**So the honest statement is the narrow one.** Not \"coverage carries "
-        "nothing\", but: *a prior-season scheme proxy, measured over 96 "
-        "defence-seasons, could not be told from zero by a test whose noise floor "
-        "sits above the range of effects that would be worth money.* The placebo "
+        f"**So the honest statement is the narrow one.** Not \"{subject} carries "
+        f"nothing\", but: *a prior-season measure of it, identified by "
+        f"{len(unique):,} clusters, could not be told from zero by a test whose "
+        "noise floor sits above the range of effects that would be worth money.* "
+        "The placebo "
         "makes the same point from the other side — a feature reassigned at "
         "random routinely produces coefficients larger than every real point "
         "estimate here.",
@@ -438,7 +556,10 @@ def main(argv: list[str] | None = None) -> int:
         f"coverage_encompassing_{args.feature}_{args.markets}", ".md"
     )
     out.parent.mkdir(parents=True, exist_ok=True)
-    body = report([baseline, withman, *alternates, sham], extras)
+    body = report(
+        [baseline, withman, *alternates, sham], extras,
+        f"Does {subject} say anything the price does not?",
+    )
     out.write_text(body, encoding="utf-8")
     print(body)
     print(f"Written to {out}")

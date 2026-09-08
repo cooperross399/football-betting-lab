@@ -161,6 +161,32 @@ that is the correct state.**
   not say coverage is irrelevant to football; it says the closing price already
   holds what this measure of it knows, which is the expected answer for the most
   public fact about a defence.
+- **Pressure was the one feature worth a real test, and it carries nothing
+  beyond the price either.** The reliability screen ranked a defender's
+  pressures per game first at +0.884, so it got the market test the coverage
+  features got. Over **3,696 defensive wagers** (sacks and tackles+assists),
+  identified by **723 defender-seasons**:
+
+  | term | estimate | 95% |
+  |:--|--:|:--|
+  | rusher pressures per game (z) | -0.0082 | [-0.0798, +0.0633] |
+  | opposing line pressure allowed (z) | -0.0314 | [-0.1031, +0.0404] |
+  | the interaction | -0.0194 | [-0.0842, +0.0455] |
+
+  All three include zero, and so does the fit clustered by defence-season
+  instead. **The mechanism was the sharpest one available** — a sack line is
+  priced off sack history, sacks are a noisy subset of pressures, so pressures
+  should lead. Measured, they do not, on this population.
+- **A placebo that permutes a column the fit does not use is worse than none.**
+  The first pressure run printed a placebo whose every coefficient was
+  identical to the real fit, because the shuffle moved the man rate and the
+  pressure fit does not read it. It looked like a passed check. The placebo now
+  reassigns each feature across the clusters it is constant within, and the
+  script **exits 2 if the shuffle leaves the headline feature unchanged**. The
+  same run also printed six coverage-specific sentences that had become false
+  the moment a third feature existed — "the defence's man rate alone", a
+  z-score spanning "+0.00 to +0.00", "a receiving card" for a defensive one.
+  Report prose keyed to one feature rots silently when a second arrives.
 - **Run the reliability screen before testing any feature against a price.**
   `scripts/run_feature_reliability.py`. Three matchup features were measured
   against the closing line before they were measured against themselves, and
