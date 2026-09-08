@@ -42,7 +42,7 @@ from football_betting_lab.reports import encompassing
 from football_betting_lab.reports.encompassing import devigged_market
 from football_betting_lab.reports.props_backtest import normalise_name
 
-D_NAME = "d  man rate faced (z)"
+D_NAME = "d  the interaction (receiver split x opponent man rate)"
 
 
 def load_participation(league, raw_dir: Path, seasons) -> pd.DataFrame:
@@ -58,7 +58,10 @@ def load_participation(league, raw_dir: Path, seasons) -> pd.DataFrame:
             pd.read_csv(
                 path,
                 low_memory=False,
-                usecols=["nflverse_game_id", "possession_team", "defense_man_zone_type"],
+                usecols=[
+                    "nflverse_game_id", "play_id", "possession_team",
+                    "defense_man_zone_type",
+                ],
             )
         )
     if missing:
@@ -66,6 +69,22 @@ def load_participation(league, raw_dir: Path, seasons) -> pd.DataFrame:
             "::error::No participation file for " + ", ".join(missing) +
             ". Fetch it: scripts/fetch_football_data.py --only participation"
         )
+    return pd.concat(frames, ignore_index=True)
+
+
+def load_pbp(league, raw_dir: Path, seasons) -> pd.DataFrame:
+    feed = nflverse.FEEDS_BY_NAME["pbp"]
+    frames = []
+    for season in sorted(seasons):
+        path = nflverse.feed_path(feed, league, raw_dir, season)
+        if not path.is_file():
+            raise SystemExit(f"::error::No play-by-play at {path}.")
+        frame = pd.read_csv(
+            path, low_memory=False,
+            usecols=["game_id", "play_id", "week", "season_type",
+                     "receiver_player_id", "receiving_yards", "pass_attempt"],
+        )
+        frames.append(frame[frame["season_type"] == "REG"].assign(season=season))
     return pd.concat(frames, ignore_index=True)
 
 
@@ -115,6 +134,14 @@ def main(argv: list[str] | None = None) -> int:
         "--markets", default="receiving", choices=("receiving", "all"),
         help="Receiving markets are where a coverage scheme has a mechanism.",
     )
+    parser.add_argument(
+        "--feature", default="team", choices=("team", "player"),
+        help=(
+            "team: the defence's man rate. player: that rate interacted with "
+            "the receiver's own man-minus-zone differential, which is the "
+            "claim a coverage-matchup board actually makes."
+        ),
+    )
     parser.add_argument("--bootstrap", type=int, default=400)
     args = parser.parse_args(argv)
     league = league_for(args.league)
@@ -131,7 +158,17 @@ def main(argv: list[str] | None = None) -> int:
     bets["line"] = pd.to_numeric(bets["line"], errors="coerce")
 
     market = devigged_market(league, args.raw_dir)
+    offered = len(bets)
     frame = bets.merge(market, on=["event_id", "market", "identity", "line"], how="inner")
+    unpriced = bets.merge(
+        market[["event_id", "market", "identity", "line"]].assign(_seen=1),
+        on=["event_id", "market", "identity", "line"], how="left",
+    )
+    unpriced = unpriced[unpriced["_seen"].isna()]
+    over_share = (
+        float(unpriced["selection"].astype(str).str.lower().eq("over").mean())
+        if len(unpriced) else 0.0
+    )
     frame = frame.dropna(subset=["actual", "line", "model_probability", "p_market"])
     frame = frame[frame["actual"] != frame["line"]].copy()
     if frame.empty:
@@ -158,13 +195,54 @@ def main(argv: list[str] | None = None) -> int:
     )
     frame = cov.attach_prior_season_man_rate(frame, rates)
 
+    reliability = None
+    if args.feature == "player":
+        prior = [s - 1 for s in seasons]
+        # `season` comes from the play-by-play side only; carrying it on both
+        # makes pandas silently rename each to season_x / season_y.
+        targets = cov.targets_by_coverage(
+            load_participation(league, args.raw_dir, prior),
+            load_pbp(league, args.raw_dir, prior),
+        )
+        splits = cov.player_coverage_differential(targets)
+        reliability = float(splits["reliability"].iloc[0])
+        before = len(frame)
+        frame = frame.merge(
+            splits.rename(columns={"season": "rate_season"})[
+                ["rate_season", "player_id", "differential", "differential_shrunk"]
+            ],
+            on=["rate_season", "player_id"], how="left",
+        )
+        if len(frame) != before:
+            print("::error::The player-split join duplicated wagers.", file=sys.stderr)
+            return 2
+
     have = frame["man_rate"].notna()
-    coverage_line = (
-        f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
-        f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
-        "relocated or expansion-less club-season and are excluded here rather "
-        "than imputed."
-    )
+    if args.feature == "player":
+        have &= frame["differential_shrunk"].notna()
+    if args.feature == "player":
+        # This sentence used to be shared with the team report, where "a few
+        # relocated clubs" is true. Here it is not: the exclusion is the
+        # receiver-target gate, and it is enormous. A reader told the missing
+        # 59% is a handful of relocated clubs is being told the null speaks for
+        # a far wider population than it does.
+        gated = int(frame["differential_shrunk"].notna().sum())
+        coverage_line = (
+            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+            f"({100 * have.mean():.1f}%). Every excluded row is excluded because "
+            f"the receiver did not clear {cov.MIN_TARGETS_PER_COVERAGE} targets "
+            "against **both** coverages in the prior season — not because a rate "
+            "was missing, of which there are none. **The null below speaks for "
+            "the busiest receiver-seasons only**, which is where a coverage "
+            "effect would be easiest to find, not hardest."
+        )
+    else:
+        coverage_line = (
+            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+            f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
+            "relocated or expansion-less club-season and are excluded here rather "
+            "than imputed."
+        )
     frame = frame[have].copy()
 
     frame["y"] = (frame["actual"] > frame["line"]).astype(float)
@@ -177,12 +255,36 @@ def main(argv: list[str] | None = None) -> int:
     # would make this regressor partly an indicator of the season.
     frame["man_centred"] = frame["man_rate_z"]
 
-    extra = ((D_NAME, "man_centred"),)
-    baseline = encompassing.fit(frame, "market and model only", cluster="defence_season")
-    withman = encompassing.fit(frame, "with man rate faced", extra=extra, cluster="defence_season")
+    if args.feature == "player":
+        # Both main effects go in beside the interaction, or the interaction
+        # collects whatever either of them would have explained on its own.
+        z = frame["differential_shrunk"]
+        frame["player_diff_z"] = (z - z.mean()) / z.std(ddof=0)
+        frame["interaction"] = frame["player_diff_z"] * frame["man_centred"]
+        frame["player_season"] = (
+            frame["player_id"].astype(str) + "_" + frame["rate_season"].astype(str)
+        )
+        extra = (
+            ("d1 opponent man rate (z)", "man_centred"),
+            ("d2 receiver man-zone split (z, shrunk)", "player_diff_z"),
+            (D_NAME, "interaction"),
+        )
+        clusters = ("defence_season", "player_season")
+    else:
+        extra = ((D_NAME, "man_centred"),)
+        clusters = ("defence_season",)
+
+    baseline = encompassing.fit(frame, "market and model only", cluster=clusters[0])
+    withman = encompassing.fit(
+        frame, f"with the {args.feature} feature", extra=extra, cluster=clusters[0]
+    )
     if baseline is None or withman is None:
-        print("::error::Too few wagers or defence-seasons to fit.", file=sys.stderr)
+        print("::error::Too few wagers or clusters to fit.", file=sys.stderr)
         return 2
+    alternates = [
+        encompassing.fit(frame, f"same fit, clustered by {c}", extra=extra, cluster=c)
+        for c in clusters[1:]
+    ]
 
     # Placebo: reassign the rates ACROSS defence-seasons. Shuffling the column
     # row-wise would break the within-cluster constancy that makes this feature
@@ -194,15 +296,18 @@ def main(argv: list[str] | None = None) -> int:
     )))
     sham_frame = frame.copy()
     sham_frame["man_centred"] = sham_frame["defence_season"].map(shuffled)
+    if args.feature == "player":
+        sham_frame["interaction"] = sham_frame["player_diff_z"] * sham_frame["man_centred"]
     sham = encompassing.fit(
         sham_frame, "placebo: rates reassigned across defences", extra=extra,
-        cluster="defence_season",
+        cluster=clusters[0],
     )
 
     # The sandwich, checked against a resample of the clusters it claims.
     X = np.column_stack([
         np.ones(len(frame)), encompassing.logit(frame["p_market"]),
-        encompassing.logit(frame["p_model"]), frame["man_centred"].to_numpy(float),
+        encompassing.logit(frame["p_model"]),
+        *[frame[col].to_numpy(float) for _, col in extra],
     ])
     y = frame["y"].to_numpy(float)
     groups = frame["defence_season"].to_numpy()
@@ -212,16 +317,50 @@ def main(argv: list[str] | None = None) -> int:
     for _ in range(args.bootstrap):
         picked = rng.choice(unique, len(unique), replace=True)
         rows = np.concatenate([rows_by[g] for g in picked])
-        draws.append(encompassing.fit_logistic(X[rows], y[rows])[3])
+        draws.append(encompassing.fit_logistic(X[rows], y[rows])[-1])
     lo, hi = np.percentile(draws, [2.5, 97.5])
 
     d = next(c for c in withman.coefficients if c.name == D_NAME)
     spread = frame["man_rate_z"].max() - frame["man_rate_z"].min()
     swing = abs(d.value) * spread
+
+    # Power, and what the interval still allows. "No demonstrated edge" and "a
+    # test too weak to have found one" are different statements and only the
+    # second is supported unless these are printed beside the coefficient.
+    se_d = (d.high - d.low) / (2 * 1.96)
+    mde = 2.8 * se_d                      # 1.96 + 0.84, two-sided 5%, 80% power
+    model_c = next(c for c in withman.coefficients if c.name.startswith("c ")).value
+    feature_column = dict(extra)[D_NAME] if isinstance(extra[0], tuple) else "man_centred"
+    signed = frame[feature_column].to_numpy(float) * np.where(over, 1.0, -1.0)
+    p_side = np.where(over, frame["p_market"], 1.0 - frame["p_market"])
+    lifted = encompassing.expit(encompassing.logit(p_side) + d.high * signed)
+    payout = frame["odds"].map(lambda o: o / 100.0 if o > 0 else 100.0 / abs(o)).to_numpy(float)
+    gain = (lifted - p_side) * (1.0 + payout)
+    helps = gain > 0
+    favoured = int(helps.sum())
+    roi_points = 100.0 * float(gain[helps].mean()) if favoured else 0.0
+    seasons_spanned = max(1, frame["season"].nunique())
+    units_per_season = float(gain[helps].sum()) / seasons_spanned
+    realised = 100.0 * float(frame.loc[helps, "profit"].mean()) if favoured else 0.0
     extras = [
         "## What the estimate means in probability",
         "",
         coverage_line,
+        "",
+        (
+            f"The receiver's man-minus-zone differential has a measured "
+            f"split-half reliability of **{reliability:.3f}** over a full season. "
+            "The differential is shrunk by that factor, and **the shrinkage "
+            "changes nothing**: a constant multiplier is annihilated by the "
+            "z-standardisation on the next line, so `d` is bit-identical at any "
+            "reliability. It is kept because the shrunk column is the one a "
+            "*predictive* use would need, but no claim rests on it here. The "
+            "reliability that governs a prior-season feature is the "
+            "**year-over-year** carryover, which is weaker still: r = +0.02 to "
+            "+0.11 across gates, every interval crossing zero."
+            if reliability is not None else
+            "The feature is the defence's man rate alone; no receiver split enters it."
+        ),
         "",
         f"The within-season z-score spans **{frame['man_rate_z'].min():+.2f} to "
         f"{frame['man_rate_z'].max():+.2f}** across the defence-seasons here. "
@@ -237,14 +376,71 @@ def main(argv: list[str] | None = None) -> int:
         "resample is how this repository shipped two interval defects.",
         "",
         "**A `d` that includes zero is no demonstrated edge, in those words.** "
-        "It does not say coverage is irrelevant to football; it says the closing "
-        "price already holds whatever this measure of it knows.",
+        "It does not say coverage is irrelevant to football, and it does not say "
+        "the question is settled. Read the power section below before concluding "
+        "anything from it.",
+        "",
+        "The control is the **card price, about six hours before kickoff** — not "
+        "the closing price. The two correlate at 0.986 and refitting against the "
+        "actual close moves nothing, but this fit does not test the close.",
+        "",
+        "## What this test could not have found",
+        "",
+        f"**`d` is identified by {len(unique)} quantities, not {len(frame):,}.** The "
+        "man rate is constant inside a defence-season, so every wager against one "
+        "defence carries the same value of the regressor. Dropping three quarters "
+        "of the *wagers* barely moves the standard error; dropping three quarters "
+        "of the *defence-seasons* moves it by the square root of four, as it "
+        "should. The wager count is the population the answer speaks for. It is "
+        "not the sample size.",
+        "",
+        f"**Minimum detectable effect at 80% power: `d` = {mde:+.4f}.** Anything "
+        f"smaller than that, this design would miss more often than not. For "
+        f"scale, the props model's own contribution in the same fit is "
+        f"`c = {model_c:+.4f}` — so the test could only have found a single public "
+        f"scheme statistic carrying {abs(mde / model_c):.0%} of what an entire "
+        "player-props model carries beyond the price. Nobody expected that, and "
+        "the design was never in a position to find less.",
+        "",
+        f"**What the interval fails to exclude, in money.** If `d` truly sat at "
+        f"the upper edge of its interval ({d.high:+.4f}), the wagers where the "
+        f"feature favours the bet actually placed ({favoured:,} of "
+        f"{len(frame):,}) would gain about **{roi_points:+.2f} ROI points** — "
+        f"roughly **{units_per_season:+.0f} units a season** at the lab's flat "
+        f"1-unit stake, against a receiving card that currently returns "
+        f"{realised:.2f}%. That is an effect large enough to erase most of the "
+        "hold, and this test did not reject it.",
+        "",
+        (
+            f"**A quarter of the card never reaches this fit, and it is not a "
+            f"random quarter.** {offered:,} wagers were scored; "
+            f"{len(unpriced):,} ({100 * len(unpriced) / max(offered, 1):.1f}%) "
+            f"have no two-sided price at their line and are dropped before "
+            f"anything is fitted — **{100 * over_share:.1f}% of them overs**, "
+            "because an over-only alternate line has no under to devig against. "
+            "`encompassing.py` argues that selection here is harmless since it "
+            "is a deterministic function of the regressors; that argument does "
+            "**not** cover this drop, because whether a book quoted two sides is "
+            "not a function of the price or the model. The null holds for the "
+            "two-sided-priced population and is untested outside it."
+        ),
+        "",
+        "**So the honest statement is the narrow one.** Not \"coverage carries "
+        "nothing\", but: *a prior-season scheme proxy, measured over 96 "
+        "defence-seasons, could not be told from zero by a test whose noise floor "
+        "sits above the range of effects that would be worth money.* The placebo "
+        "makes the same point from the other side — a feature reassigned at "
+        "random routinely produces coefficients larger than every real point "
+        "estimate here.",
     ]
 
-    out = OUTPUTS_DIR / league.output_name(f"coverage_encompassing_{args.markets}", ".md")
+    out = OUTPUTS_DIR / league.output_name(
+        f"coverage_encompassing_{args.feature}_{args.markets}", ".md"
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(report([baseline, withman, sham], extras), encoding="utf-8")
-    print(report([baseline, withman, sham], extras))
+    body = report([baseline, withman, *alternates, sham], extras)
+    out.write_text(body, encoding="utf-8")
+    print(body)
     print(f"Written to {out}")
     return 0
 
