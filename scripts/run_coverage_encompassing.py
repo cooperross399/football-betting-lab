@@ -210,12 +210,29 @@ def main(argv: list[str] | None = None) -> int:
     have = frame["man_rate"].notna()
     if args.feature == "player":
         have &= frame["differential_shrunk"].notna()
-    coverage_line = (
-        f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
-        f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
-        "relocated or expansion-less club-season and are excluded here rather "
-        "than imputed."
-    )
+    if args.feature == "player":
+        # This sentence used to be shared with the team report, where "a few
+        # relocated clubs" is true. Here it is not: the exclusion is the
+        # receiver-target gate, and it is enormous. A reader told the missing
+        # 59% is a handful of relocated clubs is being told the null speaks for
+        # a far wider population than it does.
+        gated = int(frame["differential_shrunk"].notna().sum())
+        coverage_line = (
+            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+            f"({100 * have.mean():.1f}%). Every excluded row is excluded because "
+            f"the receiver did not clear {cov.MIN_TARGETS_PER_COVERAGE} targets "
+            "against **both** coverages in the prior season — not because a rate "
+            "was missing, of which there are none. **The null below speaks for "
+            "the busiest receiver-seasons only**, which is where a coverage "
+            "effect would be easiest to find, not hardest."
+        )
+    else:
+        coverage_line = (
+            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+            f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
+            "relocated or expansion-less club-season and are excluded here rather "
+            "than imputed."
+        )
     frame = frame[have].copy()
 
     frame["y"] = (frame["actual"] > frame["line"]).astype(float)
@@ -296,6 +313,25 @@ def main(argv: list[str] | None = None) -> int:
     d = next(c for c in withman.coefficients if c.name == D_NAME)
     spread = frame["man_rate_z"].max() - frame["man_rate_z"].min()
     swing = abs(d.value) * spread
+
+    # Power, and what the interval still allows. "No demonstrated edge" and "a
+    # test too weak to have found one" are different statements and only the
+    # second is supported unless these are printed beside the coefficient.
+    se_d = (d.high - d.low) / (2 * 1.96)
+    mde = 2.8 * se_d                      # 1.96 + 0.84, two-sided 5%, 80% power
+    model_c = next(c for c in withman.coefficients if c.name.startswith("c ")).value
+    feature_column = dict(extra)[D_NAME] if isinstance(extra[0], tuple) else "man_centred"
+    signed = frame[feature_column].to_numpy(float) * np.where(over, 1.0, -1.0)
+    p_side = np.where(over, frame["p_market"], 1.0 - frame["p_market"])
+    lifted = encompassing.expit(encompassing.logit(p_side) + d.high * signed)
+    payout = frame["odds"].map(lambda o: o / 100.0 if o > 0 else 100.0 / abs(o)).to_numpy(float)
+    gain = (lifted - p_side) * (1.0 + payout)
+    helps = gain > 0
+    favoured = int(helps.sum())
+    roi_points = 100.0 * float(gain[helps].mean()) if favoured else 0.0
+    seasons_spanned = max(1, frame["season"].nunique())
+    units_per_season = float(gain[helps].sum()) / seasons_spanned
+    realised = 100.0 * float(frame.loc[helps, "profit"].mean()) if favoured else 0.0
     extras = [
         "## What the estimate means in probability",
         "",
@@ -303,10 +339,15 @@ def main(argv: list[str] | None = None) -> int:
         "",
         (
             f"The receiver's man-minus-zone differential has a measured "
-            f"split-half reliability of **{reliability:.3f}** over a full season, so "
-            f"roughly {100 * (1 - reliability):.0f}% of it is noise. It is shrunk by "
-            "that factor before use, which gives the feature its fairest chance "
-            "rather than its most flattering one."
+            f"split-half reliability of **{reliability:.3f}** over a full season. "
+            "The differential is shrunk by that factor, and **the shrinkage "
+            "changes nothing**: a constant multiplier is annihilated by the "
+            "z-standardisation on the next line, so `d` is bit-identical at any "
+            "reliability. It is kept because the shrunk column is the one a "
+            "*predictive* use would need, but no claim rests on it here. The "
+            "reliability that governs a prior-season feature is the "
+            "**year-over-year** carryover, which is weaker still: r = +0.02 to "
+            "+0.11 across gates, every interval crossing zero."
             if reliability is not None else
             "The feature is the defence's man rate alone; no receiver split enters it."
         ),
@@ -325,8 +366,48 @@ def main(argv: list[str] | None = None) -> int:
         "resample is how this repository shipped two interval defects.",
         "",
         "**A `d` that includes zero is no demonstrated edge, in those words.** "
-        "It does not say coverage is irrelevant to football; it says the closing "
-        "price already holds whatever this measure of it knows.",
+        "It does not say coverage is irrelevant to football, and it does not say "
+        "the question is settled. Read the power section below before concluding "
+        "anything from it.",
+        "",
+        "The control is the **card price, about six hours before kickoff** — not "
+        "the closing price. The two correlate at 0.986 and refitting against the "
+        "actual close moves nothing, but this fit does not test the close.",
+        "",
+        "## What this test could not have found",
+        "",
+        f"**`d` is identified by {len(unique)} quantities, not {len(frame):,}.** The "
+        "man rate is constant inside a defence-season, so every wager against one "
+        "defence carries the same value of the regressor. Dropping three quarters "
+        "of the *wagers* barely moves the standard error; dropping three quarters "
+        "of the *defence-seasons* moves it by the square root of four, as it "
+        "should. The wager count is the population the answer speaks for. It is "
+        "not the sample size.",
+        "",
+        f"**Minimum detectable effect at 80% power: `d` = {mde:+.4f}.** Anything "
+        f"smaller than that, this design would miss more often than not. For "
+        f"scale, the props model's own contribution in the same fit is "
+        f"`c = {model_c:+.4f}` — so the test could only have found a single public "
+        f"scheme statistic carrying {abs(mde / model_c):.0%} of what an entire "
+        "player-props model carries beyond the price. Nobody expected that, and "
+        "the design was never in a position to find less.",
+        "",
+        f"**What the interval fails to exclude, in money.** If `d` truly sat at "
+        f"the upper edge of its interval ({d.high:+.4f}), the wagers where the "
+        f"feature favours the bet actually placed ({favoured:,} of "
+        f"{len(frame):,}) would gain about **{roi_points:+.2f} ROI points** — "
+        f"roughly **{units_per_season:+.0f} units a season** at the lab's flat "
+        f"1-unit stake, against a receiving card that currently returns "
+        f"{realised:.2f}%. That is an effect large enough to erase most of the "
+        "hold, and this test did not reject it.",
+        "",
+        "**So the honest statement is the narrow one.** Not \"coverage carries "
+        "nothing\", but: *a prior-season scheme proxy, measured over 96 "
+        "defence-seasons, could not be told from zero by a test whose noise floor "
+        "sits above the range of effects that would be worth money.* The placebo "
+        "makes the same point from the other side — a feature reassigned at "
+        "random routinely produces coefficients larger than every real point "
+        "estimate here.",
     ]
 
     out = OUTPUTS_DIR / league.output_name(
