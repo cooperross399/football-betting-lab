@@ -51,9 +51,9 @@
 
 ## What the estimate means in probability
 
-The feature covers **3,696 of 4,588 wagers** (80.6%). Excluded rows are a defender with fewer than 8 charted games in the prior season, or an offence whose quarterbacks did not reach that either — not a missing rate, and not imputed.
+The feature covers **3,696 of 4,588 wagers** (80.6%). Excluded rows are a defender with too few charted games in the prior season, or an offence whose quarterbacks did not reach that either — not a missing rate, and not imputed.
 
-The rusher's pressures per game is the most persistent feature in this lab — carryover of relative position +0.884 over 2018-2025, measured by scripts/run_feature_reliability.py. That is why it was the one worth a real test, and it is also why the market has had every year to price it.
+The rusher's pressures per game is the most persistent feature in this lab — carryover of relative position +0.884 over 2018-2025, measured by scripts/run_feature_reliability.py. That is why it was the one worth a real test, and why the market has had every year to price it.
 
 The feature spans **-8.70 to +6.84**. At `d = -0.0194` per standard deviation, moving from one end of it to the other shifts the log-odds of the over by **0.3012** — about **7.47 percentage points** at an even-money price.
 

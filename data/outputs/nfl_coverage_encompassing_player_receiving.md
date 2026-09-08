@@ -51,7 +51,7 @@
 
 ## What the estimate means in probability
 
-The feature covers **12,729 of 30,836 wagers** (41.3%). Every excluded row is excluded because the receiver did not clear 25 targets against **both** coverages in the prior season — not because a rate was missing, of which there are none. **The null below speaks for the busiest receiver-seasons only**, which is where a coverage effect would be easiest to find, not hardest.
+The feature covers **12,729 of 30,836 wagers** (41.3%). Every excluded row is excluded because the receiver did not clear the prior-season target gate against **both** coverages — not because a rate was missing, of which there are none. **The null below speaks for the busiest receiver-seasons only**, which is where a coverage effect would be easiest to find, not hardest.
 
 The receiver's man-minus-zone differential has a measured split-half reliability of **0.145** over a full season. The differential is shrunk by that factor, and **the shrinkage changes nothing**: a constant multiplier is annihilated by the z-standardisation on the next line, so `d` is bit-identical at any reliability. It is kept because the shrunk column is the one a *predictive* use would need, but no claim rests on it here. The reliability that governs a prior-season feature is the **year-over-year** carryover, which is weaker still: r = +0.02 to +0.11 across gates, every interval crossing zero.
 

@@ -39,11 +39,75 @@ from football_betting_lab.data import nflverse
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import coverage_feature as cov
 from football_betting_lab.reports import pressure_feature as pressure
+from football_betting_lab.reports import role_feature as role
 from football_betting_lab.reports import encompassing
 from football_betting_lab.reports.encompassing import devigged_market
 from football_betting_lab.reports.props_backtest import normalise_name
 
 D_NAME = "d  the interaction (receiver split x opponent man rate)"
+
+#: What each feature IS, and why rows drop out of its fit. Keyed rather than
+#: branched, so adding a feature and forgetting to describe it raises a
+#: KeyError where before it silently printed a sentence written for a different
+#: feature. That has now happened twice: a pressure fit that reported "the
+#: defence's man rate alone", and a role fit that blamed its exclusions on
+#: "relocated or expansion-less club-seasons".
+NARRATIVE: dict[str, dict[str, str]] = {
+    "team": {
+        "subject": "the defence's man rate",
+        "exclusion": (
+            "Rows without a prior-season rate are a relocated or expansion-less "
+            "club-season and are excluded here rather than imputed."
+        ),
+        "note": "The feature is the defence's man rate alone; no receiver split enters it.",
+    },
+    "player": {
+        "subject": "a receiver's man-zone split against the defence's man rate",
+        "exclusion": (
+            "Every excluded row is excluded because the receiver did not clear "
+            "the prior-season target gate against **both** coverages — not "
+            "because a rate was missing, of which there are none. **The null "
+            "below speaks for the busiest receiver-seasons only**, which is "
+            "where a coverage effect would be easiest to find, not hardest."
+        ),
+        "note": "",
+    },
+    "pressure": {
+        "subject": "a rusher's pressure rate against the line in front of him",
+        "exclusion": (
+            "Excluded rows are a defender with too few charted games in the "
+            "prior season, or an offence whose quarterbacks did not reach that "
+            "either — not a missing rate, and not imputed."
+        ),
+        "note": (
+            "The rusher's pressures per game is the most persistent feature in "
+            "this lab — carryover of relative position +0.884 over 2018-2025, "
+            "measured by scripts/run_feature_reliability.py. That is why it was "
+            "the one worth a real test, and why the market has had every year "
+            "to price it."
+        ),
+    },
+    "role": {
+        "subject": "the volume a ruled-out team-mate leaves behind",
+        "exclusion": (
+            "Excluded rows are a receiver with fewer than three prior weeks "
+            "this season, or holding too small a share for an absence to "
+            "expand. Nothing is excluded for a missing rate."
+        ),
+        "note": (
+            "**This is the only feature here whose mechanism was confirmed "
+            "before any price was involved.** Volume genuinely redistributes: "
+            "a player's week-W share gain regressed on the pro-rata share he "
+            "would receive gives +0.220, 95% [+0.113, +0.326] over 11,856 "
+            "player-weeks — about 0.85 targets a game between a club that has "
+            "vacated under 5% of its targets and one that has vacated over 15%. "
+            "It is also the only feature the props model cannot see at all, "
+            "because `fit_rates` reads a player's own history and that history "
+            "was recorded while somebody else held the role. Every injury row "
+            "used was filed at least six hours before kickoff."
+        ),
+    },
+}
 
 
 def load_participation(league, raw_dir: Path, seasons) -> pd.DataFrame:
@@ -82,7 +146,7 @@ def load_pbp(league, raw_dir: Path, seasons) -> pd.DataFrame:
             raise SystemExit(f"::error::No play-by-play at {path}.")
         frame = pd.read_csv(
             path, low_memory=False,
-            usecols=["game_id", "play_id", "week", "season_type",
+            usecols=["game_id", "play_id", "week", "season_type", "posteam",
                      "receiver_player_id", "receiving_yards", "pass_attempt"],
         )
         frames.append(frame[frame["season_type"] == "REG"].assign(season=season))
@@ -151,7 +215,8 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     parser.add_argument(
-        "--feature", default="team", choices=("team", "player", "pressure"),
+        "--feature", default="team",
+        choices=("team", "player", "pressure", "role"),
         help=(
             "team: the defence's man rate. player: that rate interacted with "
             "the receiver's own man-minus-zone differential, which is the "
@@ -208,10 +273,13 @@ def main(argv: list[str] | None = None) -> int:
     frame = cov.opponent_of_each_wager(
         frame, load_rosters(league, args.raw_dir, seasons), schedule
     )
-    if args.feature == "pressure":
-        # No participation needed: this feature is pfr_advstats only, and
-        # gating on a man rate would drop wagers for a reason unrelated to it.
-        frame["rate_season"] = frame["season"].astype(int) - 1
+    if args.feature in ("pressure", "role"):
+        # Neither reads participation, and gating on a man rate would drop
+        # wagers for a reason unrelated to the feature under test. A role
+        # change is a WITHIN-season event, so its rate season is its own.
+        frame["rate_season"] = frame["season"].astype(int) - (
+            0 if args.feature == "role" else 1
+        )
         frame["man_rate"] = 0.0
         frame["man_rate_z"] = 0.0
     else:
@@ -221,6 +289,30 @@ def main(argv: list[str] | None = None) -> int:
         frame = cov.attach_prior_season_man_rate(frame, rates)
 
     reliability = None
+    if args.feature == "role":
+        full_schedule = pd.read_csv(
+            nflverse.feed_path(
+                nflverse.FEEDS_BY_NAME["schedules"], league, args.raw_dir, None
+            ),
+            low_memory=False,
+            usecols=["season", "week", "away_team", "home_team", "game_type",
+                     "gameday", "gametime"],
+        )
+        injuries = pd.concat([
+            pd.read_csv(
+                nflverse.feed_path(
+                    nflverse.FEEDS_BY_NAME["injuries"], league, args.raw_dir, season
+                ),
+                low_memory=False,
+            )
+            for season in seasons
+        ], ignore_index=True)
+        ruled_out = role.ruled_out_by_card_time(injuries, full_schedule)
+        shares = role.target_shares(load_pbp(league, args.raw_dir, seasons))
+        frame = role.attach(
+            frame, shares, role.vacated_share(shares, ruled_out), ruled_out
+        ).rename(columns={"club": "team"})
+
     if args.feature == "pressure":
         prior = sorted({s - 1 for s in seasons})
         bridge = pressure.crosswalk(pd.read_csv(
@@ -279,6 +371,12 @@ def main(argv: list[str] | None = None) -> int:
         have &= frame["differential_shrunk"].notna()
     if args.feature == "pressure":
         have &= frame["pressure_z"].notna() & frame["pressure_allowed_z"].notna()
+    if args.feature == "role":
+        have &= (
+            frame["baseline_share"].notna()
+            & (frame["weeks_before"] >= role.MIN_WEEKS_BEFORE)
+            & (frame["baseline_share"] > role.MIN_BASELINE_SHARE)
+        )
     if args.feature == "player":
         # This sentence used to be shared with the team report, where "a few
         # relocated clubs" is true. Here it is not: the exclusion is the
@@ -286,28 +384,10 @@ def main(argv: list[str] | None = None) -> int:
         # 59% is a handful of relocated clubs is being told the null speaks for
         # a far wider population than it does.
         gated = int(frame["differential_shrunk"].notna().sum())
-        coverage_line = (
-            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
-            f"({100 * have.mean():.1f}%). Every excluded row is excluded because "
-            f"the receiver did not clear {cov.MIN_TARGETS_PER_COVERAGE} targets "
-            "against **both** coverages in the prior season — not because a rate "
-            "was missing, of which there are none. **The null below speaks for "
-            "the busiest receiver-seasons only**, which is where a coverage "
-            "effect would be easiest to find, not hardest."
-        )
-    else:
-        coverage_line = (
-            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
-            f"({100 * have.mean():.1f}%). Excluded rows are a defender with "
-            f"fewer than {pressure.MIN_GAMES} charted games in the prior season, "
-            "or an offence whose quarterbacks did not reach that either — not a "
-            "missing rate, and not imputed."
-            if args.feature == "pressure" else
-            f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
-            f"({100 * have.mean():.1f}%). Rows without a prior-season rate are a "
-            "relocated or expansion-less club-season and are excluded here rather "
-            "than imputed."
-        )
+    coverage_line = (
+        f"The feature covers **{int(have.sum()):,} of {len(frame):,} wagers** "
+        f"({100 * have.mean():.1f}%). " + NARRATIVE[args.feature]["exclusion"]
+    )
     frame = frame[have].copy()
 
     frame["y"] = (frame["actual"] > frame["line"]).astype(float)
@@ -320,7 +400,23 @@ def main(argv: list[str] | None = None) -> int:
     # would make this regressor partly an indicator of the season.
     frame["man_centred"] = frame["man_rate_z"]
 
-    if args.feature == "pressure":
+    if args.feature == "role":
+        for column, name in (("vacated", "vacated_z"), ("expected_gain", "gain_z")):
+            values = frame[column]
+            frame[name] = (values - values.mean()) / values.std(ddof=0)
+        frame["club_week"] = (
+            frame["team"].astype(str) + "_" + frame["season"].astype(str)
+            + "_" + frame["week"].astype(str)
+        )
+        frame["player_season"] = (
+            frame["player_id"].astype(str) + "_" + frame["season"].astype(str)
+        )
+        extra = (
+            ("d1 share vacated by the club (z)", "vacated_z"),
+            ("d  this player's share of it (z)", "gain_z"),
+        )
+        clusters = ("club_week", "player_season")
+    elif args.feature == "pressure":
         frame["interaction"] = frame["pressure_z"] * frame["pressure_allowed_z"]
         frame["player_season"] = (
             frame["player_id"].astype(str) + "_" + frame["rate_season"].astype(str)
@@ -388,6 +484,17 @@ def main(argv: list[str] | None = None) -> int:
         sham_frame["interaction"] = (
             sham_frame["pressure_z"] * sham_frame["pressure_allowed_z"]
         )
+    elif args.feature == "role":
+        # Shuffle the EVENT across club-weeks and keep each player's own
+        # baseline, then rebuild the gain. Permuting the gain directly would
+        # destroy the baseline too, which is real and not what is under test.
+        sham_frame["vacated"] = reassign(sham_frame, "vacated", "club_week")
+        rebuilt = (
+            sham_frame["baseline_share"] * sham_frame["vacated"]
+            / (1.0 - sham_frame["vacated"]).clip(lower=1e-6)
+        )
+        for values, name in ((sham_frame["vacated"], "vacated_z"), (rebuilt, "gain_z")):
+            sham_frame[name] = (values - values.mean()) / values.std(ddof=0)
     else:
         sham_frame["man_centred"] = reassign(sham_frame, "man_centred", "defence_season")
         if args.feature == "player":
@@ -424,11 +531,7 @@ def main(argv: list[str] | None = None) -> int:
         draws.append(encompassing.fit_logistic(X[rows], y[rows])[-1])
     lo, hi = np.percentile(draws, [2.5, 97.5])
 
-    subject = {
-        "team": "the defence's man rate",
-        "player": "a receiver's man-zone split against the defence's man rate",
-        "pressure": "a rusher's pressure rate against the line in front of him",
-    }[args.feature]
+    subject = NARRATIVE[args.feature]["subject"]
 
     d = next(c for c in withman.coefficients if c.name == headline_name)
     spread = frame[feature_column].max() - frame[feature_column].min()
@@ -467,14 +570,7 @@ def main(argv: list[str] | None = None) -> int:
             "reliability that governs a prior-season feature is the "
             "**year-over-year** carryover, which is weaker still: r = +0.02 to "
             "+0.11 across gates, every interval crossing zero."
-            if reliability is not None else
-            "The rusher's pressures per game is the most persistent feature in "
-            "this lab — carryover of relative position +0.884 over 2018-2025, "
-            "measured by scripts/run_feature_reliability.py. That is why it was "
-            "the one worth a real test, and it is also why the market has had "
-            "every year to price it."
-            if args.feature == "pressure" else
-            "The feature is the defence's man rate alone; no receiver split enters it."
+            if reliability is not None else NARRATIVE[args.feature]["note"]
         ),
         "",
         f"The feature spans **{frame[feature_column].min():+.2f} to "
@@ -513,8 +609,8 @@ def main(argv: list[str] | None = None) -> int:
         f"**Minimum detectable effect at 80% power: `d` = {mde:+.4f}.** Anything "
         f"smaller than that, this design would miss more often than not. For "
         f"scale, the props model's own contribution in the same fit is "
-        f"`c = {model_c:+.4f}` — so the test could only have found a single public "
-        f"scheme statistic carrying {abs(mde / model_c):.0%} of what an entire "
+        f"`c = {model_c:+.4f}` — so the test could only have found this feature "
+        f"carrying {abs(mde / model_c):.0%} of what an entire "
         "player-props model carries beyond the price. Nobody expected that, and "
         "the design was never in a position to find less.",
         "",
@@ -543,7 +639,9 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "",
         f"**So the honest statement is the narrow one.** Not \"{subject} carries "
-        f"nothing\", but: *a prior-season measure of it, identified by "
+        f"nothing\", but: *a "
+        + ("within-season" if args.feature == "role" else "prior-season")
+        + f" measure of it, identified by "
         f"{len(unique):,} clusters, could not be told from zero by a test whose "
         "noise floor sits above the range of effects that would be worth money.* "
         "The placebo "
