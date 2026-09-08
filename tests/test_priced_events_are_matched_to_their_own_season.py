@@ -56,6 +56,11 @@ DOES_NOT_SETTLE = {
     # per wager key. CI cannot run that check because the price cache is not
     # committed, which is why the guard lives in the script.
     "run_encompassing.py",
+    # Reads prices and NOTHING else — no outcome, no settlement, no season.
+    # It measures the hold two quotes imply, which is a property of the two
+    # prices alone. Grep it for `season` or `actual` and there is nothing to
+    # find, which is why there is no season here to get wrong.
+    "run_shopping_value.py",
 }
 
 

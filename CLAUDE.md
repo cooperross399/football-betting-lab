@@ -1506,6 +1506,50 @@ retractions of its own headline findings in four days — is the product.
   approval was **withdrawn**. It got there by buying more data; this lab got
   there by finding defects in its own harness. Two labs, two routes, one
   answer.
+## Line shopping is a cost reduction, and it closes the last open door
+
+**Measured 2026-09-08.** `scripts/run_shopping_value.py`,
+`data/outputs/nfl_shopping_value.md`. One thing in this lab's evidence was
+consistently positive and was not a model: the same wagers return more at the
+best of N books than at the consensus — `rush_yards` +1.2% against −0.6%, a gap
+requiring the model to know nothing. That gap deserved its own measurement.
+
+**The arithmetic that settles it.** A book pricing both sides proportionally to
+the fair probability leaves `-h / (1 + h)` on either side, so **the hold is the
+model-free expected loss**. Shopping adds nothing to a bet; it lowers the hold.
+So the whole question is one curve.
+
+| books held | median hold | betting blind returns |
+|--:|--:|--:|
+| 1 | 6.78% | −6.35% |
+| 3 | 4.78% | −4.57% |
+| 5 | 3.96% | −3.81% |
+| 7 | 3.33% | −3.22% |
+| 10 | **2.07%** | **−2.03%** |
+
+Over 1,990,728 two-sided quotes across 737,690 wagers and 13 books, with books
+drawn **at random** at each N — *what if I held accounts at N books*, not *what
+if I held the N that turned out best*, which nobody can act on and which would
+understate the hold everywhere.
+
+**Shopping every book recovers 4.70 points of hold and the hold stays
+positive.** That is the entire best-of-N advantage in `nfl_price_sensitivity.md`
+— there is no residual edge underneath it. A model still has to beat the price
+by more than 2.07% to profit, and this one does not beat it at all.
+
+**0.639% of wagers cross** (best over plus best under at or below one), median
+**−0.24%**, and **62% of those are within half a point of not crossing**. That
+is arbitrage-*shaped* and it is not a strategy: the lines move, stakes are
+limited, and both quotes must still be there when the second is struck.
+
+**Nine implausible quotes were found and filtered**, every one FanDuel on
+`alternate_total_points`, where three books had the over at +366 to +400 and it
+had −295. Nine rows in 1.4 million is provider noise rather than a parsing
+fault — but all nine land in the crossed population, and unfiltered they made
+that section's headline **−48%**. A crossing that large is never free money; it
+is always a pairing error, and the first run of this report reported it as a
+finding before the rows were looked at.
+
 ## CLV is a diagnostic, not a criterion
 
 **Cooper's instruction, 2026-08-29: profit and ROI are the objective. Closing-
