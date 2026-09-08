@@ -16,6 +16,7 @@ from football_betting_lab.models.scoring import (
     GameDistribution,
     distribution_for,
     empirical_pmf,
+    fit_epa_ratings,
     fit_ratings,
     tilt_to_mean,
 )
@@ -291,3 +292,119 @@ def test_the_half_model_declines_to_fit_on_nothing() -> None:
     from football_betting_lab.models.scoring import fit_half_model
 
     assert fit_half_model(pd.DataFrame(), pd.DataFrame()) is None
+
+
+# -- EPA ratings -------------------------------------------------------------
+
+
+def _plays(rows: list[tuple[str, str, str, str, float, str]]) -> pd.DataFrame:
+    """(game_id, game_date, posteam, defteam, epa, play_type) per play."""
+    return pd.DataFrame(
+        [
+            {"game_id": gid, "game_date": day, "posteam": off, "defteam": dfn,
+             "epa": epa, "play_type": kind}
+            for gid, day, off, dfn, epa, kind in rows
+        ]
+    )
+
+
+#: Four teams of genuinely different quality, playing each other home and away.
+#: A single repeated matchup at constant scores is degenerate: home advantage
+#: absorbs the entire gap, every residual is zero, and the fitted scale is
+#: correctly zero — which looks like a broken rater and is not one.
+_STRENGTH = {"AAA": 0.30, "BBB": -0.30, "CCC": 0.10, "DDD": -0.10}
+_PLAYS_PER_GAME = 60
+
+
+def _season(strength: dict[str, float] | None = None) -> tuple:
+    strength = strength or _STRENGTH
+    names = sorted(strength)
+    games, rows, index = [], [], 0
+    for home in names:
+        for away in names:
+            if home == away:
+                continue
+            day = f"2025-09-{10 + index // 4:02d}"
+            gid = f"g{index}"
+            index += 1
+            games.append((
+                day, home, away,
+                int(round(21 + 20 * strength[home])),
+                int(round(21 + 20 * strength[away])),
+            ))
+            for team, opponent in ((home, away), (away, home)):
+                rows += [
+                    (gid, day, team, opponent, strength[team], "pass")
+                ] * _PLAYS_PER_GAME
+    return _games(games), _plays(rows)
+
+
+def test_a_better_offence_rates_above_the_league_and_a_leakier_defence_above_it() -> None:
+    """`defence` is points ALLOWED above the mean, so a bad defence is positive
+    — it is added to the opponent's expectation, not subtracted."""
+    games, plays = _season()
+    ratings = fit_epa_ratings(plays, games, before="2025-09-20")
+    assert ratings.offence["AAA"] > 0 > ratings.offence["BBB"]
+    assert ratings.defence["BBB"] > 0 > ratings.defence["AAA"]
+
+
+def test_the_fit_never_sees_a_play_from_the_game_it_is_pricing() -> None:
+    games, plays = _season()
+    early = fit_epa_ratings(plays, games, before="2025-09-12")
+    late = fit_epa_ratings(plays, games, before="2025-09-20")
+    assert early.games_used < late.games_used
+    assert abs(early.offence["AAA"]) < abs(late.offence["AAA"])
+
+
+def test_no_play_by_play_yet_reports_zero_games_rather_than_flat_ratings() -> None:
+    """Week one has no plays. Returning empty ratings that look fitted would
+    price a whole slate at the league mean while claiming to be a model."""
+    games, plays = _season()
+    ratings = fit_epa_ratings(plays.iloc[:0], games, before="2025-09-20")
+    assert ratings.games_used == 0 and ratings.offence == {}
+    assert ratings.league_mean > 0
+
+
+def test_special_teams_and_kneels_never_enter_the_rating() -> None:
+    """A kneel is a decision about the clock. Scoring it as offensive
+    incompetence rates the winning team down for winning."""
+    games, plays = _season()
+    poisoned = pd.concat([
+        plays,
+        _plays([("g0", "2025-09-10", "AAA", "BBB", -9.0, "qb_kneel")] * 40
+               + [("g0", "2025-09-10", "AAA", "BBB", -9.0, "punt")] * 40),
+    ], ignore_index=True)
+    assert fit_epa_ratings(poisoned, games, before="2025-09-20").offence["AAA"] == (
+        pytest.approx(fit_epa_ratings(plays, games, before="2025-09-20").offence["AAA"])
+    )
+
+
+def test_the_points_scale_is_fitted_not_assumed_to_be_plays_per_game() -> None:
+    """EPA is denominated in points, which makes `epa_per_play * plays` look
+    like a free conversion. Measured, it over-disperses: it gave an offence
+    spread of 3.28 points against the points rater's 2.37 and a demonstrably
+    worse total. The slope is below one and has to come from the data."""
+    games, plays = _season()
+    ratings = fit_epa_ratings(plays, games, before="2025-09-20")
+    naive = _STRENGTH["AAA"] * _PLAYS_PER_GAME   # what plays-per-game would give
+    assert 0 < ratings.offence["AAA"] < naive
+
+
+def test_a_pace_difference_moves_the_per_game_basis_and_not_the_per_play_one() -> None:
+    """`basis="play"` is pace-neutral by construction; `basis="game"` keeps the
+    volume. Both were measured and neither beat the points rater, but they are
+    genuinely different estimators and the test pins that."""
+    games, plays = _season()
+    slow = plays[~((plays["posteam"] == "AAA") & (plays.index % 3 == 0))]
+    per_play = fit_epa_ratings(slow, games, before="2025-09-20", basis="play")
+    per_game = fit_epa_ratings(slow, games, before="2025-09-20", basis="game")
+    assert per_play.offence["AAA"] != pytest.approx(per_game.offence["AAA"])
+
+
+def test_the_returned_type_is_the_one_every_downstream_model_already_takes() -> None:
+    """The point of the exercise: swap the estimator, change nothing else."""
+    games, plays = _season()
+    ratings = fit_epa_ratings(plays, games, before="2025-09-20")
+    points = ratings.expected_points("AAA", "BBB", at_home=True)
+    assert points >= 3.0
+    assert points > ratings.expected_points("BBB", "AAA", at_home=False)

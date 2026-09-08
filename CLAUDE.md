@@ -182,6 +182,30 @@ that is the correct state.**
   **placebo returned a nominally significant opponent term, +0.0917 [+0.0025,
   +0.1808]** — a reassigned-at-random feature clearing the bar the real one
   missed, which is the entire reason a placebo runs every time.
+- **EPA team ratings do not beat the points ratings, and are worse at totals.**
+  Built as a drop-in `TeamRatings` so only the estimator changes, then scored
+  walk-forward over **816 games (2023-2025), refitted 171 times, once per
+  game-day from strictly earlier data**. Mean absolute error, paired per game,
+  bootstrap over games:
+
+  | target | points | EPA | difference | 95% |
+  |:--|--:|--:|--:|:--|
+  | margin | 10.584 | 10.606 | -0.022 | [-0.106, +0.063] |
+  | total | 10.504 | 10.770 | **-0.266** | **[-0.438, -0.087]** |
+
+  The total is a **demonstrated regression, not a null** — the interval excludes
+  zero on the wrong side, and predicting the league-average total every game
+  scores 10.640, so the EPA rater is worse than not modelling totals at all.
+  The margin correlation is the number that settles the direction: **0.3012 for
+  EPA against 0.3011 for points**, identical to four decimals, with EPA more
+  dispersed (sd 4.92 against 4.22). So EPA carries *the same* margin signal
+  spread too wide, not a better one — which means even a perfectly shrunk EPA
+  rating would be equivalent, and there is no edge down this road.
+  **Three variants were tried and all are reported**: an unfitted
+  plays-per-game conversion, a fitted scale per play, and a fitted scale per
+  game. The pace hypothesis — that EPA/play is pace-neutral and totals are
+  mostly pace — was explicitly tested and **refuted**: per-game scored -0.266
+  against per-play's -0.259.
 - **The raw man rate is not comparable across seasons.** League-mean man
   coverage by season, from the participation files: **2022 0.286, 2023 0.423,
   2024 0.492, 2025 0.318** — swings of +13.7, +6.9 and **-17.4** points between
