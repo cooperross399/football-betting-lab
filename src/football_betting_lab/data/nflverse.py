@@ -220,6 +220,19 @@ FEEDS: tuple[Feed, ...] = (
         purpose="Snap share, from Pro Football Reference. The usage signal.",
     ),
     Feed(
+        name="players",
+        release="players",
+        filename="players.csv",
+        per_season=False,
+        updates_year_round=True,
+        needed_for_the_card=False,
+        purpose=(
+            "The identifier crosswalk. Pro Football Reference's advanced "
+            "splits are keyed by PFR's own player id and every other feed "
+            "here by GSIS, so without this the two cannot be joined at all."
+        ),
+    ),
+    Feed(
         name="participation",
         published_after_the_season=True,
         needed_for_the_card=False,
