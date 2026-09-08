@@ -161,6 +161,47 @@ that is the correct state.**
   not say coverage is irrelevant to football; it says the closing price already
   holds what this measure of it knows, which is the expected answer for the most
   public fact about a defence.
+- **A ruled-out team-mate is the only feature whose MECHANISM passed, and it
+  still shows no edge.** Four features before it asked whether a stable trait
+  is priced; all four returned nothing, and the pattern is the finding — a
+  trait that persists is a trait the market has had years to price. A role
+  change is not a trait. It is an event, absent from a player's own history by
+  construction, and therefore the one thing `fit_rates` **cannot** see: it
+  reads what a player has done, and that was recorded while somebody else held
+  the role.
+
+  **Stage one passed, and it is the first time.** Regressing a player's week-W
+  share gain on the pro-rata share he would receive if vacated targets split
+  proportionally gives **+0.220, 95% [+0.113, +0.326]** over 11,856
+  player-weeks. Not 1.0 — teams promote a specific back-up rather than splitting
+  pro rata — but firmly above zero. Mean share gain is +0.0182 when a club has
+  vacated under 5% of its targets and +0.0425 when it has vacated over 15%:
+  about **0.85 targets a game**.
+
+  **Stage two did not.** Over 25,968 wagers identified by **1,304 club-weeks** —
+  by far the best-powered test in this lab, against 96 defence-seasons for
+  coverage — the pre-specified headline, this player's pro-rata share of what
+  was vacated, is **-0.0441 [-0.1465, +0.0583]**. The club-level vacated share
+  is **+0.0857 [-0.0165, +0.1880]**: positive, in the direction the
+  market-under-adjustment hypothesis predicts, larger than its placebo
+  (+0.0250) — and still including zero, and below the design's minimum
+  detectable effect of 0.1462. **That is a suggestion, not a finding, and
+  promoting it to the headline after seeing it would be a specification
+  search.** A pre-specified, better-powered retest of the club-level term is
+  the honest next step; treating +0.0857 as an edge is not.
+
+  Every injury row used was filed **at least six hours before kickoff**, so a
+  card could have known it: measured over 2022-2025, 94.6% of `Out`
+  designations are filed 24h+ out, median 42h, and only 5 of 3,129 land inside
+  the card window.
+- **Report prose keyed to one feature rots the moment a second arrives.** Three
+  times now. A pressure fit printed "the feature is the defence's man rate
+  alone"; a role fit blamed its exclusions on "relocated or expansion-less
+  club-seasons". The per-feature sentences now live in a `NARRATIVE` dict, so
+  a new feature that forgets to describe itself raises a **KeyError** instead
+  of inheriting a sentence written for something else. Same shape as making a
+  guard's floor a required parameter: turn a silent wrong answer into a program
+  that will not run.
 - **Pressure was the one feature worth a real test, and it carries nothing
   beyond the price either.** The reliability screen ranked a defender's
   pressures per game first at +0.884, so it got the market test the coverage
