@@ -161,6 +161,27 @@ that is the correct state.**
   not say coverage is irrelevant to football; it says the closing price already
   holds what this measure of it knows, which is the expected answer for the most
   public fact about a defence.
+- **The receiver's own man/zone split is 86% noise, measured 2026-09-07.**
+  The board that prompted this work quotes a receiver's yards per route against
+  man as a discriminating fact. It is not one. Split-half reliability of a
+  player-season man-minus-zone differential (odd weeks against even, 278
+  player-seasons 2022-2025) is **r = +0.109, which Spearman-Brown carries to
+  about 0.15-0.20 for a full season**. Year to year it is **r = +0.130** over
+  157 pairs. Four fifths to six sevenths of any such number is noise, and only
+  85 of 496 receivers cleared 30 targets against both coverages in 2024 — the
+  sample does not exist to measure it better. So a single-season "3.43 yards per
+  route against man" is mostly a random draw wearing a player's name.
+- **The coverage matchup interaction is no demonstrated edge either.** The claim
+  a matchup board actually makes — a receiver good against man, facing a
+  man-heavy defence — tested as
+  `d * (receiver split z) * (opponent man rate z)`, with both main effects
+  beside it and the receiver split shrunk by its measured reliability so the
+  feature gets its fairest chance: **d = +0.0014, 95% [-0.0835, +0.0863]** over
+  **12,729 wagers**, and [-0.0866, +0.0894] clustered by player-season instead
+  of defence-season. Both main effects also include zero. In the same fit the
+  **placebo returned a nominally significant opponent term, +0.0917 [+0.0025,
+  +0.1808]** — a reassigned-at-random feature clearing the bar the real one
+  missed, which is the entire reason a placebo runs every time.
 - **EPA team ratings do not beat the points ratings, and are worse at totals.**
   Built as a drop-in `TeamRatings` so only the estimator changes, then scored
   walk-forward over **816 games (2023-2025), refitted 171 times, once per
