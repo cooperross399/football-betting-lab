@@ -84,6 +84,7 @@ import math
 from collections import Counter
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 
 
@@ -403,4 +404,126 @@ def fit_half_model(halves: pd.DataFrame, games: pd.DataFrame) -> HalfModel | Non
         home_advantage_share=float(
             (merged["home_h1"] - merged["away_h1"]).mean()
         ),
+    )
+
+
+#: Offensive plays only, which is what "EPA per play" means everywhere it is
+#: quoted. Special teams and kneels are excluded: a kneel is a decision about
+#: the clock, and scoring it as offensive incompetence rates the winning team
+#: down for winning.
+EPA_PLAY_TYPES = ("pass", "run")
+
+
+def fit_epa_ratings(
+    plays: pd.DataFrame, games: pd.DataFrame, *, before: str, basis: str = "game"
+) -> TeamRatings:
+    """Rate teams on expected points added per play, not on points scored.
+
+    Same return type as `fit_ratings`, so everything downstream — the tilted
+    score distribution, spreads, totals, the half model — is unchanged. Only
+    the estimator differs.
+
+    **The conversion to points is fitted, from history strictly earlier.** The
+    obvious mapping is not: EPA is denominated in points, so multiplying a
+    team's EPA/play edge by its plays a game looks like it needs no parameter.
+    Measured, that mapping over-disperses — it produced an offence spread of
+    3.28 points against the points rater's 2.37, and a **demonstrably worse**
+    total than the model it was meant to improve. A team's raw EPA carries its
+    schedule and includes yardage that never becomes points, so the honest
+    slope is below one and has to be measured. It is fitted the same way
+    `league_mean` and `home_advantage` already are: on games before the cutoff,
+    never on the game being priced.
+
+    Why this should help at all: points and EPA measure the same thing, but a
+    team-game carries about 63 EPA observations and one points observation. The
+    per-game estimate is the same quantity at a fraction of the variance, which
+    is why the shrinkage below can be the same and still leave more signal
+    standing. Whether that survives contact with a closing price is a separate
+    question, asked separately, and it is not answered by this function.
+    """
+    required = {"game_date", "home_team", "away_team", "home_score", "away_score"}
+    if games.empty or not required <= set(games.columns):
+        return TeamRatings(21.0, {}, {}, 2.0, 0)
+    history = games[games["game_date"].astype(str) < str(before)]
+    history = history.dropna(subset=["home_score", "away_score"])
+    if history.empty:
+        return TeamRatings(21.0, {}, {}, 2.0, 0)
+
+    league_mean = float(
+        (history["home_score"].sum() + history["away_score"].sum()) / (2 * len(history))
+    )
+    home_advantage = float(history["home_score"].mean() - history["away_score"].mean())
+
+    earlier = plays[plays["game_date"].astype(str) < str(before)]
+    earlier = earlier[
+        earlier["play_type"].isin(EPA_PLAY_TYPES)
+        & earlier["epa"].notna()
+        & earlier["posteam"].notna()
+        & earlier["defteam"].notna()
+    ]
+    if earlier.empty:
+        # No play-by-play yet is week one, not an error — and it must not
+        # silently return flat ratings that look fitted. The points model is
+        # the caller's fallback, and it is told so by `games_used=0`.
+        return TeamRatings(league_mean, {}, {}, home_advantage, 0)
+
+    league_epa = float(earlier["epa"].mean())
+
+    def deviations(key: str) -> dict[str, float]:
+        """Shrunk EPA deviations, per play or per game.
+
+        `basis="play"` is the rate everyone quotes, and it is **pace-neutral by
+        construction** — which is why it was measurably worse at totals than
+        the points rater it was meant to beat. A team's points are a volume:
+        efficiency times how often it has the ball. Margin barely notices,
+        because both sides of one game share that game's pace; a total is
+        almost entirely that pace. `basis="game"` keeps the volume.
+        """
+        grouped = earlier.groupby(key)
+        played = grouped["game_id"].nunique()
+        weight = played / (played + PRIOR_GAMES)
+        if basis == "game":
+            per = grouped["epa"].sum() / played
+            centre = float(earlier["epa"].sum() / earlier["game_id"].nunique() / 2)
+        else:
+            per = grouped["epa"].mean()
+            centre = league_epa
+        return {
+            str(team): float(weight[team] * (per[team] - centre))
+            for team in per.index
+        }
+
+    off_dev = deviations("posteam")
+    def_dev = deviations("defteam")
+
+    # One parameter: how many points a unit of EPA/play edge is worth. Fitted
+    # through the origin, because both sides are already deviations from the
+    # league mean and a free intercept would only re-estimate `league_mean`.
+    predictor: list[float] = []
+    target: list[float] = []
+    for row in history.itertuples():
+        for team, opponent, points, home in (
+            (row.home_team, row.away_team, row.home_score, True),
+            (row.away_team, row.home_team, row.away_score, False),
+        ):
+            edge = off_dev.get(str(team), 0.0) + def_dev.get(str(opponent), 0.0)
+            if edge:
+                predictor.append(edge)
+                target.append(
+                    float(points) - league_mean
+                    - (home_advantage / 2 if home else -home_advantage / 2)
+                )
+    x = np.asarray(predictor, dtype=float)
+    y = np.asarray(target, dtype=float)
+    denominator = float((x * x).sum())
+    if denominator <= 0:
+        return TeamRatings(league_mean, {}, {}, home_advantage, 0)
+    scale = float((x * y).sum() / denominator)
+
+    return TeamRatings(
+        league_mean=league_mean,
+        offence={team: scale * dev for team, dev in off_dev.items()},
+        defence={team: scale * dev for team, dev in def_dev.items()},
+        home_advantage=home_advantage,
+        games_used=len(history),
     )
