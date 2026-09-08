@@ -147,7 +147,8 @@ def load_pbp(league, raw_dir: Path, seasons) -> pd.DataFrame:
         frame = pd.read_csv(
             path, low_memory=False,
             usecols=["game_id", "play_id", "week", "season_type", "posteam",
-                     "receiver_player_id", "receiving_yards", "pass_attempt"],
+                     "receiver_player_id", "receiving_yards", "pass_attempt",
+                     "rusher_player_id", "rush_attempt"],
         )
         frames.append(frame[frame["season_type"] == "REG"].assign(season=season))
     return pd.concat(frames, ignore_index=True)
@@ -208,7 +209,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--league", default=DEFAULT_LEAGUE_KEY)
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
     parser.add_argument(
-        "--markets", default="receiving", choices=("receiving", "all", "defensive"),
+        "--markets", default="receiving",
+        choices=("receiving", "all", "defensive", "rushing"),
         help=(
             "Receiving markets are where a coverage scheme has a mechanism; "
             "defensive (sacks, tackles+assists) is where a pass rush does."
@@ -236,6 +238,8 @@ def main(argv: list[str] | None = None) -> int:
         bets = bets[bets["market"].isin(cov.RECEIVING_MARKETS)]
     elif args.markets == "defensive":
         bets = bets[bets["market"].isin(pressure.DEFENSIVE_MARKETS)]
+    elif args.markets == "rushing":
+        bets = bets[bets["market"].isin(role.RUSHING_MARKETS)]
     bets = bets.copy()
     bets["identity"] = bets["player"].map(normalise_name)
     bets["line"] = pd.to_numeric(bets["line"], errors="coerce")
@@ -307,8 +311,14 @@ def main(argv: list[str] | None = None) -> int:
             )
             for season in seasons
         ], ignore_index=True)
-        ruled_out = role.ruled_out_by_card_time(injuries, full_schedule)
-        shares = role.target_shares(load_pbp(league, args.raw_dir, seasons))
+        # Rushing is the pre-registered replication sample: a back's absence
+        # frees carries, a receiver's does not.
+        # See docs/preregistration_role_change.md, committed before this ran.
+        volume = role.CARRIES if args.markets == "rushing" else role.TARGETS
+        ruled_out = role.ruled_out_by_card_time(
+            injuries, full_schedule, volume=volume
+        )
+        shares = role.volume_shares(load_pbp(league, args.raw_dir, seasons), volume)
         frame = role.attach(
             frame, shares, role.vacated_share(shares, ruled_out), ruled_out
         ).rename(columns={"club": "team"})

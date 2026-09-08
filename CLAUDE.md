@@ -161,6 +161,30 @@ that is the correct state.**
   not say coverage is irrelevant to football; it says the closing price already
   holds what this measure of it knows, which is the expected answer for the most
   public fact about a defence.
+- **The club-level lead was pre-registered, retested on rushing, and the test
+  could not have settled it.** `docs/preregistration_role_change.md` was
+  committed before the fit ran, because re-reading a term on the sample that
+  produced it is the same number twice, not a retest. Rushing was chosen as the
+  replication sample: 17,905 wagers no price-involving calculation had touched.
+
+  Stage one there is **stronger** than receiving — carry-share redistribution
+  **+0.696 [+0.553, +0.839]** against +0.220, about 2.19 carries a game, because
+  a backfield is a smaller room than a receiving corps.
+
+  Stage two: `d1 = -0.0358 [-0.2053, +0.1337]`, the wrong sign, interval
+  spanning zero, and a **placebo of -0.0550 that is larger than the real
+  estimate**. Not upheld. But the MDE is **+0.2677, 3.1x the +0.0857 under
+  test**, which is exactly the failure the pre-registration named in advance:
+  **the wrong sign here is not evidence against receiving, it is a coin landing
+  inside an interval three times too wide to read.** Only 373 rushing
+  player-weeks carry a vacated share above 5%, against 2,958 in receiving —
+  cluster count is not power when the regressor barely varies.
+
+  **Both samples pooled give an MDE of 0.1283, still above +0.0857.** Reaching
+  80% power on that effect needs 2.24x the priced history: about nine seasons
+  against the four held, so **five more seasons**. That is the cost of settling
+  it, no feature work shortens it, and the lead is therefore recorded and
+  **not actionable**.
 - **A ruled-out team-mate is the only feature whose MECHANISM passed, and it
   still shows no edge.** Four features before it asked whether a stable trait
   is priced; all four returned nothing, and the pattern is the finding — a
