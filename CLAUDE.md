@@ -252,6 +252,28 @@ that is the correct state.**
   the moment a third feature existed — "the defence's man rate alone", a
   z-score spanning "+0.00 to +0.00", "a receiving card" for a defensive one.
   Report prose keyed to one feature rots silently when a second arrives.
+- **The matchup board is context beside a price, and says so on its face.**
+  `scripts/run_matchup_board.py`. It is the board Cooper sent, rebuilt on data
+  this lab can audit, with the two things that one lacked: **a price** — the
+  spread, total and both implied totals come free from the nflverse schedule,
+  and a matchup read without a number is a lean rather than an edge — and **the
+  reliability of every layer printed beside it**, so a reader can see that
+  `passer rating allowed`, the shadow-corner figure every preview quotes,
+  describes the same defender a year later at +0.125 and is close to noise.
+  It carries the six nulls on its face: a layer agreeing with another layer is
+  a description, not a signal, and the layers are correlated by construction so
+  four agreeing is closer to one opinion than to four.
+
+  **Player prop prices are not fetched** — those cost credits and the board
+  prices no player market. The role layer is empty until clubs file on the
+  Wednesday, and is shown empty rather than zeroed, because a zero would read
+  as "nobody is hurt". Coach quotes are proprietary and absent.
+
+  **Rates from participation are per DROPBACK.** `was_pressure` is False on
+  every run, so a mean over all plays is the pressure rate multiplied by how
+  often that defence faced a pass — a fact about its opponents, not its rush.
+  The first version of this board made that error and it put SEA top of the
+  league instead of CLE. The feed's own docstring already warned about it.
 - **Run the reliability screen before testing any feature against a price.**
   `scripts/run_feature_reliability.py`. Three matchup features were measured
   against the closing line before they were measured against themselves, and

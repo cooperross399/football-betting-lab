@@ -126,3 +126,31 @@ def test_the_table_ranks_by_the_governing_number_and_flags_every_drifter() -> No
     table = rel.render(rows)
     assert table.index("strong one") < table.index("drifter") < table.index("weak one")
     assert "⚠︎" in table and "*drifter*" in table
+
+
+def test_the_pinned_weights_match_the_committed_report() -> None:
+    """A board that quotes a reliability weight must quote the one the report
+    actually produced. Hand-editing the dict to flatter a layer is exactly the
+    move this pin exists to prevent, so the numbers are checked against the
+    generated file rather than trusted."""
+    import re
+    from pathlib import Path
+
+    report = Path(__file__).resolve().parents[1] / "data" / "outputs" / "nfl_feature_reliability.md"
+    assert report.is_file(), "the reliability report is committed and must exist"
+    text = report.read_text(encoding="utf-8")
+    found: dict[str, float] = {}
+    for line in text.splitlines():
+        if not line.startswith("| ") or "**" not in line:
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        name = cells[0].replace(" ⚠︎", "")
+        ranked = re.search(r"\*\*([+-][\d.]+)\*\*", line)
+        if ranked and name in rel.MEASURED:
+            found[name] = float(ranked.group(1))
+    missing = set(rel.MEASURED) - set(found)
+    assert not missing, f"pinned but absent from the report: {sorted(missing)}"
+    for name, pinned in rel.MEASURED.items():
+        assert abs(found[name] - pinned) < 5e-4, (
+            f"{name}: pinned {pinned:+.3f}, report says {found[name]:+.3f}"
+        )

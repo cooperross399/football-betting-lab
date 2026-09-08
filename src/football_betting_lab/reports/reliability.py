@@ -41,6 +41,35 @@ import numpy as np
 import pandas as pd
 
 
+#: Carryover of RELATIVE position, measured 2026-09-07 by
+#: `scripts/run_feature_reliability.py` and pinned here so a board cannot quote
+#: a weight the report no longer supports. A test checks these against the
+#: committed report; they are not to be edited by hand.
+MEASURED: dict[str, float] = {
+    "pressures per game (defender)": 0.884,
+    "average depth of target faced (defender)": 0.782,
+    "yards before contact per rush": 0.674,
+    "broken tackles per game (rusher)": 0.645,
+    "blitz rate, 5+ rushers (defence)": 0.548,
+    "yards after contact per rush": 0.500,
+    "completion % allowed (defender)": 0.458,
+    "pressure rate generated (defence)": 0.439,
+    "man coverage rate (defence)": 0.435,
+    "bad throw % (quarterback)": 0.435,
+    "broken tackles per game (receiver)": 0.414,
+    "pressure rate faced (quarterback)": 0.391,
+    "times blitzed per game (quarterback)": 0.372,
+    "sacks taken per game (quarterback)": 0.372,
+    "time to throw allowed (defence)": 0.327,
+    "passer rating when targeted (receiver)": 0.251,
+    "missed tackle % (defender)": 0.210,
+    "yards allowed per target (defender)": 0.172,
+    "defenders in box (defence)": 0.152,
+    "passer rating allowed (defender)": 0.125,
+    "drop % (receiver)": 0.078,
+}
+
+
 @dataclass(frozen=True)
 class Reliability:
     """One feature's self-agreement. `None` means it could not be measured."""
