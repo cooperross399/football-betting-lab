@@ -66,3 +66,57 @@ exceeds the receiving point estimate of +0.0857, then this sample could not
 have confirmed that number even if it were exactly right, and a null here is
 uninformative rather than contradictory. That possibility is acknowledged in
 advance so it cannot be discovered afterwards and used either way.
+
+---
+
+# Outcome
+
+**Run once, on 2026-09-08, after the commit above. Reported as specified.**
+
+## The primary claim is not upheld
+
+| term | estimate | 95% interval |
+|:--|--:|:--|
+| **`d1` club-level vacated carry share (z)** | **-0.0358** | **[-0.2053, +0.1337]** |
+| `d2` this back's pro-rata share of it (z) | +0.0124 | [-0.1750, +0.1997] |
+
+12,365 wagers, 1,277 club-week clusters. The interval on `d1` includes zero, so
+by the rule fixed above this is **no demonstrated edge, in those words**. The
+point estimate is also *negative* — the opposite sign to receiving's +0.0857.
+
+The placebo returned `d1 = -0.0550`, which is larger in magnitude than the real
+estimate. Reassigning the feature to the wrong clubs produced a bigger number
+than the feature itself.
+
+## And the failure mode named in advance is the one that happened
+
+**Minimum detectable effect: +0.2677 — 3.1 times the +0.0857 being tested.**
+
+The pre-registration said, before any of this was run: *if the MDE exceeds the
+receiving point estimate, this sample could not have confirmed that number even
+if it were exactly right, and a null here is uninformative rather than
+contradictory.* That is the case. **The wrong sign is not evidence against the
+receiving result; it is a coin landing inside an interval three times too wide
+to read.**
+
+Why, despite 1,277 clusters — nearly as many as receiving's 1,304? Because
+cluster count is not the whole of power when a regressor barely varies. Only
+**373** rushing player-weeks carry a vacated share above 5%, against **2,958**
+in receiving. The clusters are there; the treatment is not.
+
+## What it would actually take, and why this line stops here
+
+Combining both samples — which is *not* a test, since receiving has already
+been read, but is a valid power calculation — gives a pooled standard error of
+0.0458 and a pooled MDE of **0.1283**. Still above +0.0857. **Both samples
+together cannot confirm the effect they were built to test.**
+
+Reaching 80% power on +0.0857 needs **2.24 times** the priced history now held:
+about **nine seasons in total, five more than the four available**. At one
+season a year, that is the honest cost of settling this question, and no
+cleverer feature shortens it.
+
+So the club-level lead is neither confirmed nor refuted, and it is **not
+actionable**. It is recorded at +0.0857 [-0.0165, +0.1880] in receiving and
+-0.0358 [-0.2053, +0.1337] in rushing, and the correct summary of the pair is
+that the lab cannot yet see an effect of that size at all.

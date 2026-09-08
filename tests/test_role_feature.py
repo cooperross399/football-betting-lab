@@ -135,3 +135,41 @@ def test_a_club_with_nobody_out_has_nothing_vacated_rather_than_nothing_at_all()
     ))
     assert attached["vacated"].iloc[0] == 0.0
     assert attached["expected_gain"].iloc[0] == 0.0
+
+
+# -- the rushing replication sample -------------------------------------------
+
+
+def test_a_missing_receiver_frees_no_carries() -> None:
+    """The two volumes take different positions. A receiver out of the game
+    does not hand anybody a rushing attempt, and counting him as vacated
+    carries would put noise into the replication sample on purpose."""
+    receiver = _injury("2024-10-05T12:00:00Z", position="WR")
+    assert role.ruled_out_by_card_time(
+        receiver, _schedule(), volume=role.CARRIES
+    ).empty
+    assert not role.ruled_out_by_card_time(
+        receiver, _schedule(), volume=role.TARGETS
+    ).empty
+
+
+def test_the_carry_volume_reads_the_rusher_columns() -> None:
+    assert role.CARRIES.actor == "rusher_player_id"
+    assert role.CARRIES.attempt == "rush_attempt"
+    assert role.CARRIES.positions == role.RUSHING_POSITIONS
+
+
+def test_shares_are_computed_the_same_way_for_either_volume() -> None:
+    rows = [(1, "AAA", "00-0001")] * 6 + [(1, "AAA", "00-0002")] * 4
+    rows += [(2, "AAA", "00-0002")] * 5
+    carries = pd.DataFrame(
+        [{"season": 2024, "season_type": "REG", "rush_attempt": 1, "week": w,
+          "posteam": t, "rusher_player_id": r} for w, t, r in rows]
+    )
+    shares = role.volume_shares(carries, role.CARRIES)
+    absent = shares[(shares["week"] == 2) & (shares["player_id"] == "00-0001")]
+    assert absent["baseline_share"].iloc[0] == pytest.approx(0.6)
+
+
+def test_the_two_market_sets_do_not_overlap() -> None:
+    assert not set(role.RECEIVING_MARKETS) & set(role.RUSHING_MARKETS)

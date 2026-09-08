@@ -35,11 +35,41 @@ it moves — and a null here would be an ordinary result, not a surprise.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 
 #: Positions whose absence frees passing volume for the players who remain.
 RECEIVING_POSITIONS = ("WR", "TE", "RB", "FB")
+
+#: The markets each volume can reach.
+RECEIVING_MARKETS = ("reception_yards", "receptions", "reception_longest")
+RUSHING_MARKETS = ("rush_yards", "rush_attempts", "rush_longest")
+
+#: Only a back carries. A missing receiver does not free a carry for anyone.
+RUSHING_POSITIONS = ("RB", "FB")
+
+
+@dataclass(frozen=True)
+class Volume:
+    """Which quantity redistributes, who holds it, and whose absence frees it.
+
+    Receiving was measured first. Rushing is the REPLICATION sample: the same
+    hypothesis makes the same prediction there, and until this class existed
+    nothing in the lab had looked at it. That is what makes a pre-specified
+    retest possible at all — a second look at the first sample is not a retest,
+    it is the same number read twice.
+    """
+
+    name: str
+    actor: str
+    attempt: str
+    positions: tuple[str, ...]
+
+
+TARGETS = Volume("targets", "receiver_player_id", "pass_attempt", RECEIVING_POSITIONS)
+CARRIES = Volume("carries", "rusher_player_id", "rush_attempt", RUSHING_POSITIONS)
 
 #: The card prices about six hours before kickoff, so anything the injury feed
 #: learned later than that was not knowable when the wager was placed. Measured
@@ -69,7 +99,8 @@ def kickoffs(schedule: pd.DataFrame) -> pd.DataFrame:
 
 
 def ruled_out_by_card_time(
-    injuries: pd.DataFrame, schedule: pd.DataFrame, *, lead_hours: float = CARD_LEAD_HOURS
+    injuries: pd.DataFrame, schedule: pd.DataFrame, *,
+    volume: Volume = TARGETS, lead_hours: float = CARD_LEAD_HOURS,
 ) -> pd.DataFrame:
     """Players listed `Out` early enough that a card could have known.
 
@@ -79,7 +110,7 @@ def ruled_out_by_card_time(
     frame = injuries[
         (injuries["game_type"] == "REG")
         & (injuries["report_status"] == "Out")
-        & injuries["position"].isin(RECEIVING_POSITIONS)
+        & injuries["position"].isin(volume.positions)
     ].copy()
     frame["modified"] = pd.to_datetime(
         frame["date_modified"], errors="coerce", utc=True
@@ -94,7 +125,7 @@ def ruled_out_by_card_time(
     ].dropna().drop_duplicates()
 
 
-def target_shares(pbp: pd.DataFrame) -> pd.DataFrame:
+def volume_shares(pbp: pd.DataFrame, volume: Volume = TARGETS) -> pd.DataFrame:
     """Each receiver's share of his club's targets, and his share before today.
 
     Built on a full club-week grid rather than on the weeks a player was
@@ -103,35 +134,39 @@ def target_shares(pbp: pd.DataFrame) -> pd.DataFrame:
     join is silently zero for every absence it exists to measure. That is
     exactly what the first version of this did.
     """
-    targets = pbp[
-        (pbp["season_type"] == "REG")
-        & (pbp["pass_attempt"] == 1)
-        & pbp["receiver_player_id"].notna()
+    actor, attempt = volume.actor, volume.attempt
+    used = pbp[
+        (pbp["season_type"] == "REG") & (pbp[attempt] == 1) & pbp[actor].notna()
     ]
     played = (
-        targets.groupby(["season", "week", "posteam", "receiver_player_id"])
-        .size().rename("targets").reset_index()
+        used.groupby(["season", "week", "posteam", actor])
+        .size().rename("held").reset_index()
     )
     club = (
-        played.groupby(["season", "week", "posteam"])["targets"]
-        .sum().rename("club_targets").reset_index()
+        played.groupby(["season", "week", "posteam"])["held"]
+        .sum().rename("club_held").reset_index()
     )
-    everyone = played[["season", "posteam", "receiver_player_id"]].drop_duplicates()
+    everyone = played[["season", "posteam", actor]].drop_duplicates()
     grid = everyone.merge(club, on=["season", "posteam"]).merge(
-        played, on=["season", "week", "posteam", "receiver_player_id"], how="left"
+        played, on=["season", "week", "posteam", actor], how="left"
     )
-    grid["targets"] = grid["targets"].fillna(0.0)
-    grid = grid.sort_values(["season", "posteam", "receiver_player_id", "week"])
-    grouped = grid.groupby(["season", "posteam", "receiver_player_id"])
-    grid["prior_targets"] = grouped["targets"].cumsum() - grid["targets"]
-    grid["prior_club"] = grouped["club_targets"].cumsum() - grid["club_targets"]
+    grid["held"] = grid["held"].fillna(0.0)
+    grid = grid.sort_values(["season", "posteam", actor, "week"])
+    grouped = grid.groupby(["season", "posteam", actor])
+    grid["prior_held"] = grouped["held"].cumsum() - grid["held"]
+    grid["prior_club"] = grouped["club_held"].cumsum() - grid["club_held"]
     grid["weeks_before"] = grouped.cumcount()
     grid["baseline_share"] = np.where(
-        grid["prior_club"] > 0, grid["prior_targets"] / grid["prior_club"], np.nan
+        grid["prior_club"] > 0, grid["prior_held"] / grid["prior_club"], np.nan
     )
-    return grid.rename(columns={"posteam": "club", "receiver_player_id": "player_id"})[
+    return grid.rename(columns={"posteam": "club", actor: "player_id"})[
         ["season", "week", "club", "player_id", "baseline_share", "weeks_before"]
     ]
+
+
+#: Kept so existing callers and tests keep meaning what they meant.
+def target_shares(pbp: pd.DataFrame) -> pd.DataFrame:
+    return volume_shares(pbp, TARGETS)
 
 
 def vacated_share(shares: pd.DataFrame, ruled_out: pd.DataFrame) -> pd.DataFrame:
