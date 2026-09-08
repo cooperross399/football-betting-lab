@@ -161,6 +161,48 @@ that is the correct state.**
   not say coverage is irrelevant to football; it says the closing price already
   holds what this measure of it knows, which is the expected answer for the most
   public fact about a defence.
+- **Run the reliability screen before testing any feature against a price.**
+  `scripts/run_feature_reliability.py`. Three matchup features were measured
+  against the closing line before they were measured against themselves, and
+  every one of those nulls was predictable in minutes from free data. A feature
+  that cannot reproduce itself cannot predict anything, and no shrinkage,
+  interaction or clustering rescues it.
+
+  **The governing column is the carryover of RELATIVE position** — standardised
+  within season — not the raw carryover. A live card holds only the prior
+  season and a model's intercept absorbs any league-wide level change, so what
+  must persist is a team's place among its peers. The raw number is a
+  diagnostic: where the two disagree, the league itself moved. Man coverage
+  rate reads **+0.017 raw against +0.435 ranked** because the league mean went
+  0.286, 0.423, 0.492, 0.318 — pooling year pairs across seasons with different
+  means destroys the correlation while every team holds its place. Reading that
+  as "the feature does not persist" is the error the screen exists to stop.
+
+  Measured 2026-09-07, carryover of relative position:
+
+  | | |
+  |:--|--:|
+  | pressures per game (defender) | **+0.884** |
+  | average depth of target faced | +0.782 |
+  | yards before contact per rush | +0.674 |
+  | broken tackles per game (rusher) | +0.645 |
+  | blitz rate, 5+ rushers (defence) | +0.548 |
+  | yards after contact per rush | +0.500 |
+  | completion % allowed (defender) | +0.458 |
+  | man coverage rate (defence) | +0.435 |
+  | ... | |
+  | yards allowed per target (defender) | +0.172 |
+  | defenders in box (defence) | +0.152 |
+  | passer rating allowed (defender) | +0.125 |
+  | drop % (receiver) | **+0.078** |
+
+  **This ranks what is worth testing, and settles nothing about profit.** A
+  persistent statistic is one the market has also had every year to price. The
+  screen removes candidates, it never promotes one: `drop %` at +0.078 cannot
+  help anything, while `pressures per game` at +0.884 has merely earned a real
+  test. Note which board layers land where — the pass-rush layer is the most
+  persistent thing measured, and the receiver-grade layer (drops, passer rating
+  allowed, yards per target allowed) is almost entirely noise.
 - **The receiver's own man/zone split is 86% noise, measured 2026-09-07.**
   The board that prompted this work quotes a receiver's yards per route against
   man as a discriminating fact. It is not one. Split-half reliability of a
