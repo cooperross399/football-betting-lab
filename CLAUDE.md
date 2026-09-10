@@ -1540,6 +1540,49 @@ retractions of its own headline findings in four days — is the product.
   approval was **withdrawn**. It got there by buying more data; this lab got
   there by finding defects in its own harness. Two labs, two routes, one
   answer.
+## The metrics disagree with the line by three points a game, and the disagreement is noise
+
+**Measured 2026-09-10.** `scripts/run_market_scan.py`,
+`data/outputs/nfl_market_scan.md`. The matchup board sets metrics beside a
+price, which is not the same as asking where the price is wrong. This asks the
+second question directly: build a rating from the metrics that survived the
+reliability screen, predict the margin and total, subtract the market's own
+number, and bet the difference.
+
+**3,403 games, 2012-2025.** A club's rating uses its own prior games only; the
+mapping from rating to points is refitted for each season on the seasons before
+it. Nothing sees the game it is pricing, or the rest of the week it is in.
+
+| | mean absolute divergence | correlation with what the line got wrong |
+|:--|--:|--:|
+| margin | 2.98 points | **-0.0136** |
+| total | 2.73 points | **-0.0194** |
+
+**The correlation is the whole result, and both are slightly negative.** The
+model disagrees with the line by about three points a game, so the disagreement
+is not small — it is simply uninformative, and if anything it leans the wrong
+way.
+
+Betting it at -110, across six thresholds and two markets: **no rule is
+profitable, and 5 of the 12 exclude zero on the LOSING side.** At the zero
+threshold the spread returns -3.53% [-6.60%, -0.51%] over 3,403 bets and the
+total -5.66% [-8.62%, -2.58%]. That is a demonstrated loss rather than a null.
+The best point estimate is +0.95% on 372 spread bets at the six-point
+threshold, with an interval of [-8.50%, +10.68%] — what noise looks like once a
+filter has cut the sample to a few hundred, which is why every threshold is
+printed rather than the flattering one.
+
+**So the honest answer to "are the metrics finding teams the market has
+mispriced" is no**, and it is now measured rather than assumed. The metrics
+describe real differences between clubs; the price has already absorbed them.
+
+**A defect found by the tests rather than the run.** `club_form` built its
+columns with `pivot_table`, which drops a column that is entirely NaN. Early in
+a season every club's form is NaN, so the frame came back with no metric
+columns at all and `scan` would have failed on a `KeyError` naming a column
+rather than saying no club had played enough yet. The columns are now
+guaranteed and a test pins it.
+
 ## Line shopping is a cost reduction, and it closes the last open door
 
 **Measured 2026-09-08.** `scripts/run_shopping_value.py`,
