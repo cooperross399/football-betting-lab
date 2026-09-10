@@ -27,6 +27,7 @@ from football_betting_lab.config import OUTPUTS_DIR, RAW_DIR
 from football_betting_lab.data import nflverse
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import matchup_board as mb
+from football_betting_lab.reports import team_metrics as tm
 
 
 def _feed(league, raw_dir: Path, name: str, season: int | None) -> pd.DataFrame:
@@ -39,7 +40,8 @@ def _feed(league, raw_dir: Path, name: str, season: int | None) -> pd.DataFrame:
 
 
 def render(frame: pd.DataFrame, *, season: int, week: int, profile_season: int,
-           injuries_filed: int) -> str:
+           injuries_filed: int, advanced: pd.DataFrame | None = None) -> str:
+    advanced = pd.DataFrame() if advanced is None else advanced
     lines = [
         f"# Week {week}, {season} — matchup board",
         "",
@@ -79,8 +81,9 @@ def render(frame: pd.DataFrame, *, season: int, week: int, profile_season: int,
         "`spread` is from the home side: positive means the home club is "
         "favoured by it. Implied totals are `(total ± spread) / 2`.",
         "",
-        "| kickoff | game | spread | total | implied (A/H) | pass-rush edge A | pass-rush edge H |",
-        "|:--|:--|--:|--:|:--|--:|--:|",
+        "| kickoff | game | spread | total | implied (A/H) | rush edge A | rush edge H "
+        "| pass edge A | pass edge H |",
+        "|:--|:--|--:|--:|:--|--:|--:|--:|--:|",
     ]
     for row in frame.itertuples():
         def show(value: float, digits: int = 2) -> str:
@@ -93,7 +96,9 @@ def render(frame: pd.DataFrame, *, season: int, week: int, profile_season: int,
             f"| {row.kickoff} | {row.away} @ {row.home} | "
             f"{'—' if pd.isna(row.spread_line) else f'{row.spread_line:+.1f}'} | "
             f"{'—' if pd.isna(row.total_line) else f'{row.total_line:.1f}'} | "
-            f"{implied} | {show(row.away_rush_edge)} | {show(row.home_rush_edge)} |"
+            f"{implied} | {show(row.away_rush_edge)} | {show(row.home_rush_edge)} | "
+            f"{show(getattr(row, 'away_pass_edge', float('nan')))} | "
+            f"{show(getattr(row, 'home_pass_edge', float('nan')))} |"
         )
 
     lines += [
@@ -123,6 +128,36 @@ def render(frame: pd.DataFrame, *, season: int, week: int, profile_season: int,
             for l in mb.LAYERS
         )
         lines.append(f"| {club} | {cells} |")
+
+    if not advanced.empty:
+        layers = mb.advanced_layers()
+        lines += [
+            "",
+            "## Offensive identity and efficiency",
+            "",
+            "From play-by-play and Next Gen Stats, prior season, z-scored "
+            "across the league. Ranked left to right by how well each "
+            "describes the same club a year later — **the leftmost columns are "
+            "scheme identity, which carries hardest; the rightmost are "
+            "defensive, which carries least.** That ordering is the finding: "
+            "21 of 24 metrics measured on both sides of the ball carry better "
+            "on offence than on defence.",
+            "",
+            "| club | " + " | ".join(l.label for l in layers) + " |",
+            "|:--|" + "--:|" * len(layers),
+        ]
+        for club in sorted(advanced.index):
+            cells = []
+            for key, side, _label, _m in mb.ADVANCED:
+                column = f"{key}_{side}_z"
+                value = advanced.loc[club, column] if column in advanced.columns else None
+                cells.append("—" if value is None or pd.isna(value) else f"{value:+.2f}")
+            lines.append(f"| {club} | " + " | ".join(cells) + " |")
+        lines += [
+            "",
+            "| layer | carryover |",
+            "|:--|--:|",
+        ] + [f"| {l.label} | {l.reliability:+.3f} |" for l in layers]
 
     lines += [
         "",
@@ -159,8 +194,26 @@ def main(argv: list[str] | None = None) -> int:
         _feed(league, args.raw_dir, "pfr_def", prior),
         _feed(league, args.raw_dir, "pfr_rush", prior),
     )
+    advanced = pd.DataFrame()
+    pbp_path = nflverse.feed_path(nflverse.FEEDS_BY_NAME["pbp"], league, args.raw_dir, prior)
+    if pbp_path.is_file():
+        long = tm.team_week_metrics(pd.read_csv(pbp_path, low_memory=False))
+        ngs = {}
+        for key in ("passing", "receiving", "rushing"):
+            path = nflverse.feed_path(
+                nflverse.FEEDS_BY_NAME[f"ngs_{key}"], league, args.raw_dir, None
+            )
+            if path.is_file():
+                ngs_frame = pd.read_csv(path, low_memory=False)
+                ngs[key] = ngs_frame[ngs_frame["season"] == prior]
+        if ngs:
+            long = pd.concat([long, tm.ngs_team_metrics(ngs)], ignore_index=True)
+        advanced = mb.advanced_profiles(long, season=prior)
+
     schedule = _feed(league, args.raw_dir, "schedules", None)
-    frame = mb.board(schedule, profiles, season=args.season, week=args.week)
+    frame = mb.board(
+        schedule, profiles, season=args.season, week=args.week, advanced=advanced
+    )
     if frame.empty:
         print(f"::error::No Week {args.week} games for {args.season}.", file=sys.stderr)
         return 2
@@ -175,7 +228,7 @@ def main(argv: list[str] | None = None) -> int:
 
     body = render(
         frame, season=args.season, week=args.week,
-        profile_season=prior, injuries_filed=filed,
+        profile_season=prior, injuries_filed=filed, advanced=advanced,
     )
     out = OUTPUTS_DIR / league.output_name(f"matchup_board_{args.season}_wk{args.week}", ".md")
     out.parent.mkdir(parents=True, exist_ok=True)

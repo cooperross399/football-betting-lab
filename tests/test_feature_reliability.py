@@ -136,9 +136,11 @@ def test_the_pinned_weights_match_the_committed_report() -> None:
     import re
     from pathlib import Path
 
-    report = Path(__file__).resolve().parents[1] / "data" / "outputs" / "nfl_feature_reliability.md"
-    assert report.is_file(), "the reliability report is committed and must exist"
-    text = report.read_text(encoding="utf-8")
+    outputs = Path(__file__).resolve().parents[1] / "data" / "outputs"
+    reports = [outputs / "nfl_feature_reliability.md", outputs / "nfl_metric_reliability.md"]
+    for report in reports:
+        assert report.is_file(), f"{report.name} is committed and must exist"
+    text = "\n".join(r.read_text(encoding="utf-8") for r in reports)
     found: dict[str, float] = {}
     for line in text.splitlines():
         if not line.startswith("| ") or "**" not in line:

@@ -274,6 +274,40 @@ that is the correct state.**
   often that defence faced a pass — a fact about its opponents, not its rush.
   The first version of this board made that error and it put SEA top of the
   league instead of CLE. The feed's own docstring already warned about it.
+- **The whole modern-analytics vocabulary is computed and screened.**
+  `src/football_betting_lab/reports/team_metrics.py`,
+  `scripts/run_metric_reliability.py`. 38 metrics — EPA and success rate by
+  down and play type, CPOE, PROE, aDOT, air yards, explosive rates, sack and
+  hit and stuff and havoc rates, third down, red zone, points and plays and
+  three-and-outs per drive, plus Next Gen separation, cushion, cushion-adjusted
+  YAC, time to throw, aggressiveness, air yards to sticks, RYOE, time to the
+  line and the eight-in-the-box share — computed for **both sides of the ball**
+  from the same plays, then screened over 2018-2025. 62 metric-and-side
+  combinations, 13 carrying at 0.40 or better, 9 close to noise.
+- **21 of 24 metrics carry better on offence than on defence.** Mean +0.381
+  against +0.244, median gap +0.155. It is the strongest structure in the
+  screen and it reproduces, from a different direction, the published result
+  that offensive EPA is stickier than defensive EPA. The three exceptions name
+  what a defence actually controls: stuff rate, havoc rate and the air yards it
+  concedes. A defence chooses whether to sell out against the run; it does not
+  choose whether the quarterback it faces is accurate.
+- **What persists is scheme, not quality.** The top of the screen is shotgun
+  rate (+0.709), no-huddle rate (+0.565) and pass rate over expected (+0.497) —
+  coaching identity. Performance sits lower: EPA per dropback +0.411, EPA per
+  play +0.396. **Red zone EPA is +0.202 on offence and +0.162 on defence**, so
+  "red zone efficiency", a staple of every preview, is mostly noise.
+- **A defence's sack rate carries at +0.132 and its pressure rate at +0.439.**
+  Sacks are a noisy subset of pressures, so a preview quoting last season's
+  sack total is quoting the noise and not the signal. Independently reproduces
+  a published finding this lab did not set out to test — and it is the same
+  gap the individual-defender numbers show, +0.884 for pressures against a
+  sack rate that does not survive.
+- **Next Gen Stats and ESPN QBR publish IN SEASON**, unlike participation and
+  the `pfr_*` splits which land once after the post-season. `ngs_receiving`
+  already carried Week 1 of 2026 the morning after the opener. They are the
+  only advanced feeds here that can describe the current season, and the board
+  reads them as prior-season profiles only because Week 1 has no current
+  season to read.
 - **Run the reliability screen before testing any feature against a price.**
   `scripts/run_feature_reliability.py`. Three matchup features were measured
   against the closing line before they were measured against themselves, and

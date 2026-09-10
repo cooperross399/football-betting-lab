@@ -67,6 +67,28 @@ MEASURED: dict[str, float] = {
     "defenders in box (defence)": 0.152,
     "passer rating allowed (defender)": 0.125,
     "drop % (receiver)": 0.078,
+    # From scripts/run_metric_reliability.py, measured 2026-09-10 over
+    # 2018-2025. Club-level, and the side of the ball is part of the name
+    # because the same measurement carries very differently on each.
+    "shotgun rate (offence)": 0.709,
+    "no-huddle rate (offence)": 0.565,
+    "pass rate over expected (offence)": 0.497,
+    "time to the line of scrimmage (offence)": 0.474,
+    "receiver separation (offence)": 0.457,
+    "time to throw (offence)": 0.453,
+    "success rate, dropbacks (offence)": 0.441,
+    "carries against eight in the box (offence)": 0.432,
+    "quarterback hit rate (offence)": 0.430,
+    "points per drive (offence)": 0.419,
+    "EPA per dropback (offence)": 0.411,
+    "third-down conversion rate (offence)": 0.407,
+    "success rate (offence)": 0.406,
+    "EPA per play (offence)": 0.396,
+    "stuff rate (defence)": 0.378,
+    "havoc rate (defence)": 0.330,
+    "EPA per play (defence)": 0.240,
+    "EPA per dropback (defence)": 0.206,
+    "sack rate (defence)": 0.132,
 }
 
 
