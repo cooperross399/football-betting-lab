@@ -1,4 +1,4 @@
-# NFL card — 2026-09-09
+# NFL card — 2026-09-10
 
 This card is **accumulating evidence, not making recommendations.**
 
@@ -6,7 +6,7 @@ No market is allowlisted. Allowlisting takes measurement against real prices and
 
 ## Slate (1 game(s))
 
-- New England Patriots @ Seattle Seahawks
+- San Francisco 49ers @ Los Angeles Rams
 
 ## Selections
 
@@ -25,25 +25,27 @@ An excluded market is never a pass, an avoid, or a no-value call. Those are genu
 
 ## The accounting identity
 
-`priced 4,589 = no_opinion 329 + unparseable 0 + ambiguous 0 + opinions 4,260 — reconciles.`
+`priced 4,802 = no_opinion 273 + unparseable 0 + ambiguous 0 + opinions 4,529 — reconciles.`
 
 Where the opinions did not go:
 
-- 87 x no fitted rate for `rush_yards`
-- 52 x no fitted rate for `anytime_td`
-- 40 x no fitted rate for `reception_yards`
-- 33 x player not on a current roster
-- 33 x no fitted rate for `receptions`
-- 32 x no fitted rate for `rush_attempts`
+- 87 x no fitted rate for `reception_yards`
+- 48 x no fitted rate for `receptions`
+- 37 x player not on a current roster
+- 30 x no fitted rate for `anytime_td`
+- 16 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
 - 16 x `spread_h1` needs the first-half model, which is not in force — see the recorded verdict
 - 16 x `total_points_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 14 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 4 x no fitted rate for `rush_longest`
+- 12 x no fitted rate for `reception_longest`
+- 7 x no fitted rate for `sacks`
+- 4 x no fitted rate for `defensive_interceptions`
 
 ## Forward evidence
 
-4,260 opinion(s) frozen for 2026-09-09; 0 row(s) in the settled ledger.
+4,529 opinion(s) frozen for 2026-09-10; 4,260 row(s) in the settled ledger.
 
 Frozen before kickoff, settled after, never repriced. Historical prices can be bought later; forward evidence cannot be back-dated.
 
 > Calibration fitted on 2023-2025, covering 17 market(s), frozen beside every raw probability.
+
+> Settled 1 snapshot day(s) into the ledger this run.
