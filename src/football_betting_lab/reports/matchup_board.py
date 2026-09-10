@@ -79,6 +79,63 @@ LAYERS: tuple[Layer, ...] = (
 )
 
 
+#: The metrics from `team_metrics` that cleared 0.40 in the screen, plus the
+#: two defensive ones a matchup needs even though they carry less. Ordered by
+#: carryover, which is also the order they deserve to be read in.
+#: (metric key, side, label, name in MEASURED)
+ADVANCED: tuple[tuple[str, str, str, str], ...] = (
+    ("shotgun_rate", "offence", "shotgun rate", "shotgun rate (offence)"),
+    ("no_huddle_rate", "offence", "no-huddle rate", "no-huddle rate (offence)"),
+    ("proe", "offence", "pass rate over expected", "pass rate over expected (offence)"),
+    ("separation", "offence", "receiver separation", "receiver separation (offence)"),
+    ("time_to_throw", "offence", "time to throw", "time to throw (offence)"),
+    ("success_pass", "offence", "success rate, dropbacks", "success rate, dropbacks (offence)"),
+    ("qb_hit_rate", "offence", "QB hits allowed", "quarterback hit rate (offence)"),
+    ("points_per_drive", "offence", "points per drive", "points per drive (offence)"),
+    ("epa_dropback", "offence", "EPA per dropback", "EPA per dropback (offence)"),
+    ("third_down_rate", "offence", "third-down rate", "third-down conversion rate (offence)"),
+    ("epa_dropback", "defence", "EPA per dropback allowed", "EPA per dropback (defence)"),
+    ("stuff_rate", "defence", "stuff rate", "stuff rate (defence)"),
+    ("havoc_rate", "defence", "havoc rate", "havoc rate (defence)"),
+)
+
+
+def advanced_layers() -> tuple[Layer, ...]:
+    return tuple(
+        Layer(f"{key}_{side}", f"{label} ({side})", measured, side == "defence")
+        for key, side, label, measured in ADVANCED
+    )
+
+
+def advanced_profiles(long: pd.DataFrame, *, season: int) -> pd.DataFrame:
+    """Club-season profiles from the long metric frame, standardised in league.
+
+    Weighted by the count each rate was measured over, so a club's season is
+    the pooled rate rather than the mean of its weekly rates — a three-play
+    week must not count as much as a sixty-play one.
+    """
+    frame = long[long["season"] == season]
+    rows: dict[str, dict[str, float]] = {}
+    for key, side, _label, _measured in ADVANCED:
+        part = frame[(frame["metric"] == key) & (frame["side"] == side)]
+        if part.empty:
+            continue
+        pooled = part.groupby("team").apply(
+            lambda g: float((g["value"] * g["weight"]).sum() / g["weight"].sum())
+            if g["weight"].sum() else float("nan"),
+            include_groups=False,
+        )
+        rows[f"{key}_{side}"] = pooled
+    if not rows:
+        return pd.DataFrame()
+    out = pd.DataFrame(rows)
+    out.index.name = "team"
+    out = out.reset_index()
+    for column in list(rows):
+        out[f"{column}_z"] = _z(out, column)
+    return out.set_index("team")
+
+
 def _z(frame: pd.DataFrame, column: str) -> pd.Series:
     values = pd.to_numeric(frame[column], errors="coerce")
     spread = values.std(ddof=0)
@@ -147,7 +204,8 @@ def implied_totals(spread_line: float, total_line: float) -> tuple[float, float]
     return (total_line + spread_line) / 2.0, (total_line - spread_line) / 2.0
 
 
-def board(schedule: pd.DataFrame, profiles: pd.DataFrame, *, season: int, week: int) -> pd.DataFrame:
+def board(schedule: pd.DataFrame, profiles: pd.DataFrame, *, season: int, week: int,
+          advanced: pd.DataFrame | None = None) -> pd.DataFrame:
     """One row per game, with both clubs' profiles and the market beside them."""
     games = schedule[
         (schedule["season"] == season)
@@ -189,5 +247,25 @@ def board(schedule: pd.DataFrame, profiles: pd.DataFrame, *, season: int, week: 
                     if opponent in profiles.index else np.nan
                 )
             )
+            if advanced is not None and not advanced.empty:
+                for key, sd, _label, _m in ADVANCED:
+                    column = f"{key}_{sd}_z"
+                    row[f"{side}_{key}_{sd}"] = (
+                        float(advanced.loc[club, column])
+                        if club in advanced.index and column in advanced.columns
+                        and pd.notna(advanced.loc[club, column]) else np.nan
+                    )
+                # This club's passing offence against what the opponent's
+                # defence has allowed. Both halves point the same way — a good
+                # offence and a leaky defence both raise it — so they add.
+                own = row.get(f"{side}_epa_dropback_offence", np.nan)
+                theirs = (
+                    float(advanced.loc[opponent, "epa_dropback_defence_z"])
+                    if opponent in advanced.index
+                    and "epa_dropback_defence_z" in advanced.columns
+                    and pd.notna(advanced.loc[opponent, "epa_dropback_defence_z"])
+                    else np.nan
+                )
+                row[f"{side}_pass_edge"] = own + theirs
         rows.append(row)
     return pd.DataFrame(rows).sort_values("kickoff").reset_index(drop=True)

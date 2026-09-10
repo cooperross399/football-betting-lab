@@ -246,6 +246,57 @@ FEEDS: tuple[Feed, ...] = (
         ),
     ),
     Feed(
+        name="ngs_passing",
+        release="nextgen_stats",
+        filename="ngs_passing.csv.gz",
+        per_season=False,
+        first_season=2016,
+        needed_for_the_card=False,
+        purpose=(
+            "Next Gen Stats passing, weekly and IN SEASON: time to throw, "
+            "intended and completed air yards, aggressiveness, air yards to "
+            "sticks, expected completion percentage and CPOE."
+        ),
+    ),
+    Feed(
+        name="ngs_receiving",
+        release="nextgen_stats",
+        filename="ngs_receiving.csv.gz",
+        per_season=False,
+        first_season=2016,
+        needed_for_the_card=False,
+        purpose=(
+            "Next Gen Stats receiving, weekly and IN SEASON: cushion, "
+            "separation, share of intended air yards, and yards after catch "
+            "against expected."
+        ),
+    ),
+    Feed(
+        name="ngs_rushing",
+        release="nextgen_stats",
+        filename="ngs_rushing.csv.gz",
+        per_season=False,
+        first_season=2016,
+        needed_for_the_card=False,
+        purpose=(
+            "Next Gen Stats rushing, weekly and IN SEASON: rush yards over "
+            "expected, time to line of scrimmage, and the share of carries "
+            "against eight or more defenders."
+        ),
+    ),
+    Feed(
+        name="espn_qbr",
+        release="espn_data",
+        filename="qbr_week_level.csv.gz",
+        per_season=False,
+        first_season=2006,
+        needed_for_the_card=False,
+        purpose=(
+            "ESPN's weekly Total QBR, IN SEASON. A second opinion on "
+            "quarterback play built from a different model than EPA."
+        ),
+    ),
+    Feed(
         name="pfr_pass",
         published_after_the_season=True,
         needed_for_the_card=False,
