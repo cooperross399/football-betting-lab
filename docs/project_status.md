@@ -84,9 +84,13 @@ one while this was being fixed.
    verdicts door records how many have been spent, and the three retractions
    above are what happens when a result is believed before the instruments
    have all run.
-3. **Answer the did-not-play question when convenient.** It no longer decides
-   anything — void gives `rush_yards` +0.9%, loss gives −4.4%, and neither is
-   an edge — but a live card would still need the answer.
+3. ~~**Answer the did-not-play question when convenient.**~~ **Done,
+   2026-09-23** — `docs/did_not_play_rules.md`. Books void a did-not-play prop
+   and void it symmetrically; **Bovada does not**, keying on the game-day
+   active roster instead, and Bovada is in the feed. It no longer decides
+   anything either way — void gives `rush_yards` +1.6%, loss gives +0.8%, and
+   neither is an edge. Those figures moved on the same day: the designation
+   table was built on a name-string join until then, and it failed open.
 4. **Treat the modelling as unfinished, not as failed.** Nothing here says the
    NFL is unbeatable. It says this model, on this data, has no demonstrated
    edge, and it says so on a large enough sample to mean it.
