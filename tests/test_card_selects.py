@@ -20,6 +20,15 @@ import pandas as pd
 import pytest
 
 from football_betting_lab.config import MAX_DEFAULT_JUICE, MAX_DEFAULT_PRICE, MIN_EDGE
+from football_betting_lab.gates import (
+    Availability,
+    DOUBTFUL,
+    EXCLUDED,
+    NO_REPORT,
+    QUESTIONABLE,
+    UNDESIGNATED,
+    UNKNOWN,
+)
 from football_betting_lab.leagues import NFL
 from football_betting_lab.reports.card_pricing import PricingDiagnostics
 from football_betting_lab.reports.gameday_card import build_card, render, select
@@ -171,21 +180,130 @@ def test_a_started_game_is_quarantined_rather_than_selected(
     assert "moneyline" in quarantined[0][0]
 
 
+def _availability(state: str = UNDESIGNATED, *, key: str = "a back") -> dict:
+    """The map `gates.assess_slate` returns, keyed as `select()` looks up."""
+    return {
+        key: Availability(
+            player_id="00-0000001",
+            state=state,
+            reason="",
+            undesignated_allowed=True,
+        )
+    }
+
+
+def _prop_prices(player: str = "A Back") -> pd.DataFrame:
+    return _prices(
+        market="rush_yards", selection="over", line=40.5, player=player
+    )
+
+
 def test_a_player_prop_cannot_select_without_the_verdict(tmp_path: Path) -> None:
     """Nothing reaches `confirmed`, so a prop selects only once a recorded
-    verdict permits an undesignated player — which waits on a book's
-    did-not-play rule."""
-    prices = _prices(market="rush_yards", selection="over", line=40.5, player="A Back")
-    policy = _policy(tmp_path, ["rush_yards"])
+    verdict permits an undesignated player.
 
-    blocked, _ = select(prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW)
-    allowed, _ = select(
-        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+    **The verdict alone is no longer enough**, and the middle case is the
+    whole change. `select()` used to decide every player prop on this one
+    boolean, and `gates.assess_availability` had no caller anywhere in `src/`
+    or `scripts/` — so the day the verdict shipped, a player listed Out and a
+    player on a team that filed no report would both have selected on it.
+    """
+    prices = _prop_prices()
+    policy = _policy(tmp_path, ["rush_yards"])
+    probabilities = _probabilities(prices, 0.75)
+
+    blocked, _ = select(prices, probabilities, NFL, policy=policy, now=NOW)
+    no_map, _ = select(
+        prices, probabilities, NFL, policy=policy, now=NOW,
         undesignated_allowed=True,
+    )
+    allowed, _ = select(
+        prices, probabilities, NFL, policy=policy, now=NOW,
+        undesignated_allowed=True, availability=_availability(),
     )
 
     assert blocked == []
+    assert no_map == [], (
+        "a shipped verdict with no availability map must select nothing: "
+        "a card that cannot assess a player has not cleared him"
+    )
     assert len(allowed) == 1
+
+
+@pytest.mark.parametrize(
+    "state", [EXCLUDED, DOUBTFUL, QUESTIONABLE, NO_REPORT, UNKNOWN]
+)
+def test_the_verdict_opens_one_state_and_not_the_other_five(
+    tmp_path: Path, state: str
+) -> None:
+    """The defect stated as a test. `undesignated_allowed` names exactly one
+    state; every other one stays shut with the verdict in force — including
+    `UNKNOWN`, which is where an unreadable injury feed now lands instead of
+    in the selectable one."""
+    prices = _prop_prices()
+    policy = _policy(tmp_path, ["rush_yards"])
+
+    picks, _ = select(
+        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        undesignated_allowed=True, availability=_availability(state),
+    )
+
+    assert picks == []
+
+
+def test_a_player_the_map_does_not_hold_cannot_select(tmp_path: Path) -> None:
+    """A player who did not resolve, or whose row arrived after the map was
+    built, is a player this lab could not assess. Absence from the map is not
+    absence of a designation."""
+    prices = _prop_prices()
+    policy = _policy(tmp_path, ["rush_yards"])
+
+    picks, _ = select(
+        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        undesignated_allowed=True,
+        availability=_availability(key="somebody else"),
+    )
+
+    assert picks == []
+
+
+def test_the_map_is_read_with_the_key_the_rest_of_the_lab_builds(
+    tmp_path: Path,
+) -> None:
+    """Join-vocabulary member six, on the availability map this time.
+
+    The provider ships names with stray whitespace. `player_key` is
+    `clean_text(...).casefold()`, which is what `run_gameday_card` stores
+    under and what `card_pricing` and `selection_key` read back. A lookup
+    spelled `str(...).casefold()` here would miss the entry and quarantine a
+    player who was assessed perfectly well — failing closed, and silently.
+    """
+    prices = _prop_prices(player="  A Back  ")
+    policy = _policy(tmp_path, ["rush_yards"])
+
+    picks, _ = select(
+        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        undesignated_allowed=True, availability=_availability(),
+    )
+
+    assert len(picks) == 1
+    assert picks[0]["player"] == "A Back"
+
+
+def test_a_team_market_never_consults_the_availability_map(
+    tmp_path: Path,
+) -> None:
+    """The gate covers player props. A moneyline has no player to assess, and
+    gating it on an empty map would quarantine the whole board the first time
+    the injury feed was late."""
+    prices = _prices()
+
+    picks, _ = select(
+        prices, _probabilities(prices, 0.75), NFL,
+        policy=_policy(tmp_path, ["moneyline"]), now=NOW, availability={},
+    )
+
+    assert len(picks) == 1
 
 
 def test_the_best_price_is_taken_after_every_bar_not_before(
@@ -241,6 +359,56 @@ def test_an_approved_market_with_no_qualifying_bet_says_which_kind_of_none(
     assert "nothing cleared every bar today" in text
     assert "genuine model judgement" in text
     assert card.decision == "no-selections"
+
+
+def test_a_card_that_selected_a_prop_does_not_say_props_cannot_select(
+    tmp_path: Path,
+) -> None:
+    """The card contradicting itself, in the one place a reader looks.
+
+    `render` called `selection_blocked_note()` **unconditionally**, outside
+    the if/elif/else that chooses what the Selections section says. Harmless
+    while no player prop could select; wire the gate, ship the verdict, and
+    the card prints "player props are priced and tracked and **cannot produce
+    a selection**" directly beneath a table containing one.
+    """
+    prices = _prop_prices()
+    card = build_card(
+        prices, NFL, policy=_policy(tmp_path, ["rush_yards"]),
+        diagnostics=PricingDiagnostics(), now=NOW, slate_date="2026-09-13",
+        preseason_excluded=[], probabilities=_probabilities(prices, 0.75),
+        undesignated_allowed=True, availability=_availability(),
+    )
+
+    text = render(card)
+
+    assert len(card.selections) == 1
+    assert "cannot produce a selection" not in text
+    assert "evidence of availability and not confirmation" in text
+    # The replacement must still name what was NOT cleared, or it is a
+    # softer sentence rather than an honest one.
+    assert "listed Out" in text
+
+
+def test_a_card_with_no_prop_selection_still_says_why_props_are_blocked(
+    tmp_path: Path,
+) -> None:
+    """The other side of the same branch. A team-market selection must not
+    silence the sentence that explains the availability gate — that would
+    make the note disappear on exactly the cards that still need it, which is
+    every card today."""
+    prices = _prices()
+    card = build_card(
+        prices, NFL, policy=_policy(tmp_path, ["moneyline"]),
+        diagnostics=PricingDiagnostics(), now=NOW, slate_date="2026-09-13",
+        preseason_excluded=[], probabilities=_probabilities(prices, 0.75),
+    )
+
+    text = render(card)
+
+    assert len(card.selections) == 1
+    assert "cannot produce a selection" in text
+    assert "evidence of availability and not confirmation" not in text
 
 
 def test_the_card_still_selects_nothing_under_the_shipped_policy() -> None:

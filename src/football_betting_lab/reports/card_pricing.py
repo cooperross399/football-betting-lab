@@ -52,7 +52,7 @@ from football_betting_lab.models.player_props import (
 )
 from football_betting_lab.models.scoring import GameDistribution
 from football_betting_lab.season import clean_text
-from football_betting_lab.selection import normalise_line, selection_key
+from football_betting_lab.selection import normalise_line, player_key, selection_key
 
 
 COMPOUND = "compound"
@@ -345,7 +345,7 @@ def price_slate(
                 continue
         else:
             player = clean_text(getattr(row, "player", ""))
-            player_id = player_ids.get(player.casefold())
+            player_id = player_ids.get(player_key(player))
             if not player_id:
                 diagnostics.note("no_opinion", "player not on a current roster")
                 continue

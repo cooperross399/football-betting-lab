@@ -23,10 +23,15 @@ from football_betting_lab.gates import (
     QB_UNCHANGED,
     QB_UNKNOWN,
     QUESTIONABLE,
+    REQUIRED_INJURY_COLUMNS,
     SELECTABLE_STATES,
+    SELECTABLE_WITH_VERDICT,
     UNDESIGNATED,
+    UNKNOWN,
     assess_availability,
+    assess_slate,
     check_quarterback,
+    missing_injury_columns,
     report_coverage,
     selection_blocked_note,
 )
@@ -165,6 +170,196 @@ def test_the_card_says_why_rather_than_going_quiet() -> None:
     assert "missing source" in note
     for word in ("pass", "avoid", "no value"):
         assert f" {word} " not in note
+
+
+# -- the two fail-opens, closed ----------------------------------------------
+#
+# Both of these answered `UNDESIGNATED` — the ONE non-confirmed state a
+# recorded verdict can make selectable — with a reason string that
+# affirmatively asserted availability. They were harmless only while the gate
+# had no caller.
+
+
+@pytest.mark.parametrize("column", REQUIRED_INJURY_COLUMNS)
+def test_a_frame_missing_a_column_this_gate_reads_cannot_answer(column: str) -> None:
+    """Every required column, dropped one at a time.
+
+    The failure each one used to produce differs, and neither is acceptable:
+    dropping `gsis_id` emptied the row filter and took the "absent from a
+    filed report" branch, while dropping `team` produced an empty coverage
+    set and answered `NO_REPORT` — a state whose reason sentence says an
+    injury report does not exist, about a feed that may well hold one.
+    """
+    injuries = _injuries([_report(report_status="Out")]).drop(columns=[column])
+
+    verdict = assess_availability("00-0000001", "BUF", injuries, season=2026, week=1)
+
+    assert verdict.state == UNKNOWN
+    assert verdict.state != UNDESIGNATED
+    assert not verdict.may_select
+    assert column in verdict.reason
+
+
+def test_the_schema_check_runs_BEFORE_the_team_lookup() -> None:
+    """The correction that makes the guard reachable at all.
+
+    Hoisting a column check to just above the row filtering looks like a fix
+    and is dead code: `assess_availability` returns `NO_REPORT` on the team
+    lookup above it, so an unreadable frame never arrives. Dropping `team`
+    is the case that proves the ordering — with the check in the wrong place
+    the answer is `NO_REPORT`, not `UNKNOWN`.
+    """
+    injuries = _injuries([_report()]).drop(columns=["team"])
+
+    assert assess_availability(
+        "00-0000001", "BUF", injuries, season=2026, week=1
+    ).state == UNKNOWN
+
+
+def test_an_unrecognised_report_status_is_not_the_absence_of_one() -> None:
+    """`injuries_2024.csv` carries six rows whose status is `Note`.
+
+    A designation this gate does not understand used to fall out of the
+    bottom of the function into `UNDESIGNATED` — answered as *not
+    designated*, which is the opposite of what an unread designation means.
+    """
+    injuries = _injuries([_report(report_status="Note")])
+
+    verdict = assess_availability("00-0000001", "BUF", injuries, season=2026, week=1)
+
+    assert verdict.state == UNKNOWN
+    assert not verdict.may_select
+    assert "note" in verdict.reason.lower()
+
+
+@pytest.mark.parametrize("blank", ["", "   ", None, float("nan"), "nan"])
+def test_a_blank_report_status_is_still_undesignated(blank: object) -> None:
+    """The guard against over-correcting the line above.
+
+    3,386 of 6,215 rows in 2024 carry no game-status designation, and a blank
+    cell arrives from pandas as float NaN. Reading those as unrecognised
+    would put the most common row in the feed into `UNKNOWN` and quarantine
+    a whole slate over a correctly-read blank.
+    """
+    injuries = _injuries([_report(report_status=blank)])
+
+    assert assess_availability(
+        "00-0000001", "BUF", injuries, season=2026, week=1
+    ).state == UNDESIGNATED
+
+
+def test_an_empty_frame_is_still_no_report_rather_than_unknown() -> None:
+    """No file yet is the documented preseason state and has a true sentence
+    to offer. A non-empty frame that cannot be parsed does not, which is the
+    whole distinction between the two."""
+    for empty in (_injuries([]), pd.DataFrame()):
+        verdict = assess_availability("00-0000001", "BUF", empty, season=2026, week=1)
+        assert verdict.state == NO_REPORT, empty.columns
+
+
+def test_report_coverage_fails_closed_on_a_frame_it_cannot_read() -> None:
+    """The empty set means NO_REPORT, which blocks. Returning the teams it
+    could still see would clear players on a frame this gate cannot scope to
+    a week."""
+    filed = _injuries([_report(team="BUF")])
+
+    assert report_coverage(filed, season=2026, week=1) == {"BUF"}
+    for column in REQUIRED_INJURY_COLUMNS:
+        assert report_coverage(
+            filed.drop(columns=[column]), season=2026, week=1
+        ) == set(), column
+
+
+def test_the_two_functions_agree_on_what_a_readable_frame_is() -> None:
+    """One list, read by both. Two hand-kept lists is how a frame becomes
+    readable to one of them and not the other."""
+    filed = _injuries([_report()])
+
+    assert missing_injury_columns(filed) == ()
+    assert missing_injury_columns(filed.drop(columns=["week"])) == ("week",)
+    assert set(REQUIRED_INJURY_COLUMNS) <= set(filed.columns)
+
+
+def test_an_unreadable_feed_can_never_select_even_under_the_verdict() -> None:
+    """`UNKNOWN` is outside both selectable sets, so a shipped verdict cannot
+    reach it. This is the property the two fail-opens defeated by answering
+    `UNDESIGNATED` instead."""
+    assert UNKNOWN not in SELECTABLE_STATES
+    assert UNKNOWN not in SELECTABLE_WITH_VERDICT
+    assert not Availability(
+        player_id="p", state=UNKNOWN, reason="", undesignated_allowed=True
+    ).may_select
+
+
+def test_an_unreadable_feed_still_prices_so_the_ledger_keeps_accruing() -> None:
+    """Same as `NO_REPORT`. Forward evidence cannot be back-dated, so
+    refusing to freeze an opinion over a column name would lose a day of the
+    only evidence this lab can still gather. Pricing is not betting."""
+    assert Availability(player_id="p", state=UNKNOWN, reason="").may_price
+
+
+# -- the gate has a caller now ------------------------------------------------
+
+
+def _slate() -> dict[str, tuple[str, str]]:
+    return {
+        "a back": ("00-0000001", "BUF"),
+        "a receiver": ("00-0000002", "BUF"),
+        "a kicker": ("00-0000003", "KC"),
+    }
+
+
+def test_assess_slate_gives_each_player_his_own_state() -> None:
+    """The defect this closes: one boolean stood in for six states, so a
+    player listed Out and a player on a team that never filed both became
+    selectable on the single flag `select()` read."""
+    injuries = _injuries(
+        [_report(gsis_id="00-0000001", report_status="Out"), _report(gsis_id="00-0000009")]
+    )
+
+    verdicts = assess_slate(
+        _slate(), injuries, season=2026, week=1, undesignated_allowed=True
+    )
+
+    assert verdicts["a back"].state == EXCLUDED
+    assert verdicts["a receiver"].state == UNDESIGNATED
+    assert verdicts["a kicker"].state == NO_REPORT
+    # The verdict opens ONE of those three.
+    assert [key for key, v in verdicts.items() if v.may_select] == ["a receiver"]
+
+
+def test_assess_slate_without_the_verdict_selects_nothing_at_all() -> None:
+    injuries = _injuries([_report(gsis_id="00-0000009")])
+
+    verdicts = assess_slate(_slate(), injuries, season=2026, week=1)
+
+    assert verdicts["a receiver"].state == UNDESIGNATED
+    assert not any(verdict.may_select for verdict in verdicts.values())
+
+
+def test_a_slate_whose_week_cannot_be_read_is_unanswerable_not_healthy() -> None:
+    """`week=None` means the schedule could not say which week this slate is,
+    so there is no report to look anybody up in. Reading that as "no
+    injuries" is the `NO_REPORT`/`UNDESIGNATED` collapse in a third place."""
+    injuries = _injuries([_report(gsis_id="00-0000009")])
+
+    verdicts = assess_slate(
+        _slate(), injuries, season=2026, week=None, undesignated_allowed=True
+    )
+
+    assert {verdict.state for verdict in verdicts.values()} == {UNKNOWN}
+    assert not any(verdict.may_select for verdict in verdicts.values())
+
+
+def test_assess_slate_keeps_the_card_key_it_was_given() -> None:
+    """The map is looked up by `player_key` in `select()`. A function that
+    re-keyed on the id would return verdicts the card can never find, which
+    fails closed — and silently."""
+    injuries = _injuries([_report(gsis_id="00-0000009")])
+
+    verdicts = assess_slate(_slate(), injuries, season=2026, week=1)
+
+    assert set(verdicts) == set(_slate())
 
 
 # -- quarterback changes -----------------------------------------------------

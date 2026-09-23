@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from football_betting_lab import gates
 from football_betting_lab.config import (
     ARCHIVE_DIR,
     OUTPUTS_DIR,
@@ -60,7 +61,112 @@ from football_betting_lab.reports import gameday_card, provider_shadow
 from football_betting_lab.reports.card_pricing import PlayerBook, price_slate
 from football_betting_lab.rosters import Rosters
 from football_betting_lab.season import game_date
-from football_betting_lab.selection import selection_key
+from football_betting_lab.selection import player_key, selection_key
+
+
+#: nflverse publishes one injury file per season, named this way.
+INJURIES_FILENAME = "injuries_{season}.csv"
+
+
+def resolved_players(
+    prices: pd.DataFrame,
+    rosters: Rosters,
+    *,
+    league,
+    lookup: dict,
+) -> tuple[dict[str, str], dict[str, tuple[str, str]]]:
+    """`(player key -> id, player key -> (id, club))` for the staged slate.
+
+    A function rather than a loop inside `main()` because **the key is the
+    whole point**, and a key built where nothing can execute it is a key that
+    drifts. This one was built as `str(row.player).casefold()` while
+    `card_pricing.price_slate` read it back through
+    `clean_text(row.player).casefold()`: the two agree on almost every name
+    and part company on a provider spelling carrying a leading or trailing
+    space, which was then stored under a key the lookup never asked for and
+    counted `no_opinion` — "player not on a current roster" printed about a
+    player who resolved perfectly well.
+
+    Both sides call `player_key` now. The second map carries the club as
+    well, because the availability gate needs it and the price row only says
+    which two teams are playing, not which one the player is on.
+    """
+    player_ids: dict[str, str] = {}
+    slate_players: dict[str, tuple[str, str]] = {}
+    if prices.empty or "player" not in prices.columns:
+        return player_ids, slate_players
+    for row in prices.dropna(subset=["player"]).itertuples():
+        resolution = rosters.resolve(
+            row.player,
+            home=resolve_team(row.home_team, league, lookup) or "",
+            away=resolve_team(row.away_team, league, lookup) or "",
+        )
+        if resolution.resolved:
+            key = player_key(row.player)
+            player_ids[key] = resolution.entry.player_id
+            slate_players[key] = (resolution.entry.player_id, resolution.entry.team)
+    return player_ids, slate_players
+
+
+def slate_week(games: pd.DataFrame, *, season: int, slate_date: str) -> int | None:
+    """The season week the slate's games belong to, or None.
+
+    From the schedule rather than from a calendar rule, for the reason
+    `feed_freshness.expected_week` gives: the NFL week does not start on a
+    fixed weekday, and Week 1 2026 opens on a Wednesday.
+
+    None when the slate date is not a game date in this season's table —
+    a rehearsal of a date the processed schedule does not hold, or a table
+    that was never rebuilt. `gates.assess_slate` treats that as unanswerable
+    rather than as "no injuries", which is the whole point of this gate.
+    """
+    if games.empty or not slate_date:
+        return None
+    for column in ("season", "week", "game_date"):
+        if column not in games.columns:
+            return None
+    rows = games[pd.to_numeric(games["season"], errors="coerce") == int(season)]
+    rows = rows[rows["game_date"].astype(str).str[:10] == slate_date]
+    weeks = pd.to_numeric(rows["week"], errors="coerce").dropna()
+    return int(weeks.max()) if len(weeks) else None
+
+
+def slate_availability(
+    players: dict[str, tuple[str, str]],
+    *,
+    league,
+    season: int,
+    slate_date: str,
+    games: pd.DataFrame,
+    raw_dir: Path,
+    undesignated_allowed: bool,
+) -> dict[str, gates.Availability]:
+    """The availability verdict for every player the card has an opinion on.
+
+    This function is why `gates.assess_availability` and
+    `gates.report_coverage` are no longer gates with no caller. Without it
+    `select()` decided every player prop on one boolean, and the day
+    `props_selectable_when_undesignated` shipped, a player listed **Out** and
+    a player on a team that filed no report at all would both have selected
+    on that flag.
+
+    A missing or unreadable injuries file is not a clean bill of health: the
+    empty frame produces an empty coverage set and every player lands in
+    `NO_REPORT`, which never selects.
+    """
+    injuries = _read(
+        raw_dir
+        / league.data_dir_segment
+        / "injuries"
+        / INJURIES_FILENAME.format(season=season)
+    )
+    return gates.assess_slate(
+        players,
+        injuries,
+        season=season,
+        week=slate_week(games, season=season, slate_date=slate_date),
+        undesignated_allowed=undesignated_allowed,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -217,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     lookup = name_to_abbreviation(league)
     distributions = {}
     player_ids: dict[str, str] = {}
+    slate_players: dict[str, tuple[str, str]] = {}
 
     if not prices.empty and not games.empty:
         played = games.dropna(subset=["home_score", "away_score"])
@@ -234,15 +341,12 @@ def main(argv: list[str] | None = None) -> int:
                 distributions[(home, away)] = distribution_for(
                     ratings, pmf, home_team=home_key, away_team=away_key
                 )
-        rosters = Rosters.load(league, RAW_DIR, season=args.season)
-        for row in prices.dropna(subset=["player"]).itertuples():
-            resolution = rosters.resolve(
-                row.player,
-                home=resolve_team(row.home_team, league, lookup) or "",
-                away=resolve_team(row.away_team, league, lookup) or "",
-            )
-            if resolution.resolved:
-                player_ids[str(row.player).casefold()] = resolution.entry.player_id
+        player_ids, slate_players = resolved_players(
+            prices,
+            Rosters.load(league, RAW_DIR, season=args.season),
+            league=league,
+            lookup=lookup,
+        )
 
     book = PlayerBook(
         logs,
@@ -271,6 +375,20 @@ def main(argv: list[str] | None = None) -> int:
         # No player prop may select until the recorded verdict says an
         # undesignated player can. The card reads the door; it never decides.
         undesignated_allowed=ships("props_selectable_when_undesignated", league),
+        # And the verdict opens one STATE, not every player. This is the map
+        # that says which state each player is actually in; without it the
+        # card would decide six states on one boolean.
+        availability=slate_availability(
+            slate_players,
+            league=league,
+            season=args.season,
+            slate_date=slate_date,
+            games=games,
+            raw_dir=RAW_DIR,
+            undesignated_allowed=ships(
+                "props_selectable_when_undesignated", league
+            ),
+        ),
     )
 
     # -- freeze, then settle --------------------------------------------

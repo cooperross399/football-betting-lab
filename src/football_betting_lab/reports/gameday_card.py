@@ -21,8 +21,11 @@ That is not a degraded card. It is the product until the evidence exists.
 2. **Market eligibility** — allowlisting, completeness, availability of prices.
 3. **Kickoff** — a started game, or one whose start cannot be confirmed, is
    quarantined and its stake removed.
-4. **Availability** — no feed publishes inactives, so no player prop can
-   produce a selection at all.
+4. **Availability** — two halves in series. A recorded verdict must permit
+   an undesignated player to select at all, AND the player's own assessed
+   state must be one that may. Until the map existed, one boolean stood in
+   for six states; no feed publishes inactives, so nothing reaches
+   `confirmed` and today the first half refuses everything anyway.
 5. **Quarterback change** — quarantines a team's passing and receiving tree.
 
 Every exclusion is **counted and named**. An excluded market is never a pass,
@@ -56,13 +59,13 @@ from football_betting_lab.config import (
     MIN_PROP_EDGE,
 )
 from football_betting_lab.forward_evidence import american_to_implied
-from football_betting_lab.gates import selection_blocked_note
+from football_betting_lab.gates import Availability, selection_blocked_note
 from football_betting_lab.kickoff import QUARANTINE_HEADING, judge, partition
 from football_betting_lab.leagues import League
 from football_betting_lab.markets import MARKETS_BY_KEY, PLAYER
 from football_betting_lab.reports.card_pricing import PricingDiagnostics
 from football_betting_lab.season import clean_text
-from football_betting_lab.selection import normalise_line, selection_key
+from football_betting_lab.selection import normalise_line, player_key, selection_key
 from football_betting_lab.staging_provider_policy import StagingProviderPolicy
 
 
@@ -71,6 +74,22 @@ from football_betting_lab.staging_provider_policy import StagingProviderPolicy
 #: recommendation.
 ACCUMULATING_NOTE = (
     "This card is **accumulating evidence, not making recommendations.**"
+)
+
+#: What replaces `selection_blocked_note()` on a card that DID select a player
+#: prop. Contract-ish for the same reason: printing "player props cannot
+#: produce a selection" above a table containing one is the card contradicting
+#: itself in the one place a reader looks.
+PROPS_SELECTED_NOTE = (
+    "The player props above were selected under the recorded verdict "
+    "`props_selectable_when_undesignated`. Each named player is absent from a "
+    "filed injury report for his team and week, which is **evidence of "
+    "availability and not confirmation** — inactives are declared about "
+    "ninety minutes before kickoff and no available feed publishes them, so a "
+    "healthy scratch and a game-time decision look exactly like a starter "
+    "here. A player listed Out, a player whose designation this lab does not "
+    "recognise, and a player on a team that filed no report at all are each "
+    "refused."
 )
 
 
@@ -107,6 +126,7 @@ def select(
     policy: StagingProviderPolicy,
     now: datetime,
     undesignated_allowed: bool = False,
+    availability: Mapping[str, Availability] | None = None,
 ) -> tuple[list[dict], list[tuple[str, str]]]:
     """Every bet that clears every bar, and everything the guard pulled.
 
@@ -125,9 +145,19 @@ def select(
        markets because a card is built before inactives are known;
     4. the price is not worse than the juice bar and not longer than the model
        is trusted to judge;
-    5. for a player prop, the availability gate permits a selection — which it
-       does not unless a recorded verdict says so;
+    5. for a player prop, **both** halves of the availability gate permit a
+       selection: a recorded verdict says an undesignated player may select
+       at all, AND this player's own assessed state is one that may. They are
+       applied in series on purpose — one flag stood in for six states until
+       `availability` existed, and a single boolean cannot tell a player
+       listed Out from one nobody filed a report on;
     6. the kickoff guard confirms the game has not started.
+
+    `availability` is the map `gates.assess_slate` returns, keyed by
+    `player_key`. **`None` means no player prop may select**, whatever the
+    verdict says, and so does a player the map does not hold: a player this
+    lab could not assess is not a player it may bet. Both are the direction
+    every other gate here falls in.
 
     One wager can be quoted by many books. The best price is taken **after**
     every bar, so a bar is never cleared by a price the card would not have
@@ -162,17 +192,25 @@ def select(
         edge = probability - american_to_implied(odds)
         if edge < threshold:
             continue
-        if market.kind == PLAYER and not undesignated_allowed:
+        if market.kind == PLAYER:
             # No player prop may select until a recorded verdict says an
             # undesignated player can. Nothing reaches `confirmed` today.
-            continue
-        verdict = judge(getattr(row, "commence_time", ""), now=now)
+            if not undesignated_allowed:
+                continue
+            # And the verdict alone is not enough. It opens ONE state;
+            # this asks which state this player is actually in.
+            verdict = (availability or {}).get(
+                player_key(getattr(row, "player", ""))
+            )
+            if verdict is None or not verdict.may_select:
+                continue
+        kickoff = judge(getattr(row, "commence_time", ""), now=now)
         label = (
             f"{clean_text(getattr(row, 'away_team', ''))} @ "
             f"{clean_text(getattr(row, 'home_team', ''))}"
         )
-        if not verdict.plays:
-            quarantined.append((f"{label} — `{market_key}`", verdict.reason))
+        if not kickoff.plays:
+            quarantined.append((f"{label} — `{market_key}`", kickoff.reason))
             continue
         key = (
             market_key,
@@ -210,6 +248,7 @@ def build_card(
     preseason_excluded: list[str],
     probabilities: Mapping[tuple, float] | None = None,
     undesignated_allowed: bool = False,
+    availability: Mapping[str, Availability] | None = None,
 ) -> CardResult:
     result = CardResult(
         league=league,
@@ -263,10 +302,21 @@ def build_card(
             policy=policy,
             now=now,
             undesignated_allowed=undesignated_allowed,
+            availability=availability,
         )
         result.selections = selections
         result.quarantined.extend(pulled)
     return result
+
+
+def _is_player_pick(pick: Mapping[str, object]) -> bool:
+    """Whether a selection row is a player prop.
+
+    Off the market registry rather than off a non-empty `player` string: the
+    two agree today and the registry is the thing that decides.
+    """
+    market = MARKETS_BY_KEY.get(str(pick.get("market", "")))
+    return market is not None and market.kind == PLAYER
 
 
 def render(result: CardResult) -> str:
@@ -357,7 +407,19 @@ def render(result: CardResult) -> str:
             "select from any of them."
         )
     add("")
-    add(selection_blocked_note())
+    # NOT unconditional, and it used to be — outside the if/elif/else above,
+    # so it printed on every card ever rendered. That was harmless only while
+    # no player prop could select. Wire the availability gate, ship the
+    # verdict, and the card prints "player props cannot produce a selection"
+    # directly beneath a table containing one.
+    #
+    # Which sentence is true is a fact about THIS card, so it is read off
+    # this card's own selections rather than off a flag passed alongside
+    # them. A flag can disagree with the table; the table cannot.
+    if any(_is_player_pick(pick) for pick in result.selections):
+        add(PROPS_SELECTED_NOTE)
+    else:
+        add(selection_blocked_note())
 
     add("")
     add("## Markets, and why each is excluded")

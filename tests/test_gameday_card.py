@@ -229,3 +229,233 @@ def test_an_empty_or_unreadable_table_is_treated_as_empty_not_fatal(
 
     for path in (empty, missing, junk):
         assert module._read(path).empty, path.name
+
+
+# -- the gate the runner now calls -------------------------------------------
+#
+# `gates.assess_availability` and `gates.report_coverage` had NO caller in
+# `src/` or `scripts/` — referenced only by their own tests. These exercise
+# the runner's real functions, because a key or a lookup built where nothing
+# can execute it is a key that drifts, and that is exactly what happened to
+# the player-id map these tests also cover.
+
+
+def _runner():
+    """The runner module, loaded the way this file already loads it."""
+    from importlib import util
+
+    from football_betting_lab.config import PROJECT_ROOT
+
+    spec = util.spec_from_file_location(
+        "run_gameday_card_under_test",
+        PROJECT_ROOT / "scripts" / "run_gameday_card.py",
+    )
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _prop_prices(player: str) -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "market": "rush_yards",
+                "player": player,
+                "home_team": "Seattle Seahawks",
+                "away_team": "New England Patriots",
+                "commence_time": "2026-09-10T00:20:00Z",
+            }
+        ]
+    )
+
+
+def _one_man_roster():
+    from football_betting_lab.rosters import RosterEntry, Rosters
+
+    return Rosters(
+        [
+            RosterEntry(
+                player_id="00-0000001", name="A Back", team="SEA", position="RB"
+            )
+        ],
+        NFL,
+    )
+
+
+def test_the_runner_keys_a_player_the_way_every_reader_reads_him_back() -> None:
+    """Join-vocabulary member six, caught before it cost anything.
+
+    The runner stored `str(row.player).casefold()`; `card_pricing.price_slate`
+    and `selection_key` both read `clean_text(row.player).casefold()`. The two
+    part company on a provider spelling carrying whitespace, so a player who
+    resolved perfectly well was stored under a key nothing ever asked for and
+    counted `no_opinion` — "player not on a current roster", about a man on
+    the roster. The availability map is looked up on the same key and would
+    have inherited the split.
+    """
+    from football_betting_lab.providers.team_names import name_to_abbreviation
+    from football_betting_lab.selection import player_key
+
+    module = _runner()
+    prices = _prop_prices("  A Back  ")
+
+    player_ids, slate_players = module.resolved_players(
+        prices, _one_man_roster(), league=NFL, lookup=name_to_abbreviation(NFL)
+    )
+
+    # The exact expression every reader uses, on the exact value it uses.
+    assert player_ids.get(player_key("A Back")) == "00-0000001"
+    assert slate_players.get(player_key("A Back")) == ("00-0000001", "SEA")
+    # And the spelling that used to be stored is gone.
+    assert "  a back  " not in player_ids
+    assert "  a back  " not in slate_players
+
+
+def test_the_runner_carries_the_club_from_the_roster_not_the_fixture() -> None:
+    """A price row says which two clubs are playing, never which one the
+    player is on, and the availability gate needs the club to find his
+    team's injury report."""
+    from football_betting_lab.providers.team_names import name_to_abbreviation
+
+    module = _runner()
+
+    _ids, slate_players = module.resolved_players(
+        _prop_prices("A Back"),
+        _one_man_roster(),
+        league=NFL,
+        lookup=name_to_abbreviation(NFL),
+    )
+
+    assert [club for _id, club in slate_players.values()] == ["SEA"]
+
+
+def _games() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {"season": 2026, "week": 1, "game_date": "2026-09-09"},
+            {"season": 2026, "week": 2, "game_date": "2026-09-17"},
+            {"season": 2025, "week": 9, "game_date": "2026-09-09"},
+        ]
+    )
+
+
+def test_the_slate_week_comes_off_the_schedule_and_not_a_calendar_rule() -> None:
+    """Week 1 2026 opens on a Wednesday because Thursday's game is in
+    Australia. Any weekday rule gets that wrong."""
+    module = _runner()
+
+    assert module.slate_week(_games(), season=2026, slate_date="2026-09-09") == 1
+    assert module.slate_week(_games(), season=2026, slate_date="2026-09-17") == 2
+
+
+def test_a_slate_date_the_schedule_does_not_hold_has_no_week() -> None:
+    """None rather than a guess. `gates.assess_slate` turns it into `UNKNOWN`
+    for every player, which refuses; a guessed week would look up the wrong
+    report and answer confidently."""
+    module = _runner()
+
+    for games, date in (
+        (_games(), "2026-12-25"),
+        (pd.DataFrame(), "2026-09-09"),
+        (_games().drop(columns=["week"]), "2026-09-09"),
+        (_games(), ""),
+    ):
+        assert module.slate_week(games, season=2026, slate_date=date) is None
+
+
+def test_the_slate_week_is_this_season_s_week() -> None:
+    """The cross-season defect in miniature. The fixture holds a 2025 row on
+    the same calendar date; reading it would ask the 2026 injury feed for
+    week 9."""
+    module = _runner()
+
+    assert module.slate_week(_games(), season=2026, slate_date="2026-09-09") == 1
+
+
+def _injury_file(tmp_path, rows: list[dict]) -> None:
+    directory = tmp_path / NFL.data_dir_segment / "injuries"
+    directory.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(
+        rows,
+        columns=["season", "week", "team", "gsis_id", "full_name", "report_status"],
+    ).to_csv(directory / "injuries_2026.csv", index=False)
+
+
+def test_the_runner_reads_the_injury_feed_and_grades_each_player(tmp_path) -> None:
+    """The end of "a gate with no caller". Three players, three states, one
+    of which the verdict opens and two of which it does not."""
+    from football_betting_lab.gates import EXCLUDED, NO_REPORT, UNDESIGNATED
+
+    module = _runner()
+    _injury_file(
+        tmp_path,
+        [
+            {
+                "season": 2026, "week": 1, "team": "SEA",
+                "gsis_id": "00-0000001", "full_name": "A Back",
+                "report_status": "Out",
+            },
+            {
+                "season": 2026, "week": 1, "team": "SEA",
+                "gsis_id": "00-0000777", "full_name": "Someone Else",
+                "report_status": "Questionable",
+            },
+        ],
+    )
+
+    verdicts = module.slate_availability(
+        {
+            "a back": ("00-0000001", "SEA"),
+            "a receiver": ("00-0000002", "SEA"),
+            "a kicker": ("00-0000003", "NE"),
+        },
+        league=NFL,
+        season=2026,
+        slate_date="2026-09-09",
+        games=_games(),
+        raw_dir=tmp_path,
+        undesignated_allowed=True,
+    )
+
+    assert verdicts["a back"].state == EXCLUDED
+    assert verdicts["a receiver"].state == UNDESIGNATED
+    assert verdicts["a kicker"].state == NO_REPORT
+    assert [key for key, v in verdicts.items() if v.may_select] == ["a receiver"]
+
+
+def test_a_missing_injury_file_is_not_a_clean_bill_of_health(tmp_path) -> None:
+    """`run_feed_freshness` names this consequence: without the feed the gate
+    used to read every player as undesignated — the one state a verdict can
+    open. An absent file now lands every player in `NO_REPORT`, which never
+    selects."""
+    from football_betting_lab.gates import NO_REPORT
+
+    module = _runner()
+
+    verdicts = module.slate_availability(
+        {"a back": ("00-0000001", "SEA")},
+        league=NFL,
+        season=2026,
+        slate_date="2026-09-09",
+        games=_games(),
+        raw_dir=tmp_path,
+        undesignated_allowed=True,
+    )
+
+    assert verdicts["a back"].state == NO_REPORT
+    assert not verdicts["a back"].may_select
+
+
+def test_the_runner_hands_the_card_a_map_rather_than_only_a_flag() -> None:
+    """A gate is wired when its caller passes its answer, not when the module
+    imports it. `build_card` gained `availability=` for this; a runner that
+    computed the map and dropped it would leave `select()` deciding six
+    states on one boolean again."""
+    from football_betting_lab.config import PROJECT_ROOT
+
+    source = (PROJECT_ROOT / "scripts" / "run_gameday_card.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "availability=slate_availability(" in source
+    assert "gates.assess_slate(" in source
