@@ -53,6 +53,19 @@ CLAIMS = [
     ("team ladder, worst market", "-17.4%", "nfl_team_ladder_backtest.md"),
     ("null baseline, pooled ROI", "-9.29%", "nfl_null_baseline.md"),
     ("null baseline, bets", "366,725", "nfl_null_baseline.md"),
+    # Added 2026-09-23. CLAUDE.md carried "−3.2% over 78,773" for three weeks
+    # after the settlement-join fix regenerated the report to -3.7% over
+    # 81,005, because no entry here covered the availability section. The
+    # void-rule sensitivity is the figure most likely to be quoted at somebody,
+    # so it is pinned on both sides.
+    ("availability, all-markets ROI", "−3.7%", "nfl_availability_cost.md"),
+    ("availability, all-markets bets", "81,005", "nfl_availability_cost.md"),
+    ("availability, graded-as-loss ROI", "−5.8%", "nfl_availability_cost.md"),
+    ("availability, Questionable ROI", "+3.3%", "nfl_availability_cost.md"),
+    ("availability, Questionable bets", "1,154", "nfl_availability_cost.md"),
+    ("rush_yards availability, ROI", "+1.6%", "nfl_availability_cost_rush_yards.md"),
+    ("rush_yards availability, bets", "12,054", "nfl_availability_cost_rush_yards.md"),
+    ("rush_yards availability, graded-as-loss ROI", "+0.8%", "nfl_availability_cost_rush_yards.md"),
 ]
 
 

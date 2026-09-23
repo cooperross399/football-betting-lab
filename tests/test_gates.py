@@ -269,9 +269,55 @@ def test_the_verdict_never_unblocks_a_player_listed_out() -> None:
         assert not verdicted.may_select, state
 
 
+def test_the_void_assumption_cites_the_rules_that_were_read() -> None:
+    """Four files now assert "the book voids" as fact rather than assumption.
+
+    That assertion is only as good as `docs/did_not_play_rules.md`, which holds
+    the rule text and the date it was read. If the document goes and the
+    sentences stay, the lab is back to asserting a settlement rule it has not
+    checked — which is the state this whole change was made to leave.
+
+    It also pins the exception. Bovada is the one book in the feed that
+    **grades** a player who is active and never plays, and it is the book the
+    card is most likely to run against, so a summary that drops it is worse
+    than no summary.
+    """
+    from football_betting_lab.config import PROJECT_ROOT
+
+    doc = PROJECT_ROOT / "docs" / "did_not_play_rules.md"
+    assert doc.is_file(), "the rules document the code cites does not exist"
+    text = doc.read_text(encoding="utf-8")
+    for book in ("DraftKings", "FanDuel", "BetMGM", "Caesars", "Fanatics", "Bovada"):
+        assert book in text, f"{book} is not in the rules document"
+    assert "Bovada is the exception" in text
+    # Unverified must stay named as unverified rather than quietly dropped.
+    assert "bet365" in text and "BetRivers" in text
+
+    citing = [
+        PROJECT_ROOT / "src" / "football_betting_lab" / "verdicts.py",
+        PROJECT_ROOT / "src" / "football_betting_lab" / "gates.py",
+        PROJECT_ROOT / "src" / "football_betting_lab" / "reports" / "availability_cost.py",
+    ]
+    for path in citing:
+        assert "did_not_play_rules.md" in path.read_text(encoding="utf-8"), (
+            f"{path.name} states the void rule and cites no source for it"
+        )
+
+
 def test_the_verdict_for_this_gate_is_not_in_force() -> None:
-    """It waits on one line in a book's prop rules: whether a did-not-play is
-    voided or graded a loss. That single fact turns +13.0% into -0.8%."""
+    """It does not ship, and the reason has changed.
+
+    This used to say the verdict waited on one line in a book's prop rules,
+    "which turns +13.0% into -0.8%". Both halves are superseded:
+
+    * The +13.0%/-0.8% pair is retracted — computed on cross-season-settled
+      bets, see `reports/availability_cost.py`. The pair is -3.7%/-5.8%.
+    * The rules were read on 2026-09-23 from state-regulator filings:
+      `docs/did_not_play_rules.md`. Books void, symmetrically; Bovada grades.
+
+    So the stated blocker is gone and the verdict still must not be in force,
+    because the population it opens measures -3.7% and
+    `scripts/run_gameday_card.py` wires it straight into live selection."""
     from football_betting_lab.leagues import NFL
     from football_betting_lab.verdicts import ships
 

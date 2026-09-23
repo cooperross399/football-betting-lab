@@ -46,18 +46,46 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     injuries = pd.concat(frames, ignore_index=True)
     injuries = injuries[injuries["season_type"] == "REG"]
+    # Keyed on `gsis_id`, not on the spelling of a name.
+    #
+    # This joined `injuries["full_name"].casefold()` to `bets["player"]` until
+    # 2026-09-23 — the same shape the hardening audit condemned in
+    # `props_backtest.py` and that was fixed there, left in place here. It
+    # misses on every suffix and punctuation variant the two feeds spell
+    # differently: `Dexter Lawrence II`, `Michael Pittman Jr.`, `AJ Brown`,
+    # `Cor'Dale Flott`. Measured against the bought population, 228 bets on 10
+    # players were on an injury report by id and invisible by name — 34 of them
+    # **Questionable**, which is the one designation that measures positive.
+    #
+    # And it fails OPEN. `measure` does `designations.fillna(NOT_LISTED)`, so
+    # every miss lands in "not on the report" — the undesignated bucket, which
+    # is precisely the population `props_selectable_when_undesignated` would
+    # make selectable. A join failure here does not produce a gap; it produces
+    # a player who looks unencumbered.
+    #
+    # `bets` has carried `player_id` since the settlement fix, so the id is
+    # already on both sides and no normalisation is needed.
     lookup = {
-        f"{name.casefold()}|{season}|{week}": (
+        f"{str(gsis_id).strip()}|{season}|{week}": (
             status if isinstance(status, str) and status.strip()
             else availability_cost.LISTED_NO_DESIGNATION
         )
-        for name, season, week, status in zip(
-            injuries["full_name"], injuries["season"], injuries["week"],
+        for gsis_id, season, week, status in zip(
+            injuries["gsis_id"], injuries["season"], injuries["week"],
             injuries["report_status"],
         )
+        if str(gsis_id).strip() and str(gsis_id).strip().lower() != "nan"
     }
+    if "player_id" not in bets.columns:
+        print(
+            "::error::the bets file has no player_id column, so the injury "
+            "designation cannot be joined on identity. Re-run "
+            "scripts/run_props_replication.py, which writes it.",
+            file=sys.stderr,
+        )
+        return 2
     keys = (
-        bets["player"].astype(str).str.casefold()
+        bets["player_id"].astype(str).str.strip()
         + "|" + bets["season"].astype(str)
         + "|" + bets["week"].astype(str)
     )

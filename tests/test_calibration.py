@@ -134,7 +134,9 @@ def test_an_empty_fit_offers_no_maps_rather_than_identity() -> None:
 
 def test_void_rows_never_reach_the_fit() -> None:
     """A voided prop had no outcome. Scoring it as a loss would drag every map
-    down by the void rate, which is 6.2% of selections."""
+    down by the void rate, which is 2.2% of selections per
+    `data/outputs/nfl_availability_cost.md` (6.2% here was a pre-settlement-fix
+    figure, corrected 2026-09-23)."""
     frame = _bets("rush_yards", 800)
     frame.loc[frame.index[:400], "outcome"] = "void"
 

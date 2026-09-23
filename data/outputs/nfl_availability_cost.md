@@ -8,9 +8,9 @@ This lab has refused to let any player prop produce a selection, because inactiv
 
 | Designation that week | Bets | Voids | Void share | ROI |
 |:----------------------|-----:|------:|-----------:|----:|
-| not on the report | 73,828 | 1,564 | 2.1% | -2.8% |
-| listed, no designation | 6,056 | 107 | 1.7% | -15.8% |
-| Questionable | 1,121 | 117 | 9.5% | +6.2% |
+| not on the report | 73,602 | 1,562 | 2.1% | -2.8% |
+| listed, no designation | 6,249 | 108 | 1.7% | -15.1% |
+| Questionable | 1,154 | 118 | 9.3% | +3.3% |
 | Doubtful | 0 | 2 | 100.0% | +0.0% |
 | Out | 0 | 16 | 100.0% | +0.0% |
 | **all** | 81,005 | 1,806 | 2.2% | -3.7% |
@@ -21,4 +21,6 @@ This lab has refused to let any player prop produce a selection, because inactiv
 
 If a book graded those 1,806 as losses, this record would be **-5.8%** rather than **-3.7%**.
 
-That is the difference between a strategy and a disaster, it turns on one line in a book's rules, and no amount of modelling can settle it. **It is a question for a human with an account**, and it should be answered before anything here is acted on.
+**That question has been answered.** `docs/did_not_play_rules.md`, 2026-09-23: books void a did-not-play prop and void it symmetrically, on the over and the under alike. The rule text was read from state-regulator house-rules filings for DraftKings, FanDuel, BetMGM, Caesars, Fanatics and ESPN Bet, and from the operators' own pages for Pinnacle and Bovada. bet365 and BetRivers could not be obtained and are recorded as unverified rather than assumed.
+
+**Bovada is the exception, and it is in this lab's feed.** It keys on the game-day active roster rather than on snaps: a player who is active and never takes a snap is **graded**, so an over loses and an under at zero wins. The void arithmetic above does not describe a Bovada card. Of the eleven books in the quote store, five were read directly — **four void and Bovada grades**. Three more match a researched operator only under a legacy provider key, on a mapping that is an assumption rather than a checked fact. Three are unresearched.
