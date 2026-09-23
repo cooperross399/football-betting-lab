@@ -418,14 +418,42 @@ that is the correct state.**
   an edge. `participation` is 47 MB a season, so the gameday card path fetches
   `--card-only` and a test refuses any workflow that fetches the full set.
 - **No feed publishes inactives, so no player prop can produce a selection.**
-  The availability gate has five states and **nothing can reach `confirmed`**:
+  The availability gate has six states and **nothing can reach `confirmed`**:
   `excluded` (listed Out), `doubtful`, `questionable`, `undesignated` (a report
-  exists and the player is not on it — evidence, not confirmation), and
-  `no_report` (no report filed at all). The last two are kept apart because a
-  missing feed makes every player look healthy: there is no 2026 injury file
-  until Week 1's practice week, and a gate that read that as "nobody is
-  injured" would clear an entire slate. Player props are priced, frozen and
-  settled; they cannot be selected. The exact analogue of goalie saves.
+  exists and the player is not on it — evidence, not confirmation), `no_report`
+  (no report filed at all), and `unknown` (the feed cannot answer). The middle
+  two are kept apart because a missing feed makes every player look healthy:
+  there is no 2026 injury file until Week 1's practice week, and a gate that
+  read that as "nobody is injured" would clear an entire slate. Player props
+  are priced, frozen and settled; they cannot be selected. The exact analogue
+  of goalie saves.
+- **The gate is wired, and it had no caller until 2026-09-23.**
+  `select()` decided every player prop on the single boolean
+  `undesignated_allowed`, while `gates.assess_availability` and
+  `gates.report_coverage` were referenced only by their own tests. **One
+  boolean stood in for six states**, so the day
+  `props_selectable_when_undesignated` shipped, a player listed **Out** and
+  every player on a team that filed no report would have become selectable on
+  that one flag. `gates.assess_slate` now grades each player and
+  `run_gameday_card.py` passes the map into `build_card`; a player the map
+  does not hold cannot select, and neither can anyone when the map is absent.
+
+  **The gate also fail-opened twice, both into `undesignated`** — the one
+  non-confirmed state a verdict can open — with a reason string that
+  affirmatively asserted availability. An injuries frame with no `gsis_id`
+  emptied its rows and took the "absent from a filed report" branch; an
+  unrecognised `report_status` fell out of the bottom into the same answer,
+  and `injuries_2024.csv` carries **six rows reading `Note`**, one of them a
+  starting quarterback. Both now answer `unknown`, which never selects. The
+  schema check runs **above** the `no_report` return: placed under it, control
+  never arrives, because an unreadable frame has already returned on the team
+  lookup. `season` and `week` became required columns rather than filtered
+  "if present", and a player's week is reduced to its **most restrictive**
+  state rather than to whichever row sits last — measured, 2 player-weeks in
+  2024 carry rows that disagree and positional last picks the softer one.
+
+  **None of this ships the verdict**, which stays out of force: the
+  population it opens measures −3.7%.
 - **A player's club comes from the current roster, never his last logged
   game — measured live, not argued.** The first shadow run priced 61 players
   across the two Week 1 openers; **6 (9.8%) are on a different club than their

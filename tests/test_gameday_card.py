@@ -459,3 +459,40 @@ def test_the_runner_hands_the_card_a_map_rather_than_only_a_flag() -> None:
 
     assert "availability=slate_availability(" in source
     assert "gates.assess_slate(" in source
+
+
+def test_the_pricer_reads_the_key_the_runner_stored(tmp_path) -> None:
+    """The consumer half of the same pin, and it was the untested half.
+
+    `card_pricing.price_slate` looked the map up with
+    `clean_text(player).casefold()` while the runner stored
+    `str(row.player).casefold()`. Pinning only the producer leaves the join
+    open from the other side — a lookup respelled here misses a resolved
+    player and counts him "player not on a current roster", which reads as a
+    roster problem rather than a key problem.
+
+    The two `no_opinion` reasons are the discriminator: a player the lookup
+    FOUND gets "no fitted rate", because this book is fitted on nothing.
+    """
+    from football_betting_lab.reports.card_pricing import PlayerBook, price_slate
+    from football_betting_lab.selection import player_key
+
+    prices = _prop_prices("  A Back  ")
+    prices["selection"] = "over"
+    prices["line"] = 40.5
+    player_ids = {player_key("A Back"): "00-0000001"}
+
+    _probabilities, diagnostics = price_slate(
+        prices,
+        NFL,
+        distributions={},
+        book=PlayerBook(pd.DataFrame(), {}, before="202601", draws=1),
+        player_ids=player_ids,
+    )
+
+    reasons = dict(diagnostics.reasons)
+    assert "player not on a current roster" not in reasons, (
+        "the pricer missed a player the runner resolved — the two sides of "
+        "the player key have come apart again"
+    )
+    assert "no fitted rate for `rush_yards`" in reasons

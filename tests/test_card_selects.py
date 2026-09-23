@@ -251,6 +251,30 @@ def test_the_verdict_opens_one_state_and_not_the_other_five(
     assert picks == []
 
 
+def test_the_two_halves_of_the_gate_are_in_series_not_either_or(
+    tmp_path: Path,
+) -> None:
+    """The flag lives in two places, so the two can disagree.
+
+    `select()` reads `undesignated_allowed` and every `Availability` carries
+    its own copy, both set from one `ships(...)` call in the runner. They
+    agree in production and a test is the only place they can come apart —
+    which is exactly where a defence-in-depth check stops being checked.
+    A map built while the verdict was in force must not select through a
+    `select()` call that was told it is not.
+    """
+    prices = _prop_prices()
+    policy = _policy(tmp_path, ["rush_yards"])
+
+    picks, _ = select(
+        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        undesignated_allowed=False,
+        availability=_availability(),  # built with the verdict in force
+    )
+
+    assert picks == []
+
+
 def test_a_player_the_map_does_not_hold_cannot_select(tmp_path: Path) -> None:
     """A player who did not resolve, or whose row arrived after the map was
     built, is a player this lab could not assess. Absence from the map is not

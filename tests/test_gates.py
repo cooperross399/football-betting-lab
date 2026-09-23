@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import pytest
 
+from football_betting_lab import gates as _gates
 from football_betting_lab.gates import (
     Availability,
     DOUBTFUL,
@@ -38,6 +39,9 @@ from football_betting_lab.gates import (
 
 
 NOW = datetime(2026, 9, 13, 15, 0, tzinfo=timezone.utc)
+
+#: Every state a `report_status` can map to, read off the gate's own table.
+_STATUS_TO_STATE_VALUES = tuple(_gates._STATUS_TO_STATE.values())
 
 
 def _injuries(rows: list[dict]) -> pd.DataFrame:
@@ -180,6 +184,23 @@ def test_the_card_says_why_rather_than_going_quiet() -> None:
 # had no caller.
 
 
+def test_the_required_columns_are_named_here_and_not_only_derived() -> None:
+    """The parametrized test below iterates `REQUIRED_INJURY_COLUMNS`, so it
+    would go on passing with fewer cases if a column were quietly dropped from
+    the constant — a roster only guards what it names. This names them.
+
+    Each is read unconditionally somewhere in `assess_availability`, and each
+    was conditional before: `season` and `week` were filtered "if present",
+    so a frame without them answered every week from whatever rows it held;
+    `gsis_id` emptied the rows and answered UNDESIGNATED; `team` and
+    `report_status` are what the coverage set and the designation are read
+    from.
+    """
+    assert set(REQUIRED_INJURY_COLUMNS) == {
+        "season", "week", "team", "gsis_id", "report_status"
+    }
+
+
 @pytest.mark.parametrize("column", REQUIRED_INJURY_COLUMNS)
 def test_a_frame_missing_a_column_this_gate_reads_cannot_answer(column: str) -> None:
     """Every required column, dropped one at a time.
@@ -296,6 +317,86 @@ def test_an_unreadable_feed_still_prices_so_the_ledger_keeps_accruing() -> None:
     refusing to freeze an opinion over a column name would lose a day of the
     only evidence this lab can still gather. Pricing is not betting."""
     assert Availability(player_id="p", state=UNKNOWN, reason="").may_price
+
+
+def test_two_rows_that_disagree_are_reduced_to_the_most_restrictive() -> None:
+    """File order is not authority, and it used to be.
+
+    `rows.iloc[-1]` took whichever row happened to sit last. Measured on the
+    real feed: 2 player-weeks in `injuries_2024.csv` carry two rows that
+    disagree, both `Out` beside `Questionable`, and positional last picks
+    **Questionable** in both. Neither is selectable so those two cost
+    nothing — but `Out` beside a blank is the same shape and answers
+    `UNDESIGNATED`, which a recorded verdict can open.
+    """
+    out_last = _injuries(
+        [_report(report_status="Questionable"), _report(report_status="Out")]
+    )
+    out_first = _injuries(
+        [_report(report_status="Out"), _report(report_status="Questionable")]
+    )
+
+    for injuries in (out_last, out_first):
+        assert assess_availability(
+            "00-0000001", "BUF", injuries, season=2026, week=1
+        ).state == EXCLUDED
+
+
+def test_a_blank_row_cannot_wash_out_a_designation() -> None:
+    """The case that would actually have cost something: `Out` beside a row
+    with no game-status designation. Positional last answers `UNDESIGNATED` —
+    the one state a shipped verdict makes selectable — about a player listed
+    Out in the same week's report."""
+    injuries = _injuries(
+        [_report(report_status="Out"), _report(report_status="")]
+    )
+
+    verdict = assess_availability("00-0000001", "BUF", injuries, season=2026, week=1)
+
+    assert verdict.state == EXCLUDED
+    assert not Availability(
+        player_id="p", state=verdict.state, reason="", undesignated_allowed=True
+    ).may_select
+
+
+def test_an_unreadable_row_is_not_masked_by_a_readable_one() -> None:
+    """One row of this player's week could not be read, so the week could not
+    be read. A `Questionable` beside it does not make that go away."""
+    injuries = _injuries(
+        [_report(report_status="Questionable"), _report(report_status="Note")]
+    )
+
+    assert assess_availability(
+        "00-0000001", "BUF", injuries, season=2026, week=1
+    ).state == UNKNOWN
+
+
+def test_a_definitive_out_outranks_an_unreadable_row() -> None:
+    """`Out` is the only state that stops pricing as well as selection, so it
+    is the most restrictive answer available and it is a fact the feed
+    actually stated."""
+    injuries = _injuries(
+        [_report(report_status="Note"), _report(report_status="Out")]
+    )
+
+    assert assess_availability(
+        "00-0000001", "BUF", injuries, season=2026, week=1
+    ).state == EXCLUDED
+
+
+def test_the_restrictiveness_order_covers_every_state_it_reduces() -> None:
+    """A state missing from the order raises `ValueError` inside `min` on a
+    live card rather than answering. Pinning it here makes a new state a
+    failing test instead."""
+    from football_betting_lab.gates import _RESTRICTIVENESS
+
+    assert set(_RESTRICTIVENESS) == {
+        EXCLUDED, UNKNOWN, DOUBTFUL, QUESTIONABLE, UNDESIGNATED
+    }
+    assert set(_STATUS_TO_STATE_VALUES) <= set(_RESTRICTIVENESS)
+    # Most restrictive first, and the two that matter most at the front.
+    assert _RESTRICTIVENESS[0] == EXCLUDED
+    assert _RESTRICTIVENESS.index(UNKNOWN) < _RESTRICTIVENESS.index(UNDESIGNATED)
 
 
 # -- the gate has a caller now ------------------------------------------------

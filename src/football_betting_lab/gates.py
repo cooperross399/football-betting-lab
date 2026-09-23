@@ -189,6 +189,34 @@ _STATUS_TO_STATE = {
     "questionable": QUESTIONABLE,
 }
 
+#: Most restrictive first. When a player carries more than one row for one
+#: week and they disagree, this decides — not the order the rows happen to
+#: sit in the file.
+#:
+#: `rows.iloc[-1]` decided it before, and file order is not authority.
+#: Measured over the real feed: 2 player-weeks in `injuries_2024.csv` carry
+#: two rows that disagree, both `Out` beside `Questionable`, and positional
+#: last picks **Questionable** in both. Neither is selectable, so those two
+#: cost nothing — but `Out` beside a blank is the same shape and would have
+#: answered UNDESIGNATED, which a recorded verdict can open.
+#:
+#: A timestamp tiebreak is not available on the path that matters:
+#: `date_modified` is in the 2022-2024 files and **absent from
+#: `injuries_2025.csv` and `injuries_2026.csv`**, so the live card has no
+#: timestamp to break on. This reduction needs none.
+#:
+#: `EXCLUDED` outranks `UNKNOWN` because a row listing a player Out is
+#: definitive and stops pricing as well as selection; `UNKNOWN` outranks the
+#: designations because "one of this player's rows could not be read" must
+#: not be masked by another row that happened to parse.
+_RESTRICTIVENESS: tuple[str, ...] = (
+    EXCLUDED,
+    UNKNOWN,
+    DOUBTFUL,
+    QUESTIONABLE,
+    UNDESIGNATED,
+)
+
 
 def missing_injury_columns(injuries: pd.DataFrame) -> tuple[str, ...]:
     """Which of `REQUIRED_INJURY_COLUMNS` this frame does not carry.
@@ -295,14 +323,24 @@ def assess_availability(
             ),
         )
 
+    # EVERY row for this player and week, reduced to the most restrictive
+    # state — not `rows.iloc[-1]`, which let file order decide a designation.
+    #
     # `clean_text` rather than `str(x or "")`: a blank CSV cell arrives as
     # float NaN, which is truthy, so the old spelling turned the single most
     # common value in the feed — 3,386 of 6,215 rows in 2024 — into the
-    # literal string "nan" and then into the unrecognised branch below. With
-    # that branch now closing rather than opening, reading a blank correctly
-    # is what keeps an ordinary practice-report row out of `UNKNOWN`.
-    status = clean_text(rows.iloc[-1].get("report_status", "")).lower()
-    state = _STATUS_TO_STATE.get(status)
+    # literal string "nan" and then into the unrecognised branch. With that
+    # branch now closing rather than opening, reading a blank correctly is
+    # what keeps an ordinary practice-report row out of `UNKNOWN`.
+    statuses = [
+        clean_text(value).lower() for value in rows["report_status"].tolist()
+    ]
+    states = [
+        _STATUS_TO_STATE.get(status, UNKNOWN if status else UNDESIGNATED)
+        for status in statuses
+    ]
+    state = min(states, key=_RESTRICTIVENESS.index)
+
     if state == EXCLUDED:
         return Availability(
             player_id=str(player_id),
@@ -312,29 +350,35 @@ def assess_availability(
                 "Definitive: no opinion is offered."
             ),
         )
-    if state is not None:
-        return Availability(
-            player_id=str(player_id),
-            state=state,
-            reason=(
-                f"Listed {status.title()} on {club}'s week {week} injury "
-                "report. Books reprice on Sunday-morning news; this lab "
-                "cannot, so the market is priced and tracked and cannot "
-                "produce a selection."
-            ),
-        )
-    if status:
+    if state == UNKNOWN:
         # A status this gate does not recognise. `injuries_2024.csv` carries
-        # six rows reading `Note`, and nflverse can add a value any week.
-        # This used to fall through to the `UNDESIGNATED` return below — a
-        # designation nobody here understands, answered as "not designated".
+        # six rows reading `Note` — one of them a starting quarterback — and
+        # nflverse can add a value any week. This used to fall out of the
+        # bottom of the function into `UNDESIGNATED`: a designation nobody
+        # here understands, answered as "not designated".
+        unreadable = next(
+            status
+            for status in statuses
+            if status and status not in _STATUS_TO_STATE
+        )
         return Availability(
             player_id=str(player_id),
             state=UNKNOWN,
             reason=(
-                f"`{status}` is not a report status this gate recognises, so "
-                f"{club}'s week {week} report cannot be read for this player. "
-                "An unrecognised designation is not the absence of one."
+                f"`{unreadable}` is not a report status this gate recognises, "
+                f"so {club}'s week {week} report cannot be read for this "
+                "player. An unrecognised designation is not the absence of one."
+            ),
+        )
+    if state != UNDESIGNATED:
+        return Availability(
+            player_id=str(player_id),
+            state=state,
+            reason=(
+                f"Listed {state.title()} on {club}'s week {week} injury "
+                "report. Books reprice on Sunday-morning news; this lab "
+                "cannot, so the market is priced and tracked and cannot "
+                "produce a selection."
             ),
         )
     return Availability(
