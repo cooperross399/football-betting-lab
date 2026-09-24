@@ -45,7 +45,23 @@ def main(argv: list[str] | None = None) -> int:
         print("No injury reports cached.", file=sys.stderr)
         return 2
     injuries = pd.concat(frames, ignore_index=True)
-    injuries = injuries[injuries["season_type"] == "REG"]
+    # `season_type` is absent from injuries_2022/2023/2024.csv and present in
+    # 2025/2026 — nflverse added it partway through. After `concat` the older
+    # rows carry NaN, so the plain `== "REG"` comparison dropped **every one of
+    # them**: 5,794 rows survived of 23,575, and the designation lookup saw
+    # 2025 and 2026 only while the bets span 2023-2025.
+    #
+    # It failed in the flattering direction. A dropped injury row cannot be
+    # matched, `measure` fills an unmatched bet with NOT_LISTED, and both
+    # 2023 and 2024 therefore landed wholesale in "not on the report" — the
+    # bucket that is largest, least informative, and the one a shipped
+    # `props_selectable_when_undesignated` would open. Correcting it moves
+    # 10,581 bets out of that bucket and turns the table's only positive cell,
+    # Questionable at +3.3% on 1,154 bets, into **-6.0% on 3,094**.
+    #
+    # A missing column means the file predates the column, not that its rows
+    # are postseason, so an absent value is kept.
+    injuries = availability_cost.regular_season_rows(injuries)
     # Keyed on `gsis_id`, not on the spelling of a name.
     #
     # This joined `injuries["full_name"].casefold()` to `bets["player"]` until
