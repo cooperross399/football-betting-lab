@@ -950,20 +950,32 @@ On `rush_yards` across three bought seasons:
 
 | Designation that week | Bets | Voids | Void share | ROI |
 |:---|---:|---:|---:|---:|
-| not on the report | 11,167 | 87 | 0.8% | **+2.6%** |
-| listed, no designation | 732 | 1 | 0.1% | −10.9% |
-| Questionable | 155 | 10 | 6.1% | −13.4% |
+| not on the report | 9,536 | 44 | 0.5% | **+0.5%** |
+| listed, no designation | 2,085 | 6 | 0.3% | **+8.1%** |
+| Questionable | 432 | 48 | 10.0% | −6.2% |
+| Note | 1 | 0 | 0.0% | −100.0% |
 | **all** | **12,054** | 98 | 0.8% | **+1.6%** |
 
-Across all markets it is **−3.7% over 81,005 bets**, with the undesignated
-bucket at −2.8% and Questionable the only positive cell at **+3.3%** on 1,154
-bets. Every player listed Out or Doubtful voided 100% of the time, so the gate
-that matters is already automatic — that finding survives.
+Across all markets it is **−3.7% over 81,005 bets**, with "not on the report"
+at −3.0%, "listed, no designation" at −6.1% and Questionable at **−6.0%** on
+3,094 bets. **There is no positive cell.** Every player listed Out or Doubtful
+voided 100% of the time, so the gate that matters is already automatic — that
+finding survives.
 
-This table and the all-markets figure were **−3.2% over 78,773** here until
-2026-09-23, quoting a run that predated the settlement-join fix. Both are now
-in `tests/test_claude_md_agrees_with_its_reports.py`, so a regenerated report
-cannot strand them again.
+**This table has now been wrong twice, in opposite directions, and both are
+recorded rather than quietly replaced.** It read −3.2% over 78,773 until
+2026-09-23, quoting a run that predated the settlement-join fix. The corrected
+run then inherited a filter defect of its own: `run_availability_cost.py`
+applied `season_type == "REG"` after concatenating the per-season files, and
+`season_type` is **absent** from injuries_2022/2023/2024.csv, so those rows
+arrived as NaN and every one of them was dropped — 5,794 rows survived of
+23,575, and the designation lookup saw 2025 and 2026 only against bets
+spanning 2023-2025. Unmatched bets fill as "not on the report", so two whole
+seasons landed in the fail-open bucket. Correcting it moved 10,581 bets out of
+it and turned Questionable from **+3.3% on 1,154** into **−6.0% on 3,094**.
+Both figures are in `tests/test_claude_md_agrees_with_its_reports.py`, which
+caught neither, because a drift test pins this file to the report and cannot
+see that the report was computed on a third of its input.
 
 **The did-not-play clause no longer decides anything.** If a book graded
 did-not-plays as losses rather than voids, `rush_yards` is **+0.8%** instead

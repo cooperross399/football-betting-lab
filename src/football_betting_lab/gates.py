@@ -242,6 +242,29 @@ def missing_injury_columns(injuries: pd.DataFrame) -> tuple[str, ...]:
     )
 
 
+def usable_player_ids(injuries: pd.DataFrame) -> bool:
+    """Whether `gsis_id` identifies at least one player.
+
+    Separate from `missing_injury_columns` because the two questions have
+    different answers and only one of them was being asked. A column can be
+    present and carry nothing, and the failure then runs *through* the row
+    filter rather than into it: nothing matches, and "nothing matched" is
+    indistinguishable from "this player is not on the report" — which is
+    UNDESIGNATED, and selectable under a recorded verdict.
+    """
+    if injuries.empty or "gsis_id" not in injuries.columns:
+        return False
+    # `notna()` BEFORE the string conversion. `astype(str)` renders a `None`
+    # as the literal `"None"` and a float NaN as `"nan"`, so a blocklist of
+    # spellings catches whichever one the column's dtype happens to produce
+    # and misses the other — an object column holding `None` reads as a
+    # perfectly good id five characters long. This test's own first draft had
+    # exactly that hole and its own fixture found it.
+    ids = injuries["gsis_id"]
+    text = ids.where(ids.notna(), "").astype(str).str.strip()
+    return bool((text.ne("") & text.str.lower().ne("nan")).any())
+
+
 def report_coverage(injuries: pd.DataFrame, *, season: int, week: int) -> set[str]:
     """Which teams filed an injury report for this week.
 
@@ -294,6 +317,36 @@ def assess_availability(
                     f"{week}. An unanswerable question quarantines: this used "
                     "to read as undesignated, which is a state a recorded "
                     "verdict can make selectable."
+                ),
+            )
+        # PRESENT is not USABLE, and the difference fails open.
+        #
+        # The check above asks whether the column exists. A `gsis_id` column
+        # that exists and identifies nobody — all null, or all empty string —
+        # passes it, and then does something worse than erroring: the team
+        # lookup still succeeds, because `team` is fine, so the club is
+        # `reporting`; the row filter then matches nothing; and the empty
+        # match takes the "filed a report and this player is not on it"
+        # branch. That is UNDESIGNATED, the one state a recorded verdict can
+        # make selectable, with a reason sentence that affirmatively asserts
+        # the player is absent from a report the gate never actually read.
+        #
+        # Measured with the verdict forced on: a frame saying every player on
+        # a club is **Out**, with its ids blanked, returns `may_select=True`
+        # for every one of them. Today's five archives carry zero null or
+        # blank ids, so this is the trap rather than the accident — and it is
+        # the same trap the branch that added this check was written to close,
+        # one layer further in.
+        if not usable_player_ids(injuries):
+            return Availability(
+                player_id=str(player_id),
+                state=UNKNOWN,
+                reason=(
+                    f"The injury feed carries a `gsis_id` column that "
+                    f"identifies nobody, so no row in it can be matched to a "
+                    f"player and {club}'s week {week} report cannot be read. "
+                    "A column that is present and empty is not a report "
+                    "saying nobody is hurt."
                 ),
             )
 

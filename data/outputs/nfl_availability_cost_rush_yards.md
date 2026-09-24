@@ -8,9 +8,10 @@ This lab has refused to let any player prop produce a selection, because inactiv
 
 | Designation that week | Bets | Voids | Void share | ROI |
 |:----------------------|-----:|------:|-----------:|----:|
-| not on the report | 11,167 | 87 | 0.8% | +2.6% |
-| listed, no designation | 732 | 1 | 0.1% | -10.9% |
-| Questionable | 155 | 10 | 6.1% | -13.4% |
+| not on the report | 9,536 | 44 | 0.5% | +0.5% |
+| listed, no designation | 2,085 | 6 | 0.3% | +8.1% |
+| Questionable | 432 | 48 | 10.0% | -6.2% |
+| Note | 1 | 0 | 0.0% | -100.0% |
 | **all** | 12,054 | 98 | 0.8% | +1.6% |
 
 ## The assumption this all rests on

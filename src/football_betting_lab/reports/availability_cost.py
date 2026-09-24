@@ -75,6 +75,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 
+REGULAR_SEASON = "REG"
 NOT_LISTED = "not on the report"
 LISTED_NO_DESIGNATION = "listed, no designation"
 
@@ -118,6 +119,32 @@ class AvailabilityResult:
         if not total:
             return 0.0
         return (self.staked * self.roi - self.voids) / total
+
+
+def regular_season_rows(injuries: pd.DataFrame) -> pd.DataFrame:
+    """Injury rows for regular-season weeks, across files that disagree on schema.
+
+    `season_type` is absent from injuries_2022/2023/2024.csv and present in
+    2025/2026 — nflverse added it partway through. Concatenating them and then
+    writing `injuries[injuries["season_type"] == "REG"]` drops every row from
+    the older files, because theirs is NaN and NaN never equals "REG". That is
+    what `run_availability_cost.py` did until 2026-09-23: **5,794 rows survived
+    of 23,575**, the lookup saw 2025 and 2026 only, and the bets span 2023-2025.
+
+    It failed in the direction that hides it. An unmatched bet fills as
+    `NOT_LISTED`, so two entire seasons landed in "not on the report" — the
+    largest bucket, and the one a shipped `props_selectable_when_undesignated`
+    would open. The table looked plausible and its only positive cell, a
+    Questionable ROI of +3.3%, was computed on a third of the population; on
+    the whole of it that cell is -6.0%.
+
+    An absent value means the file predates the column, not that the row is
+    postseason, so it is kept. A row that says `POST` is dropped.
+    """
+    if injuries.empty or "season_type" not in injuries.columns:
+        return injuries
+    kind = injuries["season_type"]
+    return injuries[kind.isna() | (kind.astype(str).str.strip() == REGULAR_SEASON)]
 
 
 def measure(bets: pd.DataFrame, designations: pd.Series) -> AvailabilityResult:
