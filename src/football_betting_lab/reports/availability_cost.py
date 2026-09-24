@@ -11,7 +11,9 @@ rule: a market you cannot confirm is a market you cannot bet.
 the settlement rule rather than anything about the model.**
 
 A player who does not take a snap does not lose the bet. The book **voids** it
-and returns the stake. So the question "will he play?" is not a question about
+and returns the stake — read from the rule text on 2026-09-23 rather than
+assumed, `docs/did_not_play_rules.md`, with Bovada the one exception in this
+lab's feed. So the question "will he play?" is not a question about
 whether the bet wins — it is a question about whether there is a bet at all,
 and a bet that never existed costs nothing.
 
@@ -35,6 +37,26 @@ answer before a live card; nothing waits on it any more.
 the single largest assumption in this lab and it is one a human can settle in
 a minute by reading a book's prop rules, which is why it is surfaced rather
 than buried.
+
+**It was settled on 2026-09-23 and it is no longer an assumption.**
+`docs/did_not_play_rules.md` holds the rule text, book by book, from state
+regulator filings where the operator files one. Books void, symmetrically.
+The one exception is **Bovada**, which keys on the game-day active roster and
+grades a player who is active and never plays — so the figures here describe
+every book in the feed except the one they are most likely to be acted on at.
+
+## How the designation is joined, and the failure it used to have
+
+`run_availability_cost.py` built this table by joining
+`injuries["full_name"].casefold()` to the bet's player string until
+2026-09-23 — the same name-string join the hardening audit condemned in
+`props_backtest.py` and that was fixed there. It missed every suffix and
+punctuation variant the two feeds spell differently, 228 bets on 10 players,
+34 of them **Questionable**. It also failed **open**: `measure` fills a missed
+join with `NOT_LISTED`, so a player who was on the report became a player who
+looked unencumbered — the exact bucket
+`props_selectable_when_undesignated` would make selectable. It joins on
+`gsis_id` now. Questionable was +6.2% before the fix and is +3.3% after it.
 
 ## Where the edge actually lives
 
@@ -177,9 +199,24 @@ def render(
     )
     add("")
     add(
-        "That is the difference between a strategy and a disaster, it turns "
-        "on one line in a book's rules, and no amount of modelling can settle "
-        "it. **It is a question for a human with an account**, and it should "
-        "be answered before anything here is acted on."
+        "**That question has been answered.** `docs/did_not_play_rules.md`, "
+        "2026-09-23: books void a did-not-play prop and void it symmetrically, "
+        "on the over and the under alike. The rule text was read from "
+        "state-regulator house-rules filings for DraftKings, FanDuel, BetMGM, "
+        "Caesars, Fanatics and ESPN Bet, and from the operators' own pages for "
+        "Pinnacle and Bovada. bet365 and BetRivers could not be obtained and "
+        "are recorded as unverified rather than assumed."
+    )
+    add("")
+    add(
+        "**Bovada is the exception, and it is in this lab's feed.** It keys on "
+        "the game-day active roster rather than on snaps: a player who is "
+        "active and never takes a snap is **graded**, so an over loses and an "
+        "under at zero wins. The void arithmetic above does not describe a "
+        "Bovada card. Of the eleven books in the quote store, five were read "
+        "directly — **four void and Bovada grades**. Three more match a "
+        "researched operator only under a legacy provider key, on a mapping "
+        "that is an assumption rather than a checked fact. Three are "
+        "unresearched."
     )
     return "\n".join(lines) + "\n"

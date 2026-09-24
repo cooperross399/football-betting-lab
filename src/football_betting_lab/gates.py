@@ -115,14 +115,27 @@ SELECTABLE_STATES = frozenset({CONFIRMED})
 #: bet — was the NHL lab's goalie-saves rule, and it does not survive
 #: measurement here. A player who does not take a snap does not lose the bet;
 #: the book **voids** it and returns the stake. Over three bought seasons
-#: 12.2% of selections voided, every player listed Out or Doubtful voided
-#: 100% of the time, and the return concentrated entirely in the undesignated
-#: population.
+#: 2.2% of selections voided and every player listed Out or Doubtful voided
+#: 100% of the time, so the definitive designations gate themselves.
 #:
-#: So "cannot confirm active" is not a financial risk for props — provided the
-#: book voids. If it grades a did-not-play as a loss, the same record is
-#: -0.8% rather than +13.0%, and that is why this is behind a verdict rather
-#: than simply switched on.
+#: **The figures that used to sit here — 12.2% voiding, a return concentrated
+#: entirely in the undesignated population, -0.8% against +13.0% — are
+#: retracted.** They were computed on cross-season-settled bets;
+#: `availability_cost.py` records the retraction and
+#: `data/outputs/nfl_availability_cost.md` carries the corrected table. The
+#: whole record is -3.7%, the undesignated bucket -2.8%, and the only positive
+#: cell is Questionable at +3.3% on 1,154 bets.
+#:
+#: So "cannot confirm active" is not a large financial risk for props —
+#: provided the book voids. `docs/did_not_play_rules.md` reads the rule text.
+#: Five of the eleven books in this lab's feed were read directly: **four
+#: void** and **Bovada grades**, keying on the game-day active roster rather
+#: than on snaps. Against a grade-as-loss rule the same record is -5.8%
+#: rather than -3.7%.
+#:
+#: That is why this stays behind a verdict. The blocker is no longer the rule,
+#: which has been read; it is that the population this would open measures as
+#: losing.
 SELECTABLE_WITH_VERDICT = frozenset({UNDESIGNATED})
 
 #: States in which the model still holds and freezes an opinion, so forward

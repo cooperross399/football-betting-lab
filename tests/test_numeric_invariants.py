@@ -166,7 +166,12 @@ def test_one_game_offers_no_interval_rather_than_a_narrow_one() -> None:
 
 def test_voids_never_reach_the_return() -> None:
     """A voided prop had no outcome. Counting it as a zero-profit bet drags the
-    ROI toward zero and inflates the bet count — and 6.2% of selections void."""
+    ROI toward zero and inflates the bet count — and 2.2% of selections void.
+
+    That share read 6.2% here until 2026-09-23, quoting a run from before the
+    settlement-join fix. `data/outputs/nfl_availability_cost.md` is the
+    authority; this docstring is not, which is why it names the report rather
+    than standing on its own."""
     rows = [{"profit_units": 1.0, "home_team": f"H{i}", "away_team": f"A{i}"}
             for i in range(10)]
     rows += [{"profit_units": 0.0, "outcome": "void",

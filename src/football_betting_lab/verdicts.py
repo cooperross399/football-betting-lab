@@ -52,15 +52,25 @@ VERDICT_FILES: dict[str, str] = {
     # A within-game scoring model, which the half and quarter markets need.
     "half_scoring_model": "half_scoring_experiment",
     # Whether a player prop may produce a selection for a player who carries
-    # no injury designation. Measured: 12.2% of such selections void, every
-    # player listed Out or Doubtful voids 100% of the time, and the edge lives
-    # entirely in the undesignated population.
+    # no injury designation. Measured: 2.2% of such selections void and every
+    # player listed Out or Doubtful voids 100% of the time.
     #
-    # **It does not ship on that measurement alone.** The whole result rests on
-    # a book voiding a did-not-play prop rather than grading it a loss, which
-    # turns +13.0% into -0.8%. That is one line in a book's rules and no
-    # amount of modelling can settle it, so this verdict waits for a human who
-    # has read them.
+    # This entry used to say the result rested on one line in a book's rules,
+    # "which turns +13.0% into -0.8%", and that the verdict waited for a human
+    # who had read them. Both halves of that have moved:
+    #
+    # * The +13.0%/-0.8% pair is **retracted** — computed on
+    #   cross-season-settled bets, see `reports/availability_cost.py`. The
+    #   corrected pair is -3.7% against -5.8%.
+    # * The rules **have been read**, on 2026-09-23, from state-regulator
+    #   filings and operator rules pages: `docs/did_not_play_rules.md`. Books
+    #   void, symmetrically — except Bovada, which keys on the game-day active
+    #   roster and grades a player who is active and never plays.
+    #
+    # So the stated blocker is gone and the verdict still does not ship, for a
+    # different and better reason: the population it would open measures -3.7%.
+    # `CLAUDE.md` puts it plainly — the clause "is still worth answering before
+    # anything is acted on, but nothing waits on it."
     "props_selectable_when_undesignated": "availability_policy",
 }
 

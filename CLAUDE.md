@@ -950,22 +950,51 @@ On `rush_yards` across three bought seasons:
 
 | Designation that week | Bets | Voids | Void share | ROI |
 |:---|---:|---:|---:|---:|
-| not on the injury report | 10,678 | 629 | 5.6% | **+1.8%** |
-| listed, no designation | 733 | 1 | 0.1% | −10.2% |
-| Questionable | 154 | 10 | 6.1% | −12.9% |
-| **all** | **11,565** | 640 | 5.2% | **+0.9%** |
+| not on the report | 11,167 | 87 | 0.8% | **+2.6%** |
+| listed, no designation | 732 | 1 | 0.1% | −10.9% |
+| Questionable | 155 | 10 | 6.1% | −13.4% |
+| **all** | **12,054** | 98 | 0.8% | **+1.6%** |
 
-Across all markets it is **−3.2% over 78,773 bets**. Every player listed Out
-or Doubtful voided 100% of the time, so the gate that matters is already
-automatic — that finding survives.
+Across all markets it is **−3.7% over 81,005 bets**, with the undesignated
+bucket at −2.8% and Questionable the only positive cell at **+3.3%** on 1,154
+bets. Every player listed Out or Doubtful voided 100% of the time, so the gate
+that matters is already automatic — that finding survives.
+
+This table and the all-markets figure were **−3.2% over 78,773** here until
+2026-09-23, quoting a run that predated the settlement-join fix. Both are now
+in `tests/test_claude_md_agrees_with_its_reports.py`, so a regenerated report
+cannot strand them again.
 
 **The did-not-play clause no longer decides anything.** If a book graded
-did-not-plays as losses rather than voids, `rush_yards` is **−4.4%** instead
-of **+0.9%**, and all markets **−9.2%** instead of −3.2%. That was previously
+did-not-plays as losses rather than voids, `rush_yards` is **+0.8%** instead
+of **+1.6%**, and all markets **−5.8%** instead of −3.7%. That was previously
 the difference between +13.0% and −0.8% — a strategy or a disaster — and it
 was the one question this lab was blocked on. It is now the difference
 between roughly zero and clearly negative. **It is still worth answering
 before anything is acted on, but nothing waits on it.**
+
+**It has now been answered**, on 2026-09-23, from state-regulator house-rules
+filings: `docs/did_not_play_rules.md`. Books void a did-not-play prop and void
+it symmetrically. **Bovada does not** — it keys on the game-day active roster
+and grades a player who is active and never plays, so an over loses and an
+under at zero wins. Bovada is in this lab's feed. Of its eleven books, five were read
+directly — four void and Bovada grades; three match a researched operator only
+under a legacy provider key, on a mapping that is an assumption; three are
+unresearched.
+
+That removes the stated blocker on `props_selectable_when_undesignated` and
+leaves a better one: the population it would open measures −3.7%, and
+`run_gameday_card.py` wires that verdict straight into live selection. **It
+does not ship.**
+
+**The designation table was built on a name-string join** —
+`injuries["full_name"].casefold()` against the bet's player string — until
+2026-09-23, the same shape the hardening audit condemned in
+`props_backtest.py`. It missed 228 bets on 10 players with suffix or
+punctuation variants, 34 of them Questionable, and it failed **open**: a
+missed join fills as "not on the report", which is the bucket the verdict
+would make selectable. It joins on `gsis_id` now. Questionable was +6.2%
+before the fix and is +3.3% after it.
 
 ## Every stat we can compute, tested against what the price got wrong
 
