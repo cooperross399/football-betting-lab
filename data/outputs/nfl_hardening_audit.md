@@ -82,20 +82,32 @@ that change, not in a later audit.
   today: `price_slate` is called without `half_distributions`
   (`run_gameday_card.py:253-255`), so no h1 row can be frozen. Fix it in the
   change that ships the first-half verdict, not after.
-- **One boolean stands in for six availability states.** `select()` gates player
-  props on `undesignated_allowed` alone (`gameday_card.py:165`), and
-  `gates.assess_availability` / `report_coverage` have no caller in `src/` or
-  `scripts/`. Today the blanket refusal matches the card's documented gate 4, so
-  no wrong decision follows. The day `props_selectable_when_undesignated` ships,
-  a player listed **Out** and every player on a team that filed no report both
-  become selectable on that one flag.
-- **`assess_availability` fail-opens.** If the injuries frame lacks `gsis_id` the
-  rows are emptied and the empty branch returns UNDESIGNATED — the one
-  non-confirmed state a verdict can make selectable — with a reason string that
-  affirmatively asserts availability (`gates.py:186-192`); an unrecognised
-  `report_status` falls the same way. Real fail-opens in a function nothing
-  calls. They must be closed in the same change that wires the gate, or that
-  change ships a gate that answers "available" for a player listed Out.
+- ~~**One boolean stands in for six availability states.**~~ **RESOLVED
+  2026-09-23.** `select()` gated player props on `undesignated_allowed` alone
+  (`gameday_card.py:165`) while `gates.assess_availability` / `report_coverage`
+  had no caller in `src/` or `scripts/`. `gates.assess_slate` now grades each
+  player on the slate and `run_gameday_card.py` passes the map into
+  `build_card`; `select()` requires the verdict **and** a `may_select` state,
+  and a player the map does not hold — or an absent map — refuses.
+- ~~**`assess_availability` fail-opens.**~~ **RESOLVED 2026-09-23.** Both paths
+  answered UNDESIGNATED, the one non-confirmed state a verdict can make
+  selectable, with a reason string that affirmatively asserted availability.
+  They now answer a new `UNKNOWN` state, which is priceable and never
+  selectable. Two things the fix needed that the first plan did not have: the
+  schema check must run **above** the `NO_REPORT` return, because an
+  unreadable frame produces an empty coverage set and returns on the team
+  lookup before any guard below it is reached; and `season`/`week` had to
+  become required columns rather than conditionally-applied filters. The
+  unrecognised-status path is not hypothetical — `injuries_2024.csv` carries
+  six rows whose `report_status` is `Note`.
+
+  A third defect of the same family was found while closing these and is fixed
+  with them: `rows.iloc[-1]` let **file order** decide which of a player's rows
+  for a week answered. 2 player-weeks in 2024 carry rows that disagree (`Out`
+  beside `Questionable`) and positional last picks the softer one; the week is
+  now reduced to its most restrictive state. A timestamp tiebreak was not
+  available — `date_modified` is in the 2022-2024 files and absent from 2025
+  and 2026.
 - **`feed_freshness` checks `due` before `present`** (`feed_freshness.py:52`), so
   six absent feeds with `due=False` return `is_ready=True` (verified). The
   refutation held: the trigger is a `team_games.csv` with no rows for the season,

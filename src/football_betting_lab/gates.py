@@ -29,6 +29,11 @@ separate because collapsing them is how a card starts lying:
     a missing feed makes every player look healthy. Before Week 1 there is no
     2026 injury file at all, so every player is in this state, and a gate that
     read it as "nobody is injured" would wave through an entire slate.
+``UNKNOWN``
+    The feed cannot answer the question. A frame missing a column this gate
+    reads, a `report_status` this gate does not recognise, or a slate whose
+    week could not be read from the schedule all land here. **An unanswerable
+    question quarantines**, the same direction `check_quarterback` falls in.
 
 **None of these is `CONFIRMED`, because nothing here can produce that state.**
 So a player prop is priced, frozen into the forward ledger, and settled — and
@@ -37,6 +42,31 @@ it cannot produce a selection, and the card says so in those words.
 If a legitimate inactives source is found later, `CONFIRMED` becomes
 reachable, this gate opens, and the change is judged by the priced test rather
 than by whether it feels better.
+
+## Why `UNKNOWN` exists, and what it replaced
+
+Until this gate had a caller, both of its unreadable-feed paths returned
+`UNDESIGNATED` — **the one non-confirmed state a recorded verdict can make
+selectable** — with a reason string that affirmatively asserted availability.
+An injuries frame with no `gsis_id` column emptied its rows and took the
+"absent from a filed report" branch; a `report_status` the map did not
+recognise fell out of the bottom of the function into the same answer.
+`injuries_2024.csv` carries six rows whose status is `Note`, so that second
+path is not hypothetical.
+
+Both were harmless only because nothing called the function. They are closed
+in the same change that wires it, because a gate that answers "available" for
+a player it could not read is worse than no gate: it looks like an answer.
+
+The schema is therefore checked **first**, before the `NO_REPORT` return. An
+earlier attempt hoisted a column guard to just above the row filtering, where
+control never reaches it — every unreadable frame had already returned
+`NO_REPORT` on the team lookup above, so the guard was dead code that read
+like protection.
+
+A genuinely **empty** frame is still `NO_REPORT` rather than `UNKNOWN`. No
+file at all is the documented preseason state and it has a true reason
+sentence; a non-empty frame this gate cannot parse does not.
 
 ## Quarterback changes
 
@@ -57,10 +87,13 @@ question quarantines — the same direction every other gate falls in.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
+
+from football_betting_lab.season import clean_text
 
 
 # -- availability ------------------------------------------------------------
@@ -71,6 +104,7 @@ QUESTIONABLE = "questionable"
 DOUBTFUL = "doubtful"
 EXCLUDED = "excluded"
 NO_REPORT = "no_report"
+UNKNOWN = "unknown"
 
 #: The only state that may produce a selection when no verdict is in force.
 SELECTABLE_STATES = frozenset({CONFIRMED})
@@ -106,7 +140,32 @@ SELECTABLE_WITH_VERDICT = frozenset({UNDESIGNATED})
 
 #: States in which the model still holds and freezes an opinion, so forward
 #: evidence accumulates for a market that cannot yet be bet.
-PRICEABLE_STATES = frozenset({CONFIRMED, UNDESIGNATED, QUESTIONABLE, DOUBTFUL, NO_REPORT})
+#:
+#: `UNKNOWN` is here for the same reason `NO_REPORT` is. An unreadable injury
+#: feed says nothing about whether the model has an opinion, and a gate that
+#: stopped the freeze would lose a day of forward evidence — which cannot be
+#: re-made — over a column name. Pricing is not betting: `may_select` is what
+#: keeps an unreadable feed out of a wager.
+PRICEABLE_STATES = frozenset(
+    {CONFIRMED, UNDESIGNATED, QUESTIONABLE, DOUBTFUL, NO_REPORT, UNKNOWN}
+)
+
+#: Every column `assess_availability` reads. A frame missing any of them
+#: cannot answer for any player, and the answer it used to give was
+#: `UNDESIGNATED`.
+#:
+#: `season` and `week` are on this list rather than filtered "if present".
+#: They were conditional, so a frame without them answered every week from
+#: whatever rows it happened to hold — a Week 1 `Out` clearing a Week 17
+#: player, or worse, clearing him as undesignated because the row for the week
+#: asked about was not there.
+REQUIRED_INJURY_COLUMNS: tuple[str, ...] = (
+    "season",
+    "week",
+    "team",
+    "gsis_id",
+    "report_status",
+)
 
 
 @dataclass(frozen=True)
@@ -143,6 +202,45 @@ _STATUS_TO_STATE = {
     "questionable": QUESTIONABLE,
 }
 
+#: Most restrictive first. When a player carries more than one row for one
+#: week and they disagree, this decides — not the order the rows happen to
+#: sit in the file.
+#:
+#: `rows.iloc[-1]` decided it before, and file order is not authority.
+#: Measured over the real feed: 2 player-weeks in `injuries_2024.csv` carry
+#: two rows that disagree, both `Out` beside `Questionable`, and positional
+#: last picks **Questionable** in both. Neither is selectable, so those two
+#: cost nothing — but `Out` beside a blank is the same shape and would have
+#: answered UNDESIGNATED, which a recorded verdict can open.
+#:
+#: A timestamp tiebreak is not available on the path that matters:
+#: `date_modified` is in the 2022-2024 files and **absent from
+#: `injuries_2025.csv` and `injuries_2026.csv`**, so the live card has no
+#: timestamp to break on. This reduction needs none.
+#:
+#: `EXCLUDED` outranks `UNKNOWN` because a row listing a player Out is
+#: definitive and stops pricing as well as selection; `UNKNOWN` outranks the
+#: designations because "one of this player's rows could not be read" must
+#: not be masked by another row that happened to parse.
+_RESTRICTIVENESS: tuple[str, ...] = (
+    EXCLUDED,
+    UNKNOWN,
+    DOUBTFUL,
+    QUESTIONABLE,
+    UNDESIGNATED,
+)
+
+
+def missing_injury_columns(injuries: pd.DataFrame) -> tuple[str, ...]:
+    """Which of `REQUIRED_INJURY_COLUMNS` this frame does not carry.
+
+    One list, read by `report_coverage` and `assess_availability` alike, so
+    the two cannot come to disagree about what a readable injury frame is.
+    """
+    return tuple(
+        column for column in REQUIRED_INJURY_COLUMNS if column not in injuries.columns
+    )
+
 
 def report_coverage(injuries: pd.DataFrame, *, season: int, week: int) -> set[str]:
     """Which teams filed an injury report for this week.
@@ -150,15 +248,15 @@ def report_coverage(injuries: pd.DataFrame, *, season: int, week: int) -> set[st
     The set exists so `NO_REPORT` and `UNDESIGNATED` can be told apart. Without
     it a team that simply has not filed yet is indistinguishable from a team
     with nobody injured, and the second reading waves a whole game through.
+
+    Fails **closed**: an empty frame, or one missing a column this gate reads,
+    returns the empty set, and the empty set means every team is `NO_REPORT`.
     """
-    if injuries.empty:
+    if injuries.empty or missing_injury_columns(injuries):
         return set()
     frame = injuries
     for column, value in (("season", season), ("week", week)):
-        if column in frame.columns:
-            frame = frame[pd.to_numeric(frame[column], errors="coerce") == value]
-    if "team" not in frame.columns:
-        return set()
+        frame = frame[pd.to_numeric(frame[column], errors="coerce") == value]
     return {str(team).strip().upper() for team in frame["team"].dropna()}
 
 
@@ -173,6 +271,32 @@ def assess_availability(
 ) -> Availability:
     """One player's state for one game week."""
     club = str(team).strip().upper()
+
+    # SCHEMA FIRST, above the team lookup. A frame this gate cannot read
+    # cannot answer for anybody, and every route below assumes the columns
+    # are there. Putting this check under the `NO_REPORT` return instead
+    # makes it unreachable: an unreadable frame produces an empty coverage
+    # set, so control returns on the team lookup and never arrives.
+    #
+    # An EMPTY frame is deliberately not `UNKNOWN`. "No injury file exists
+    # yet" is the documented preseason state, `NO_REPORT` is its name, and
+    # its reason sentence is true. A non-empty frame missing a column has
+    # no true sentence of that kind to offer.
+    if not injuries.empty:
+        missing = missing_injury_columns(injuries)
+        if missing:
+            return Availability(
+                player_id=str(player_id),
+                state=UNKNOWN,
+                reason=(
+                    f"The injury feed is missing {', '.join(missing)}, so it "
+                    f"cannot say anything about {club} in {season} week "
+                    f"{week}. An unanswerable question quarantines: this used "
+                    "to read as undesignated, which is a state a recorded "
+                    "verdict can make selectable."
+                ),
+            )
+
     reporting = (
         report_coverage(injuries, season=season, week=week)
         if teams_reporting is None
@@ -189,17 +313,16 @@ def assess_availability(
             ),
         )
 
+    # Unconditional now, and that is the point. Every one of these columns is
+    # on `REQUIRED_INJURY_COLUMNS` and was checked above, so there is no
+    # "if the column is there" branch left to fall out of into an answer.
     rows = injuries
     for column, value in (
         ("season", season),
         ("week", week),
     ):
-        if column in rows.columns:
-            rows = rows[pd.to_numeric(rows[column], errors="coerce") == value]
-    if "gsis_id" in rows.columns:
-        rows = rows[rows["gsis_id"].astype(str).str.strip() == str(player_id).strip()]
-    else:
-        rows = rows.iloc[0:0]
+        rows = rows[pd.to_numeric(rows[column], errors="coerce") == value]
+    rows = rows[rows["gsis_id"].astype(str).str.strip() == str(player_id).strip()]
 
     if rows.empty:
         return Availability(
@@ -213,8 +336,24 @@ def assess_availability(
             ),
         )
 
-    status = str(rows.iloc[-1].get("report_status", "") or "").strip().lower()
-    state = _STATUS_TO_STATE.get(status)
+    # EVERY row for this player and week, reduced to the most restrictive
+    # state — not `rows.iloc[-1]`, which let file order decide a designation.
+    #
+    # `clean_text` rather than `str(x or "")`: a blank CSV cell arrives as
+    # float NaN, which is truthy, so the old spelling turned the single most
+    # common value in the feed — 3,386 of 6,215 rows in 2024 — into the
+    # literal string "nan" and then into the unrecognised branch. With that
+    # branch now closing rather than opening, reading a blank correctly is
+    # what keeps an ordinary practice-report row out of `UNKNOWN`.
+    statuses = [
+        clean_text(value).lower() for value in rows["report_status"].tolist()
+    ]
+    states = [
+        _STATUS_TO_STATE.get(status, UNKNOWN if status else UNDESIGNATED)
+        for status in statuses
+    ]
+    state = min(states, key=_RESTRICTIVENESS.index)
+
     if state == EXCLUDED:
         return Availability(
             player_id=str(player_id),
@@ -224,12 +363,32 @@ def assess_availability(
                 "Definitive: no opinion is offered."
             ),
         )
-    if state is not None:
+    if state == UNKNOWN:
+        # A status this gate does not recognise. `injuries_2024.csv` carries
+        # six rows reading `Note` — one of them a starting quarterback — and
+        # nflverse can add a value any week. This used to fall out of the
+        # bottom of the function into `UNDESIGNATED`: a designation nobody
+        # here understands, answered as "not designated".
+        unreadable = next(
+            status
+            for status in statuses
+            if status and status not in _STATUS_TO_STATE
+        )
+        return Availability(
+            player_id=str(player_id),
+            state=UNKNOWN,
+            reason=(
+                f"`{unreadable}` is not a report status this gate recognises, "
+                f"so {club}'s week {week} report cannot be read for this "
+                "player. An unrecognised designation is not the absence of one."
+            ),
+        )
+    if state != UNDESIGNATED:
         return Availability(
             player_id=str(player_id),
             state=state,
             reason=(
-                f"Listed {status.title()} on {club}'s week {week} injury "
+                f"Listed {state.title()} on {club}'s week {week} injury "
                 "report. Books reprice on Sunday-morning news; this lab "
                 "cannot, so the market is priced and tracked and cannot "
                 "produce a selection."
@@ -243,6 +402,63 @@ def assess_availability(
             "designation. Practice participation is not availability."
         ),
     )
+
+
+def assess_slate(
+    players: Mapping[str, tuple[str, str]],
+    injuries: pd.DataFrame,
+    *,
+    season: int,
+    week: int | None,
+    undesignated_allowed: bool = False,
+) -> dict[str, Availability]:
+    """One verdict per player on the slate, keyed the way the card looks up.
+
+    `players` maps the card's player key to `(player_id, club)`. The card has
+    the provider's spelling and nothing else; identity resolution belongs to
+    the caller, which is where it already happens.
+
+    This is the function that gives the gate a caller. Before it, `select()`
+    gated every player prop on one boolean, so the day a verdict shipped, a
+    player listed **Out** and a player on a team that filed no report at all
+    would both have become selectable on that single flag.
+
+    `week is None` is not a pass. The week comes from the schedule, and a
+    slate whose week cannot be read is a slate whose injury report cannot be
+    found — so every player on it is `UNKNOWN`.
+    """
+    if week is None:
+        return {
+            key: Availability(
+                player_id=str(player_id),
+                state=UNKNOWN,
+                reason=(
+                    f"The season week for this slate could not be read from "
+                    f"the {season} schedule, so there is no injury report to "
+                    "look this player up in."
+                ),
+                undesignated_allowed=undesignated_allowed,
+            )
+            for key, (player_id, _club) in players.items()
+        }
+
+    # Once for the slate rather than once per player: the same set answers
+    # every row, and computing it per player is how the two come to disagree.
+    reporting = report_coverage(injuries, season=season, week=week)
+    return {
+        key: replace(
+            assess_availability(
+                player_id,
+                club,
+                injuries,
+                season=season,
+                week=week,
+                teams_reporting=reporting,
+            ),
+            undesignated_allowed=undesignated_allowed,
+        )
+        for key, (player_id, club) in players.items()
+    }
 
 
 def selection_blocked_note() -> str:

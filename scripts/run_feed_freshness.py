@@ -35,7 +35,7 @@ FEEDS = (
     ("depth_charts", "depth_charts_{season}.csv", True,
      "QB1 unknown, so the passing and receiving tree cannot be quarantined"),
     ("injuries", "injuries_{season}.csv", False,
-     "the availability gate reads every player as undesignated"),
+     "the availability gate can grade nobody, so every player blocks"),
     ("snap_counts", "snap_counts_{season}.csv", False,
      "role is fitted from volume alone, with no check on who was on the field"),
     ("player_stats", "stats_player_week_{season}.csv", False,

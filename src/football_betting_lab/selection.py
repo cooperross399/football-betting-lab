@@ -59,6 +59,24 @@ KNOWN_SELECTIONS: frozenset[str] = frozenset(
 )
 
 
+def player_key(value: object) -> str:
+    """The one spelling of a provider player name this lab keys a map on.
+
+    Member six of the join-vocabulary family above, caught before it cost
+    anything. `run_gameday_card.py` built its resolved-identity map with
+    `str(row.player).casefold()` while `card_pricing.price_slate` read it back
+    with `clean_text(row.player).casefold()`. The two agree on almost every
+    name and disagree on exactly the rows that matter: a provider spelling
+    with a leading or trailing space is stored under a key the lookup never
+    asks for, so a player who resolved perfectly well is counted
+    `no_opinion`, and an empty cell is stored under the literal `"nan"`.
+
+    Both sides call this now, and so does the availability map, which is
+    looked up on the same key and would have inherited the same split.
+    """
+    return clean_text(value).casefold()
+
+
 def selection_key(
     row: object,
     *,
@@ -82,7 +100,7 @@ def selection_key(
     """
     return (
         str(market),
-        clean_text(getattr(row, "player", "")).casefold(),
+        player_key(getattr(row, "player", "")),
         str(getattr(row, "home_team", "")),
         str(getattr(row, "away_team", "")),
         str(selection),
