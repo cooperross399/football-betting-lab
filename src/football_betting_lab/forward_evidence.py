@@ -405,19 +405,70 @@ def _settle_team(
 
 
 def append_ledger(settled: pd.DataFrame, ledger_path: Path) -> int:
-    """Append settled rows, never duplicating a day already recorded."""
+    """Append settled rows, never duplicating a day already recorded.
+
+    ## Why the schema is checked rather than concatenated and hoped over
+
+    `pd.concat` over frames that disagree on columns fills the gap with NaN,
+    silently, in both directions. That is how `run_availability_cost.py` lost
+    two of three seasons of injury designations in this very repository: the
+    2022-2024 files had no `season_type` column, `concat` gave those rows NaN,
+    and `frame[frame["season_type"] == "REG"] `is False for NaN — 5,794 rows
+    survived of 23,575. Nothing failed, because the unmatched rows fell into a
+    fail-open default and the report agreed with itself.
+
+    This ledger is the worst place in the repository for that. It is
+    append-only, it **cannot be back-dated**, and `CLAUDE.md` calls it "the
+    only evidence that can still grow". It already holds **132,856 rows across
+    seven game days** and gains a slate every week of the season.
+
+    Add a column to `LEDGER_COLUMNS` and every one of those historical rows
+    gets NaN for it. The four readers below all filter on `outcome`, which has
+    been declared since the start — but the next one to filter on a newly
+    added column would silently report on recent rows only, and the reading
+    would be wrong in whichever direction that column correlates with time.
+
+    Guarded now because the file's columns still match `LEDGER_COLUMNS`
+    exactly, so the check passes on today's ledger and costs nothing. Every
+    game day makes it more expensive to add.
+
+    Two rules, ported from the golf lab where the same shape was found:
+
+    * A column the ledger holds that `LEDGER_COLUMNS` does not is **refused**
+      when it carries any value, because writing the union back would either
+      drop recorded evidence or keep a column nothing maintains.
+    * Both sides are reindexed to the declared schema before concatenating, so
+      a newly added column is NaN by decision and visible here rather than a
+      side effect of `concat` — and the file's column ORDER cannot drift.
+    """
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
     if settled.empty:
         return 0
     if ledger_path.is_file():
         existing = pd.read_csv(ledger_path)
+        stale = [
+            column for column in existing.columns
+            if column not in LEDGER_COLUMNS and existing[column].notna().any()
+        ]
+        if stale:
+            raise ValueError(
+                f"{ledger_path} holds column(s) {stale} that LEDGER_COLUMNS no "
+                "longer declares, and they carry data. Appending would write a "
+                "frame that either drops them or keeps a column nothing "
+                "maintains. This ledger cannot be back-dated, so the mismatch "
+                "is refused rather than reconciled by guess."
+            )
         already = set(existing["snapshot_date"].astype(str))
         settled = settled[~settled["snapshot_date"].astype(str).isin(already)]
         if settled.empty:
             return 0
-        combined = pd.concat([existing, settled], ignore_index=True)
+        combined = pd.concat(
+            [existing.reindex(columns=list(LEDGER_COLUMNS)),
+             settled.reindex(columns=list(LEDGER_COLUMNS))],
+            ignore_index=True,
+        )
     else:
-        combined = settled
+        combined = settled.reindex(columns=list(LEDGER_COLUMNS))
     combined.to_csv(ledger_path, index=False)
     return len(settled)
 
