@@ -178,23 +178,67 @@ def test_the_filter_never_silently_empties_the_population():
     )
 
 
-def test_every_season_the_caller_loaded_still_reaches_the_lookup():
-    """Read against the REAL archives rather than a fixture.
+def test_every_season_survives_the_read_concat_filter_path(tmp_path):
+    """The whole path the script takes, on files that disagree on schema.
 
-    The fixture above proves the rule; this proves the rule holds on the files
-    that actually broke it. Every cached injuries_YYYY.csv must contribute at
-    least one row after filtering, or the lookup is blind to that season and
-    every bet in it fills as "not on the report".
+    Written against files on disk rather than an in-memory frame because the
+    defect lived in the seam between them: `pd.read_csv` gives the older file
+    no `season_type` column at all, `pd.concat` fills it with NaN, and only
+    then does the comparison drop it. A frame built in one piece never has
+    that NaN and cannot reproduce it.
+
+    **It does not skip when the real archives are missing.** This repo's CI
+    treats a skip as a gate that passed when it should have failed, and the
+    first version of this test skipped in CI for exactly that reason: the
+    archives are gitignored. The fixture below reproduces the real schema
+    difference — 2022-2024 without `season_type`, 2025-2026 with it — so the
+    guard runs everywhere, and the real archives are checked as well when a
+    checkout happens to have them.
+    """
+    directory = tmp_path / "injuries"
+    directory.mkdir()
+    (directory / "injuries_2023.csv").write_text(
+        "season,week,team,gsis_id,report_status\n2023,1,NE,00-0000001,Out\n",
+        encoding="utf-8",
+    )
+    (directory / "injuries_2024.csv").write_text(
+        "season,week,team,gsis_id,report_status\n2024,1,NE,00-0000002,Out\n",
+        encoding="utf-8",
+    )
+    (directory / "injuries_2025.csv").write_text(
+        "season,week,team,gsis_id,report_status,season_type\n"
+        "2025,1,NE,00-0000003,Out,REG\n"
+        "2025,20,NE,00-0000004,Out,POST\n",
+        encoding="utf-8",
+    )
+    frames = [pd.read_csv(path, low_memory=False)
+              for path in sorted(directory.glob("injuries_*.csv"))]
+    kept = availability_cost.regular_season_rows(pd.concat(frames, ignore_index=True))
+    seasons = {int(s) for s in kept["season"].dropna().unique()}
+    assert seasons == {2023, 2024, 2025}, (
+        f"seasons reaching the lookup: {sorted(seasons)}. The files without a "
+        "`season_type` column were dropped, so every bet in those seasons "
+        "fills as 'not on the report' — the bucket a shipped verdict opens"
+    )
+    assert 20 not in set(kept["week"]), "the postseason row survived"
+
+
+def test_the_real_archives_all_reach_the_lookup_when_this_checkout_has_them():
+    """The same property against the files that actually broke it.
+
+    Conditional on the archives being present, and deliberately NOT a skip:
+    with them absent this still asserts that the filter is a no-op on an
+    empty population, which is true and cheap. The fixture test above is what
+    guarantees coverage; this one adds the real data when it is there.
     """
     from football_betting_lab.config import RAW_DIR
 
     directory = RAW_DIR / "nfl" / "injuries"
     paths = sorted(directory.glob("injuries_*.csv")) if directory.is_dir() else []
-    if not paths:
-        pytest.skip("no injury archives cached in this checkout")
     frames = [pd.read_csv(path, low_memory=False) for path in paths]
-    kept = availability_cost.regular_season_rows(pd.concat(frames, ignore_index=True))
-    seasons = {int(s) for s in kept["season"].dropna().unique()}
+    population = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    kept = availability_cost.regular_season_rows(population)
+    seasons = {int(s) for s in kept["season"].dropna().unique()} if len(kept) else set()
     for path, frame in zip(paths, frames):
         season = int(path.stem.split("_")[-1])
         if not len(frame):
@@ -204,3 +248,7 @@ def test_every_season_the_caller_loaded_still_reaches_the_lookup():
             "filtering, so every bet in that season fills as 'not on the "
             "report' — the bucket a shipped verdict would open"
         )
+    # True with or without the archives, so there is no branch that asserts
+    # nothing: the filter may only ever remove postseason rows.
+    postseason = int((population.get("season_type") == "POST").sum()) if len(population) else 0
+    assert len(kept) == len(population) - postseason
