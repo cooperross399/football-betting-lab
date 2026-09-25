@@ -25,7 +25,7 @@ import pandas as pd
 from football_betting_lab.config import OUTPUTS_DIR
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.models import calibration as calib
-from football_betting_lab.forward_evidence import LEDGER_FILENAME
+from football_betting_lab.forward_evidence import ledger_path
 from football_betting_lab.reports.props_backtest import load_scored_bets
 
 
@@ -35,7 +35,10 @@ def _settled_forward_rows(league, *, before: str) -> pd.DataFrame:
     The ledger is the only evidence that grows, so folding it in is what makes
     the maps improve during a season rather than being fitted once in August.
     """
-    path = OUTPUTS_DIR / league.output_name("forward", "") / LEDGER_FILENAME
+    # Where the card writes it. This read a `data/outputs/nfl_forward/` copy
+    # that only the weekly watchdog ever created, so run anywhere else it
+    # folded in nothing and said nothing about it.
+    path = ledger_path()
     if not path.is_file() or not path.stat().st_size:
         return pd.DataFrame()
     ledger = pd.read_csv(path)

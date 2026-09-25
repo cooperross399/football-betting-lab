@@ -2098,9 +2098,15 @@ def test_the_weekly_check_can_tell_a_stale_calendar_from_a_lost_game_day() -> No
     steps = [s for job in jobs_of(document).values() for s in steps_of(job)]
     schedule = [s for s in steps if s.get("id") == "schedule"]
     assert schedule and schedule[0].get("continue-on-error") is True
+    # The schedule outcome is read once, by the classifier that names the
+    # run's failure, and both the report and the failing gate read that one
+    # verdict — so the comment and the red X cannot disagree about it.
     readers = [s for s in steps if isinstance(s.get("env"), dict)
                and s["env"].get("SCHEDULE") == "${{ steps.schedule.outcome }}"]
-    assert len(readers) >= 2, "both the report step and the failing gate must read the schedule outcome"
+    assert [s.get("id") for s in readers] == ["verdict"]
+    consumers = [s for s in steps if isinstance(s.get("env"), dict)
+                 and s["env"].get("FAILED") == "${{ steps.verdict.outputs.failed }}"]
+    assert len(consumers) >= 2, "both the report step and the failing gate must read the verdict"
 
 
 def test_every_only_feed_named_in_a_workflow_is_a_real_feed() -> None:

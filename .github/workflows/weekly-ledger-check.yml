@@ -53,14 +53,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # The repository is private, so an unauthenticated fetch sees nothing
-          # and the check would report every game day LOST. Restores are
-          # written to a temp path and moved only on success, because a failed
-          # `git show` still creates the redirect target and pandas refuses a
-          # zero-byte CSV.
+          # Restore into EXACTLY the layout the card writes and every reader
+          # reads: data/processed/forward_evidence.csv and
+          # data/archive/priced_snapshots/ (`ledger_path()` and
+          # `snapshots_dir(ARCHIVE_DIR)`). This wrote the ledger to
+          # data/outputs/nfl_forward/ and the snapshots to a `snapshots/` folder
+          # no code reads, so from Week 1 every played game day read as LOST
+          # and the evidence report called a 132,856-row ledger empty. A test
+          # executes this block and checks it against those two functions.
+          # Restores are written to a temp path and moved only on success,
+          # because a failed `git show` still creates the redirect target and
+          # pandas refuses a zero-byte CSV.
           REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"
-          mkdir -p data/outputs/nfl_forward/snapshots
-          git init -q feed && cd feed
+          mkdir -p data/processed data/archive/priced_snapshots
+          # Two statements, not `git init && cd`: set -e ignores a failure on
+          # the left of `&&`, and this block would then fetch into the checkout
+          # itself and write one directory above it.
+          git init -q feed
+          cd feed
           if ! git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
             echo "::warning::No card-feed branch. Nothing to check yet."
             exit 0
@@ -68,14 +78,22 @@ jobs:
           TMP=$(mktemp)
           if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
              && [ -s "$TMP" ]; then
-            mv "$TMP" ../data/outputs/nfl_forward/forward_evidence.csv
+            mv "$TMP" ../data/processed/forward_evidence.csv
+            echo "Ledger restored: $(( $(wc -l < ../data/processed/forward_evidence.csv) - 1 )) rows."
+          else
+            rm -f "$TMP"
+            echo "No ledger on card-feed yet."
           fi
           for f in $(git ls-tree -r --name-only refs/card-feed-tip | grep '^snapshots/' || true); do
             TMP=$(mktemp)
             if git show "refs/card-feed-tip:$f" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
-              mv "$TMP" "../data/outputs/nfl_forward/snapshots/$(basename "$f")"
+              mv "$TMP" "../data/archive/priced_snapshots/$(basename "$f")"
+            else
+              rm -f "$TMP"
+              echo "::warning::Could not restore $f from card-feed."
             fi
           done
+          echo "Snapshots restored: $(ls ../data/archive/priced_snapshots | wc -l)."
 
       - name: Fetch the schedule
         id: schedule
@@ -97,6 +115,19 @@ jobs:
           PYTHONPATH=src python scripts/fetch_football_data.py \
             --seasons ${{ inputs.season || '2026' }} --only schedules
 
+      - name: Fetch the feeds the card reads
+        id: feeds
+        # The freshness check below grades rosters, depth charts, injuries,
+        # snap counts and player stats, and this job used to fetch only the
+        # schedule — so every feed read MISSING and the check could never pass
+        # once the season started. The same --card-only set the gameday run
+        # fetches, so the check grades what the card will actually read.
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python scripts/fetch_football_data.py \
+            --seasons ${{ inputs.season || '2026' }} --card-only
+
       - name: Build the processed tables the checks read
         # The coverage check reads data/processed/team_games.csv, which the
         # schedule fetch does not write — it writes the raw file. On a fresh
@@ -115,19 +146,32 @@ jobs:
 
       - name: Is the ledger intact?
         id: coverage
+        # The exit status is recorded, not just the outcome: 1 (a day LOST),
+        # 2 (inputs absent) and 3 (settled without a snapshot) are different
+        # facts with different remedies, and the classifier names each.
         continue-on-error: true
         run: |
-          set -o pipefail
+          set +e
           PYTHONPATH=src python scripts/run_slate_coverage.py \
-            --season ${{ inputs.season || '2026' }} | tee /tmp/coverage.md
+            --season ${{ inputs.season || '2026' }} > /tmp/coverage.md
+          code=$?
+          set -e
+          cat /tmp/coverage.md
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
 
       - name: Can the card hold an opinion?
         id: freshness
         continue-on-error: true
         run: |
-          set -o pipefail
+          set +e
           PYTHONPATH=src python scripts/run_feed_freshness.py \
-            --season ${{ inputs.season || '2026' }} | tee /tmp/freshness.md
+            --season ${{ inputs.season || '2026' }} > /tmp/freshness.md
+          code=$?
+          set -e
+          cat /tmp/freshness.md
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
 
       # The one form of self-improvement that is safe to automate: refitting
       # on more data. The maps are monotone transforms fitted walk-forward, so
@@ -162,15 +206,31 @@ jobs:
             --seasons ${{ inputs.season || '2026' }} \
             --outcome "recorded weekly"
 
+      - name: Name what this run found
+        # One classifier, read by both steps below, so the comment and the red
+        # X cannot disagree. It maps each check's recorded exit status to
+        # words — never a phrase grep over the reports, which matched the
+        # coverage report's own opening sentence on every run and called a
+        # stale feed "evidence that cannot be recovered".
+        id: verdict
+        if: always()
+        env:
+          SCHEDULE: ${{ steps.schedule.outcome }}
+          FEEDS: ${{ steps.feeds.outcome }}
+          COVERAGE_CODE: ${{ steps.coverage.outputs.code }}
+          FRESHNESS_CODE: ${{ steps.freshness.outputs.code }}
+        run: |
+          set -euo pipefail
+          python scripts/classify_weekly_check.py > /tmp/verdict.md
+          cat /tmp/verdict.md
+
       - name: Report to the operating home
         # Always: the case that most needs reporting is the one where a step
         # above died.
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE: ${{ steps.coverage.outcome }}
-          FRESHNESS: ${{ steps.freshness.outcome }}
-          SCHEDULE: ${{ steps.schedule.outcome }}
+          FAILED: ${{ steps.verdict.outputs.failed }}
         run: |
           set -euo pipefail
           TITLE="Football Betting Lab — Claude Operating Home"
@@ -185,8 +245,7 @@ jobs:
           # A clean week posts one line. Roughly 18 comments a season, not 300:
           # a report that arrives every week in full trains the reader to stop
           # opening the one that matters.
-          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ] \
-             && [ "$SCHEDULE" = "success" ]; then
+          if [ "$FAILED" = "false" ]; then
             echo "### Weekly ledger check — intact" > "$BODY"
             echo "" >> "$BODY"
             echo "Every game day played so far was frozen and settled, and every feed is current." >> "$BODY"
@@ -194,7 +253,11 @@ jobs:
             {
               echo "### Weekly ledger check — ATTENTION"
               echo ""
-              echo "Forward evidence cannot be back-dated. A game day that was never frozen is gone."
+              if [ -s /tmp/verdict.md ]; then
+                cat /tmp/verdict.md
+              else
+                echo "- **watchdog**: this run could not classify its own result. Read the run log before trusting anything below."
+              fi
               echo ""
               [ -s /tmp/coverage.md ] && cat /tmp/coverage.md
               echo ""
@@ -217,32 +280,22 @@ jobs:
         # actually happened is that the check could not read its own input
         # file. One of those is irreversible and one is a missing build step,
         # and a watchdog that cannot tell them apart teaches the reader to
-        # ignore it.
+        # ignore it. The words come from the classifier above; a run it could
+        # not classify fails as a broken watchdog, never as a clean week.
         if: always()
         env:
-          COVERAGE: ${{ steps.coverage.outcome }}
-          FRESHNESS: ${{ steps.freshness.outcome }}
-          SCHEDULE: ${{ steps.schedule.outcome }}
+          FAILED: ${{ steps.verdict.outputs.failed }}
         run: |
           set -u
-          if [ "$COVERAGE" = "success" ] && [ "$FRESHNESS" = "success" ] \
-             && [ "$SCHEDULE" = "success" ]; then
+          if [ "$FAILED" = "false" ]; then
             echo "Ledger intact and every feed current."
             exit 0
           fi
-          # A stale calendar is checked FIRST, because the coverage check can
-          # succeed against it and report a clean week. That is the one failure
-          # here that looks like good news.
-          if [ "$SCHEDULE" != "success" ]; then
-            echo "::error::The schedule fetch failed, so every check below it ran against the committed calendar rather than the current one. The NFL flexes games between windows and dates all season. This is a broken watchdog, NOT evidence about the ledger."
+          if [ "$FAILED" != "true" ] || [ ! -s /tmp/verdict.md ]; then
+            echo "::error::The weekly check could not classify its own result. This is a broken watchdog, NOT evidence that a game day was lost. Fix the job before trusting its silence."
             exit 1
           fi
-          # A lost game day is a finding the report names in words; anything
-          # else is this job failing to do its job.
-          if grep -qiE "never frozen|no frozen opinions|missing game day" \
-               /tmp/coverage.md /tmp/freshness.md 2>/dev/null; then
-            echo "::error::A scheduled game day has no frozen opinions. That evidence cannot be recovered."
-          else
-            echo "::error::The weekly check could not complete — it failed to read or produce its own inputs. This is a broken watchdog, NOT evidence that a game day was lost. Fix the job before trusting its silence."
-          fi
+          while IFS= read -r line; do
+            [ -n "$line" ] && echo "::error::$line"
+          done < /tmp/verdict.md
           exit 1

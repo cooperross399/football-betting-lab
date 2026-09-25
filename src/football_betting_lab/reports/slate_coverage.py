@@ -59,7 +59,21 @@ class DayCoverage:
         return self.days_since <= SETTLEMENT_GRACE_DAYS
 
     @property
+    def settled_without_a_snapshot(self) -> bool:
+        """Settled rows prove the day was frozen; only its snapshot is absent.
+
+        A ledger row is written from a frozen snapshot, so a day with settled
+        rows had opinions before kickoff whatever the archive now holds. Calling
+        it LOST states an irreversible loss that did not happen, and that is
+        exactly what this check said about every played day of Weeks 1 and 2
+        when the watchdog restored its snapshots into the wrong folder.
+        """
+        return not self.was_frozen and self.settled_rows > 0
+
+    @property
     def state(self) -> str:
+        if self.settled_without_a_snapshot:
+            return "snapshot missing"
         if not self.was_frozen:
             return "LOST" if not self.awaiting_settlement else "not yet frozen"
         if self.is_thin:
@@ -87,8 +101,16 @@ class CoverageResult:
         return [d for d in self.days if d.state == "UNSETTLED"]
 
     @property
+    def snapshot_missing(self) -> list[DayCoverage]:
+        """Days the ledger proves were frozen whose snapshot did not arrive."""
+        return [d for d in self.days if d.state == "snapshot missing"]
+
+    @property
     def is_intact(self) -> bool:
-        return not self.lost and not self.thin and not self.unsettled
+        return (
+            not self.lost and not self.thin and not self.unsettled
+            and not self.snapshot_missing
+        )
 
 
 def measure(
@@ -185,6 +207,10 @@ def render(result: CoverageResult, *, season: int) -> str:
         parts = []
         if result.lost:
             parts.append(f"**{len(result.lost)} game day(s) LOST**")
+        if result.snapshot_missing:
+            parts.append(
+                f"{len(result.snapshot_missing)} settled without a snapshot"
+            )
         if result.thin:
             parts.append(f"{len(result.thin)} thin")
         if result.unsettled:
@@ -206,6 +232,16 @@ def render(result: CoverageResult, *, season: int) -> str:
             "now. The games are played; the evidence is not recoverable. Find "
             "out why the run did not produce a snapshot before the next game "
             "day, because whatever caused it will still be there."
+        )
+        add("")
+    if result.snapshot_missing:
+        add(
+            "**A day settled without a snapshot is not lost.** Its settled "
+            "rows prove opinions were frozen before kickoff; what is missing is "
+            "the archived snapshot this check counts. Either the archive did "
+            "not restore into the folder this check reads, or it is damaged. "
+            "That is a broken watchdog or a damaged archive, not a lost day — "
+            "fix the restore before trusting this report either way."
         )
         add("")
     if result.thin:
