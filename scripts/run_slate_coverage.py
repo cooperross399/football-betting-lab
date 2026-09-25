@@ -3,6 +3,11 @@
 
     PYTHONPATH=src python scripts/run_slate_coverage.py --season 2026
 
+Exit status: 0 intact or nothing owed yet; 1 a game day is LOST; 2 the inputs
+this check needs are absent; 3 a day settled but its snapshot is missing, which
+is a broken restore or a damaged archive rather than a lost day. The weekly
+workflow names its failure from this number, so each must stay distinct.
+
 The bought population is complete and cannot grow. The forward ledger is the
 only evidence left, it accrues at 272 games a season, and it **cannot be
 back-dated**. A game day that was never frozen is sample that does not exist.
@@ -17,12 +22,17 @@ from __future__ import annotations
 import argparse
 import sys
 from datetime import date, datetime
+from pathlib import Path
 
 import pandas as pd
 
-from football_betting_lab.config import OUTPUTS_DIR, PROCESSED_DIR
+from football_betting_lab.config import ARCHIVE_DIR, OUTPUTS_DIR, PROCESSED_DIR
 from football_betting_lab.data.build_datasets import TEAM_GAMES_FILENAME
-from football_betting_lab.forward_evidence import LEDGER_FILENAME, snapshots_dir
+from football_betting_lab.forward_evidence import (
+    LEDGER_FILENAME,
+    ledger_path,
+    snapshots_dir,
+)
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.reports import slate_coverage
 
@@ -31,7 +41,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--league", default=DEFAULT_LEAGUE_KEY)
     parser.add_argument("--season", type=int, required=True)
-    parser.add_argument("--archive-dir", default="")
+    parser.add_argument(
+        "--archive-dir",
+        default="",
+        help=(
+            "Read a copy: a folder holding both the ledger and a "
+            "priced_snapshots/ folder. By default this reads exactly where "
+            "the card writes them."
+        ),
+    )
     parser.add_argument(
         "--as-of", default="",
         help="ISO date to judge against. Defaults to today in league time.",
@@ -54,16 +72,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    archive = (
-        __import__("pathlib").Path(args.archive_dir)
-        if args.archive_dir
-        else OUTPUTS_DIR / league.output_name("forward", "")
-    )
-    snapshots = slate_coverage.snapshot_row_counts(snapshots_dir(archive))
-    ledger_path = archive / LEDGER_FILENAME
+    snapshot_folder, ledger_file = default_inputs()
+    if args.archive_dir:
+        archive = Path(args.archive_dir)
+        snapshot_folder, ledger_file = snapshots_dir(archive), archive / LEDGER_FILENAME
+    snapshots = slate_coverage.snapshot_row_counts(snapshot_folder)
     ledger = (
-        pd.read_csv(ledger_path)
-        if ledger_path.is_file() and ledger_path.stat().st_size
+        pd.read_csv(ledger_file)
+        if ledger_file.is_file() and ledger_file.stat().st_size
         else pd.DataFrame()
     )
     settled = slate_coverage.settled_row_counts(ledger)
@@ -87,8 +103,18 @@ def main(argv: list[str] | None = None) -> int:
     print(report)
     # A lost game day is the one failure this organ cannot survive, so it exits
     # non-zero: a workflow that reports it in a file nobody opens has not
-    # reported it.
-    return 1 if result.lost else 0
+    # reported it. A day settled without its snapshot is a different fact with
+    # a different remedy, so it gets its own status rather than borrowing 1.
+    if result.lost:
+        return 1
+    if result.snapshot_missing:
+        return 3
+    return 0
+
+
+def default_inputs() -> tuple[Path, Path]:
+    """The snapshot folder and ledger the card writes, which this reads."""
+    return snapshots_dir(ARCHIVE_DIR), ledger_path()
 
 
 if __name__ == "__main__":

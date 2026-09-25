@@ -17,8 +17,8 @@ import sys
 
 import pandas as pd
 
-from football_betting_lab.config import OUTPUTS_DIR, PROCESSED_DIR
-from football_betting_lab.forward_evidence import LEDGER_FILENAME, render_ledger
+from football_betting_lab.config import OUTPUTS_DIR
+from football_betting_lab.forward_evidence import ledger_path, render_ledger
 from football_betting_lab.experiment_ledger import LEDGER_FILENAME as EXPERIMENTS_FILENAME
 from football_betting_lab.experiment_ledger import load as load_experiments
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     league = league_for(args.league)
 
-    path = PROCESSED_DIR / LEDGER_FILENAME
+    path = ledger_path()
     ledger = (
         pd.read_csv(path, low_memory=False) if path.is_file() else pd.DataFrame()
     )

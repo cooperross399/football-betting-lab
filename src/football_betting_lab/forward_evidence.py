@@ -53,6 +53,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from football_betting_lab.config import PROCESSED_DIR
 from football_betting_lab.leagues import League
 from football_betting_lab.markets import MARKETS_BY_KEY
 from football_betting_lab.rosters import normalise_name
@@ -127,6 +128,22 @@ def _is_empty(path: Path) -> bool:
 
 def snapshots_dir(archive_dir: Path) -> Path:
     return Path(archive_dir) / SNAPSHOT_DIRNAME
+
+
+def ledger_path(processed_dir: Path | None = None) -> Path:
+    """Where the card writes the forward ledger, and so where every reader reads it.
+
+    Readers once disagreed. The card writes `data/processed/forward_evidence.csv`
+    and archives its snapshots under `data/archive/priced_snapshots/`. The
+    weekly watchdog's coverage check and calibration refit read a
+    `data/outputs/nfl_forward/` folder that nothing has ever written, and the
+    watchdog restored its snapshots into a third spelling, `snapshots/`. So from
+    Week 1 every played game day read as LOST, and the evidence report in the
+    same run said the ledger was empty while the refit folded in 130,418 of
+    its settled rows. One function, so the next reader cannot pick a fourth.
+    """
+    base = PROCESSED_DIR if processed_dir is None else Path(processed_dir)
+    return base / LEDGER_FILENAME
 
 
 def american_to_implied(odds: float) -> float:

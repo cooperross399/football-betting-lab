@@ -35,8 +35,8 @@ from football_betting_lab.data.build_datasets import (
     TEAM_GAMES_FILENAME,
 )
 from football_betting_lab.forward_evidence import (
-    LEDGER_FILENAME,
     append_ledger,
+    ledger_path as forward_ledger_path,
     settle_snapshot,
     snapshots_dir,
     write_snapshot,
@@ -431,7 +431,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         card.frozen_rows = len(_read(frozen))
 
-    ledger_path = PROCESSED_DIR / LEDGER_FILENAME
+    ledger_path = forward_ledger_path()
     settled_days = (
         0
         if args.rehearsal
