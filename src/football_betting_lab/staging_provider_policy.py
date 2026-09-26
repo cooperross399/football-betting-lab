@@ -11,10 +11,37 @@ every failure mode here resolves to "not allowed":
 * market absent from `required_markets` -> not allowed
 * allowlist entry without a reviewer and a receipt id -> not allowed
 * receipt file named but not present on disk -> not allowed
+* receipt present but not readable back as a transcription -> not allowed
+* receipt recording a reviewer off the allow-list -> not allowed
+* receipt whose id is not the digest of the approval it carries -> not allowed
+* market named by the entry but not by the receipt -> not allowed
+* evidence that has moved since the approval -> not allowed
 
 That is the whole design. A policy loader that returns a permissive default on
 an unreadable file is a policy loader that stops existing the moment something
 goes wrong, which is exactly when it matters.
+
+## Why the receipt is read and not merely counted
+
+This used to stop at `receipt_path(entry).is_file()`. The file was never
+opened: not the reviewer, not the markets, not the checksums it prints. So a
+forged receipt — any file at all, with the right name — plus a hand-edited
+entry made `market_allowed()` return True, which is the read-time half of the
+mechanism agreeing to something the merge-time half would have refused. The
+merge gate re-fetches from GitHub and catches it, but only on a pull request:
+the card runs on a schedule, and "it would have been caught at merge" is not a
+check that runs when the card runs. So the receipt is parsed and verified
+here, every time it is read.
+
+**What this cannot do, stated rather than implied.** Nothing in a receipt file
+is unforgeable offline. Every field checked here — the reviewer, the digest,
+the checksums — is computable by anything that can run code in this checkout,
+so a determined forgery that writes a *self-consistent* receipt still reads as
+one at this layer. What these checks remove is the whole class of forgery that
+needed no consistency at all: any file, with the right name. The layer that
+cannot be forged is the merge-time gate, which asks GitHub. This one raises
+the cost and closes the gap between "a file exists" and "a file says
+something", and that is the honest description of it.
 
 ## Why the entries are keyed by league
 
@@ -46,6 +73,11 @@ from football_betting_lab.markets import MARKETS_BY_KEY
 
 POLICY_FILENAME = "staging_provider_policy.json"
 RECEIPTS_DIRNAME = "human_acceptance_receipts"
+
+#: The evidence reports sit beside the manual directory, not inside it. Named
+#: here so a policy loaded from a checkout under `tmp_path` re-checks that
+#: checkout's evidence rather than the repository's.
+OUTPUTS_DIRNAME = "outputs"
 
 #: The one provider this lab is built around. Naming it here does not allow
 #: it; the policy file does that, and it does not.
@@ -88,22 +120,42 @@ class StagingProviderPolicy:
         *,
         load_error: str = "",
         manual_dir: Path | None = None,
+        outputs_dir: Path | None = None,
     ) -> None:
         self.entries = dict(entries or {})
         self.load_error = load_error
         self.manual_dir = Path(manual_dir) if manual_dir else MANUAL_DIR
+        # Beside the manual directory by default, which is the repository's
+        # own layout and a test checkout's too. It names where the evidence
+        # is, never who approved anything.
+        self.outputs_dir = (
+            Path(outputs_dir)
+            if outputs_dir
+            else self.manual_dir.parent / OUTPUTS_DIRNAME
+        )
+        #: One verification per receipt per load, because `allowed_markets`
+        #: asks about every market in the registry and the answer does not
+        #: depend on the market. Each value is (the problem or "", the markets
+        #: the receipt names).
+        self._receipt_verdicts: dict[tuple[str, str], tuple[str, tuple[str, ...]]] = {}
 
     # -- loading ----------------------------------------------------------
 
     @classmethod
     def load(
-        cls, path: Path | None = None, *, manual_dir: Path | None = None
+        cls,
+        path: Path | None = None,
+        *,
+        manual_dir: Path | None = None,
+        outputs_dir: Path | None = None,
     ) -> "StagingProviderPolicy":
         directory = Path(manual_dir) if manual_dir else MANUAL_DIR
         target = Path(path) if path else directory / POLICY_FILENAME
         if not target.is_file():
             return cls(
-                load_error=f"No policy file at {target}.", manual_dir=directory
+                load_error=f"No policy file at {target}.",
+                manual_dir=directory,
+                outputs_dir=outputs_dir,
             )
         try:
             payload = json.loads(target.read_text(encoding="utf-8"))
@@ -111,15 +163,17 @@ class StagingProviderPolicy:
             return cls(
                 load_error=f"The policy file could not be read: {exc}.",
                 manual_dir=directory,
+                outputs_dir=outputs_dir,
             )
         if not isinstance(payload, dict):
             return cls(
                 load_error="The policy file is not a JSON object.",
                 manual_dir=directory,
+                outputs_dir=outputs_dir,
             )
         raw = payload.get("provider_allowlist_entries")
         if not isinstance(raw, dict):
-            return cls(manual_dir=directory)
+            return cls(manual_dir=directory, outputs_dir=outputs_dir)
 
         entries: dict[str, AllowlistEntry] = {}
         for key, value in raw.items():
@@ -140,7 +194,7 @@ class StagingProviderPolicy:
                     str(item) for item in (value.get("known_limitations") or [])
                 ),
             )
-        return cls(entries, manual_dir=directory)
+        return cls(entries, manual_dir=directory, outputs_dir=outputs_dir)
 
     # -- decisions --------------------------------------------------------
 
@@ -149,6 +203,121 @@ class StagingProviderPolicy:
 
     def receipt_path(self, entry: AllowlistEntry) -> Path:
         return self.manual_dir / RECEIPTS_DIRNAME / f"{entry.evidence_receipt_id}.md"
+
+    def receipt_problem(self, entry: AllowlistEntry, league: League) -> str:
+        """Why this entry's receipt is not a transcription, or "" when it is.
+
+        Everything here is read out of the receipt file and compared against
+        something the file does not control: the allow-list in
+        `github_approval`, the digest of the approval the receipt carries, its
+        own filename, and the evidence on disk. None of it asks the policy
+        entry what to think, because the policy entry is the thing being
+        checked.
+
+        Imported inside the function: `human_acceptance_receipt` imports this
+        module for `RECEIPTS_DIRNAME`, so a module-level import here would be
+        a cycle. The cost is one deferred import per load.
+        """
+        from football_betting_lab.github_approval import (
+            ALLOWED_REVIEWERS,
+            APPROVAL_DECISION,
+            EVIDENCE_REPORTS,
+            evidence_checksums,
+        )
+        from football_betting_lab.human_acceptance_receipt import (
+            ReceiptError,
+            read_receipt,
+            receipt_id,
+        )
+
+        key = (league.policy_key(), entry.evidence_receipt_id)
+        cached = self._receipt_verdicts.get(key)
+        if cached is not None:
+            return cached[0]
+
+        def remember(problem: str, markets: tuple[str, ...] = ()) -> str:
+            self._receipt_verdicts[key] = (problem, markets)
+            return problem
+
+        path = self.receipt_path(entry)
+        try:
+            binding = read_receipt(path)
+        except ReceiptError as exc:
+            return remember(
+                f"the receipt at {path} is not readable as a transcription: {exc}"
+            )
+
+        if binding.get("decision") != APPROVAL_DECISION:
+            return remember(
+                f"the receipt records decision {binding.get('decision')!r}, not "
+                f"{APPROVAL_DECISION!r}"
+            )
+        if str(binding.get("policy_key") or "") != entry.policy_key:
+            return remember(
+                f"the receipt covers `{binding.get('policy_key')}` and the "
+                f"entry is `{entry.policy_key}`. One receipt, one league"
+            )
+        login = str(binding.get("reviewer_github_login") or "").strip()
+        if login.lower() not in {name.lower() for name in ALLOWED_REVIEWERS}:
+            return remember(
+                f"the receipt's reviewer `{login or 'nobody'}` is not on the "
+                "allow-list, so it transcribes nobody's approval"
+            )
+        if entry.reviewer_name.strip().lower() != login.lower():
+            return remember(
+                f"the entry credits `{entry.reviewer_name}` and the receipt "
+                f"records `{login}`. The reviewer is whoever GitHub reported"
+            )
+
+        approval = binding.get("github_approval")
+        if not isinstance(approval, dict):
+            return remember(
+                "the receipt records no GitHub approval, so nothing in it says "
+                "a human signed anything"
+            )
+        expected = receipt_id(approval)
+        if expected != str(binding.get("receipt_id") or ""):
+            return remember(
+                f"the receipt's id `{binding.get('receipt_id')}` is not the "
+                f"digest of the approval it carries (`{expected}`). A receipt "
+                "id is derived from the human act, not chosen"
+            )
+        if expected != entry.evidence_receipt_id:
+            return remember(
+                f"the entry names receipt `{entry.evidence_receipt_id}` and the "
+                f"file records `{expected}`"
+            )
+
+        stored = dict(binding.get("evidence_checksums_sha256") or {})
+        expected_names = {
+            league.output_name(stem, suffix) for stem, suffix in EVIDENCE_REPORTS
+        }
+        absent = sorted(expected_names - set(stored))
+        if absent:
+            return remember(
+                f"the receipt binds to no checksum for {absent}. An approval "
+                "bound to some of the evidence is an approval nobody gave on "
+                "the rest of it"
+            )
+        current = evidence_checksums(league, self.outputs_dir)
+        moved = sorted(
+            name
+            for name in set(stored) | set(current) | expected_names
+            if stored.get(name) != current.get(name)
+        )
+        if moved:
+            return remember(
+                f"the evidence has changed since the approval: {moved}. The "
+                "reviewer signed a state, and the state moved"
+            )
+        return remember(
+            "",
+            tuple(
+                str(item).strip()
+                for item in (binding.get("approved_markets") or [])
+                if str(item).strip()
+            ),
+        )
 
     def market_allowed(self, league: League, market: str) -> bool:
         """The one question the card asks. Every path out of it is explicit."""
@@ -167,7 +336,26 @@ class StagingProviderPolicy:
             return False
         # The receipt must exist on disk, not merely be named. An id pointing
         # at nothing is the shape a fabricated approval takes.
-        return self.receipt_path(entry).is_file()
+        if not self.receipt_path(entry).is_file():
+            return False
+        # ...and it must read back as a transcription of a real approval. The
+        # file used to be counted and never opened.
+        if self.receipt_problem(entry, league):
+            return False
+        # The market has to be one the receipt actually names. The entry's own
+        # `required_markets` is the list being checked, not the authority.
+        return key in self.receipted_markets(entry, league)
+
+    def receipted_markets(
+        self, entry: AllowlistEntry, league: League
+    ) -> tuple[str, ...]:
+        """The markets a verified receipt names, or nothing when it is not one."""
+        if self.receipt_problem(entry, league):
+            return ()
+        _, markets = self._receipt_verdicts[
+            (league.policy_key(), entry.evidence_receipt_id)
+        ]
+        return markets
 
     def refusal_reason(self, league: League, market: str) -> str:
         """Why a market is not allowed, in words a card can print."""
@@ -229,6 +417,21 @@ class StagingProviderPolicy:
                 f"The approval names receipt `{entry.evidence_receipt_id}` but "
                 f"no such file exists at {path}. An id pointing at nothing is "
                 "not an approval."
+            )
+        problem = self.receipt_problem(entry, league)
+        if problem:
+            return (
+                f"The receipt for `{league.policy_key()}` is not a "
+                f"transcription of a real approval: {problem}. A file in the "
+                "receipts directory is not a signature; what it reads back as "
+                "is."
+            )
+        if key not in self.receipted_markets(entry, league):
+            return (
+                f"`{key}` is named by the policy entry and not by the receipt "
+                f"`{entry.evidence_receipt_id}`, which approves "
+                f"{sorted(self.receipted_markets(entry, league))}. The receipt "
+                "is what was signed; the entry is what somebody typed."
             )
         return ""
 

@@ -19,20 +19,30 @@ import json
 import os
 from pathlib import Path
 import subprocess
+from unittest import mock
 
 import pytest
 
+from football_betting_lab import github_approval
 from football_betting_lab.github_approval import (
+    ACCEPTED_REVIEW_STATE,
     ALLOWED_REVIEWERS,
     APPROVAL_PHRASE,
     EVIDENCE_REPORTS,
     MAX_APPROVAL_AGE_HOURS,
+    REFUSED_REVIEW_STATES,
     REQUIRED_EVIDENCE_REPORT,
+    REVOCATION_PHRASE,
+    TRUSTED_GH_PATHS,
     GitHubApprovalError,
+    VerifiedApproval,
+    approval_from_github,
     approval_template,
     evidence_checksums,
     parse_approval_block,
     proposed_markets,
+    resolve_gh,
+    unquoted_lines,
     verify_github_approval,
 )
 from football_betting_lab.leagues import NFL
@@ -94,10 +104,16 @@ def _checkout(
     tmp_path: Path,
     *,
     policy: dict | None = None,
-    reports: tuple[tuple[str, str], ...] = (REQUIRED_EVIDENCE_REPORT,),
+    reports: tuple[tuple[str, str], ...] = EVIDENCE_REPORTS,
     evidence_at: datetime = EVIDENCE_AT,
 ) -> Path:
-    """A repository holding a proposed policy and committed evidence."""
+    """A repository holding a proposed policy and committed evidence.
+
+    Every evidence report by default, because an approval now binds to the
+    whole bundle: a report that is absent used to narrow the binding in
+    silence, so the fixture that stands for "a normal pull request" has to be
+    a complete one. The tests that are about a missing report pass `reports`.
+    """
     repo = tmp_path / "checkout"
     outputs = repo / "data" / "outputs"
     manual = repo / "data" / "manual"
@@ -192,6 +208,94 @@ def _verify(activity: dict, repo: Path, **overrides):
     parameters = dict(pr_number=PR, league=NFL, now=NOW, **_paths(repo))
     parameters.update(overrides)
     return verify_github_approval(activity, **parameters)
+
+
+# -- minting, which is a different act from verifying -----------------------
+
+
+def recent_moments() -> tuple[datetime, datetime, datetime, datetime]:
+    """Now, the approval, the head commit and the evidence commit.
+
+    Anchored to the real clock because the minting path reads it: it takes no
+    `now`, on purpose, so a fixture dated 2026 would be stale against a window
+    measured in hours.
+    """
+    now = datetime.now(timezone.utc)
+    return (
+        now,
+        now - timedelta(hours=1),
+        now - timedelta(hours=2),
+        now - timedelta(hours=3),
+    )
+
+
+def mint(activity: dict, repo: Path, **overrides):
+    """A `VerifiedApproval` from activity this test wrote.
+
+    The one seam a test gets, and it is a patched *fetch* rather than a
+    supplied *activity*: `approval_from_github` has no activity parameter and
+    must not grow one, because a mapping a caller passes is a mapping a caller
+    wrote. Standing in for the network is a thing only in-process code can do,
+    which is the line this mechanism draws.
+    """
+    parameters = dict(
+        pr_number=PR,
+        repository=activity.get("repository") or "cooperross399/football-betting-lab",
+        league=NFL,
+        **_paths(repo),
+    )
+    parameters.update(overrides)
+    with mock.patch.object(
+        github_approval, "fetch_pr_activity", return_value=activity
+    ):
+        return github_approval.approval_from_github(**parameters)
+
+
+def signed_manual(tmp_path: Path, markets=SCOPE, **entry_overrides) -> Path:
+    """A `data/manual` directory whose entry is backed by a genuine receipt.
+
+    Used wherever a test needs `market_allowed()` to say yes. There is no
+    shortcut any more: the loader opens the receipt, checks the reviewer, the
+    digest and the evidence checksums, so a file reading "signed" is not one.
+    """
+    from football_betting_lab.human_acceptance_receipt import (
+        build_receipt,
+        write_receipt,
+    )
+    from football_betting_lab.staging_provider_policy import RECEIPTS_DIRNAME
+
+    now, approved, head_at, evidence_at = recent_moments()
+    repo = _checkout(tmp_path, policy=_policy(markets), evidence_at=evidence_at)
+    approval = mint(
+        _activity(
+            body=_body(markets=", ".join(markets)),
+            submitted=approved,
+            head_committed_at=head_at,
+        ),
+        repo,
+    )
+    receipt = build_receipt(approval)
+    manual = repo / "data" / "manual"
+    write_receipt(receipt, receipts_dir=manual / RECEIPTS_DIRNAME)
+    entry = {
+        "allowlist_status": "allowed",
+        "approved_at": receipt["github_approval"]["approved_at"],
+        "reviewer_name": receipt["reviewer_github_login"],
+        "evidence_receipt_id": receipt["receipt_id"],
+        "required_markets": list(markets),
+    }
+    entry.update(entry_overrides)
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(
+            {
+                "allowed_provider_names": [NFL.policy_provider_name],
+                "provider_allowlist_entries": {NFL.policy_key(): entry},
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    return manual
 
 
 # -- the happy path ---------------------------------------------------------
@@ -788,3 +892,295 @@ def test_the_evidence_reports_are_named_per_league() -> None:
     assert names
     assert all(name.startswith(f"{NFL.key}_") for name in names)
     assert NFL.output_name(*REQUIRED_EVIDENCE_REPORT) in names
+
+
+# -- the nine ways a receipt was minted without a signature -----------------
+#
+# Each of these fails without the change it is paired with. They are grouped
+# here rather than filed among the checks above because what they have in
+# common is the finding, not the field: every one of them was RUN against this
+# lab and produced a verified approval, or a receipt, with nobody having
+# signed anything.
+
+
+def test_the_gh_this_module_runs_is_named_and_not_searched_for() -> None:
+    """FINDING 1. `subprocess.run(["gh", ...])` asks PATH which program that is.
+
+    A forty-line script called `gh` earlier on PATH answers every API call in
+    `fetch_pr_activity` — exit 0, JSON on stdout, whatever login it likes —
+    and mints a receipt with no edit to any tracked file. Read off the syntax
+    tree, because the property is "no call in this module spells the bare
+    name", which a reader can miss and a search cannot.
+    """
+    tree = ast.parse(
+        Path(inspect.getsourcefile(verify_github_approval) or "").read_text(
+            encoding="utf-8"
+        )
+    )
+    bare_invocations = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        for argument in node.args:
+            if not isinstance(argument, ast.List) or not argument.elts:
+                continue
+            first = argument.elts[0]
+            if isinstance(first, ast.Constant) and first.value == "gh":
+                bare_invocations.append(ast.dump(node)[:80])
+
+    assert bare_invocations == [], bare_invocations
+    assert all(path.startswith("/") for path in TRUSTED_GH_PATHS)
+
+
+def test_a_gh_earlier_on_the_path_is_refused_rather_than_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """FINDING 1, run. The shim is reported, not silently stepped over."""
+    binaries = tmp_path / "bin"
+    binaries.mkdir()
+    shim = binaries / "gh"
+    shim.write_text("#!/bin/sh\necho '[]'\n", encoding="utf-8")
+    shim.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{binaries}{os.pathsep}{os.environ['PATH']}")
+
+    with pytest.raises(GitHubApprovalError, match="earlier on PATH"):
+        resolve_gh()
+
+
+def test_a_gh_at_no_trusted_location_at_all_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """FINDING 1. No trusted binary is a refusal, never a fallback to PATH."""
+    monkeypatch.setattr(github_approval, "TRUSTED_GH_PATHS", ("/nowhere/at/all/gh",))
+    monkeypatch.setattr(github_approval.shutil, "which", lambda name: None)
+
+    with pytest.raises(GitHubApprovalError, match="trusted location"):
+        resolve_gh()
+
+
+def test_a_program_that_is_not_the_github_cli_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """FINDING 1. Being at the right path is not the same as being the tool."""
+    impostor = tmp_path / "gh"
+    impostor.write_text("#!/bin/sh\necho 'definitely gh, honest'\n", encoding="utf-8")
+    impostor.chmod(0o755)
+    monkeypatch.setattr(github_approval, "TRUSTED_GH_PATHS", (str(impostor),))
+    monkeypatch.setattr(github_approval.shutil, "which", lambda name: None)
+
+    with pytest.raises(GitHubApprovalError, match="does not answer"):
+        resolve_gh()
+
+
+def test_a_verified_approval_cannot_be_built_by_hand() -> None:
+    """FINDING 2. The type is the claim "this module fetched this".
+
+    A public constructor makes an `isinstance` check decorative: the forger
+    builds one naming an allowed reviewer and hands it over. The construction
+    token is held in a closure, so there is no data path to one.
+    """
+    with pytest.raises(GitHubApprovalError, match="minted by this module"):
+        VerifiedApproval(object(), {"reviewer_github_login": REVIEWER})
+
+    with pytest.raises(GitHubApprovalError, match="minted by this module"):
+        VerifiedApproval(None, {})
+
+    assert not [
+        name
+        for name, value in vars(github_approval).items()
+        if type(value) is object and not name.startswith("__")
+    ], "the construction token must not be reachable as a module attribute"
+
+
+def test_the_minting_path_fetches_its_own_activity(tmp_path: Path) -> None:
+    """FINDING 3. An activity a caller supplies is a mapping a caller wrote."""
+    parameters = set(inspect.signature(approval_from_github).parameters)
+
+    assert parameters == {
+        "pr_number",
+        "repository",
+        "league",
+        "policy_path",
+        "output_dir",
+        "repo_root",
+    }
+    for forbidden in ("activity", "now", "reviewer", "reviewer_name", "max_age_hours"):
+        assert forbidden not in parameters
+
+
+def test_the_pure_verifier_still_verifies_and_can_no_longer_mint(
+    tmp_path: Path,
+) -> None:
+    """FINDING 3, run. The seam stays open for tests and closed for receipts."""
+    from football_betting_lab.human_acceptance_receipt import ReceiptError, build_receipt
+
+    repo = _checkout(tmp_path)
+    fabricated = _verify(_activity(), repo)
+
+    assert fabricated["reviewer_github_login"] == REVIEWER
+    with pytest.raises(ReceiptError, match="fetched from GitHub"):
+        build_receipt(fabricated)
+
+
+@pytest.mark.parametrize("state", REFUSED_REVIEW_STATES + ("", "APPROVED_IN_SPIRIT"))
+def test_a_review_in_any_state_but_approved_is_refused(
+    tmp_path: Path, state: str
+) -> None:
+    """FINDING 4. The state was transcribed into the receipt and used for
+    nothing, so a review GitHub itself reports as DISMISSED — withdrawn —
+    verified, and so did a review with no state at all."""
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["reviews"][0]["state"] = state
+
+    with pytest.raises(GitHubApprovalError, match="not 'APPROVED'"):
+        _verify(activity, repo)
+
+
+def test_an_approved_review_still_verifies(tmp_path: Path) -> None:
+    """The state check is a check, not a wall."""
+    repo = _checkout(tmp_path)
+
+    approval = _verify(_activity(), repo)
+
+    assert approval["review_state"] == ACCEPTED_REVIEW_STATE
+
+
+def test_a_newer_revocation_withdraws_the_approval(tmp_path: Path) -> None:
+    """FINDING 5. There was no way to say no.
+
+    Only entries carrying the approval phrase were ever looked at, so a later
+    "I withdraw that" was invisible and the withdrawn signature went on
+    verifying for as long as the freshness window allowed.
+    """
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["comments"] = [
+        {
+            "user": {"login": REVIEWER},
+            "body": f"{REVOCATION_PHRASE}\nI withdraw that approval.",
+            "created_at": (APPROVED_AT + timedelta(minutes=30)).isoformat(),
+            "id": 900003,
+        }
+    ]
+
+    with pytest.raises(GitHubApprovalError, match=REVOCATION_PHRASE):
+        _verify(activity, repo)
+
+
+def test_a_revocation_older_than_the_approval_does_not_bind(tmp_path: Path) -> None:
+    """Approving after a revocation is approving. The newest word governs."""
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["comments"] = [
+        {
+            "user": {"login": REVIEWER},
+            "body": REVOCATION_PHRASE,
+            "created_at": (APPROVED_AT - timedelta(hours=4)).isoformat(),
+            "id": 900004,
+        }
+    ]
+
+    approval = _verify(activity, repo)
+
+    assert approval["approved_markets"] == sorted(SCOPE)
+
+
+def test_a_quoted_block_is_not_a_fresh_approval(tmp_path: Path) -> None:
+    """FINDING 5, the other half. Quoting an approval is repeating it.
+
+    The parser strips `> ` so a reviewer typing into a quoted reply is still
+    understood, and that tolerance made this comment — which says REVOKED at
+    the top of it — verify as an approval newer than the one it quotes.
+    """
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["comments"] = [
+        {
+            "user": {"login": REVIEWER},
+            "body": "REVOKED. Ignore this:\n> " + "\n> ".join(_body().splitlines()),
+            "created_at": (APPROVED_AT + timedelta(hours=1)).isoformat(),
+            "id": 900005,
+        }
+    ]
+
+    with pytest.raises(GitHubApprovalError, match="only inside a quoted block"):
+        _verify(activity, repo)
+
+
+def test_the_parser_still_forgives_a_stray_marker_on_its_own_lines() -> None:
+    """...and the tolerance it needs is kept where it belongs."""
+    assert unquoted_lines("a\n> b\n  > c\nd") == "a\nd"
+    assert parse_approval_block(f"- PR: {PR}")["pr"] == PR
+
+
+def test_an_incomplete_evidence_bundle_is_refused(tmp_path: Path) -> None:
+    """FINDING 7. A binding that narrows itself is not a binding.
+
+    `evidence_checksums` returns what it found, so a report that is absent is
+    simply not in the table: deleting artifacts produced an approval bound to
+    fewer of them, with no warning anywhere.
+    """
+    repo = _checkout(tmp_path)
+    dropped = NFL.output_name(*EVIDENCE_REPORTS[2])
+    (repo / "data" / "outputs" / dropped).unlink()
+    _run_git(repo, ["add", "-A"])
+    _run_git(repo, ["commit", "-q", "-m", "drop one"], when=EVIDENCE_AT)
+
+    with pytest.raises(GitHubApprovalError, match="is not present"):
+        _verify(_activity(), repo)
+
+
+def test_a_complete_bundle_binds_every_report(tmp_path: Path) -> None:
+    """Stated positively: the count is the whole bundle, not whatever existed."""
+    repo = _checkout(tmp_path)
+
+    approval = _verify(_activity(), repo)
+
+    assert set(approval["evidence_checksums_sha256"]) == {
+        NFL.output_name(stem, suffix) for stem, suffix in EVIDENCE_REPORTS
+    }
+
+
+def test_the_minting_path_round_trips_a_real_approval(tmp_path: Path) -> None:
+    """The happy path through the function that can actually produce one."""
+    now, approved, head_at, evidence_at = recent_moments()
+    repo = _checkout(tmp_path, evidence_at=evidence_at)
+
+    approval = mint(
+        _activity(submitted=approved, head_committed_at=head_at), repo
+    )
+
+    assert isinstance(approval, VerifiedApproval)
+    assert approval.reviewer_github_login == REVIEWER
+    assert approval.as_dict()["approved_markets"] == sorted(SCOPE)
+
+
+def test_an_undated_revocation_is_refused_rather_than_ranked_last(
+    tmp_path: Path,
+) -> None:
+    """FINDING 5, the edge the first fix left open.
+
+    `max` over a sort key that reads an unreadable timestamp as the beginning
+    of time ranks an undated withdrawal behind a dated one, so a revocation
+    nothing can place would have been silently treated as the older word.
+    """
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["comments"] = [
+        {
+            "user": {"login": REVIEWER},
+            "body": REVOCATION_PHRASE,
+            "created_at": "",
+            "id": 900006,
+        },
+        {
+            "user": {"login": REVIEWER},
+            "body": REVOCATION_PHRASE,
+            "created_at": (APPROVED_AT - timedelta(hours=9)).isoformat(),
+            "id": 900007,
+        },
+    ]
+
+    with pytest.raises(GitHubApprovalError, match="no readable timestamp"):
+        _verify(activity, repo)

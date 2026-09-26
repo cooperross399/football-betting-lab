@@ -3,14 +3,18 @@
 `staging_provider_policy.py` will not let a market reach the card unless the
 allowlist entry names a receipt id AND that receipt exists on disk, because
 "an id pointing at nothing is the shape a fabricated approval takes". This
-module is how such a file comes to exist, and it has exactly one input: an
-approval already verified by `github_approval.verify_github_approval`.
+module is how such a file comes to exist, and it has exactly one input: a
+`VerifiedApproval`, minted by `github_approval.approval_from_github` after it
+has fetched the pull request's activity from GitHub itself.
 
-It refuses to build anything from a dictionary that is not one. The decision,
-the approval phrase and the reviewer's GitHub login are all re-checked here
-against the same constants the verifier used, so a caller cannot assemble a
-receipt out of hand-written parts and a caller cannot hand this module a
-reviewer of its own choosing.
+It refuses to build anything from a dictionary. That is a change: a mapping
+used to be enough, and a hand-written one naming an allowed reviewer produced
+a receipt file with the verifier never called — measured, not supposed. The
+decision, the approval phrase and the reviewer's GitHub login are all still
+re-checked here against the same constants the verifier used, because two
+readings of the allow-list is the point; what is new is that passing those
+checks is no longer sufficient. A mapping carries no trace of where it came
+from, so one that was typed and one that was fetched read identically.
 
 ## The id
 
@@ -43,6 +47,7 @@ from football_betting_lab.github_approval import (
     ALLOWED_REVIEWERS,
     APPROVAL_DECISION,
     APPROVAL_PHRASE,
+    VerifiedApproval,
 )
 from football_betting_lab.staging_provider_policy import RECEIPTS_DIRNAME
 
@@ -88,15 +93,29 @@ def receipt_id(approval: Mapping[str, Any]) -> str:
     return f"{identity['provider_name']}-{approval.get('league', '')}-{compact}-{digest}"
 
 
-def build_receipt(approval: Mapping[str, Any]) -> dict[str, Any]:
+def build_receipt(approval: "VerifiedApproval") -> dict[str, Any]:
     """Turn a verified approval into the receipt record.
 
-    Raises rather than returns on anything that is not one. This is the second
-    place the allow-list is read, on purpose: the verifier can be called
-    directly, and a receipt must never be buildable from its output if that
-    output was constructed rather than verified.
+    Takes a `VerifiedApproval` — the object `github_approval.approval_from_github`
+    mints after fetching a pull request's activity from GitHub itself — and
+    nothing else. A mapping is refused, and it is refused *last*, after every
+    content check below has had its say, so the error a caller gets names the
+    first thing actually wrong with what they handed over.
+
+    A mapping used to be enough, and that was the whole hole: a hand-written
+    dictionary naming an allowed reviewer produced a receipt file with the
+    verifier never called. The content checks below stay regardless — the
+    allow-list is read here as well as in the verifier, because two readings
+    of it is the point — but passing them is no longer sufficient. Where the
+    approval came from is now part of what is checked, and a mapping cannot
+    answer that question about itself.
     """
-    if not isinstance(approval, Mapping):
+    if isinstance(approval, VerifiedApproval):
+        approval = approval.as_dict()
+        minted = True
+    elif isinstance(approval, Mapping):
+        minted = False
+    else:
         raise ReceiptError("A receipt is built from a verified approval, not from nothing.")
     if approval.get("decision") != APPROVAL_DECISION:
         raise ReceiptError(
@@ -119,6 +138,15 @@ def build_receipt(approval: Mapping[str, Any]) -> dict[str, Any]:
             raise ReceiptError(f"The approval records no {field}; it binds to nothing.")
     if not approval.get("approved_markets"):
         raise ReceiptError("The approval grants no markets; there is nothing to receipt.")
+    if not minted:
+        raise ReceiptError(
+            "This mapping is well-formed and it is still not an approval. A "
+            "receipt is minted only from one this process fetched from GitHub "
+            "and verified itself — `github_approval.approval_from_github`. A "
+            "mapping carries no trace of where it came from, so one that was "
+            "typed and one that was fetched read identically, which is why "
+            "reading it is no longer enough."
+        )
 
     record = {
         "kind": RECEIPT_KIND,

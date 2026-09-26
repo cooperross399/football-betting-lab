@@ -31,6 +31,7 @@ from football_betting_lab.config import MANUAL_DIR
 from football_betting_lab.github_approval import (
     ALLOWED_REVIEWERS,
     APPROVAL_DECISION,
+    EVIDENCE_REPORTS,
     GitHubApprovalError,
     approval_template,
     evidence_checksums,
@@ -155,9 +156,29 @@ def check_entry(
 
     stored = dict(binding.get("evidence_checksums_sha256") or {})
     current = evidence_checksums(league, output_dir)
+    # Every report this lab measures, on BOTH sides. Comparing only the names
+    # one side happens to hold makes "absent locally" and "absent from the
+    # approval" compare equal, which is how an approval comes to cover four
+    # artifacts out of six with nothing anywhere saying so.
+    expected = {
+        league.output_name(stem, suffix) for stem, suffix in EVIDENCE_REPORTS
+    }
+    unbound = sorted(expected - set(stored))
+    if unbound:
+        problems.append(
+            f"the receipt binds to no checksum for {unbound}. An approval "
+            "bound to part of the evidence is an approval nobody gave on the "
+            "rest of it"
+        )
+    absent = sorted(expected - set(current))
+    if absent:
+        problems.append(
+            f"the evidence report(s) {absent} are not present in this "
+            "checkout, so there is nothing to re-check the approval against"
+        )
     moved = sorted(
         name
-        for name in set(stored) | set(current)
+        for name in set(stored) | set(current) | expected
         if stored.get(name) != current.get(name)
     )
     if moved:

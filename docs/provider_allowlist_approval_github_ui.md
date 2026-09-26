@@ -53,9 +53,32 @@ Every line is load-bearing:
 
 Markdown bullets and any capitalisation parse (`- PR: 54`, `* League: NFL`).
 
+**Your own lines, not quoted ones.** A block that is entirely inside a `>`
+quotation is a repetition of an approval, not an approval, and it is refused.
+This one mattered: a comment reading "REVOKED. Ignore this:" followed by the
+block quoted underneath used to verify as a *fresh* approval, newer than the
+one it was quoting.
+
 A **review** (Files changed → Review changes) re-triggers the gate straight
-away. A plain **comment** is read on the next run of the job — re-run the
-check, or push.
+away, and it has to be an **Approve** review — GitHub's own `DISMISSED`,
+`Request changes`, `Comment` and pending states are refused by name, because a
+review GitHub reports as dismissed is a signature GitHub says you withdrew. A
+plain **comment** is read on the next run of the job — re-run the check, or
+push.
+
+### Taking it back
+
+```text
+REVOKED_FOR_ALLOWLIST_PR
+```
+
+One comment, and the newest word wins: an approval with a revocation at or
+after it does not verify, and the gate refuses the entry that names its
+receipt. Before this existed there was no way to say no — only comments
+carrying the approval phrase were ever read, so "I withdraw that approval" was
+invisible and the withdrawn signature kept verifying until the 72 hours ran
+out. To approve again after revoking, paste the approval block again; it is
+newer, and newer governs.
 
 ### 3. Let the check run
 
@@ -84,6 +107,11 @@ Every one of these produces **no receipt**, and the gate says which:
 | The approval phrase is absent | Refused |
 | The author is not on the allow-list | Refused |
 | Somebody else quotes your approval text | Refused |
+| Your own approval block appears only inside a `>` quotation | Refused |
+| `REVOKED_FOR_ALLOWLIST_PR` sits at or after the approval | Refused |
+| The review is in any state but `APPROVED` | Refused |
+| An evidence report is missing, so the binding would cover only part of the bundle | Refused |
+| `gh` is not the real GitHub CLI at a trusted absolute path | Refused |
 | `pr:` names another pull request | Refused |
 | `provider:` is absent or names another provider | Refused |
 | `league:` is absent or names another league | Refused |

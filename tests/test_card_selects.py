@@ -39,32 +39,28 @@ from football_betting_lab.staging_provider_policy import (
     StagingProviderPolicy,
 )
 
+# A top-level module, the way pytest's prepend import mode puts `tests/` on
+# the path. A card test that needs a market allowed needs a real receipt now.
+from test_github_approval import signed_manual
+
 NOW = datetime(2026, 9, 13, 15, 0, tzinfo=timezone.utc)
 AHEAD = "2026-09-13T20:25:00Z"
 STARTED = "2026-09-13T13:00:00Z"
 
 
 def _policy(tmp_path: Path, markets: list[str]) -> StagingProviderPolicy:
-    (tmp_path / POLICY_FILENAME).write_text(
-        json.dumps(
-            {
-                "provider_allowlist_entries": {
-                    NFL.policy_key(): {
-                        "allowlist_status": "allowed",
-                        "approved_at": "2026-09-01T12:00:00-04:00",
-                        "reviewer_name": "cooperross399",
-                        "evidence_receipt_id": "r-1",
-                        "required_markets": markets,
-                    }
-                }
-            }
-        ),
-        encoding="utf-8",
+    """A policy that allows `markets`, backed by a receipt that verifies.
+
+    This used to write the word `signed` into a file called `r-1.md`, because
+    `market_allowed()` only ever asked whether the file existed. It now opens
+    the receipt and checks the reviewer, the digest and the evidence
+    checksums, so a card test that wants a market allowed has to be given a
+    real transcription — minted through the real minting path by
+    `signed_manual`, one per call, which is a git checkout and a receipt.
+    """
+    return StagingProviderPolicy.load(
+        manual_dir=signed_manual(tmp_path, tuple(markets))
     )
-    receipts = tmp_path / RECEIPTS_DIRNAME
-    receipts.mkdir(parents=True, exist_ok=True)
-    (receipts / "r-1.md").write_text("signed", encoding="utf-8")
-    return StagingProviderPolicy.load(manual_dir=tmp_path)
 
 
 def _prices(**overrides) -> pd.DataFrame:

@@ -18,6 +18,11 @@ mint a receipt. It was not ported. Every flag below is a path, a pull request
 number or a league key; none of them is an approval, and none of them relaxes
 a check.
 
+**And there is no PATH either.** `gh` is run from an absolute, trusted
+location (`github_approval.resolve_gh`), never from whatever PATH offers. A
+forty-line script called `gh` earlier on PATH used to answer every API call
+this command makes, which is a receipt minted with no source change anywhere.
+
 Without `--write-receipt` this verifies and writes nothing. It never prints a
 credential, never places a bet, never edits the policy file and never enables
 a schedule.
@@ -31,10 +36,10 @@ import subprocess
 
 from football_betting_lab.github_approval import (
     GitHubApprovalError,
+    approval_from_github,
     approval_template,
-    fetch_pr_activity,
     proposed_markets,
-    verify_github_approval,
+    resolve_gh,
 )
 from football_betting_lab.human_acceptance_receipt import (
     ReceiptError,
@@ -91,10 +96,28 @@ def parse_args() -> argparse.Namespace:
 
 
 def resolve_repository(explicit: str) -> str:
+    """The repository, from the flag or from `gh` at a trusted absolute path.
+
+    `["gh", ...]` used to be resolved through PATH here too. A shim answering
+    this call names the repository the API is then read from, so it is asked
+    for by absolute path like every other call to the tool.
+    """
     if explicit.strip():
         return explicit.strip()
+    try:
+        executable = resolve_gh()
+    except GitHubApprovalError:
+        return ""
     result = subprocess.run(
-        ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+        [
+            executable,
+            "repo",
+            "view",
+            "--json",
+            "nameWithOwner",
+            "-q",
+            ".nameWithOwner",
+        ],
         capture_output=True,
         text=True,
     )
@@ -133,10 +156,13 @@ def main() -> int:
         return 2
 
     try:
-        activity = fetch_pr_activity(args.pr, repository=repository)
-        approval = verify_github_approval(
-            activity,
+        # Fetched here, by the function that mints. There is no seam between
+        # "what GitHub said" and "what was verified" for anything to sit in:
+        # this call takes no activity, and the verifier's own mapping-shaped
+        # entry point can no longer produce a receipt.
+        verified = approval_from_github(
             pr_number=args.pr,
+            repository=repository,
             league=league,
             policy_path=args.policy,
             output_dir=args.output_dir,
@@ -152,6 +178,9 @@ def main() -> int:
         print("---")
         return 2
 
+    # A copy, for printing only. `build_receipt` is handed the verified object
+    # itself, because a copy of its fields is a mapping like any other.
+    approval = verified.as_dict()
     print(
         f"Approval found: {approval['source_kind']} by "
         f"{approval['reviewer_github_login']} at {approval['approved_at']} "
@@ -164,7 +193,7 @@ def main() -> int:
     print(f"Evidence reports bound: {len(approval['evidence_checksums_sha256'])}")
 
     try:
-        receipt = build_receipt(approval)
+        receipt = build_receipt(verified)
     except ReceiptError as exc:
         print(f"BLOCKED: {exc}")
         return 2

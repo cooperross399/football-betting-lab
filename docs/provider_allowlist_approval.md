@@ -41,7 +41,29 @@ could express "allowed everywhere" would eventually be used that way.
    request, and the receipt is a transcription of it: see
    `docs/provider_allowlist_approval_github_ui.md`. The reviewer's identity
    comes from GitHub's API, so the automation can verify the approval and can
-   never author one.
+   never author one. The receipt is **read** every time it is used, not
+   counted: the card's own loader parses it, checks the reviewer against the
+   allow-list, checks that the market is one the receipt names, and re-checks
+   the evidence checksums it prints. `REVOKED_FOR_ALLOWLIST_PR` in a later
+   comment withdraws the approval.
+
+## The threat model this is built against
+
+Not a stranger on the internet — **an agent with code execution on this
+machine**, which is what Claude is. "Only forgeable by somebody who can run
+code here" is not a mitigation; it is the attack. So the mechanism does not
+rely on any of the things such an agent can reach for free:
+
+- `gh` is invoked by absolute path at a trusted location, never through PATH.
+  A script called `gh` earlier on PATH answered every API call and minted a
+  receipt with no edit to any tracked file.
+- The receipt-producing path fetches the pull request's activity itself. It
+  accepts no activity, because a mapping that was typed and a mapping that was
+  fetched are indistinguishable by their contents.
+- A receipt is built only from an object this code minted after that fetch. A
+  hand-written dictionary naming Cooper used to be enough.
+
+All three were **run** against this lab before they were closed.
 
 ## What Claude may never do
 

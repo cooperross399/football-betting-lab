@@ -3,8 +3,17 @@
 `tests/test_github_approval.py` covers the verification. This covers what is
 done with a verified approval: the receipt it becomes, the gate that re-reads
 that receipt on every policy change, and the command-line entry point — run
-here as a real subprocess against a stubbed `gh`, because the claim being
-tested is "the reviewer comes from the API" and only running it proves that.
+against a stubbed `gh` that is really executed, because the claim being tested
+is "the reviewer comes from the API" and only running it proves that.
+
+The entry point used to be run as a subprocess with the stub first on PATH.
+That is no longer possible and the reason is the point: a `gh` earlier on PATH
+is now refused rather than run, because answering four API calls from a
+forty-line script is how a receipt was minted here with no edit to any tracked
+file. `test_the_entry_point_refuses_a_gh_earlier_on_the_path` is that attack,
+still run as a subprocess, now red. The rest drive `main()` in process with
+the resolved binary patched — the stub is still a program and is still really
+executed; what a test may do that PATH may not is say which program it is.
 
 Every receipt written by this module is written into `tmp_path`. Nothing here
 creates `data/manual/human_acceptance_receipts/`.
@@ -14,23 +23,29 @@ from __future__ import annotations
 
 import argparse
 import ast
+from contextlib import redirect_stdout
 from datetime import datetime, timedelta, timezone
+import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+from unittest import mock
 
 import pytest
 
+from football_betting_lab import github_approval
 from football_betting_lab.config import PROJECT_ROOT
 from football_betting_lab.github_approval import (
     ALLOWED_REVIEWERS,
     APPROVAL_DECISION,
     APPROVAL_PHRASE,
     REQUIRED_EVIDENCE_REPORT,
+    GitHubApprovalError,
+    VerifiedApproval,
     approval_template,
-    verify_github_approval,
 )
 from football_betting_lab.human_acceptance_receipt import (
     RECEIPT_KIND,
@@ -65,6 +80,8 @@ from test_github_approval import (  # noqa: F401 - shared builders
     _paths,
     _policy,
     _run_git,
+    mint,
+    recent_moments,
 )
 
 
@@ -77,21 +94,24 @@ def _moments() -> tuple[datetime, datetime, datetime, datetime]:
     """Now, the approval, the head commit and the evidence commit.
 
     Anchored to the real clock because the entry point reads it: a fixture
-    dated 2026 would be stale against a window measured in hours.
+    dated 2026 would be stale against a window measured in hours. Shared with
+    `test_github_approval`, which needs the same anchoring for the same reason.
     """
-    now = datetime.now(timezone.utc)
-    return now, now - timedelta(hours=1), now - timedelta(hours=2), now - timedelta(hours=3)
+    return recent_moments()
 
 
-def _approval(tmp_path: Path, **overrides) -> tuple[dict, Path]:
+def _approval(tmp_path: Path, **overrides) -> tuple[VerifiedApproval, Path]:
+    """A minted approval, which is the only kind a receipt can be built from.
+
+    `verify_github_approval` is not called here any more. It returns a plain
+    mapping, and a mapping proves nothing about where it came from — which is
+    exactly why `build_receipt` stopped accepting one. The seam is a patched
+    *fetch* inside `mint`, so what is exercised below is the real minting path.
+    """
     now, approved, head_at, evidence_at = _moments()
     repo = _checkout(tmp_path, evidence_at=evidence_at, **overrides)
-    approval = verify_github_approval(
-        _activity(submitted=approved, head_committed_at=head_at),
-        pr_number=PR,
-        league=NFL,
-        now=now,
-        **_paths(repo),
+    approval = mint(
+        _activity(submitted=approved, head_committed_at=head_at), repo
     )
     return approval, repo
 
@@ -115,14 +135,20 @@ def test_a_verified_approval_becomes_a_receipt(tmp_path: Path) -> None:
 def test_the_receipt_id_is_the_digest_of_the_act_not_a_choice(tmp_path: Path) -> None:
     """A chosen id is a receipt anybody can name in a policy entry."""
     approval, _ = _approval(tmp_path)
+    fields = approval.as_dict()
 
     first = build_receipt(approval)["receipt_id"]
-    second = build_receipt(dict(approval))["receipt_id"]
-    other = build_receipt({**approval, "source_id": 111222})["receipt_id"]
+    second = receipt_id(fields)
+    other = receipt_id({**fields, "source_id": 111222})
 
     assert first == second
     assert first != other
     assert NFL.key in first and NFL.policy_provider_name in first
+    # ...and the digest is a function a gate may call on a mapping it read out
+    # of a file. Building the receipt from that mapping is a different act,
+    # and it is refused.
+    with pytest.raises(ReceiptError, match="fetched from GitHub"):
+        build_receipt(fields)
 
 
 def test_a_receipt_cannot_be_built_from_a_handmade_dictionary() -> None:
@@ -436,34 +462,57 @@ def _fake_gh(tmp_path: Path, activity: dict) -> Path:
     return binaries
 
 
+def _arguments(repo: Path, receipts: Path, *extra: str) -> list[str]:
+    return [
+        str(TRANSCRIBER),
+        "--pr",
+        str(PR),
+        "--repository",
+        "cooperross399/football-betting-lab",
+        "--policy",
+        str(repo / "data" / "manual" / POLICY_FILENAME),
+        "--output-dir",
+        str(repo / "data" / "outputs"),
+        "--repo-root",
+        str(repo),
+        "--receipts-dir",
+        str(receipts),
+        *extra,
+    ]
+
+
+def _load_script(script: Path):
+    specification = importlib.util.spec_from_file_location(script.stem, script)
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
 def _transcribe(
     repo: Path, receipts: Path, binaries: Path, *extra: str
 ) -> subprocess.CompletedProcess:
-    environment = dict(os.environ)
-    environment["PYTHONPATH"] = str(PROJECT_ROOT / "src")
-    environment["PATH"] = f"{binaries}{os.pathsep}{environment['PATH']}"
-    return subprocess.run(
-        [
-            sys.executable,
-            str(TRANSCRIBER),
-            "--pr",
-            str(PR),
-            "--repository",
-            "cooperross399/football-betting-lab",
-            "--policy",
-            str(repo / "data" / "manual" / POLICY_FILENAME),
-            "--output-dir",
-            str(repo / "data" / "outputs"),
-            "--repo-root",
-            str(repo),
-            "--receipts-dir",
-            str(receipts),
-            *extra,
-        ],
-        capture_output=True,
-        text=True,
-        env=environment,
-        cwd=PROJECT_ROOT,
+    """Run the entry point with the stubbed `gh` as the resolved binary.
+
+    It used to be a subprocess with the stub first on PATH, and that stopped
+    working on purpose: a `gh` earlier on PATH is now refused rather than run,
+    because answering these four API calls from a forty-line script is how a
+    receipt was minted with no edit to any tracked file. The stub is still a
+    real program and is still really executed — the login the entry point
+    prints still comes out of its JSON — but the module has to be told this is
+    the binary, which is something only in-process code can do.
+
+    Returns a CompletedProcess-shaped result so the assertions below read the
+    same as they did.
+    """
+    module = _load_script(TRANSCRIBER)
+    arguments = _arguments(repo, receipts, *extra)
+    printed = io.StringIO()
+    with mock.patch.object(
+        github_approval, "resolve_gh", return_value=str(binaries / "gh")
+    ), mock.patch.object(sys, "argv", arguments), redirect_stdout(printed):
+        code = module.main()
+    return subprocess.CompletedProcess(
+        args=arguments, returncode=code, stdout=printed.getvalue(), stderr=""
     )
 
 
@@ -674,3 +723,216 @@ def test_the_guard_above_is_not_vacuous(tmp_path: Path) -> None:
     assert _not_a_transcription(handwritten)
     assert _not_a_transcription(renamed)
     assert _not_a_transcription(reviewer_swapped)
+
+
+# -- the nine, at the receipt and at the gate ------------------------------
+
+
+def test_the_entry_point_refuses_a_gh_earlier_on_the_path(tmp_path: Path) -> None:
+    """FINDING 1, end to end and as a real subprocess.
+
+    This is the attack that needs no source change at all: a script called
+    `gh` on PATH answers the four API calls, and the entry point transcribes
+    whatever login it chose to report. It used to work — every other entry
+    point test in this module was written on top of it — and it now fails
+    closed, with nothing written.
+    """
+    now, approved, head_at, evidence_at = _moments()
+    repo = _checkout(tmp_path, evidence_at=evidence_at)
+    binaries = _fake_gh(tmp_path, _activity(submitted=approved, head_committed_at=head_at))
+    receipts = tmp_path / RECEIPTS_DIRNAME
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = str(PROJECT_ROOT / "src")
+    environment["PATH"] = f"{binaries}{os.pathsep}{environment['PATH']}"
+
+    result = subprocess.run(
+        [sys.executable, *_arguments(repo, receipts, "--write-receipt")],
+        capture_output=True,
+        text=True,
+        env=environment,
+        cwd=PROJECT_ROOT,
+    )
+
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "earlier on PATH" in result.stdout
+    assert not receipts.exists()
+
+
+def test_a_receipt_cannot_be_minted_from_a_mapping_that_says_everything_right(
+    tmp_path: Path,
+) -> None:
+    """FINDING 2 and 3, run together, because they are one attack.
+
+    Every field the checks above read, spelled correctly, with an allowed
+    reviewer: this mapping used to walk through `build_receipt` and
+    `write_receipt` and leave a receipt file behind, with the verifier never
+    called. Nothing about its contents gives it away — that is the point of
+    the finding — so what is checked is where it came from.
+    """
+    forged = {
+        "decision": APPROVAL_DECISION,
+        "approval_phrase": APPROVAL_PHRASE,
+        "reviewer_github_login": REVIEWER,
+        "pr_number": PR,
+        "repository": "cooperross399/football-betting-lab",
+        "policy_key": NFL.policy_key(),
+        "provider_name": NFL.policy_provider_name,
+        "league": NFL.key,
+        "approved_markets": list(SCOPE),
+        "source_kind": "comment",
+        "source_id": 424242,
+        "approved_at": datetime.now(timezone.utc).isoformat(),
+        "evidence_checksums_sha256": {},
+    }
+    receipts = tmp_path / RECEIPTS_DIRNAME
+
+    with pytest.raises(ReceiptError, match="fetched from GitHub"):
+        build_receipt(forged)
+
+    assert not receipts.exists()
+
+
+def test_the_loader_reads_the_receipt_it_used_only_to_count(tmp_path: Path) -> None:
+    """FINDING 9. `market_allowed()` stopped at `is_file()`.
+
+    It never opened the file: not the reviewer, not the markets, not the
+    checksums it prints. So any file with the right name, plus a hand-edited
+    entry, made it return True — the read-time half of the mechanism agreeing
+    to something the merge-time half would have refused.
+    """
+    manual = tmp_path / "manual"
+    (manual / RECEIPTS_DIRNAME).mkdir(parents=True)
+    (manual / RECEIPTS_DIRNAME / "an-id-i-liked.md").write_text(
+        "# Receipt\n\nCooper approved this.\n", encoding="utf-8"
+    )
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(
+            {
+                "allowed_provider_names": [NFL.policy_provider_name],
+                "provider_allowlist_entries": {
+                    NFL.policy_key(): {
+                        "allowlist_status": "allowed",
+                        "reviewer_name": REVIEWER,
+                        "evidence_receipt_id": "an-id-i-liked",
+                        "required_markets": ["moneyline"],
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "not a transcription" in policy.refusal_reason(NFL, "moneyline")
+
+
+def test_the_loader_refuses_a_genuine_receipt_with_a_swapped_reviewer(
+    tmp_path: Path,
+) -> None:
+    """FINDING 9. The binding block is text in a file anybody can edit."""
+    approval, repo = _approval(tmp_path)
+    receipt = build_receipt(approval)
+    manual = repo / "data" / "manual"
+    path, _ = write_receipt(receipt, receipts_dir=manual / RECEIPTS_DIRNAME)
+    binding = read_receipt(path)
+    binding["reviewer_github_login"] = "someone-else"
+    path.write_text(
+        "# Receipt\n\n```json\n" + json.dumps(binding) + "\n```\n", encoding="utf-8"
+    )
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(_allowed_policy(receipt, reviewer_name="someone-else")),
+        encoding="utf-8",
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert not policy.market_allowed(NFL, SCOPE[0])
+    assert "allow-list" in policy.refusal_reason(NFL, SCOPE[0])
+
+
+def test_the_loader_refuses_a_market_the_entry_names_and_the_receipt_does_not(
+    tmp_path: Path,
+) -> None:
+    """FINDING 9. `required_markets` is what somebody typed; the receipt is
+    what was signed."""
+    approval, repo = _approval(tmp_path)
+    receipt = build_receipt(approval)
+    manual = repo / "data" / "manual"
+    write_receipt(receipt, receipts_dir=manual / RECEIPTS_DIRNAME)
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(
+            _allowed_policy(receipt, markets=[*SCOPE, "team_total"])
+        ),
+        encoding="utf-8",
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert policy.market_allowed(NFL, SCOPE[0])
+    assert not policy.market_allowed(NFL, "team_total")
+    assert "named by the policy entry and not by the receipt" in policy.refusal_reason(
+        NFL, "team_total"
+    )
+
+
+def test_the_loader_refuses_when_the_evidence_moved_after_the_approval(
+    tmp_path: Path,
+) -> None:
+    """FINDING 9. The checksums the receipt prints are re-checked, not read."""
+    approval, repo = _approval(tmp_path)
+    receipt = build_receipt(approval)
+    manual = repo / "data" / "manual"
+    write_receipt(receipt, receipts_dir=manual / RECEIPTS_DIRNAME)
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(_allowed_policy(receipt)), encoding="utf-8"
+    )
+    (repo / "data" / "outputs" / NFL.output_name(*REQUIRED_EVIDENCE_REPORT)).write_text(
+        "# rebuilt after the signature\n", encoding="utf-8"
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert not policy.market_allowed(NFL, SCOPE[0])
+    assert "evidence has changed" in policy.refusal_reason(NFL, SCOPE[0])
+
+
+def test_a_genuine_receipt_still_allows_exactly_what_it_names(
+    tmp_path: Path,
+) -> None:
+    """The read-time check is a check, not a wall: the whole point is that a
+    real transcription still reads as one."""
+    approval, repo = _approval(tmp_path)
+    receipt = build_receipt(approval)
+    manual = repo / "data" / "manual"
+    write_receipt(receipt, receipts_dir=manual / RECEIPTS_DIRNAME)
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(_allowed_policy(receipt)), encoding="utf-8"
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert sorted(policy.allowed_markets(NFL)) == sorted(SCOPE)
+    assert policy.refusal_reason(NFL, SCOPE[0]) == ""
+
+
+def test_the_gate_fails_a_receipt_bound_to_part_of_the_evidence(
+    tmp_path: Path,
+) -> None:
+    """FINDING 7 at the gate. Absent-locally and absent-from-the-approval used
+    to compare equal, so a binding that covered four artifacts of six passed
+    a check whose whole job is to notice that."""
+    repo, receipts, receipt = _signed(tmp_path)
+    path = receipts / f"{receipt['receipt_id']}.md"
+    binding = read_receipt(path)
+    dropped = sorted(binding["evidence_checksums_sha256"])[0]
+    del binding["evidence_checksums_sha256"][dropped]
+    path.write_text(
+        "# Receipt\n\n```json\n" + json.dumps(binding) + "\n```\n", encoding="utf-8"
+    )
+
+    result = _gate(repo, receipts)
+
+    assert result.returncode == 1
+    assert "binds to no checksum" in result.stdout

@@ -46,15 +46,41 @@ approval, an approval older than the freshness window or dated in the future,
 a policy file that is missing, unreadable, malformed or holds no entry for
 this league — every one of them raises. Nothing returns a partial result, so
 no caller can mistake an unverified approval for a verified one.
+
+## What was added after the mechanism was attacked
+
+Nine ways to mint a receipt without a signature were found in the lab this was
+ported from, and six of them were live here. Five are closed in this file:
+
+* the `gh` this module runs is named, not searched for (`resolve_gh`). A
+  script called `gh` earlier on PATH used to answer every call below;
+* a review's **state** is checked. `DISMISSED`, `CHANGES_REQUESTED`,
+  `PENDING`, `COMMENTED` and `""` all used to verify;
+* `REVOCATION_PHRASE` withdraws an approval, and the newest word wins. There
+  was no way to say no;
+* an approval phrase that appears only inside a quoted block is not a fresh
+  approval (`unquoted_lines`). "REVOKED. Ignore this: > APPROVED..." used to
+  parse as one, newer than the approval it was quoting;
+* the evidence bundle must be **complete** (`check_evidence_complete`). A
+  missing report used to narrow the binding in silence.
+
+The sixth is the seam itself: `verify_github_approval` takes an activity
+mapping, and a mapping proves nothing about where it came from. It stays, for
+tests, and it can no longer produce a receipt. `approval_from_github` fetches
+its own activity and mints a `VerifiedApproval`, which is the only thing
+`human_acceptance_receipt.build_receipt` will build a file from.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
+import shutil
 import subprocess
 from typing import Any
 
@@ -71,6 +97,46 @@ from football_betting_lab.markets import MARKETS_BY_KEY
 #: and deliberately shouted: nobody types it by accident, and it does not
 #: appear in a sentence somebody meant as a remark.
 APPROVAL_PHRASE = "APPROVED_FOR_ALLOWLIST_PR"
+
+#: The token that withdraws an approval. Without one, "the newest comment
+#: carrying the approval phrase" is the reviewer's last word forever: a later
+#: "I withdraw that" is invisible to a parser looking for a phrase it does not
+#: contain. This is the phrase that says no, and it wins whenever it is newer.
+REVOCATION_PHRASE = "REVOKED_FOR_ALLOWLIST_PR"
+
+#: The one review state that is an approval. GitHub reports the others for
+#: reviews that were withdrawn (`DISMISSED`), that asked for changes, that were
+#: never submitted (`PENDING`), or that were remarks (`COMMENTED`) — and a
+#: review GitHub itself says was withdrawn is not a signature.
+ACCEPTED_REVIEW_STATE = "APPROVED"
+
+#: Named rather than left to "anything else": a state this module has not heard
+#: of is refused too, but these are the ones that were measured verifying.
+REFUSED_REVIEW_STATES: tuple[str, ...] = (
+    "DISMISSED",
+    "CHANGES_REQUESTED",
+    "PENDING",
+    "COMMENTED",
+)
+
+#: The name of the GitHub CLI. Never invoked by this name alone: a bare
+#: `["gh", ...]` is resolved through PATH, and PATH is the cheapest thing on
+#: this machine to change. See `resolve_gh`.
+GH_EXECUTABLE_NAME = "gh"
+
+#: Where a real `gh` lives. An allow-list of absolute paths rather than a
+#: search, because the search is the hole: a forty-line script called `gh`
+#: earlier on PATH answers every API call this module makes, with no edit to
+#: any file here. Writing to one of these locations is writing to the system,
+#: which is a different act from setting a variable.
+TRUSTED_GH_PATHS: tuple[str, ...] = (
+    "/opt/homebrew/bin/gh",
+    "/usr/local/bin/gh",
+    "/usr/bin/gh",
+    "/bin/gh",
+    "/home/linuxbrew/.linuxbrew/bin/gh",
+    "/snap/bin/gh",
+)
 
 #: The accounts whose approval this mechanism will transcribe. A tuple, but
 #: deliberately a short one, and read from here rather than taken as an
@@ -138,23 +204,110 @@ def _parse_time(value: object) -> datetime | None:
 # --------------------------------------------------------------------------
 
 
+def _is_executable_file(candidate: str) -> bool:
+    path = Path(candidate)
+    return path.is_file() and os.access(path, os.X_OK)
+
+
+def resolve_gh() -> str:
+    """The absolute path of the real `gh`, or a refusal.
+
+    `subprocess.run(["gh", ...])` asks PATH which program to run, and PATH is
+    the cheapest thing on this machine to change. A script called `gh` placed
+    earlier on it answers every call in `fetch_pr_activity` — exit 0, JSON on
+    stdout, a login of its choosing — and defeats this whole mechanism with no
+    edit to any tracked file. That attack was run against this lab and it
+    worked, which is why the binary is now named rather than searched for.
+
+    Three things have to hold, and each one refuses on its own:
+
+    * the program sits at one of `TRUSTED_GH_PATHS`, absolute and system-owned;
+    * PATH, if it offers a `gh` at all, offers that same one — a different one
+      earlier on PATH is not ignored, it is reported, because it is the attack
+      and a silent fallback would let it keep being tried;
+    * the program answers `--version` the way the GitHub CLI does.
+
+    None of this stops somebody who can write to `/usr/bin`. It stops
+    everything that only needs to write a file and set a variable, which is
+    the threat this mechanism exists for.
+    """
+    # The shim first, because it is the loudest thing that can be true and
+    # because reporting it does not depend on a real `gh` being installed.
+    on_path = shutil.which(GH_EXECUTABLE_NAME)
+    resolved = str(Path(on_path)) if on_path else ""
+    if resolved and resolved not in TRUSTED_GH_PATHS:
+        raise GitHubApprovalError(
+            f"PATH offers a GitHub CLI at `{resolved}`, which is not one of "
+            f"the trusted locations {list(TRUSTED_GH_PATHS)}. A program called "
+            "`gh` earlier on PATH is exactly how this mechanism is defeated "
+            "without changing a line of it, so this is a refusal rather than "
+            "a fallback."
+        )
+
+    trusted = [path for path in TRUSTED_GH_PATHS if _is_executable_file(path)]
+    if not trusted:
+        raise GitHubApprovalError(
+            "No GitHub CLI was found at any trusted location "
+            f"({list(TRUSTED_GH_PATHS)}). An approval is read from GitHub or "
+            "it is not read at all; this command does not fall back to "
+            "whatever PATH happens to offer."
+        )
+    chosen = resolved if resolved in trusted else trusted[0]
+
+    target = Path(chosen).resolve()
+    try:
+        inside_repository = target.is_relative_to(Path(PROJECT_ROOT).resolve())
+    except (OSError, ValueError):
+        inside_repository = False
+    if inside_repository:
+        raise GitHubApprovalError(
+            f"The GitHub CLI at `{chosen}` resolves to `{target}`, inside this "
+            "repository. A tool the repository ships is a tool the repository "
+            "controls, and it cannot be the source of an approval."
+        )
+
+    try:
+        probe = subprocess.run(
+            [chosen, "--version"], capture_output=True, text=True, timeout=30
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise GitHubApprovalError(
+            f"The GitHub CLI at `{chosen}` could not be run: {exc}."
+        ) from exc
+    printed = (probe.stdout or "").strip()
+    first_line = printed.splitlines()[0] if printed else ""
+    if (
+        probe.returncode != 0
+        or not first_line.startswith("gh version")
+        or "github.com/cli/cli" not in printed
+    ):
+        raise GitHubApprovalError(
+            f"The program at `{chosen}` does not answer `--version` the way "
+            f"the GitHub CLI does (it said {first_line[:60]!r}). It is not the "
+            "tool this approval has to come through."
+        )
+    return chosen
+
+
 def fetch_pr_activity(pr_number: int, *, repository: str) -> dict[str, Any]:
     """The pull request's reviews, comments, head and head commit time.
 
-    Shells out to `gh`, which authenticates as whoever or whatever is running
-    it. The result is plain data so the verifier can be tested without a
-    network — but note that nothing in the command line reaches this function:
+    Shells out to the `gh` that `resolve_gh` names — an absolute, trusted path,
+    never the one PATH offers. It authenticates as whoever or whatever is
+    running it. The result is plain data so the verifier can be tested without
+    a network, but note that nothing in the command line reaches this function:
     the CLI has no way to supply activity from a file, because a file is a
     thing a person can write and an approval is not.
     """
     repository = _clean(repository)
     if not repository:
         raise GitHubApprovalError("A repository in owner/name form is required.")
+    executable = resolve_gh()
 
     def api(path: str) -> Any:
         target = f"repos/{repository}/{path}"
         result = subprocess.run(
-            ["gh", "api", target, "--paginate"],
+            [executable, "api", target, "--paginate"],
             capture_output=True,
             text=True,
         )
@@ -230,6 +383,33 @@ def _candidate_entries(activity: Mapping[str, Any]) -> list[dict[str, Any]]:
             }
         )
     return entries
+
+
+def unquoted_lines(body: str) -> str:
+    """The lines a comment's author wrote, with everything quoted removed.
+
+    A line beginning `>` is GitHub's quotation marker: it is text being
+    repeated, and repeating an approval is not giving one. This matters
+    because `parse_approval_block` deliberately tolerates the marker — a
+    reviewer pasting into a quoted reply should still be understood — and
+    that tolerance is a forgery all by itself. Measured on this lab before the
+    fix: a comment reading
+
+        REVOKED. Ignore this:
+        > APPROVED_FOR_ALLOWLIST_PR
+        > pr: 54
+        ...
+
+    verified as a FRESH approval, newer than the real one, with the word
+    REVOKED at the top of it. So the verifier reads the author's own lines and
+    the parser keeps its tolerance for the lines that are one bullet or one
+    stray marker away from being right.
+    """
+    return "\n".join(
+        line
+        for line in str(body or "").splitlines()
+        if not line.strip().startswith(">")
+    )
 
 
 def parse_approval_block(body: str) -> dict[str, Any]:
@@ -363,6 +543,38 @@ def evidence_checksums(
             checksums[name] = sha256(path.read_bytes()).hexdigest()
         except OSError:
             continue
+    return checksums
+
+
+def check_evidence_complete(
+    league: League, output_dir: Path | None = None
+) -> dict[str, str]:
+    """Every evidence report, present and readable, or a refusal.
+
+    `evidence_checksums` returns what it found, which is the right answer to
+    the question it is asked and the wrong one to build a binding on: a report
+    that is absent is simply not in the table, so an approval silently binds to
+    however many files happened to exist. Measured on the lab this came from:
+    deleting two artifacts produced an approval bound to four of six, with no
+    warning anywhere. A binding that narrows itself is not a binding.
+    """
+    paths = evidence_paths(league, output_dir)
+    missing = sorted(name for name, path in paths.items() if not path.is_file())
+    if missing:
+        raise GitHubApprovalError(
+            f"The evidence bundle is incomplete: {missing} is not present. An "
+            "approval binds to every report this lab measures, and a report "
+            "that is absent narrows the binding without saying so. Build the "
+            "missing report and commit it, then approve on the whole bundle."
+        )
+    checksums = evidence_checksums(league, output_dir)
+    unreadable = sorted(set(paths) - set(checksums))
+    if unreadable:
+        raise GitHubApprovalError(
+            f"The evidence report(s) {unreadable} could not be read, so "
+            "nothing can be bound to them. Unreadable evidence is refused, "
+            "never skipped."
+        )
     return checksums
 
 
@@ -537,7 +749,76 @@ def verify_github_approval(
             "evidence."
         )
 
-    declared = parse_approval_block(entry["body"])
+    # The state GitHub reports for a review, checked rather than transcribed.
+    # It used to be copied into the receipt and used for nothing, so a review
+    # in state DISMISSED — one GitHub itself says was withdrawn — verified,
+    # and so did CHANGES_REQUESTED, PENDING, COMMENTED and a state of "".
+    # A comment carries no review state and is judged by its body alone.
+    if entry["kind"] == "review":
+        state = _clean(entry["state"]).upper()
+        if state != ACCEPTED_REVIEW_STATE:
+            unfamiliar = (
+                ""
+                if state in REFUSED_REVIEW_STATES
+                else " — which is not a state this mechanism knows, and an "
+                "unfamiliar state is refused rather than guessed at"
+            )
+            raise GitHubApprovalError(
+                f"The most recent review by an allowed reviewer is in state "
+                f"{state or '(none)'!r}, not {ACCEPTED_REVIEW_STATE!r}"
+                f"{unfamiliar}. A review GitHub reports as anything else is "
+                "not a signature, and a dismissed one is a signature GitHub "
+                "says was withdrawn."
+            )
+
+    # A revocation that is newer than the approval wins. Without this, only
+    # entries CARRYING THE APPROVAL PHRASE were ever looked at, so a later "I
+    # withdraw that approval" was invisible and the withdrawn signature went on
+    # verifying. Read liberally on purpose — the phrase anywhere in the body,
+    # quoted or not — because the failure to prefer here is a refusal, and a
+    # refusal is the safe way to be wrong.
+    revocations = [
+        candidate
+        for candidate in _candidate_entries(activity)
+        if candidate["author"].lower() in allowed
+        and REVOCATION_PHRASE in candidate["body"]
+    ]
+    if revocations:
+        # An undated revocation cannot be placed either side of the approval,
+        # and "cannot be placed" is not "is older". Refused before the
+        # comparison, because `max` by a sort key that reads an unreadable time
+        # as the beginning of time would quietly rank it last.
+        if any(_parse_time(item["submitted_at"]) is None for item in revocations):
+            raise GitHubApprovalError(
+                f"A `{REVOCATION_PHRASE}` from an allowed reviewer carries no "
+                "readable timestamp, so nothing establishes whether it came "
+                "before or after the approval. An unplaceable withdrawal is "
+                "refused, never assumed to be the older word."
+            )
+        newest = max(revocations, key=submitted_key)
+        revoked_at = _parse_time(newest["submitted_at"])
+        if revoked_at is not None and revoked_at >= submitted:
+            raise GitHubApprovalError(
+                f"`{REVOCATION_PHRASE}` was posted by an allowed reviewer at "
+                f"{revoked_at.isoformat()}, at or after the approval at "
+                f"{submitted.isoformat()}. The reviewer's latest word governs, "
+                "and the latest word is no."
+            )
+
+    # The author's own lines, not the ones they quoted. `parse_approval_block`
+    # tolerates the `>` marker so a reviewer typing into a quoted reply is
+    # still understood, and that tolerance turned a comment reading "REVOKED.
+    # Ignore this: > APPROVED_FOR_ALLOWLIST_PR ..." into a fresh approval.
+    own_words = unquoted_lines(entry["body"])
+    if APPROVAL_PHRASE not in own_words:
+        raise GitHubApprovalError(
+            f"The most recent word from an allowed reviewer carries "
+            f"`{APPROVAL_PHRASE}` only inside a quoted block. Quoting an "
+            "approval is repeating it, not giving it. Paste the block "
+            "unquoted to approve."
+        )
+
+    declared = parse_approval_block(own_words)
 
     if declared["pr"] is None:
         raise GitHubApprovalError(
@@ -616,7 +897,7 @@ def verify_github_approval(
     evidence_landed = check_evidence_unchanged_since(
         submitted, league, output_dir=output_dir, repo_root=repo_root
     )
-    checksums = evidence_checksums(league, output_dir)
+    checksums = check_evidence_complete(league, output_dir)
     required = league.output_name(*REQUIRED_EVIDENCE_REPORT)
     if required not in checksums:
         raise GitHubApprovalError(
@@ -649,6 +930,102 @@ def verify_github_approval(
         "evidence_committed_at": evidence_landed,
         "verified_at": moment.isoformat(),
     }
+
+
+# --------------------------------------------------------------------------
+# Minting: the only route from GitHub to a receipt.
+# --------------------------------------------------------------------------
+
+
+def _construction_token_holder():
+    """The token that says "this module made this", held in a closure.
+
+    Not a module attribute, so it is not something a caller can read off the
+    module and pass in. The point is not that a token is unreachable from code
+    running in this process — nothing in Python is — but that there is no
+    *data* path to one: no argument, no file, no variable, no mapping.
+    """
+    token = object()
+
+    def mint(fields: Mapping[str, Any]) -> "VerifiedApproval":
+        return VerifiedApproval(token, dict(fields))
+
+    def holds(candidate: object) -> bool:
+        return candidate is token
+
+    return mint, holds
+
+
+@dataclass(frozen=True, eq=False)
+class VerifiedApproval:
+    """An approval this module fetched from GitHub and verified itself.
+
+    `verify_github_approval` returns a plain mapping and always has. That is
+    useful — it can be tested without a network — and it is exactly why a
+    mapping must not be enough to mint a receipt: a fabricated one is
+    indistinguishable from a fetched one, because a mapping carries no trace of
+    where it came from. Measured on this lab before the fix: a hand-written
+    dictionary naming `cooperross399` went straight through `build_receipt`
+    and `write_receipt` and produced a receipt file, with the verifier never
+    called at all.
+
+    So this type exists, and it cannot be built from outside. The construction
+    token is held in a closure by `_mint_verified_approval`, which is reached
+    only through `approval_from_github` — the one function that fetches the
+    pull request's activity itself and accepts none from a caller.
+    """
+
+    construction_token: object
+    fields: dict[str, Any]
+
+    def __post_init__(self) -> None:
+        if not _holds_construction_token(self.construction_token):
+            raise GitHubApprovalError(
+                "A verified approval is minted by this module, when it has "
+                "fetched a pull request's activity from GitHub and verified an "
+                "approval in it. One built by hand is not one, whatever its "
+                "fields say."
+            )
+
+    def as_dict(self) -> dict[str, Any]:
+        """A copy of the verified fields. Mutating it changes nothing here."""
+        return dict(self.fields)
+
+    @property
+    def reviewer_github_login(self) -> str:
+        return str(self.fields.get("reviewer_github_login") or "")
+
+
+_mint_verified_approval, _holds_construction_token = _construction_token_holder()
+
+
+def approval_from_github(
+    *,
+    pr_number: int,
+    repository: str,
+    league: League,
+    policy_path: Path | None = None,
+    output_dir: Path | None = None,
+    repo_root: Path | None = None,
+) -> VerifiedApproval:
+    """Fetch the pull request's activity and verify an approval in it.
+
+    The receipt-producing path, and the only one. It takes no `activity`,
+    because an activity a caller supplies is a mapping a caller wrote — the
+    login is just a field in it. It takes no `now`, because a clock a caller
+    supplies is a freshness window a caller widens. Every remaining parameter
+    is a path, a number or a league.
+    """
+    activity = fetch_pr_activity(pr_number, repository=repository)
+    fields = verify_github_approval(
+        activity,
+        pr_number=pr_number,
+        league=league,
+        policy_path=policy_path,
+        output_dir=output_dir,
+        repo_root=repo_root,
+    )
+    return _mint_verified_approval(fields)
 
 
 def approval_template(

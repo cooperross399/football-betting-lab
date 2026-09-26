@@ -21,6 +21,11 @@ from football_betting_lab.staging_provider_policy import (
     write_starter_policy,
 )
 
+# A top-level module, the way pytest's prepend import mode puts `tests/` on
+# the path. `signed_manual` mints a real receipt through the real minting
+# path, which is what "a complete approval" now means.
+from test_github_approval import signed_manual
+
 
 NCAAF = League(
     key="ncaaf",
@@ -33,22 +38,51 @@ NCAAF = League(
 )
 
 
-def _write(tmp_path: Path, payload: dict, *, receipt: str | None = None) -> Path:
-    (tmp_path / POLICY_FILENAME).write_text(json.dumps(payload), encoding="utf-8")
+def _signed(tmp_path: Path, markets: list[str]) -> tuple[Path, str]:
+    """A manual directory whose entry is backed by a genuine receipt.
+
+    There is no shortcut any more, and that is the change this fixture
+    records: `market_allowed()` used to stop at "a file with that name
+    exists", so a file reading `signed` was a signature. It now opens the
+    receipt and checks the reviewer, the digest and the evidence checksums,
+    which means a fixture that wants a yes has to mint a real one.
+
+    Returns the manual directory and the receipt id the entry names.
+    """
+    manual = signed_manual(tmp_path, tuple(markets))
+    payload = json.loads((manual / POLICY_FILENAME).read_text(encoding="utf-8"))
+    entry = payload["provider_allowlist_entries"][NFL.policy_key()]
+    return manual, str(entry["evidence_receipt_id"])
+
+
+def _write(
+    tmp_path: Path,
+    payload: dict,
+    *,
+    receipt: str | None = None,
+    manual: Path | None = None,
+) -> Path:
+    directory = manual or tmp_path
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / POLICY_FILENAME).write_text(json.dumps(payload), encoding="utf-8")
     if receipt:
-        receipts = tmp_path / RECEIPTS_DIRNAME
+        receipts = directory / RECEIPTS_DIRNAME
         receipts.mkdir(parents=True, exist_ok=True)
-        (receipts / f"{receipt}.md").write_text("signed", encoding="utf-8")
-    return tmp_path / POLICY_FILENAME
+        target = receipts / f"{receipt}.md"
+        if not target.exists():
+            target.write_text("signed", encoding="utf-8")
+    return directory / POLICY_FILENAME
 
 
-def _approval(markets: list[str], receipt: str = "r-1") -> dict:
+def _approval(
+    markets: list[str], receipt: str = "r-1", reviewer: str = "cooperross399"
+) -> dict:
     return {
         "provider_allowlist_entries": {
             NFL.policy_key(): {
                 "allowlist_status": "allowed",
                 "approved_at": "2026-09-01T12:00:00-04:00",
-                "reviewer_name": "cooperross399",
+                "reviewer_name": reviewer,
                 "evidence_receipt_id": receipt,
                 "required_markets": markets,
             }
@@ -92,9 +126,9 @@ def test_a_policy_file_that_is_not_an_object_allows_nothing(tmp_path: Path) -> N
 def test_a_complete_approval_allows_exactly_the_markets_it_names(
     tmp_path: Path,
 ) -> None:
-    _write(tmp_path, _approval(["moneyline", "spread"]), receipt="r-1")
+    manual, _ = _signed(tmp_path, ["moneyline", "spread"])
 
-    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    policy = StagingProviderPolicy.load(manual_dir=manual)
 
     assert policy.market_allowed(NFL, "moneyline")
     assert policy.market_allowed(NFL, "spread")
@@ -117,11 +151,12 @@ def test_an_incomplete_approval_is_not_an_approval(
 ) -> None:
     """A status of "allowed" with no reviewer is what a half-finished edit
     looks like, and it must not read as an approval."""
-    payload = _approval(["moneyline"])
+    manual, receipt = _signed(tmp_path, ["moneyline"])
+    payload = json.loads((manual / POLICY_FILENAME).read_text(encoding="utf-8"))
     payload["provider_allowlist_entries"][NFL.policy_key()][field] = value
-    _write(tmp_path, payload, receipt="r-1")
+    _write(tmp_path, payload, manual=manual)
 
-    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    policy = StagingProviderPolicy.load(manual_dir=manual)
 
     assert not policy.market_allowed(NFL, "moneyline")
     assert "not a complete approval" in policy.refusal_reason(NFL, "moneyline")
@@ -144,9 +179,14 @@ def test_an_approval_naming_a_market_this_lab_cannot_settle_allows_nothing(
 ) -> None:
     """The policy grants permission. It does not confer the ability to settle
     a bet, so it cannot make an unwired market usable."""
-    _write(tmp_path, _approval(["moneyline", "player_wickets"]), receipt="r-1")
+    manual, receipt = _signed(tmp_path, ["moneyline"])
+    _write(
+        tmp_path,
+        _approval(["moneyline", "player_wickets"], receipt=receipt),
+        manual=manual,
+    )
 
-    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    policy = StagingProviderPolicy.load(manual_dir=manual)
 
     assert not policy.market_allowed(NFL, "player_wickets")
     assert "not a market this lab knows" in policy.refusal_reason(NFL, "player_wickets")
@@ -157,9 +197,9 @@ def test_approving_a_market_in_one_league_never_approves_it_in_another(
 ) -> None:
     """The distribution, the roster churn and the books' coverage are all
     different. One receipt, one league."""
-    _write(tmp_path, _approval(["moneyline"]), receipt="r-1")
+    manual, _ = _signed(tmp_path, ["moneyline"])
 
-    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    policy = StagingProviderPolicy.load(manual_dir=manual)
 
     assert policy.market_allowed(NFL, "moneyline")
     assert not policy.market_allowed(NCAAF, "moneyline")
@@ -183,9 +223,9 @@ def test_every_refusal_gives_a_reason_a_card_can_print(tmp_path: Path) -> None:
 
 def test_a_market_that_is_allowed_has_no_refusal_reason(tmp_path: Path) -> None:
     """Otherwise a card could print an approval and a refusal for one market."""
-    _write(tmp_path, _approval(["moneyline"]), receipt="r-1")
+    manual, _ = _signed(tmp_path, ["moneyline"])
 
-    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    policy = StagingProviderPolicy.load(manual_dir=manual)
 
     assert policy.refusal_reason(NFL, "moneyline") == ""
 
@@ -212,3 +252,46 @@ def test_a_policy_with_no_entries_at_all_says_so_rather_than_blaming_a_league(
 
     assert "No market has a reviewed approval yet" in reason
     assert "carries across" not in reason
+
+
+def test_a_file_with_the_right_name_is_not_a_signature(tmp_path: Path) -> None:
+    """FINDING 9. `market_allowed()` used to stop at `receipt_path().is_file()`.
+
+    It never opened the file, so this one — the word `signed`, in a file named
+    after the id the entry happens to claim — was a complete approval as far
+    as the card was concerned. The merge-time gate would have refused it, but
+    the card runs on a schedule and "it would have been caught at merge" is
+    not a check that runs when the card runs.
+    """
+    _write(tmp_path, _approval(["moneyline"]), receipt="r-1")
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "not a transcription" in policy.refusal_reason(NFL, "moneyline")
+
+
+def test_a_receipt_crediting_somebody_off_the_allow_list_allows_nothing(
+    tmp_path: Path,
+) -> None:
+    """FINDING 9. The reviewer is checked where the receipt is read, not only
+    where it is written."""
+    manual, receipt = _signed(tmp_path, ["moneyline"])
+    path = manual / RECEIPTS_DIRNAME / f"{receipt}.md"
+    binding = json.loads(
+        path.read_text(encoding="utf-8").split("```json", 1)[1].split("```", 1)[0]
+    )
+    binding["reviewer_github_login"] = "someone-who-asked-nicely"
+    path.write_text(
+        "# Receipt\n\n```json\n" + json.dumps(binding) + "\n```\n", encoding="utf-8"
+    )
+    _write(
+        tmp_path,
+        _approval(["moneyline"], receipt=receipt, reviewer="someone-who-asked-nicely"),
+        manual=manual,
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=manual)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "allow-list" in policy.refusal_reason(NFL, "moneyline")
