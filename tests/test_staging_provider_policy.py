@@ -33,12 +33,44 @@ NCAAF = League(
 )
 
 
-def _write(tmp_path: Path, payload: dict, *, receipt: str | None = None) -> Path:
+def _receipt(receipt_id: str, markets: list[str], **overrides) -> dict:
+    """A receipt approving `markets` for the NFL, complete unless overridden."""
+    body = {
+        "receipt_id": receipt_id,
+        "policy_key": NFL.policy_key(),
+        "reviewer_name": "cooperross399",
+        "reviewer_statement": "Read the evidence bundle.",
+        "reviewed_at": "2026-09-01T12:00:00-04:00",
+        "approved_markets": list(markets),
+        "evidence": [],
+    }
+    body.update(overrides)
+    return body
+
+
+def _write(
+    tmp_path: Path,
+    payload: dict,
+    *,
+    receipt: str | None = None,
+    receipt_body: dict | str | None = None,
+) -> Path:
+    """Write the policy and, if named, the receipt it cites.
+
+    By default the receipt approves exactly the markets the policy's NFL entry
+    lists, so a test only has to say what it changes.
+    """
     (tmp_path / POLICY_FILENAME).write_text(json.dumps(payload), encoding="utf-8")
     if receipt:
         receipts = tmp_path / RECEIPTS_DIRNAME
         receipts.mkdir(parents=True, exist_ok=True)
-        (receipts / f"{receipt}.md").write_text("signed", encoding="utf-8")
+        if receipt_body is None:
+            entry = (payload.get("provider_allowlist_entries") or {}).get(
+                NFL.policy_key(), {}
+            )
+            receipt_body = _receipt(receipt, entry.get("required_markets", []))
+        text = receipt_body if isinstance(receipt_body, str) else json.dumps(receipt_body)
+        (receipts / f"{receipt}.json").write_text(text, encoding="utf-8")
     return tmp_path / POLICY_FILENAME
 
 
@@ -212,3 +244,104 @@ def test_a_policy_with_no_entries_at_all_says_so_rather_than_blaming_a_league(
 
     assert "No market has a reviewed approval yet" in reason
     assert "carries across" not in reason
+
+
+# -- the receipt is opened, not merely found ------------------------------
+
+
+def test_a_receipt_that_merely_exists_approves_nothing(tmp_path: Path) -> None:
+    """The old check was `is_file()`. A file saying "signed" passed it."""
+    _write(tmp_path, _approval(["moneyline"]), receipt="r-1", receipt_body="signed")
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "could not be read" in policy.refusal_reason(NFL, "moneyline")
+
+
+def test_a_receipt_approves_only_the_markets_it_names(tmp_path: Path) -> None:
+    """A market list widened after signing is not an approval.
+
+    The policy is what someone wants the card to read; the receipt is what
+    Cooper signed. Only their overlap is allowed.
+    """
+    _write(
+        tmp_path,
+        _approval(["moneyline", "spread"]),
+        receipt="r-1",
+        receipt_body=_receipt("r-1", ["moneyline"]),
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert policy.market_allowed(NFL, "moneyline")
+    assert not policy.market_allowed(NFL, "spread")
+    assert "widened after signing" in policy.refusal_reason(NFL, "spread")
+    assert policy.allowed_markets(NFL) == ("moneyline",)
+
+
+def test_a_receipt_for_another_league_approves_nothing(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _approval(["moneyline"]),
+        receipt="r-1",
+        receipt_body=_receipt("r-1", ["moneyline"], policy_key=NCAAF.policy_key()),
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "One receipt, one league" in policy.refusal_reason(NFL, "moneyline")
+
+
+def test_a_receipt_copied_under_another_name_approves_nothing(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _approval(["moneyline"]),
+        receipt="r-1",
+        receipt_body=_receipt("r-0", ["moneyline"]),
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+    assert "names itself" in policy.refusal_reason(NFL, "moneyline")
+
+
+def test_a_receipt_with_no_reviewer_approves_nothing(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _approval(["moneyline"]),
+        receipt="r-1",
+        receipt_body=_receipt("r-1", ["moneyline"], reviewer_name="  "),
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+
+
+def test_a_receipt_whose_markets_are_not_a_list_approves_nothing(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _approval(["moneyline"]),
+        receipt="r-1",
+        receipt_body=_receipt("r-1", [], approved_markets="moneyline"),
+    )
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")
+
+
+@pytest.mark.parametrize("receipt_id", ["../r-1", "r/1", "r 1", ""])
+def test_a_receipt_id_that_is_not_a_safe_filename_approves_nothing(
+    tmp_path: Path, receipt_id: str
+) -> None:
+    """The id becomes a path. One that could climb out of the receipts
+    directory is refused before anything is opened."""
+    _write(tmp_path, _approval(["moneyline"], receipt=receipt_id))
+
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert not policy.market_allowed(NFL, "moneyline")

@@ -62,6 +62,7 @@ REQUIRED_GUARDS: tuple[str, ...] = (
     "tests/test_the_guards_exist.py",
     "tests/test_check_test_results.py",
     "tests/test_check_ledger_append_only.py",
+    "tests/test_policy_pr_gate.py",
 )
 
 #: A guard that has shrunk below this many test functions has been edited
@@ -95,6 +96,7 @@ GUARD_TEST_FLOORS: dict[str, int] = {
     "tests/test_the_guards_exist.py": 21,
     "tests/test_check_test_results.py": 30,
     "tests/test_check_ledger_append_only.py": 24,
+    "tests/test_policy_pr_gate.py": 14,
 }
 
 

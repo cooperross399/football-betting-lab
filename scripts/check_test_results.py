@@ -126,6 +126,7 @@ REQUIRED_MODULES: tuple[str, ...] = (
     "tests/test_the_guards_exist.py",
     "tests/test_check_test_results.py",
     "tests/test_check_ledger_append_only.py",
+    "tests/test_policy_pr_gate.py",
 )
 
 
