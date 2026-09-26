@@ -1,0 +1,790 @@
+"""One way to approve, and every other way fails closed.
+
+The mechanism under test takes the reviewer's identity from GitHub's API. So
+the tests that matter most are not the happy path — they are the ones that
+show a receipt cannot be produced by naming a reviewer, by editing a policy
+file, by quoting somebody else's comment, or by approving a state that has
+since changed.
+
+Nothing here writes into `data/manual/human_acceptance_receipts/`. Every path
+a test touches is under `tmp_path`.
+"""
+
+from __future__ import annotations
+
+import ast
+from datetime import datetime, timedelta, timezone
+import inspect
+import json
+import os
+from pathlib import Path
+import subprocess
+
+import pytest
+
+from football_betting_lab.github_approval import (
+    ALLOWED_REVIEWERS,
+    APPROVAL_PHRASE,
+    EVIDENCE_REPORTS,
+    MAX_APPROVAL_AGE_HOURS,
+    REQUIRED_EVIDENCE_REPORT,
+    GitHubApprovalError,
+    approval_template,
+    evidence_checksums,
+    parse_approval_block,
+    proposed_markets,
+    verify_github_approval,
+)
+from football_betting_lab.leagues import NFL
+from football_betting_lab.markets import MARKETS_BY_KEY
+from football_betting_lab.staging_provider_policy import POLICY_FILENAME
+
+
+NOW = datetime(2026, 9, 26, 18, 0, tzinfo=timezone.utc)
+APPROVED_AT = NOW - timedelta(hours=2)
+HEAD_COMMITTED_AT = APPROVED_AT - timedelta(hours=3)
+EVIDENCE_AT = APPROVED_AT - timedelta(hours=6)
+PR = 54
+HEAD = "headsha0011feedface22"
+SCOPE = ("moneyline", "spread", "total_points")
+REVIEWER = ALLOWED_REVIEWERS[0]
+
+
+# -- building a checkout ----------------------------------------------------
+
+
+def _run_git(repo: Path, arguments: list[str], when: datetime | None = None) -> None:
+    environment = dict(os.environ)
+    environment.update(
+        {
+            "GIT_AUTHOR_NAME": "Test",
+            "GIT_AUTHOR_EMAIL": "test@example.invalid",
+            "GIT_COMMITTER_NAME": "Test",
+            "GIT_COMMITTER_EMAIL": "test@example.invalid",
+        }
+    )
+    if when is not None:
+        stamp = when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+0000")
+        environment["GIT_AUTHOR_DATE"] = stamp
+        environment["GIT_COMMITTER_DATE"] = stamp
+    subprocess.run(
+        ["git", "-C", str(repo), *arguments],
+        check=True,
+        capture_output=True,
+        env=environment,
+    )
+
+
+def _policy(markets=SCOPE, *, key: str | None = None, **overrides) -> dict:
+    entry = {
+        "allowlist_status": "proposed",
+        "approved_at": "",
+        "reviewer_name": "",
+        "evidence_receipt_id": "",
+        "required_markets": list(markets),
+    }
+    entry.update(overrides)
+    return {
+        "allowed_provider_names": [],
+        "provider_allowlist_entries": {key or NFL.policy_key(): entry},
+    }
+
+
+def _checkout(
+    tmp_path: Path,
+    *,
+    policy: dict | None = None,
+    reports: tuple[tuple[str, str], ...] = (REQUIRED_EVIDENCE_REPORT,),
+    evidence_at: datetime = EVIDENCE_AT,
+) -> Path:
+    """A repository holding a proposed policy and committed evidence."""
+    repo = tmp_path / "checkout"
+    outputs = repo / "data" / "outputs"
+    manual = repo / "data" / "manual"
+    outputs.mkdir(parents=True, exist_ok=True)
+    manual.mkdir(parents=True, exist_ok=True)
+    (manual / POLICY_FILENAME).write_text(
+        json.dumps(policy if policy is not None else _policy(), indent=2),
+        encoding="utf-8",
+    )
+    for stem, suffix in reports:
+        (outputs / NFL.output_name(stem, suffix)).write_text(
+            f"# {stem}\n\nMeasured, not assumed.\n", encoding="utf-8"
+        )
+    _run_git(repo, ["init", "-q"])
+    _run_git(repo, ["add", "-f", "data"])
+    _run_git(repo, ["commit", "-q", "-m", "evidence"], when=evidence_at)
+    return repo
+
+
+def _paths(repo: Path) -> dict:
+    return {
+        "policy_path": repo / "data" / "manual" / POLICY_FILENAME,
+        "output_dir": repo / "data" / "outputs",
+        "repo_root": repo,
+    }
+
+
+# -- building GitHub activity ----------------------------------------------
+
+
+def _body(
+    *,
+    phrase: str = APPROVAL_PHRASE,
+    pr: int | None = PR,
+    provider: str = NFL.policy_provider_name,
+    league: str | None = NFL.key,
+    markets: str | None = ", ".join(SCOPE),
+) -> str:
+    lines = [phrase]
+    if pr is not None:
+        lines.append(f"pr: {pr}")
+    if provider:
+        lines.append(f"provider: {provider}")
+    if league:
+        lines.append(f"league: {league}")
+    if markets is not None and markets != "":
+        lines.append(f"markets: {markets}")
+    return "\n".join(lines)
+
+
+def _activity(
+    *,
+    author: str = REVIEWER,
+    body: str | None = None,
+    kind: str = "review",
+    submitted: datetime = APPROVED_AT,
+    commit_id: str = HEAD,
+    pr_number: int = PR,
+    head_committed_at: datetime | None = HEAD_COMMITTED_AT,
+) -> dict:
+    entry = {
+        "user": {"login": author},
+        "body": _body() if body is None else body,
+        "id": 900001,
+    }
+    activity: dict = {
+        "pr_number": pr_number,
+        "repository": "cooperross399/football-betting-lab",
+        "head_sha": HEAD,
+        "head_committed_at": (
+            head_committed_at.isoformat() if head_committed_at else ""
+        ),
+        "reviews": [],
+        "comments": [],
+    }
+    if kind == "review":
+        entry.update(
+            {
+                "submitted_at": submitted.isoformat(),
+                "commit_id": commit_id,
+                "state": "APPROVED",
+            }
+        )
+        activity["reviews"] = [entry]
+    else:
+        entry["created_at"] = submitted.isoformat()
+        activity["comments"] = [entry]
+    return activity
+
+
+def _verify(activity: dict, repo: Path, **overrides):
+    parameters = dict(pr_number=PR, league=NFL, now=NOW, **_paths(repo))
+    parameters.update(overrides)
+    return verify_github_approval(activity, **parameters)
+
+
+# -- the happy path ---------------------------------------------------------
+
+
+def test_a_review_carrying_the_block_verifies(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    approval = _verify(_activity(), repo)
+
+    assert approval["decision"] == "approved_for_allowlist_pr"
+    assert approval["reviewer_github_login"] == REVIEWER
+    assert approval["pr_number"] == PR
+    assert approval["policy_key"] == NFL.policy_key()
+    assert approval["provider_name"] == NFL.policy_provider_name
+    assert approval["approved_markets"] == sorted(SCOPE)
+    assert approval["source_kind"] == "review"
+    assert approval["evidence_checksums_sha256"]
+
+
+def test_a_comment_carrying_the_block_verifies(tmp_path: Path) -> None:
+    """Cooper opens most of these pull requests, and GitHub will not let an
+    author review their own. A comment has to count or the mechanism is
+    unusable by the one person it is for."""
+    repo = _checkout(tmp_path)
+
+    approval = _verify(_activity(kind="comment"), repo)
+
+    assert approval["source_kind"] == "comment"
+    assert approval["reviewer_github_login"] == REVIEWER
+
+
+def test_the_receipt_names_what_was_withheld_as_well(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    approval = _verify(_activity(), repo)
+
+    assert set(approval["markets_not_approved"]) == set(MARKETS_BY_KEY) - set(SCOPE)
+    assert not set(approval["approved_markets"]) & set(approval["markets_not_approved"])
+
+
+# -- the reviewer -----------------------------------------------------------
+
+
+def test_a_missing_phrase_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match=APPROVAL_PHRASE):
+        _verify(_activity(body=_body(phrase="looks good to me")), repo)
+
+
+def test_an_author_off_the_allow_list_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="allowed reviewer"):
+        _verify(_activity(author="someone-else"), repo)
+
+
+def test_quoting_the_approval_does_not_sign_it(tmp_path: Path) -> None:
+    """A bot or a collaborator repeating the block must not approve."""
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="allowed reviewer"):
+        _verify(_activity(author="helpful-bot", body="> " + _body()), repo)
+
+
+def test_the_reviewer_cannot_be_supplied_by_a_caller() -> None:
+    """The identity comes from GitHub. No parameter may offer another source.
+
+    This is the property the whole mechanism rests on, so it is asserted
+    against the signature rather than trusted to review.
+    """
+    parameters = set(inspect.signature(verify_github_approval).parameters)
+
+    assert parameters == {
+        "activity",
+        "pr_number",
+        "league",
+        "policy_path",
+        "output_dir",
+        "repo_root",
+        "now",
+    }
+    for forbidden in ("reviewer", "reviewer_name", "allowed_reviewers", "author"):
+        assert forbidden not in parameters
+
+
+def test_the_freshness_window_is_not_a_parameter() -> None:
+    """A window a caller can widen is not a window."""
+    assert "max_age_hours" not in inspect.signature(verify_github_approval).parameters
+    assert MAX_APPROVAL_AGE_HOURS > 0
+
+
+def test_no_identity_is_read_from_the_machine_running_this() -> None:
+    """Not `git config user.name`, not an environment variable.
+
+    Read off the syntax tree rather than the text, because the module's own
+    docstring says what it does not do and a substring search cannot tell the
+    promise from the breach.
+    """
+    module = ast.parse(
+        Path(inspect.getsourcefile(verify_github_approval) or "").read_text(
+            encoding="utf-8"
+        )
+    )
+    docstrings = {
+        id(node.body[0].value)
+        for node in ast.walk(module)
+        if isinstance(
+            node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+        )
+        and getattr(node, "body", None)
+        and isinstance(node.body[0], ast.Expr)
+        and isinstance(node.body[0].value, ast.Constant)
+        and isinstance(node.body[0].value.value, str)
+    }
+    literals = [
+        node.value
+        for node in ast.walk(module)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in docstrings
+    ]
+    names = [
+        node.attr for node in ast.walk(module) if isinstance(node, ast.Attribute)
+    ] + [
+        node.id for node in ast.walk(module) if isinstance(node, ast.Name)
+    ]
+
+    assert not [text for text in literals if "user.name" in text or "config" in text]
+    assert "environ" not in names and "getenv" not in names
+
+
+# -- what the approval declares --------------------------------------------
+
+
+def test_an_approval_naming_another_pull_request_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="names PR"):
+        _verify(_activity(body=_body(pr=55)), repo)
+
+
+def test_an_approval_with_no_pull_request_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="must declare `pr:`"):
+        _verify(_activity(body=_body(pr=None)), repo)
+
+
+def test_activity_fetched_for_another_pull_request_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="activity is for PR"):
+        _verify(_activity(pr_number=55), repo)
+
+
+def test_an_approval_naming_another_provider_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="provider"):
+        _verify(_activity(body=_body(provider="some_other_book_feed")), repo)
+
+
+def test_an_approval_with_no_provider_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="must declare `provider:`"):
+        _verify(_activity(body=_body(provider="")), repo)
+
+
+def test_an_approval_naming_another_league_is_refused(tmp_path: Path) -> None:
+    """The policy is keyed `{provider}:{league}` precisely so that one
+    approval cannot travel. The comment has to say which league it is."""
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="One receipt, one league"):
+        _verify(_activity(body=_body(league="ncaaf")), repo)
+
+
+def test_an_approval_with_no_league_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="must declare `league:`"):
+        _verify(_activity(body=_body(league="")), repo)
+
+
+def test_an_approval_with_no_markets_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="must declare `markets:`"):
+        _verify(_activity(body=_body(markets="")), repo)
+
+
+def test_a_market_the_registry_does_not_hold_is_refused(tmp_path: Path) -> None:
+    """The market registry is the single source of what can be approved."""
+    repo = _checkout(tmp_path, policy=_policy((*SCOPE, "first_basket_scorer")))
+
+    with pytest.raises(GitHubApprovalError, match="registry does not hold"):
+        _verify(
+            _activity(body=_body(markets=", ".join((*SCOPE, "first_basket_scorer")))),
+            repo,
+        )
+
+
+def test_there_is_no_shorthand_for_every_market(tmp_path: Path) -> None:
+    """`markets: all` would be a scope nobody read."""
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="registry does not hold"):
+        _verify(_activity(body=_body(markets="all")), repo)
+
+
+def test_a_scope_narrower_than_the_proposal_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="proposed but not named"):
+        _verify(_activity(body=_body(markets=SCOPE[0])), repo)
+
+
+def test_a_scope_wider_than_the_proposal_is_refused(tmp_path: Path) -> None:
+    """A market the pull request does not propose cannot ride in on the
+    comment: the diff and the signature have to agree."""
+    repo = _checkout(tmp_path)
+    wider = ", ".join((*SCOPE, "team_total"))
+
+    with pytest.raises(GitHubApprovalError, match="Named but not proposed"):
+        _verify(_activity(body=_body(markets=wider)), repo)
+
+
+# -- the proposed policy ----------------------------------------------------
+
+
+def test_a_missing_policy_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    (repo / "data" / "manual" / POLICY_FILENAME).unlink()
+
+    with pytest.raises(GitHubApprovalError, match="No policy file"):
+        _verify(_activity(), repo)
+
+
+def test_a_malformed_policy_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    (repo / "data" / "manual" / POLICY_FILENAME).write_text("{not json", encoding="utf-8")
+
+    with pytest.raises(GitHubApprovalError, match="could not be read"):
+        _verify(_activity(), repo)
+
+
+def test_a_policy_that_is_not_an_object_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    (repo / "data" / "manual" / POLICY_FILENAME).write_text("[]", encoding="utf-8")
+
+    with pytest.raises(GitHubApprovalError, match="not a JSON object"):
+        _verify(_activity(), repo)
+
+
+def test_a_policy_with_no_entry_for_this_league_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(
+        tmp_path, policy={"provider_allowlist_entries": {}}
+    )
+
+    with pytest.raises(GitHubApprovalError, match="no entry for"):
+        _verify(_activity(), repo)
+
+
+def test_an_entry_keyed_without_the_league_is_not_this_leagues_scope(
+    tmp_path: Path,
+) -> None:
+    """The lab this came from keys its entries by provider alone. Reading one
+    of those as an NFL scope is how an approval crosses a league boundary, so
+    the bare provider key is not found at all rather than fallen back to."""
+    repo = _checkout(
+        tmp_path, policy=_policy(key=NFL.policy_provider_name)
+    )
+
+    with pytest.raises(GitHubApprovalError, match="no entry for"):
+        _verify(_activity(), repo)
+
+
+def test_an_entry_proposing_no_markets_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path, policy=_policy(()))
+
+    with pytest.raises(GitHubApprovalError, match="proposes no markets"):
+        _verify(_activity(), repo)
+
+
+def test_an_entry_proposing_an_unknown_market_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path, policy=_policy((*SCOPE, "coin_toss")))
+
+    with pytest.raises(GitHubApprovalError, match="registry does not hold"):
+        _verify(_activity(), repo)
+
+
+def test_the_policys_own_reviewer_name_is_never_the_approval(tmp_path: Path) -> None:
+    """An entry can be edited to say `allowed`, name a reviewer and name a
+    receipt id. None of that is an approval, and the verifier reads none of
+    it: the scope comes from `required_markets` and the reviewer from GitHub.
+
+    This is the shape a fabricated approval takes in this lab, because the
+    policy file is the one place where a name and a status sit next to each
+    other in a file anyone can edit.
+    """
+    repo = _checkout(
+        tmp_path,
+        policy=_policy(
+            allowlist_status="allowed",
+            reviewer_name="Somebody Else",
+            evidence_receipt_id="receipt-i-made-up",
+        ),
+    )
+
+    approval = _verify(_activity(), repo)
+
+    assert approval["reviewer_github_login"] == REVIEWER
+    assert "Somebody Else" not in json.dumps(approval)
+    assert "receipt-i-made-up" not in json.dumps(approval)
+
+
+def test_a_self_signed_policy_with_no_github_approval_produces_nothing(
+    tmp_path: Path,
+) -> None:
+    """The same entry, with nobody having approved anything on GitHub."""
+    repo = _checkout(
+        tmp_path,
+        policy=_policy(
+            allowlist_status="allowed",
+            reviewer_name=REVIEWER,
+            evidence_receipt_id="receipt-i-made-up",
+        ),
+    )
+    empty = _activity()
+    empty["reviews"] = []
+
+    with pytest.raises(GitHubApprovalError, match="No review or comment"):
+        _verify(empty, repo)
+
+
+# -- the state that was approved -------------------------------------------
+
+
+def test_a_review_of_a_superseded_commit_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="Re-approve the current head"):
+        _verify(_activity(commit_id="oldcommitsha99"), repo)
+
+
+def test_a_commit_pushed_after_the_approval_is_refused(tmp_path: Path) -> None:
+    """Covers the comment case too, which carries no commit of its own: a
+    head that landed after the signature is a state the reviewer never saw."""
+    repo = _checkout(tmp_path)
+    pushed_later = APPROVED_AT + timedelta(minutes=30)
+
+    with pytest.raises(GitHubApprovalError, match="after the approval"):
+        _verify(_activity(kind="comment", head_committed_at=pushed_later), repo)
+
+
+def test_a_head_with_no_timestamp_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="no readable timestamp"):
+        _verify(_activity(head_committed_at=None), repo)
+
+
+def test_evidence_recommitted_after_the_approval_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    report = repo / "data" / "outputs" / NFL.output_name(*REQUIRED_EVIDENCE_REPORT)
+    report.write_text("# rebuilt\n\nnew numbers\n", encoding="utf-8")
+    _run_git(repo, ["add", "-f", "data"])
+    _run_git(
+        repo,
+        ["commit", "-q", "-m", "regenerated"],
+        when=APPROVED_AT + timedelta(minutes=10),
+    )
+
+    with pytest.raises(GitHubApprovalError, match="after the approval"):
+        _verify(_activity(), repo)
+
+
+def test_evidence_changed_in_the_workspace_is_refused(tmp_path: Path) -> None:
+    """A report regenerated by the job is a report nobody reviewed, whatever
+    its checksum now is."""
+    repo = _checkout(tmp_path)
+    report = repo / "data" / "outputs" / NFL.output_name(*REQUIRED_EVIDENCE_REPORT)
+    report.write_text("# rebuilt in the runner\n", encoding="utf-8")
+
+    with pytest.raises(GitHubApprovalError, match="differs from its committed"):
+        _verify(_activity(), repo)
+
+
+def test_an_uncommitted_evidence_report_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    (repo / "data" / "outputs" / NFL.output_name("slate_coverage", ".md")).write_text(
+        "# coverage\n", encoding="utf-8"
+    )
+
+    with pytest.raises(GitHubApprovalError, match="differs from its committed"):
+        _verify(_activity(), repo)
+
+
+def test_a_missing_evidence_bundle_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path, reports=(("slate_coverage", ".md"),))
+
+    with pytest.raises(GitHubApprovalError, match="is not present"):
+        _verify(_activity(), repo)
+
+
+def test_evidence_outside_the_checkout_is_refused(tmp_path: Path) -> None:
+    """Evidence with no commit behind it cannot be shown to a reviewer."""
+    repo = _checkout(tmp_path)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / NFL.output_name(*REQUIRED_EVIDENCE_REPORT)).write_text(
+        "# unrelated\n", encoding="utf-8"
+    )
+
+    with pytest.raises(GitHubApprovalError, match="not inside the repository"):
+        _verify(_activity(), repo, output_dir=elsewhere)
+
+
+# -- time -------------------------------------------------------------------
+
+
+def test_a_stale_approval_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(
+        tmp_path, evidence_at=NOW - timedelta(days=30)
+    )
+    old = NOW - timedelta(hours=MAX_APPROVAL_AGE_HOURS + 1)
+
+    with pytest.raises(GitHubApprovalError, match="stale"):
+        _verify(
+            _activity(submitted=old, head_committed_at=old - timedelta(hours=1)),
+            repo,
+        )
+
+
+def test_an_approval_just_inside_the_window_verifies(tmp_path: Path) -> None:
+    """The window is a limit, not a mood."""
+    repo = _checkout(tmp_path, evidence_at=NOW - timedelta(days=30))
+    recent = NOW - timedelta(hours=MAX_APPROVAL_AGE_HOURS - 1)
+
+    approval = _verify(
+        _activity(submitted=recent, head_committed_at=recent - timedelta(hours=1)),
+        repo,
+    )
+
+    assert approval["approved_markets"] == sorted(SCOPE)
+
+
+def test_a_future_dated_approval_is_refused(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    with pytest.raises(GitHubApprovalError, match="in the future"):
+        _verify(_activity(submitted=NOW + timedelta(hours=5)), repo)
+
+
+def test_the_most_recent_approval_is_the_one_read(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    activity = _activity()
+    activity["comments"] = [
+        {
+            "user": {"login": REVIEWER},
+            "body": _body(markets=SCOPE[0]),
+            "created_at": (APPROVED_AT - timedelta(hours=5)).isoformat(),
+            "id": 900002,
+        }
+    ]
+
+    approval = _verify(activity, repo)
+
+    assert approval["approved_markets"] == sorted(SCOPE)
+    assert approval["source_kind"] == "review"
+
+
+# -- the lab's own scale ----------------------------------------------------
+
+
+def test_the_whole_registry_can_be_approved_when_it_is_named_exactly(
+    tmp_path: Path,
+) -> None:
+    """The open proposal on this repository names all sixty markets.
+
+    Sixty is a lot to type, which is exactly the pressure that produces a
+    shorthand. There is none: the block names them, and the gate prints the
+    block.
+    """
+    everything = tuple(sorted(MARKETS_BY_KEY))
+    repo = _checkout(tmp_path, policy=_policy(everything))
+
+    approval = _verify(
+        _activity(body=_body(markets=", ".join(everything))), repo
+    )
+
+    assert approval["approved_markets"] == sorted(everything)
+    assert approval["markets_not_approved"] == []
+
+
+def test_one_market_dropped_from_a_sixty_market_approval_is_refused(
+    tmp_path: Path,
+) -> None:
+    everything = tuple(sorted(MARKETS_BY_KEY))
+    repo = _checkout(tmp_path, policy=_policy(everything))
+
+    with pytest.raises(GitHubApprovalError, match="proposed but not named"):
+        _verify(_activity(body=_body(markets=", ".join(everything[1:]))), repo)
+
+
+# -- helpers and invariants -------------------------------------------------
+
+
+def test_the_verifier_writes_nothing(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    before = {
+        path: path.read_bytes()
+        for path in sorted(repo.rglob("*"))
+        if path.is_file() and ".git" not in path.parts
+    }
+
+    _verify(_activity(), repo)
+
+    after = {
+        path: path.read_bytes()
+        for path in sorted(repo.rglob("*"))
+        if path.is_file() and ".git" not in path.parts
+    }
+    assert before == after
+
+
+def test_the_proposed_scope_is_read_from_the_policy(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path, policy=_policy(("moneyline", "team_total")))
+
+    assert proposed_markets(NFL, _paths(repo)["policy_path"]) == (
+        "moneyline",
+        "team_total",
+    )
+
+
+def test_the_template_carries_every_line_the_verifier_requires() -> None:
+    text = approval_template(PR, league=NFL, markets=SCOPE)
+
+    assert APPROVAL_PHRASE in text
+    assert f"pr: {PR}" in text
+    assert f"provider: {NFL.policy_provider_name}" in text
+    assert f"league: {NFL.key}" in text
+    assert f"markets: {', '.join(SCOPE)}" in text
+
+
+def test_the_template_round_trips_through_the_verifier(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+
+    approval = _verify(
+        _activity(body=approval_template(PR, league=NFL, markets=SCOPE)), repo
+    )
+
+    assert approval["approved_markets"] == sorted(SCOPE)
+
+
+def test_the_block_parses_through_markdown_and_capitalisation() -> None:
+    parsed = parse_approval_block(
+        "\n".join(
+            [
+                APPROVAL_PHRASE,
+                f"- PR: {PR}",
+                "* Provider: The_Odds_API",
+                "> League: NFL",
+                "  markets: Moneyline; SPREAD",
+            ]
+        )
+    )
+
+    assert parsed["pr"] == PR
+    assert parsed["provider"] == "the_odds_api"
+    assert parsed["league"] == NFL.key
+    assert parsed["markets"] == ["moneyline", "spread"]
+
+
+def test_the_checksums_move_when_the_evidence_moves(tmp_path: Path) -> None:
+    repo = _checkout(tmp_path)
+    outputs = _paths(repo)["output_dir"]
+    before = evidence_checksums(NFL, outputs)
+
+    (outputs / NFL.output_name(*REQUIRED_EVIDENCE_REPORT)).write_text(
+        "# different\n", encoding="utf-8"
+    )
+
+    assert evidence_checksums(NFL, outputs) != before
+
+
+def test_the_evidence_reports_are_named_per_league() -> None:
+    """Two leagues must never bind an approval to one file."""
+    names = {NFL.output_name(stem, suffix) for stem, suffix in EVIDENCE_REPORTS}
+
+    assert names
+    assert all(name.startswith(f"{NFL.key}_") for name in names)
+    assert NFL.output_name(*REQUIRED_EVIDENCE_REPORT) in names

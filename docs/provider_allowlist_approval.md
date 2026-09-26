@@ -37,7 +37,11 @@ could express "allowed everywhere" would eventually be used that way.
 6. **Human acceptance receipt.** Cooper reviews the evidence and signs. Only
    this step allowlists anything, and the receipt must exist on disk — an id
    naming a file that is not there is the shape a fabricated approval takes,
-   and the policy loader refuses it.
+   and the policy loader refuses it. The signature is one comment on the pull
+   request, and the receipt is a transcription of it: see
+   `docs/provider_allowlist_approval_github_ui.md`. The reviewer's identity
+   comes from GitHub's API, so the automation can verify the approval and can
+   never author one.
 
 ## What Claude may never do
 

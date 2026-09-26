@@ -53,6 +53,22 @@ PYTHONPATH=src .venv/bin/python scripts/estimate_credit_cost.py
 # Reads the workflow's crons and the schedule cache. Spends nothing.
 PYTHONPATH=src .venv/bin/python scripts/run_carding_window.py --season 2026
 
+# The block that would approve a policy pull request, with its proposed scope
+# already in it. Writes nothing.
+PYTHONPATH=src .venv/bin/python scripts/create_receipt_from_github_approval.py \
+    --pr 54 --print-template
+
+# Verify Cooper's GitHub approval and transcribe it into the receipt. The
+# reviewer comes from GitHub's API; this cannot author an approval, and
+# without --write-receipt it writes nothing.
+# See docs/provider_allowlist_approval_github_ui.md.
+PYTHONPATH=src .venv/bin/python scripts/create_receipt_from_github_approval.py \
+    --pr 54 --repository cooperross399/football-betting-lab
+
+# The gate CI runs on every policy change: an entry that reads as allowed must
+# be backed by a receipt that records a real approval for exactly its markets.
+PYTHONPATH=src .venv/bin/python scripts/check_provider_policy_pr_gate.py --pr 54
+
 # Tests
 PYTHONPATH=src .venv/bin/python -m pytest -q
 ```

@@ -1,0 +1,95 @@
+name: Provider Policy PR Gate
+
+# A pull request that allowlists a market must carry a human acceptance
+# receipt, and that receipt must be a transcription of a real approval.
+#
+# The re-run on `pull_request_review` is the whole point of the mechanism:
+# Cooper approves in the GitHub UI, the review event re-triggers this job, and
+# the job reads his approval back out of the API and writes it down. Nobody
+# opens a terminal, and nothing here can approve on his behalf — the reviewer
+# identity is whatever GitHub reported for the review or comment, and no flag,
+# argument or environment variable in either script can supply it.
+#
+# A comment-only approval does not raise an event this workflow listens for,
+# so it is picked up by the next run of the job (a re-run, or a push). That is
+# deliberate: `issue_comment` fires against the default branch and would read
+# a policy file that is not the one under review.
+#
+# This workflow does NOT regenerate the evidence. The reports are committed to
+# the pull request and the approval is bound to their checksums and to the
+# commits that carry them; rebuilding them here would change the very bytes
+# the approval was given on and invalidate it in the act of verifying it.
+
+on:
+  pull_request:
+  pull_request_review:
+    types: [submitted, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  provider-policy-pr-gate:
+    name: Provider Policy PR Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the pull request head
+        uses: actions/checkout@v4
+        with:
+          # The head, not the merge commit: the approval names a commit and
+          # the evidence provenance check reads this checkout's history.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      # Allowed to fail. A missing or unverifiable approval must surface as
+      # the gate's own refusal below, with its reasons, rather than as an
+      # opaque step crash — and a pull request that allowlists nothing has no
+      # approval to transcribe and is not a failure at all.
+      - name: Transcribe the approval, if there is one
+        id: transcribe
+        continue-on-error: true
+        env:
+          PYTHONPATH: src
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python scripts/create_receipt_from_github_approval.py \
+            --pr "${{ github.event.pull_request.number }}" \
+            --repository "${{ github.repository }}" \
+            --write-receipt | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Check the provider policy PR gate
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          python scripts/check_provider_policy_pr_gate.py \
+            --pr "${{ github.event.pull_request.number }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # The receipt is written into the workspace and never committed by this
+      # job: `contents: read`, and a receipt CI pushed would be a receipt CI
+      # authored. Cooper takes it from here. `ignore` because most runs have
+      # no approval to transcribe, and that is the ordinary case rather than
+      # an error.
+      - name: Upload the receipt, if one was transcribed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-human-acceptance-receipt
+          path: data/manual/human_acceptance_receipts/
+          if-no-files-found: ignore
+          retention-days: 14
