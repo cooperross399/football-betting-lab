@@ -58,7 +58,7 @@ here dropped every test in that module — a smaller green, with pytest and
 the junit gate both exit 0. (A `tests/conftest.py` carrying the same line IS
 caught, at `pytest=1 gate=1`, because it shadows the root
 conftest this repository's manifest test imports — which is luck, not a rule.)
-That one is caught for the eight required guards, by the count below and by
+That one is caught for the required guards, by the count below and by
 the per-test floor in `scripts/check_test_results.py`, and is not caught for
 any other module; it is asserted open in
 `tests/test_the_guards_exist.py::test_known_gaps_in_the_guard_floors`.

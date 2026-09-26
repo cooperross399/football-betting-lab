@@ -96,7 +96,7 @@ GUARD_TEST_FLOORS: dict[str, int] = {
     "tests/test_the_guards_exist.py": 21,
     "tests/test_check_test_results.py": 30,
     "tests/test_check_ledger_append_only.py": 24,
-    "tests/test_policy_pr_gate.py": 14,
+    "tests/test_policy_pr_gate.py": 18,
 }
 
 
@@ -472,7 +472,7 @@ def test_the_narrowing_layer_is_the_one_that_refuses_a_full_collection(narrowing
     """The layer matters here, because these three leave every guard FULL.
 
     `--deselect` of one test, and a `-k` that excludes one test by name, both
-    collect something from all eight required modules — so the module floor is
+    collect something from all required modules — so the module floor is
     satisfied and says nothing. If these were caught by the older message, the
     new layer would be untested and the hole would still be open.
     """
@@ -540,7 +540,7 @@ def test_known_gaps_in_the_guard_floors(tmp_path: Path) -> None:
        not on the required list. Run in a throwaway clone of this branch: every
        test in the named module was dropped, pytest exit 0,
        `check_test_results.py` exit 0 — a smaller green, nothing red. Every
-       floor in this repository is aimed at the eight hard-rule guards; a
+       floor in this repository is aimed at the hard-rule guards; a
        non-required module has no floor at all, and giving one to every module
        would mean a recorded count for every test file in the suite that
        changes on every commit. The mitigation is that the edit is a line in

@@ -48,6 +48,7 @@ def _policy(tmp_path: Path, markets: list[str]) -> StagingProviderPolicy:
     (tmp_path / POLICY_FILENAME).write_text(
         json.dumps(
             {
+                "allowed_provider_names": ["the_odds_api"],
                 "provider_allowlist_entries": {
                     NFL.policy_key(): {
                         "allowlist_status": "allowed",
