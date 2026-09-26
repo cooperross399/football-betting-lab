@@ -48,6 +48,7 @@ def _policy(tmp_path: Path, markets: list[str]) -> StagingProviderPolicy:
     (tmp_path / POLICY_FILENAME).write_text(
         json.dumps(
             {
+                "allowed_provider_names": ["the_odds_api"],
                 "provider_allowlist_entries": {
                     NFL.policy_key(): {
                         "allowlist_status": "allowed",
@@ -63,7 +64,17 @@ def _policy(tmp_path: Path, markets: list[str]) -> StagingProviderPolicy:
     )
     receipts = tmp_path / RECEIPTS_DIRNAME
     receipts.mkdir(parents=True, exist_ok=True)
-    (receipts / "r-1.md").write_text("signed", encoding="utf-8")
+    (receipts / "r-1.json").write_text(
+        json.dumps(
+            {
+                "receipt_id": "r-1",
+                "policy_key": NFL.policy_key(),
+                "reviewer_name": "cooperross399",
+                "approved_markets": markets,
+            }
+        ),
+        encoding="utf-8",
+    )
     return StagingProviderPolicy.load(manual_dir=tmp_path)
 
 

@@ -60,7 +60,7 @@ A shortfall is not literally impossible in an honest run, and the two ways it
 could happen are worth knowing before anyone debugs one: a `test_*` function
 nested INSIDE another function is counted by `ast` and never collected by
 pytest, and a `test_*` method on a class pytest declines to collect (one with
-an `__init__`) is counted here too. Neither exists in the eight guards today.
+an `__init__`) is counted here too. Neither exists in the guards today.
 Both would surface as a red build naming the module, which is the safe
 direction to be wrong in.
 
@@ -126,6 +126,7 @@ REQUIRED_MODULES: tuple[str, ...] = (
     "tests/test_the_guards_exist.py",
     "tests/test_check_test_results.py",
     "tests/test_check_ledger_append_only.py",
+    "tests/test_policy_pr_gate.py",
 )
 
 
