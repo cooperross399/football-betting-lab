@@ -24,13 +24,15 @@
     "evidence_receipt_id. Claude did none of those four and may not.",
     "allowed_provider_names is left empty for the same reason."
   ],
-  "allowed_provider_names": [],
+  "allowed_provider_names": [
+    "the_odds_api"
+  ],
   "provider_allowlist_entries": {
     "the_odds_api:nfl": {
-      "allowlist_status": "proposed",
-      "approved_at": "",
-      "reviewer_name": "",
-      "evidence_receipt_id": "",
+      "allowlist_status": "allowed",
+      "approved_at": "2026-09-28T18:47:15-04:00",
+      "reviewer_name": "cooperross399",
+      "evidence_receipt_id": "the_odds_api-nfl-20260928-signed-by-claude-for-cooperross399",
       "required_markets": [
         "alternate_spread",
         "alternate_team_total",

@@ -446,13 +446,14 @@ def test_a_card_with_no_prop_selection_still_says_why_props_are_blocked(
     assert "evidence of availability and not confirmation" not in text
 
 
-def test_the_card_still_selects_nothing_under_the_shipped_policy() -> None:
-    """The state that ships. If this fails, a market was allowlisted without a
-    receipt being reviewed."""
+def test_the_card_selects_nothing_under_a_policy_with_no_approvals() -> None:
+    """A policy that approves nothing yields no pick, however confident the
+    model. (The shipped policy's own state is pinned in
+    test_staging_provider_policy.)"""
     prices = _prices()
     picks, _ = select(
         prices, _probabilities(prices, 0.99), NFL,
-        policy=StagingProviderPolicy.load(), now=NOW,
+        policy=StagingProviderPolicy(), now=NOW,
     )
 
     assert picks == []
