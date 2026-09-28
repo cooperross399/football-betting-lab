@@ -1,25 +1,12 @@
-# NFL card — 2026-09-27
+# NFL card — 2026-09-28
 
 This card is **accumulating evidence, not making recommendations.**
 
 No market is allowlisted. Allowlisting takes measurement against real prices and a signed human acceptance receipt, and neither exists yet. So every market that can be priced is priced, every opinion is frozen into the forward ledger, and none of it is a recommendation.
 
-## Slate (14 game(s))
+## Slate (1 game(s))
 
-- Arizona Cardinals @ San Francisco 49ers
-- Baltimore Ravens @ Dallas Cowboys
-- Carolina Panthers @ Cleveland Browns
-- Cincinnati Bengals @ Pittsburgh Steelers
-- Houston Texans @ Indianapolis Colts
-- Kansas City Chiefs @ Miami Dolphins
-- Las Vegas Raiders @ New Orleans Saints
-- Los Angeles Chargers @ Buffalo Bills
-- Los Angeles Rams @ Denver Broncos
-- Minnesota Vikings @ Tampa Bay Buccaneers
-- New England Patriots @ Jacksonville Jaguars
-- New York Jets @ Detroit Lions
-- Seattle Seahawks @ Washington Commanders
-- Tennessee Titans @ New York Giants
+- Philadelphia Eagles @ Chicago Bears
 
 ## Selections
 
@@ -38,25 +25,27 @@ An excluded market is never a pass, an avoid, or a no-value call. Those are genu
 
 ## The accounting identity
 
-`priced 60,176 = no_opinion 3,717 + unparseable 0 + ambiguous 0 + opinions 56,459 — reconciles.`
+`priced 4,329 = no_opinion 221 + unparseable 0 + ambiguous 0 + opinions 4,108 — reconciles.`
 
 Where the opinions did not go:
 
-- 799 x no fitted rate for `reception_yards`
-- 544 x no fitted rate for `anytime_td`
-- 511 x no fitted rate for `receptions`
-- 375 x no fitted rate for `rush_yards`
-- 274 x player not on a current roster
-- 224 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 222 x `spread_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 222 x `total_points_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 154 x no fitted rate for `pass_interceptions`
-- 110 x no fitted rate for `reception_longest`
+- 59 x no fitted rate for `reception_yards`
+- 48 x no fitted rate for `receptions`
+- 24 x no fitted rate for `anytime_td`
+- 16 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 16 x `spread_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 16 x `total_points_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 15 x no fitted rate for `pass_interceptions`
+- 12 x player not on a current roster
+- 10 x no fitted rate for `reception_longest`
+- 4 x no fitted rate for `defensive_interceptions`
 
 ## Forward evidence
 
-56,459 opinion(s) frozen for 2026-09-27; 137,158 row(s) in the settled ledger.
+4,108 opinion(s) frozen for 2026-09-28; 193,617 row(s) in the settled ledger.
 
 Frozen before kickoff, settled after, never repriced. Historical prices can be bought later; forward evidence cannot be back-dated.
 
 > Calibration fitted on 2023-2025, covering 17 market(s), frozen beside every raw probability.
+
+> Settled 1 snapshot day(s) into the ledger this run.
