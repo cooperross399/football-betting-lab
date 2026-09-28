@@ -223,13 +223,18 @@ def test_a_market_that_is_allowed_has_no_refusal_reason(tmp_path: Path) -> None:
     assert policy.refusal_reason(NFL, "moneyline") == ""
 
 
-def test_the_repositorys_own_policy_file_still_allowlists_nothing() -> None:
-    """The state that ships. If this ever fails, a market was allowlisted
-    without a receipt being reviewed, and the card must not run."""
+def test_the_repositorys_own_policy_allowlists_exactly_what_its_receipt_signed() -> None:
+    """The state that ships: every allowlisted market is one the cited receipt
+    approves, and every market the entry lists is allowed. If this fails, the
+    policy and its receipt have drifted apart."""
     policy = StagingProviderPolicy.load()
+    entry = policy.entry_for(NFL)
+    assert entry is not None and entry.is_allowed
 
-    assert policy.allowed_markets(NFL) == ()
-    assert "No market is allowlisted" in policy.summary_line(NFL)
+    allowed = set(policy.allowed_markets(NFL))
+
+    assert allowed == set(entry.required_markets)
+    assert allowed <= set(policy.approved_by_receipt(entry))
 
 
 def test_a_policy_with_no_entries_at_all_says_so_rather_than_blaming_a_league(

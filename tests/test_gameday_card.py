@@ -39,10 +39,13 @@ def _prices(commence: str = "2026-09-10T00:20:00Z") -> pd.DataFrame:
 
 
 def _card(prices=None, diagnostics=None, preseason=None, now=NOW):
+    # An empty policy, not the shipped one: these tests are about how a card
+    # with nothing allowlisted renders, and must not change meaning when a
+    # receipt is signed.
     return build_card(
         _prices() if prices is None else prices,
         NFL,
-        policy=StagingProviderPolicy.load(),
+        policy=StagingProviderPolicy(),
         diagnostics=diagnostics or PricingDiagnostics(),
         now=now,
         slate_date="2026-09-09",
