@@ -177,8 +177,10 @@ not.
    headers — but a 2.5-month purchase is easier to schedule if it starts the
    day after a reset rather than the day before one.
 
-Nothing is bet in the meantime. Nothing is allowlisted. The card says it is
-accumulating evidence, because that is what it is doing.
+Nothing is bet in the meantime. Nothing was allowlisted when this was written;
+since 2026-09-28 all 60 markets are (`CLAUDE.md`, *The one receipt Claude
+wrote*). The card says it is accumulating evidence, because that is what it
+is doing.
 
 ---
 

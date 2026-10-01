@@ -50,8 +50,9 @@ surviving Bonferroni, died of a settlement offset: nflverse logs about half a
 tackle fewer than the books settle on, and that gap *is* the edge. Five
 instruments now say no edge anywhere.
 
-Nothing is allowlisted. The card produces no selections. **That is correct**,
-not a failure. The forward ledger is the only evidence this lab can still
+All 60 markets are allowlisted since 2026-09-28, on Cooper's instruction and
+against the evidence (`CLAUDE.md`, *The one receipt Claude wrote*). Player
+props still cannot select, so any selection the card makes is a team market. The forward ledger is the only evidence this lab can still
 gather, it accrues at 272 games a season, and it cannot be back-dated — a
 game day that was never frozen is sample that does not exist.
 
