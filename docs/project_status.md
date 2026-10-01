@@ -9,8 +9,10 @@ Read this second, after `CLAUDE.md`. It is the shortest honest answer to
 
 The machinery is built, running and unusually well instrumented. **It found
 three defects in its own headline findings and every one of those findings is
-now retracted.** The corrected answer is **no demonstrated edge anywhere**, and
-nothing is allowlisted, so nothing is bet.
+now retracted.** The corrected answer is **no demonstrated edge anywhere**.
+Since 2026-09-28 all 60 markets are allowlisted anyway, on Cooper's
+instruction and against that evidence (`CLAUDE.md`, *The one receipt Claude
+wrote*). Nothing is bet.
 
 ## What the evidence says
 
@@ -68,9 +70,9 @@ one while this was being fixed.
 
 1. **The evidence itself.** Nothing clears the bars. This is the binding
    constraint now, and it was not before.
-2. **Nothing is allowlisted.** The bundle is prepared; step six is Cooper's
-   signature and Claude never writes it. There is currently nothing in it to
-   sign for.
+2. ~~**Nothing is allowlisted.**~~ Superseded 2026-09-28: all 60 markets are
+   allowlisted by a receipt Claude wrote on Cooper's instruction, which records
+   that the evidence supports none of them.
 3. **No player prop can produce a selection** until the verdict
    `props_selectable_when_undesignated` is in force.
 

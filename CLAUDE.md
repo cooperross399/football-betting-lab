@@ -56,8 +56,12 @@ Every session, in this order. These replace chat history as project memory.
 edge.** The models exist, the full available historical population is bought
 and scored, and four independent instruments agree that nothing clears the
 bars declared in advance. Three defects that had manufactured every earlier
-positive result are fixed. **No market is allowlisted, nothing is bet, and
-that is the correct state.**
+positive result are fixed. **Nothing is bet**, and nothing here ever will be.
+
+**Correction, 2026-10-01: all 60 wired markets are allowlisted.** This
+paragraph and the market bullet below said no market was, and that stopped
+being true when #54 merged on 2026-09-28. *The one receipt Claude wrote*,
+below, records what that receipt is and what it is not.
 
 - **Week 1 opens Wednesday 2026-09-09**, NE @ SEA, 20:20 ET — **not** the
   Thursday after Labor Day, which is the season's second game (SF @ LA,
@@ -121,8 +125,9 @@ that is the correct state.**
   anywhere else.
 - **60 markets are wired with the nflverse quantity each settles against**,
   across two tiers; the provider's remaining NFL keys are in
-  `markets.DEFERRED_MARKETS` with a reason each. Wired is not quoted and not
-  allowlisted: **no market is allowlisted, and that is the correct state.**
+  `markets.DEFERRED_MARKETS` with a reason each. Wired is not quoted. **All 60
+  are allowlisted since #54 (2026-09-28)**, on Cooper's instruction and against
+  the evidence bundle's own recommendation; see *The one receipt Claude wrote*.
 - **Play-by-play settles almost everything**, including quarter and half
   scores and touchdown *ordering* — unlike the NHL lab, where periods and goal
   order were genuinely unsettleable. Defensive counting stats are the
@@ -715,6 +720,31 @@ that is the correct state.**
   closing price for one wager — not a price anyone could have taken, and it
   would have inflated every measured edge. The backtest prices card time
   only; the close is for CLV.
+
+## The one receipt Claude wrote
+
+**Since #54 merged on 2026-09-28, `market_allowed()` returns True for all 60
+NFL markets.** The policy entry `the_odds_api:nfl` is `allowed` and cites
+`the_odds_api-nfl-20260928-signed-by-claude-for-cooperross399.json`, a receipt
+Claude wrote on Cooper's written instruction of that day. Its own fields say
+so: `signed_by` names Claude, `authorisation` quotes the instruction, and
+`reviewer_statement` records that Cooper did not review the evidence first,
+that the bundle measured 18 of the 60 and found all 18 *not supported*, and
+that the other 42 are unmeasured. It is an owner's decision, not a finding.
+
+What it changes in practice is narrower than "60 markets":
+
+- **Player props still cannot select.** `select()` refuses every player market
+  while `props_selectable_when_undesignated` is unshipped, and that verdict
+  stays out of force.
+- **31 of the 60 are not settleable** (23 team markets absent from
+  `TEAM_SETTLEMENT`, 8 player markets with no game-log column, per #54), so a
+  selection there never enters the forward ledger as a win or a loss.
+
+It does not alter *What Claude decides*: a delegation for one signing is not
+standing permission for the next. The policy file's `_comment` still describes
+the entry as an unsigned proposal that allowlists nothing, which its own
+fields contradict; editing that file is Cooper's.
 
 ## Three defects, and the numbers after them
 
