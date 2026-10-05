@@ -75,8 +75,11 @@ jobs:
             echo "::warning::No card-feed branch. Nothing to check yet."
             exit 0
           fi
+          # Published gzipped since the plain CSV passed GitHub's 100 MB file
+          # limit; the plain name still restores an older feed.
           TMP=$(mktemp)
-          if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+          if { git show refs/card-feed-tip:forward_evidence.csv.gz 2>/dev/null | gzip -dc > "$TMP" 2>/dev/null \
+               || git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null; } \
              && [ -s "$TMP" ]; then
             mv "$TMP" ../data/processed/forward_evidence.csv
             echo "Ledger restored: $(( $(wc -l < ../data/processed/forward_evidence.csv) - 1 )) rows."

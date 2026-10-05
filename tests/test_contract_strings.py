@@ -123,8 +123,18 @@ def test_the_feed_never_publishes_the_absence_of_evidence() -> None:
     text = _gameday_workflow()
 
     assert "carried_ledger.csv" in text
-    assert "refs/card-feed-tip:forward_evidence.csv" in text
+    assert "refs/card-feed-tip:forward_evidence.csv.gz" in text
+    assert "refs/card-feed-tip:forward_evidence.csv " in text  # an older, plain feed
     assert "refs/card-feed-tip:snapshots" in text
+
+
+def test_the_feed_publishes_the_ledger_gzipped() -> None:
+    """As plain CSV the ledger passed GitHub's 100 MB file limit on
+    2026-10-05 and every push to card-feed was refused."""
+    text = _gameday_workflow()
+
+    assert "add forward_evidence.csv.gz" in text
+    assert "add forward_evidence.csv " not in text
 
 
 def test_a_rehearsal_can_see_the_slate_it_rehearses() -> None:
