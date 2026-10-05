@@ -65,7 +65,7 @@ jobs:
           # because a failed `git show` still creates the redirect target and
           # pandas refuses a zero-byte CSV.
           REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}"
-          mkdir -p data/processed data/archive/priced_snapshots
+          mkdir -p data/processed data/archive/priced_snapshots data/archive/ledger_shards
           # Two statements, not `git init && cd`: set -e ignores a failure on
           # the left of `&&`, and this block would then fetch into the checkout
           # itself and write one directory above it.
@@ -75,13 +75,54 @@ jobs:
             echo "::warning::No card-feed branch. Nothing to check yet."
             exit 0
           fi
+          # The ledger is stored as one CSV per settled day under ledger/,
+          # never as one growing forward_evidence.csv (that file hit
+          # GitHub's 100MB push limit on 2026-10-05). A branch still holding
+          # the pre-migration monolithic file at the root is restored too, as
+          # one more shard under a name that sorts first and can never
+          # collide with a real snapshot_date — see
+          # football_betting_lab.ledger_feed.
+          for f in $(git ls-tree -r --name-only refs/card-feed-tip | grep '^ledger/' || true); do
+            TMP=$(mktemp)
+            if git show "refs/card-feed-tip:$f" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
+              mv "$TMP" "../data/archive/ledger_shards/$(basename "$f")"
+            else
+              rm -f "$TMP"
+              echo "::warning::Could not restore $f from card-feed."
+            fi
+          done
           TMP=$(mktemp)
           if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
              && [ -s "$TMP" ]; then
-            mv "$TMP" ../data/processed/forward_evidence.csv
-            echo "Ledger restored: $(( $(wc -l < ../data/processed/forward_evidence.csv) - 1 )) rows."
+            mv "$TMP" "../data/archive/ledger_shards/0000-00-00-legacy.csv"
           else
             rm -f "$TMP"
+          fi
+          # Merged by concatenating the raw shard text, never by a
+          # parse-and-rewrite: a shard is read back exactly as it was
+          # frozen. Every shard shares one header by construction; a
+          # mismatch means two shards disagree about the schema, which is
+          # refused rather than silently concatenated.
+          MERGED=../data/processed/forward_evidence.csv
+          rm -f "$MERGED"
+          HEADER=""
+          for shard in ../data/archive/ledger_shards/*.csv; do
+            [ -f "$shard" ] || continue
+            THIS_HEADER=$(head -n 1 "$shard")
+            if [ -z "$HEADER" ]; then
+              HEADER="$THIS_HEADER"
+              cat "$shard" > "$MERGED"
+            elif [ "$THIS_HEADER" = "$HEADER" ]; then
+              tail -n +2 "$shard" >> "$MERGED"
+            else
+              echo "::error::$shard has a header that disagrees with an earlier ledger shard. Refusing to merge shards with different schemas."
+              exit 1
+            fi
+          done
+          if [ -s "$MERGED" ]; then
+            echo "Ledger restored: $(( $(wc -l < "$MERGED") - 1 )) rows."
+          else
+            rm -f "$MERGED"
             echo "No ledger on card-feed yet."
           fi
           for f in $(git ls-tree -r --name-only refs/card-feed-tip | grep '^snapshots/' || true); do
