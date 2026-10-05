@@ -551,6 +551,7 @@ def render_ledger(
     settlement_suspects: frozenset[str] = frozenset(),
     minimum_bets: int = 200,
     families: int | None = None,
+    heading: str = "Forward evidence",
 ) -> str:
     """What the accumulated ledger supports, in the house vocabulary.
 
@@ -568,7 +569,7 @@ def render_ledger(
 
     lines: list[str] = []
     add = lines.append
-    add(f"# Forward evidence — {league.title}")
+    add(f"# {heading} — {league.title}")
     add("")
     if ledger.empty:
         add(

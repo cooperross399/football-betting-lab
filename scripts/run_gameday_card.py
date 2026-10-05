@@ -41,6 +41,12 @@ from football_betting_lab.forward_evidence import (
     snapshots_dir,
     write_snapshot,
 )
+from football_betting_lab.selections_ledger import (
+    render_selections_record,
+    selections_ledger_path,
+    selections_snapshots_dir,
+    write_selections_snapshot,
+)
 from football_betting_lab.leagues import DEFAULT_LEAGUE_KEY, league_for
 from football_betting_lab.models.calibration import load as load_calibration
 from football_betting_lab.models.player_props import load_play_yardage
@@ -443,6 +449,45 @@ def main(argv: list[str] | None = None) -> int:
         )
     card.ledger_rows = len(_read(ledger_path))
 
+    # -- freeze and settle SELECTIONS specifically, narrower than the forward
+    # evidence above: only the rows that cleared select()'s bars and printed
+    # on this card. Same archive_dir as the forward snapshot, so a rehearsal's
+    # selections land in the rehearsal archive and never touch real evidence.
+    selections_frozen = write_selections_snapshot(
+        card.selections, snapshot_date=slate_date, archive_dir=archive_dir
+    )
+    if selections_frozen is not None:
+        card.selections_frozen_rows = len(_read(selections_frozen))
+    elif card.selections:
+        card.notes.append(
+            f"A selections snapshot for {slate_date} already stands and was "
+            "not overwritten."
+        )
+
+    selections_ledger_path_value = selections_ledger_path()
+    selections_settled_days = (
+        0
+        if args.rehearsal
+        else _settle_pending(
+            league,
+            games,
+            logs,
+            lookup,
+            selections_ledger_path_value,
+            as_of=now.date(),
+            snapshot_dir=selections_snapshots_dir(ARCHIVE_DIR),
+        )
+    )
+    if selections_settled_days:
+        card.notes.append(
+            f"Settled {selections_settled_days} selections snapshot day(s) "
+            "into the selections ledger this run."
+        )
+    selections_ledger = _read(selections_ledger_path_value)
+    card.selections_ledger_rows = len(selections_ledger)
+    if not selections_ledger.empty:
+        card.selections_record = render_selections_record(selections_ledger, league)
+
     if args.rehearsal:
         card.notes.append(
             "**This is a rehearsal.** The whole path ran — fetch, fit, price, "
@@ -483,7 +528,14 @@ def _read(path: Path) -> pd.DataFrame:
 
 
 def _settle_pending(
-    league, games, logs, lookup, ledger_path: Path, *, as_of: date
+    league,
+    games,
+    logs,
+    lookup,
+    ledger_path: Path,
+    *,
+    as_of: date,
+    snapshot_dir: Path | None = None,
 ) -> int:
     """Settle every snapshot day that is not already in the ledger.
 
@@ -491,7 +543,7 @@ def _settle_pending(
     leave the late ones out, and the late window is a systematically
     different set of fixtures.
     """
-    directory = snapshots_dir(ARCHIVE_DIR)
+    directory = snapshots_dir(ARCHIVE_DIR) if snapshot_dir is None else snapshot_dir
     if not directory.is_dir() or games.empty:
         return 0
     ledger = _read(ledger_path)
