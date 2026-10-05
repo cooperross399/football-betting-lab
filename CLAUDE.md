@@ -574,6 +574,15 @@ below, records what that receipt is and what it is not.
   opinion is evidence precisely because it was written before the game, so it
   cannot be rebuilt if it is lost to a retention window. Each run restores the
   ledger and the snapshots from the branch before it starts.
+- **On card-feed the ledger and snapshots are gzipped and split into parts.**
+  On 2026-10-05 the plain `forward_evidence.csv` reached 136.75 MB and GitHub
+  refused every push over its 100 MB file limit: three runs built the card and
+  published nothing, and each next run restored the day before. The ledger
+  is now `ledger/forward_evidence.csv.gz.000`, `.001`, ... and each snapshot
+  `snapshots/<date>.csv.gz.NNN`, parts of at most 45 MB. Both restore steps
+  read that layout and the old plain one. The publish step refuses any file
+  over 90 MB before it pushes. Reassemble by hand with
+  `cat ledger/forward_evidence.csv.gz.* | gunzip`.
 - **The card feed is built with git plumbing, never `git add -A`.** Only files
   named one at a time reach the branch. A working tree holding `data/staging/`
   and a `.env` staged wholesale is how a credential reaches a public ref, and

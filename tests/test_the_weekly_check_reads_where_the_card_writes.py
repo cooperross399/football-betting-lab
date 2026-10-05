@@ -25,6 +25,7 @@ disagreement fails here rather than on a Tuesday in October.
 
 from __future__ import annotations
 
+import gzip
 import importlib.util
 import os
 import shutil
@@ -134,17 +135,39 @@ LEDGER_CSV = (
 )
 
 
-def _card_feed_remote(tmp_path: Path) -> Path:
-    """A bare repository whose card-feed branch looks like the live one."""
+SNAPSHOT_CSVS = {
+    "2026-09-13.csv": "market,model_probability\nspread,0.55\ntotal_points,0.52\n",
+    "2026-09-14.csv": "market,model_probability\nspread,0.61\n",
+}
+
+
+def _packed(text: str, parts: int) -> list[bytes]:
+    """What the publish step writes: gzip without a timestamp, then split."""
+    data = gzip.compress(text.encode("utf-8"), mtime=0)
+    size = -(-len(data) // parts)
+    return [data[i:i + size] for i in range(0, len(data), size)]
+
+
+def _card_feed_remote(tmp_path: Path, layout: str = "plain") -> Path:
+    """A bare repository whose card-feed branch looks like the live one.
+
+    `plain` is every tip written before 2026-10-05; `packed` is the layout the
+    publish step writes since GitHub refused a 136.75 MB plain ledger, with
+    the ledger and one snapshot in more than one part so the reassembly is
+    exercised rather than assumed."""
     work = tmp_path / "card-feed-work"
     (work / "snapshots").mkdir(parents=True)
-    (work / "forward_evidence.csv").write_text(LEDGER_CSV, encoding="utf-8")
-    (work / "snapshots" / "2026-09-13.csv").write_text(
-        "market,model_probability\nspread,0.55\ntotal_points,0.52\n", encoding="utf-8"
-    )
-    (work / "snapshots" / "2026-09-14.csv").write_text(
-        "market,model_probability\nspread,0.61\n", encoding="utf-8"
-    )
+    if layout == "plain":
+        (work / "forward_evidence.csv").write_text(LEDGER_CSV, encoding="utf-8")
+        for name, text in SNAPSHOT_CSVS.items():
+            (work / "snapshots" / name).write_text(text, encoding="utf-8")
+    else:
+        (work / "ledger").mkdir()
+        for i, part in enumerate(_packed(LEDGER_CSV, 3)):
+            (work / "ledger" / f"forward_evidence.csv.gz.{i:03d}").write_bytes(part)
+        for (name, text), parts in zip(SNAPSHOT_CSVS.items(), (2, 1)):
+            for i, part in enumerate(_packed(text, parts)):
+                (work / "snapshots" / f"{name}.gz.{i:03d}").write_bytes(part)
     env = _git_env(tmp_path)
     for args in (
         ["init", "-q", "-b", "card-feed"],
@@ -176,8 +199,11 @@ def _git_env(tmp_path: Path, redirects: dict[str, str] | None = None) -> dict[st
     }
 
 
-def _restore(tmp_path: Path, workflow: str, remote_url: str, values: dict[str, str]) -> Path:
-    bare = _card_feed_remote(tmp_path)
+def _restore(
+    tmp_path: Path, workflow: str, remote_url: str, values: dict[str, str],
+    layout: str = "plain", bare: Path | None = None,
+) -> Path:
+    bare = bare or _card_feed_remote(tmp_path, layout)
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     env = _git_env(tmp_path, {remote_url: f"file://{bare}"})
@@ -200,8 +226,9 @@ def _where(workspace: Path, path: Path) -> Path:
 
 
 @pytest.mark.skipif(BASH is None or GIT is None, reason="needs bash and git")
+@pytest.mark.parametrize("layout", ["plain", "packed"])
 @pytest.mark.parametrize("workflow", ["weekly-ledger-check.yml", "football-gameday-refresh.yml"])
-def test_every_restore_lands_where_the_code_reads(tmp_path, workflow) -> None:
+def test_every_restore_lands_where_the_code_reads(tmp_path, workflow, layout) -> None:
     token = "not-a-real-token"
     values = {
         "github.repository": "owner/repo",
@@ -212,13 +239,15 @@ def test_every_restore_lands_where_the_code_reads(tmp_path, workflow) -> None:
         if workflow == "weekly-ledger-check.yml"
         else "https://github.com/owner/repo"
     )
-    workspace = _restore(tmp_path, workflow, url, values)
+    workspace = _restore(tmp_path, workflow, url, values, layout)
 
     ledger = _where(workspace, ledger_path())
     assert ledger.is_file(), f"{workflow} did not put the ledger at {ledger_path()}"
     assert ledger.read_text(encoding="utf-8") == LEDGER_CSV
     folder = _where(workspace, snapshots_dir(config.ARCHIVE_DIR))
     assert sorted(p.name for p in folder.glob("*.csv")) == ["2026-09-13.csv", "2026-09-14.csv"]
+    for name, text in SNAPSHOT_CSVS.items():
+        assert (folder / name).read_text(encoding="utf-8") == text
 
     # And the check, reading what was restored, sees two frozen, settled days.
     result = slate_coverage.measure(
@@ -229,6 +258,140 @@ def test_every_restore_lands_where_the_code_reads(tmp_path, workflow) -> None:
     )
     assert [d.state for d in result.days] == ["thin", "thin"]
     assert result.lost == [] and result.snapshot_missing == []
+
+
+@pytest.mark.skipif(BASH is None or GIT is None, reason="needs bash and git")
+@pytest.mark.parametrize("workflow", ["weekly-ledger-check.yml", "football-gameday-refresh.yml"])
+def test_a_ledger_that_is_there_and_will_not_read_stops_the_run(tmp_path, workflow) -> None:
+    """Falling through to "no ledger yet" would let the card publish a ledger
+    of today's rows over the season's. A corrupt part must be a stop."""
+    bare = _card_feed_remote(tmp_path, "packed")
+    env = _git_env(tmp_path)
+    clone = tmp_path / "corrupt"
+    subprocess.run([GIT, "clone", "-q", "-b", "card-feed", str(bare), str(clone)], check=True, env=env)
+    (clone / "ledger" / "forward_evidence.csv.gz.001").write_bytes(b"not gzip")
+    for args in (
+        ["add", "-A"],
+        ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "corrupt"],
+        ["push", "-q", "origin", "card-feed"],
+    ):
+        subprocess.run([GIT, *args], cwd=clone, check=True, env=env)
+    token = "not-a-real-token"
+    url = (
+        f"https://x-access-token:{token}@github.com/owner/repo"
+        if workflow == "weekly-ledger-check.yml"
+        else "https://github.com/owner/repo"
+    )
+    with pytest.raises(AssertionError, match="could not be read"):
+        _restore(
+            tmp_path, workflow, url,
+            {"github.repository": "owner/repo", "secrets.GITHUB_TOKEN": token},
+            bare=bare,
+        )
+
+
+# --------------------------------------------------------------------------
+# The publish step writes what GitHub accepts, and the restore reads it back.
+# --------------------------------------------------------------------------
+
+def _publish(
+    tmp_path: Path, bare: Path, workspace: Path, part_bytes: int, ceiling: int | None = None,
+) -> subprocess.CompletedProcess:
+    step = _step("football-gameday-refresh.yml", name_prefix="Publish to the card-feed")
+    token = "not-a-real-token"
+    block = _render(step["run"], {
+        "steps.card.outputs.decision || 'degraded'": "no-slate",
+        "github.run_id": "1",
+    })
+    # The real part size is 45 MB; a test ledger that large would be slow, so
+    # the size is shrunk to force several parts and prove they reassemble.
+    assert "PART_BYTES=45000000" in block
+    block = block.replace("PART_BYTES=45000000", f"PART_BYTES={part_bytes}")
+    if ceiling is not None:
+        assert block.count("$4 > 90000000") == 1
+        block = block.replace("$4 > 90000000", f"$4 > {ceiling}")
+    env = _git_env(tmp_path, {f"https://x-access-token:{token}@github.com/owner/repo": f"file://{bare}"})
+    env["REMOTE"] = _render(str(step["env"]["REMOTE"]), {
+        "secrets.GITHUB_TOKEN": token, "github.repository": "owner/repo",
+    })
+    return subprocess.run(
+        [BASH, "-e", "-c", block], cwd=workspace, env=env,
+        capture_output=True, text=True, timeout=60,
+    )
+
+
+@pytest.mark.skipif(BASH is None or GIT is None, reason="needs bash and git")
+def test_the_published_ledger_is_split_and_reads_back_byte_for_byte(tmp_path) -> None:
+    """On 2026-10-05 GitHub declined three pushes because the plain ledger was
+    136.75 MB. The publish step now writes no plain ledger at all, writes
+    parts no larger than its part size, and the restore step reads them back
+    to exactly the bytes the card wrote."""
+    bare = _card_feed_remote(tmp_path, "plain")
+    workspace = tmp_path / "publisher"
+    workspace.mkdir()
+    subprocess.run([GIT, "init", "-q"], cwd=workspace, check=True, env=_git_env(tmp_path))
+    ledger = _where(workspace, ledger_path())
+    ledger.parent.mkdir(parents=True)
+    # Varied rows, so gzip cannot shrink it below a few parts.
+    rows = "".join(f"2026-10-0{1 + i % 5},spread,{(i * 7919) % 10007 / 10007:.6f},won\n" for i in range(20_000))
+    text = LEDGER_CSV + rows
+    ledger.write_text(text, encoding="utf-8")
+    folder = _where(workspace, snapshots_dir(config.ARCHIVE_DIR))
+    folder.mkdir(parents=True)
+    (folder / "2026-10-04.csv").write_text(text, encoding="utf-8")
+
+    result = _publish(tmp_path, bare, workspace, part_bytes=20_000)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    listing = subprocess.run(
+        [GIT, "--git-dir", str(bare), "ls-tree", "-r", "-l", "card-feed"],
+        check=True, capture_output=True, text=True, env=_git_env(tmp_path),
+    ).stdout.splitlines()
+    names = {line.split("\t")[1]: int(line.split()[3]) for line in listing}
+    assert "forward_evidence.csv" not in names, "the plain ledger is what GitHub refused"
+    ledger_parts = sorted(n for n in names if n.startswith("ledger/"))
+    snapshot_parts = sorted(n for n in names if n.startswith("snapshots/2026-10-04"))
+    assert len(ledger_parts) >= 3 and len(snapshot_parts) >= 3
+    assert ledger_parts[0] == "ledger/forward_evidence.csv.gz.000"
+    assert max(names.values()) <= 20_000
+
+    reader = tmp_path / "reader"
+    reader.mkdir()
+    restored = _restore(
+        reader, "football-gameday-refresh.yml", "https://github.com/owner/repo",
+        {"github.repository": "owner/repo", "secrets.GITHUB_TOKEN": "x"}, bare=bare,
+    )
+    assert _where(restored, ledger_path()).read_text(encoding="utf-8") == text
+    back = _where(restored, snapshots_dir(config.ARCHIVE_DIR))
+    assert (back / "2026-10-04.csv").read_text(encoding="utf-8") == text
+
+
+@pytest.mark.skipif(BASH is None or GIT is None, reason="needs bash and git")
+def test_the_publish_step_refuses_a_file_github_would_refuse(tmp_path) -> None:
+    """Checked before the push, so a failure names the file and the limit
+    instead of arriving as a declined pre-receive hook. Observed with the
+    ceiling lowered under a part, since a 90 MB fixture is not a unit test."""
+    bare = _card_feed_remote(tmp_path, "plain")
+    before = subprocess.run(
+        [GIT, "--git-dir", str(bare), "rev-parse", "card-feed"],
+        check=True, capture_output=True, text=True, env=_git_env(tmp_path),
+    ).stdout
+    workspace = tmp_path / "publisher"
+    workspace.mkdir()
+    subprocess.run([GIT, "init", "-q"], cwd=workspace, check=True, env=_git_env(tmp_path))
+    ledger = _where(workspace, ledger_path())
+    ledger.parent.mkdir(parents=True)
+    ledger.write_text(LEDGER_CSV * 50, encoding="utf-8")
+
+    result = _publish(tmp_path, bare, workspace, part_bytes=45_000_000, ceiling=10)
+    assert result.returncode != 0
+    assert "would be refused by GitHub's 100 MB limit" in result.stdout
+    assert "ledger/forward_evidence.csv.gz.000" in result.stdout
+    after = subprocess.run(
+        [GIT, "--git-dir", str(bare), "rev-parse", "card-feed"],
+        check=True, capture_output=True, text=True, env=_git_env(tmp_path),
+    ).stdout
+    assert after == before, "nothing may be pushed once the guard fires"
 
 
 # --------------------------------------------------------------------------
