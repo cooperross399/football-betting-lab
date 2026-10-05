@@ -25,6 +25,7 @@ disagreement fails here rather than on a Tuesday in October.
 
 from __future__ import annotations
 
+import gzip
 import importlib.util
 import os
 import shutil
@@ -134,11 +135,17 @@ LEDGER_CSV = (
 )
 
 
-def _card_feed_remote(tmp_path: Path) -> Path:
-    """A bare repository whose card-feed branch looks like the live one."""
+def _card_feed_remote(tmp_path: Path, gzipped: bool = False) -> Path:
+    """A bare repository whose card-feed branch looks like the live one.
+
+    `gzipped` is the feed as published since 2026-10-05, when the plain CSV
+    passed GitHub's 100 MB file limit; the plain file is an older feed."""
     work = tmp_path / "card-feed-work"
     (work / "snapshots").mkdir(parents=True)
-    (work / "forward_evidence.csv").write_text(LEDGER_CSV, encoding="utf-8")
+    if gzipped:
+        (work / "forward_evidence.csv.gz").write_bytes(gzip.compress(LEDGER_CSV.encode("utf-8")))
+    else:
+        (work / "forward_evidence.csv").write_text(LEDGER_CSV, encoding="utf-8")
     (work / "snapshots" / "2026-09-13.csv").write_text(
         "market,model_probability\nspread,0.55\ntotal_points,0.52\n", encoding="utf-8"
     )
@@ -176,8 +183,10 @@ def _git_env(tmp_path: Path, redirects: dict[str, str] | None = None) -> dict[st
     }
 
 
-def _restore(tmp_path: Path, workflow: str, remote_url: str, values: dict[str, str]) -> Path:
-    bare = _card_feed_remote(tmp_path)
+def _restore(
+    tmp_path: Path, workflow: str, remote_url: str, values: dict[str, str], gzipped: bool = False
+) -> Path:
+    bare = _card_feed_remote(tmp_path, gzipped)
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     env = _git_env(tmp_path, {remote_url: f"file://{bare}"})
@@ -201,7 +210,8 @@ def _where(workspace: Path, path: Path) -> Path:
 
 @pytest.mark.skipif(BASH is None or GIT is None, reason="needs bash and git")
 @pytest.mark.parametrize("workflow", ["weekly-ledger-check.yml", "football-gameday-refresh.yml"])
-def test_every_restore_lands_where_the_code_reads(tmp_path, workflow) -> None:
+@pytest.mark.parametrize("gzipped", [True, False], ids=["gzipped-feed", "plain-feed"])
+def test_every_restore_lands_where_the_code_reads(tmp_path, workflow, gzipped) -> None:
     token = "not-a-real-token"
     values = {
         "github.repository": "owner/repo",
@@ -212,7 +222,7 @@ def test_every_restore_lands_where_the_code_reads(tmp_path, workflow) -> None:
         if workflow == "weekly-ledger-check.yml"
         else "https://github.com/owner/repo"
     )
-    workspace = _restore(tmp_path, workflow, url, values)
+    workspace = _restore(tmp_path, workflow, url, values, gzipped)
 
     ledger = _where(workspace, ledger_path())
     assert ledger.is_file(), f"{workflow} did not put the ledger at {ledger_path()}"

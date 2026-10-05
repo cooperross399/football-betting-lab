@@ -190,8 +190,16 @@ jobs:
             # zero-byte CSV that pandas refuses to parse — and that is exactly
             # how the first rehearsal died, on the branch state the first real
             # run would have had.
+            # The ledger is published gzipped: as plain CSV it passed GitHub's
+            # 100 MB file limit on 2026-10-05 and every push was rejected.
+            # The plain name is still read so a feed published before that
+            # change restores.
             TMP=$(mktemp)
-            if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+            if git show refs/card-feed-tip:forward_evidence.csv.gz 2>/dev/null | gzip -dc > "$TMP" 2>/dev/null \
+               && [ -s "$TMP" ]; then
+              mv "$TMP" data/processed/forward_evidence.csv
+              echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows."
+            elif git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
                && [ -s "$TMP" ]; then
               mv "$TMP" data/processed/forward_evidence.csv
               echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows."
@@ -350,11 +358,19 @@ jobs:
           # rebuild them. Anything the run does not hold locally is therefore
           # carried forward from the branch tip rather than dropped.
           git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null || true
+          # Gzipped, because the plain CSV passed GitHub's 100 MB file limit
+          # and the push was refused. `-n` keeps the bytes identical for an
+          # unchanged ledger.
           if [ -f data/processed/forward_evidence.csv ]; then
-            add forward_evidence.csv data/processed/forward_evidence.csv "$ROOT_INPUT"
+            gzip -9 -n -c data/processed/forward_evidence.csv > ledger.csv.gz
+            add forward_evidence.csv.gz ledger.csv.gz "$ROOT_INPUT"
+          elif git cat-file -e refs/card-feed-tip:forward_evidence.csv.gz 2>/dev/null; then
+            git show refs/card-feed-tip:forward_evidence.csv.gz > carried_ledger.csv.gz
+            add forward_evidence.csv.gz carried_ledger.csv.gz "$ROOT_INPUT"
+            echo "::warning::This run held no local ledger; carried the branch copy forward rather than publishing a tree without it."
           elif git cat-file -e refs/card-feed-tip:forward_evidence.csv 2>/dev/null; then
-            git show refs/card-feed-tip:forward_evidence.csv > carried_ledger.csv
-            add forward_evidence.csv carried_ledger.csv "$ROOT_INPUT"
+            git show refs/card-feed-tip:forward_evidence.csv | gzip -9 -n > carried_ledger.csv.gz
+            add forward_evidence.csv.gz carried_ledger.csv.gz "$ROOT_INPUT"
             echo "::warning::This run held no local ledger; carried the branch copy forward rather than publishing a tree without it."
           fi
           for snapshot in data/archive/priced_snapshots/*.csv; do
