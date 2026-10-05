@@ -106,6 +106,9 @@ class CardResult:
     selections: list[dict] = field(default_factory=list)
     frozen_rows: int = 0
     ledger_rows: int = 0
+    selections_frozen_rows: int = 0
+    selections_ledger_rows: int = 0
+    selections_record: str = ""
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -221,6 +224,9 @@ def select(
         )
         candidate = {
             "game": label,
+            "home_team": clean_text(getattr(row, "home_team", "")),
+            "away_team": clean_text(getattr(row, "away_team", "")),
+            "commence_time": clean_text(getattr(row, "commence_time", "")),
             "market": market_key,
             "player": clean_text(getattr(row, "player", "")),
             "selection": selection,
@@ -487,4 +493,26 @@ def render(result: CardResult) -> str:
     for note in result.notes:
         add("")
         add(f"> {note}")
+
+    if result.selections_frozen_rows or result.selections_ledger_rows:
+        add("")
+        add("## Selections record")
+        add("")
+        add(
+            f"{result.selections_frozen_rows:,} selection(s) frozen for "
+            f"{result.slate_date}; {result.selections_ledger_rows:,} row(s) "
+            "in the settled selections ledger."
+        )
+        add("")
+        add(
+            "This is narrower than forward evidence above: only the rows "
+            "that cleared `select()`'s bars and printed on this card, "
+            "settled the same way. Correlated selections (the same game's "
+            "alternate-line ladder) are **not** deduplicated or summed — "
+            "the interval below is clustered by game for exactly that "
+            "reason."
+        )
+        if result.selections_record:
+            add("")
+            add(result.selections_record.strip())
     return "\n".join(lines) + "\n"
