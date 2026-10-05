@@ -183,64 +183,28 @@ jobs:
           REMOTE: https://github.com/${{ github.repository }}
         run: |
           set -euo pipefail
-          mkdir -p data/processed data/archive/priced_snapshots data/archive/ledger_shards
+          mkdir -p data/processed data/archive/priced_snapshots
           if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
             # Write to a temp and move only on success. `git show > file`
             # creates the file even when git show fails, which leaves a
             # zero-byte CSV that pandas refuses to parse — and that is exactly
             # how the first rehearsal died, on the branch state the first real
             # run would have had.
-            #
-            # The ledger is stored as one CSV per settled day under ledger/
-            # on the branch, never as one growing file: forward_evidence.csv
-            # hit GitHub's 100MB push limit on 2026-10-05 at 136.75MB. A
-            # branch still holding the pre-migration monolithic file at the
-            # root is restored too, as one more shard under a name that
-            # sorts first and can never collide with a real snapshot_date —
-            # see football_betting_lab.ledger_feed.
-            for path in $(git ls-tree -r --name-only refs/card-feed-tip ledger/ 2>/dev/null); do
-              TMP=$(mktemp)
-              if git show "refs/card-feed-tip:$path" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
-                mv "$TMP" "data/archive/ledger_shards/$(basename "$path")"
-              else
-                rm -f "$TMP"
-                echo "::warning::Could not restore $path from card-feed."
-              fi
-            done
+            # The ledger is published gzipped: as plain CSV it passed GitHub's
+            # 100 MB file limit on 2026-10-05 and every push was rejected.
+            # The plain name is still read so a feed published before that
+            # change restores.
             TMP=$(mktemp)
-            if git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+            if git show refs/card-feed-tip:forward_evidence.csv.gz 2>/dev/null | gzip -dc > "$TMP" 2>/dev/null \
                && [ -s "$TMP" ]; then
-              mv "$TMP" "data/archive/ledger_shards/0000-00-00-legacy.csv"
+              mv "$TMP" data/processed/forward_evidence.csv
+              echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows."
+            elif git show refs/card-feed-tip:forward_evidence.csv > "$TMP" 2>/dev/null \
+               && [ -s "$TMP" ]; then
+              mv "$TMP" data/processed/forward_evidence.csv
+              echo "Ledger restored: $(( $(wc -l < data/processed/forward_evidence.csv) - 1 )) rows."
             else
               rm -f "$TMP"
-            fi
-            # Merged by concatenating the raw shard text, never by a
-            # parse-and-rewrite: a shard is read back exactly as it was
-            # frozen, never reformatted by a float or quoting choice a CSV
-            # library might make differently. Every shard shares one header
-            # by construction (split_into_shards reindexes to
-            # LEDGER_COLUMNS); a mismatch means two shards disagree about the
-            # schema, which is refused rather than silently concatenated.
-            MERGED=data/processed/forward_evidence.csv
-            rm -f "$MERGED"
-            HEADER=""
-            for shard in data/archive/ledger_shards/*.csv; do
-              [ -f "$shard" ] || continue
-              THIS_HEADER=$(head -n 1 "$shard")
-              if [ -z "$HEADER" ]; then
-                HEADER="$THIS_HEADER"
-                cat "$shard" > "$MERGED"
-              elif [ "$THIS_HEADER" = "$HEADER" ]; then
-                tail -n +2 "$shard" >> "$MERGED"
-              else
-                echo "::error::$shard has a header that disagrees with an earlier ledger shard. Refusing to merge shards with different schemas."
-                exit 1
-              fi
-            done
-            if [ -s "$MERGED" ]; then
-              echo "Ledger restored: $(( $(wc -l < "$MERGED") - 1 )) rows."
-            else
-              rm -f "$MERGED"
               echo "No ledger on card-feed yet."
             fi
             # Same temp-then-move as the ledger: a failed `git show` with a
@@ -360,7 +324,6 @@ jobs:
         if: always() && inputs.rehearsal_slate_date == ''
         env:
           REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          PYTHONPATH: src
         run: |
           set -euo pipefail
           # League date, matching what the card itself stamps and what the
@@ -378,8 +341,6 @@ jobs:
           # have worked and would have made the feed a heap of files.
           ROOT_INPUT=$(mktemp)
           SNAP_INPUT=$(mktemp)
-          LEDGER_INPUT=$(mktemp)
-          LEDGER_SHARDS=$(mktemp -d)
           blob() { git hash-object -w "$1"; }
           add() {
             [ -f "$2" ] || return 0
@@ -397,44 +358,20 @@ jobs:
           # rebuild them. Anything the run does not hold locally is therefore
           # carried forward from the branch tip rather than dropped.
           git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null || true
-          # The ledger is published as one blob per settled day under
-          # ledger/, never as one growing forward_evidence.csv: that file hit
-          # GitHub's 100MB push limit on 2026-10-05. A day's rows never
-          # change once settled, so resharding the whole local ledger on
-          # every run is safe — an unchanged day hashes to the blob already
-          # on the branch — and there is no "only the new days" bookkeeping
-          # to get wrong.
+          # Gzipped, because the plain CSV passed GitHub's 100 MB file limit
+          # and the push was refused. `-n` keeps the bytes identical for an
+          # unchanged ledger.
           if [ -f data/processed/forward_evidence.csv ]; then
-            python scripts/run_ledger_shards.py \
-              --ledger data/processed/forward_evidence.csv \
-              --shard-dir "$LEDGER_SHARDS"
-          fi
-          for shard in "$LEDGER_SHARDS"/*.csv; do
-            [ -f "$shard" ] || continue
-            add "$(basename "$shard")" "$shard" "$LEDGER_INPUT"
-          done
-          if [ -s "$LEDGER_INPUT" ]; then
-            LEDGER_TREE=$(git mktree < "$LEDGER_INPUT")
-            printf '040000 tree %s\tledger\n' "$LEDGER_TREE" >> "$ROOT_INPUT"
-            # The pre-migration monolithic file is never written again once
-            # this run has anything to shard: the whole point is that no
-            # single blob on this branch grows without bound.
-          else
-            # This run held no local ledger to shard — it died before or
-            # during the Restore step, or there is genuinely nothing settled
-            # yet. Carry forward whatever the branch already holds, in
-            # whichever layout it is in, rather than publish a tree that
-            # drops a season of settled opinions.
-            if git cat-file -e refs/card-feed-tip:ledger 2>/dev/null; then
-              CARRIED_LEDGER=$(git rev-parse refs/card-feed-tip:ledger)
-              printf '040000 tree %s\tledger\n' "$CARRIED_LEDGER" >> "$ROOT_INPUT"
-              echo "::warning::This run held no local ledger; carried the branch ledger/ tree forward."
-            fi
-            if git cat-file -e refs/card-feed-tip:forward_evidence.csv 2>/dev/null; then
-              git show refs/card-feed-tip:forward_evidence.csv > carried_ledger.csv
-              add forward_evidence.csv carried_ledger.csv "$ROOT_INPUT"
-              echo "::warning::This run held no local ledger; carried the branch pre-migration copy forward too."
-            fi
+            gzip -9 -n -c data/processed/forward_evidence.csv > ledger.csv.gz
+            add forward_evidence.csv.gz ledger.csv.gz "$ROOT_INPUT"
+          elif git cat-file -e refs/card-feed-tip:forward_evidence.csv.gz 2>/dev/null; then
+            git show refs/card-feed-tip:forward_evidence.csv.gz > carried_ledger.csv.gz
+            add forward_evidence.csv.gz carried_ledger.csv.gz "$ROOT_INPUT"
+            echo "::warning::This run held no local ledger; carried the branch copy forward rather than publishing a tree without it."
+          elif git cat-file -e refs/card-feed-tip:forward_evidence.csv 2>/dev/null; then
+            git show refs/card-feed-tip:forward_evidence.csv | gzip -9 -n > carried_ledger.csv.gz
+            add forward_evidence.csv.gz carried_ledger.csv.gz "$ROOT_INPUT"
+            echo "::warning::This run held no local ledger; carried the branch copy forward rather than publishing a tree without it."
           fi
           for snapshot in data/archive/priced_snapshots/*.csv; do
             [ -f "$snapshot" ] || continue
@@ -461,7 +398,8 @@ jobs:
             latest_status.json \
             data/outputs/nfl_gameday_card.md \
             data/archive/priced_snapshots/*.csv \
-            "$LEDGER_SHARDS"/*.csv
+            ledger.csv.gz \
+            carried_ledger.csv.gz
           TREE=$(git mktree < "$ROOT_INPUT")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
