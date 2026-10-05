@@ -429,3 +429,85 @@ def test_a_receipt_is_read_once_per_loaded_policy(tmp_path: Path) -> None:
     assert policy.market_allowed(NFL, "spread")
     assert policy.refusal_reason(NFL, "spread") == ""
     assert not StagingProviderPolicy.load(manual_dir=tmp_path).market_allowed(NFL, "spread")
+
+
+# --------------------------------------------------------------------------
+# gates_summary: a constant-size line for a field repeated on every row.
+#
+# `forward_evidence.gates_in_force` is stamped unchanged onto every row of a
+# day's snapshot, so its size is multiplied by however many rows a slate
+# prices. `summary_line` enumerates every allowlisted market by name; once
+# all 60 NFL markets were allowlisted that sentence grew from ~150 to ~900
+# bytes, and repeating it tens of thousands of times a day grew
+# forward_evidence.csv past GitHub's 100MB push limit on 2026-10-05.
+# --------------------------------------------------------------------------
+
+
+def test_gates_summary_with_nothing_allowlisted_is_the_full_summary(
+    tmp_path: Path,
+) -> None:
+    """Already short; there is no receipt to name and nothing to cut."""
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    assert policy.gates_summary(NFL) == policy.summary_line(NFL)
+    assert "No market is allowlisted" in policy.gates_summary(NFL)
+
+
+def test_gates_summary_names_the_receipt_instead_of_every_market(
+    tmp_path: Path,
+) -> None:
+    _write(tmp_path, _approval(["moneyline", "spread", "total_points"]), receipt="r-1")
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+
+    summary = policy.gates_summary(NFL)
+
+    assert "r-1" in summary
+    assert "3 market(s) allowlisted" in summary
+    assert "moneyline" not in summary
+    assert "spread" not in summary
+    assert "total_points" not in summary
+    # The full, human-read version still enumerates them.
+    assert "moneyline" in policy.summary_line(NFL)
+
+
+def test_gates_summary_is_far_shorter_than_summary_line_at_full_scale(
+    tmp_path: Path,
+) -> None:
+    """The regression this exists for: at 60 allowlisted markets the
+    enumerated sentence ran to ~900 bytes, repeated on every row of a
+    ~57,000-row Sunday slate. The short form must not scale with the
+    number of markets at all."""
+    from football_betting_lab.markets import MARKETS_BY_KEY
+
+    # `market_allowed` requires a real, settleable market key, so the
+    # approval has to name real ones to actually allow sixty of them.
+    real_markets = list(MARKETS_BY_KEY)[:60]
+    _write(tmp_path, _approval(real_markets, receipt="r-1"), receipt="r-1")
+    policy = StagingProviderPolicy.load(manual_dir=tmp_path)
+    assert len(policy.allowed_markets(NFL)) == len(real_markets)
+
+    summary = policy.gates_summary(NFL)
+    full = policy.summary_line(NFL)
+
+    assert len(summary) < 200
+    assert len(full) > 500
+    assert len(summary) * 3 < len(full)
+
+
+def test_gates_summary_distinguishes_different_receipts_for_the_same_markets(
+    tmp_path: Path,
+) -> None:
+    """A row frozen under one receipt and a later row frozen under a
+    different one must still be told apart, even if both approve the same
+    market list — that is the property evidence requires."""
+    approval = _approval(["moneyline"], receipt="r-1")
+    _write(tmp_path, approval, receipt="r-1")
+    first = StagingProviderPolicy.load(manual_dir=tmp_path).gates_summary(NFL)
+
+    approval_two = _approval(["moneyline"], receipt="r-2")
+    _write(tmp_path, approval_two, receipt="r-2")
+    second = StagingProviderPolicy.load(manual_dir=tmp_path).gates_summary(NFL)
+
+    assert first != second
+    assert "r-1" in first
+    assert "r-2" in second

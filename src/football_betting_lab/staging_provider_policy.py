@@ -412,6 +412,43 @@ class StagingProviderPolicy:
             f"{', '.join(allowed)}."
         )
 
+    def gates_summary(self, league: League) -> str:
+        """A short, constant-size line for `forward_evidence.gates_in_force`
+        to carry on every settled row — see `summary_line` for the full,
+        human-read version this is a compact alternative to.
+
+        `gates_in_force` is stamped unchanged onto every row of a day's
+        snapshot (`write_snapshot` loops the rows; the value passed in is
+        one string, repeated), so its size is multiplied by however many
+        rows a slate prices — tens of thousands on a full Sunday. Before
+        this method existed, that value was `summary_line`'s sentence,
+        which enumerates every allowlisted market by name. Once all 60 NFL
+        markets were allowlisted (#54, 2026-09-28) that sentence grew from
+        about 150 to about 900 bytes, and repeating it on every row grew a
+        typical Sunday's snapshot from about 18MB to about 64MB — the
+        proximate cause of `forward_evidence.csv` crossing GitHub's 100MB
+        push limit on 2026-10-05.
+
+        Nothing is lost by shortening it: this names the receipt instead of
+        enumerating markets, and the cited receipt — committed under
+        `data/manual/human_acceptance_receipts/` and never rewritten — is
+        already the authoritative record of exactly which markets it
+        approved. A row frozen under one receipt and a later row frozen
+        under a different one are still distinguishable, which is the
+        property evidence requires; enumerating the markets a second time
+        on every row never added anything a receipt lookup could not answer.
+        """
+        allowed = self.allowed_markets(league)
+        if not allowed:
+            # Already short, and there is no receipt to name.
+            return self.summary_line(league)
+        entry = self.entry_for(league)
+        assert entry is not None, "a non-empty allowlist implies an entry"
+        return (
+            f"{len(allowed)} market(s) allowlisted for {league.title}, "
+            f"receipt {entry.evidence_receipt_id}."
+        )
+
 
 def write_starter_policy(path: Path) -> None:
     """Write the shipping policy: allowlisting nothing.

@@ -418,7 +418,7 @@ def main(argv: list[str] | None = None) -> int:
         key_for=lambda row, *, market, selection, line: selection_key(
             row, market=market, selection=selection, line=line, league=league
         ),
-        gates_in_force=policy.summary_line(league),
+        gates_in_force=policy.gates_summary(league),
         snapshot_date=slate_date,
         archive_dir=archive_dir,
         calibration=calibration,
