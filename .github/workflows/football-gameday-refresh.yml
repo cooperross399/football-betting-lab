@@ -183,7 +183,7 @@ jobs:
           REMOTE: https://github.com/${{ github.repository }}
         run: |
           set -euo pipefail
-          mkdir -p data/processed data/archive/priced_snapshots
+          mkdir -p data/processed data/archive/priced_snapshots data/archive/selections_snapshots
           if git fetch --depth=1 "$REMOTE" +refs/heads/card-feed:refs/card-feed-tip 2>/dev/null; then
             # Write to a temp and move only on success. `git show > file`
             # creates the file even when git show fails, which leaves a
@@ -212,6 +212,27 @@ jobs:
               fi
             done
             echo "Snapshots restored: $(ls data/archive/priced_snapshots | wc -l)."
+            # The selections ledger — narrower than the forward ledger above,
+            # settled the same way — gets the identical restore treatment.
+            TMP=$(mktemp)
+            if git show refs/card-feed-tip:selections_ledger.csv > "$TMP" 2>/dev/null \
+               && [ -s "$TMP" ]; then
+              mv "$TMP" data/processed/selections_ledger.csv
+              echo "Selections ledger restored: $(( $(wc -l < data/processed/selections_ledger.csv) - 1 )) rows."
+            else
+              rm -f "$TMP"
+              echo "No selections ledger on card-feed yet."
+            fi
+            for path in $(git ls-tree -r --name-only refs/card-feed-tip selections_snapshots/ 2>/dev/null); do
+              TMP=$(mktemp)
+              if git show "refs/card-feed-tip:$path" > "$TMP" 2>/dev/null && [ -s "$TMP" ]; then
+                mv "$TMP" "data/archive/selections_snapshots/$(basename "$path")"
+              else
+                rm -f "$TMP"
+                echo "::warning::Could not restore $path from card-feed."
+              fi
+            done
+            echo "Selections snapshots restored: $(ls data/archive/selections_snapshots | wc -l)."
           else
             echo "::warning::No card-feed branch. If this is not the first run, the season's ledger is gone."
           fi
@@ -333,6 +354,7 @@ jobs:
           # have worked and would have made the feed a heap of files.
           ROOT_INPUT=$(mktemp)
           SNAP_INPUT=$(mktemp)
+          SELECTIONS_SNAP_INPUT=$(mktemp)
           blob() { git hash-object -w "$1"; }
           add() {
             [ -f "$2" ] || return 0
@@ -372,6 +394,30 @@ jobs:
             SNAP_TREE=$(git mktree < "$SNAP_INPUT")
             printf '040000 tree %s\tsnapshots\n' "$SNAP_TREE" >> "$ROOT_INPUT"
           fi
+          # The selections ledger and its snapshots get the identical
+          # carry-forward treatment: never publish a tree that is missing them
+          # just because this run held none locally.
+          if [ -f data/processed/selections_ledger.csv ]; then
+            add selections_ledger.csv data/processed/selections_ledger.csv "$ROOT_INPUT"
+          elif git cat-file -e refs/card-feed-tip:selections_ledger.csv 2>/dev/null; then
+            git show refs/card-feed-tip:selections_ledger.csv > carried_selections_ledger.csv
+            add selections_ledger.csv carried_selections_ledger.csv "$ROOT_INPUT"
+            echo "::warning::This run held no local selections ledger; carried the branch copy forward rather than publishing a tree without it."
+          fi
+          for snapshot in data/archive/selections_snapshots/*.csv; do
+            [ -f "$snapshot" ] || continue
+            add "$(basename "$snapshot")" "$snapshot" "$SELECTIONS_SNAP_INPUT"
+          done
+          if [ ! -s "$SELECTIONS_SNAP_INPUT" ] && git cat-file -e refs/card-feed-tip:selections_snapshots 2>/dev/null; then
+            SELECTIONS_SNAP_CARRIED_TREE=$(git rev-parse refs/card-feed-tip:selections_snapshots)
+            printf '040000 tree %s\tselections_snapshots\n' "$SELECTIONS_SNAP_CARRIED_TREE" >> "$ROOT_INPUT"
+            echo "::warning::This run held no local selections snapshots; carried the branch tree forward."
+            SELECTIONS_SNAP_CARRIED=yes
+          fi
+          if [ -s "$SELECTIONS_SNAP_INPUT" ] && [ -z "${SELECTIONS_SNAP_CARRIED:-}" ]; then
+            SELECTIONS_SNAP_TREE=$(git mktree < "$SELECTIONS_SNAP_INPUT")
+            printf '040000 tree %s\tselections_snapshots\n' "$SELECTIONS_SNAP_TREE" >> "$ROOT_INPUT"
+          fi
           TREE=$(git mktree < "$ROOT_INPUT")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -393,5 +439,7 @@ jobs:
             data/outputs/
             data/processed/forward_evidence.csv
             data/archive/priced_snapshots/
+            data/processed/selections_ledger.csv
+            data/archive/selections_snapshots/
           if-no-files-found: warn
           retention-days: 90
