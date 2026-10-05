@@ -2055,6 +2055,63 @@ def test_a_rehearsal_never_publishes_to_the_card_feed() -> None:
     assert _condition(step) == "always() && inputs.rehearsal_slate_date == ''"
 
 
+#: The push-size guard's own script name, held the same way LEDGER_SCRIPT is.
+PUSH_SIZE_SCRIPT = "check_push_blob_sizes.py"
+
+
+def test_the_publish_step_checks_blob_sizes_before_pushing() -> None:
+    """`forward_evidence.csv` hit GitHub's 100MB push limit on 2026-10-05,
+    discovered only when `git push` was rejected mid-publish. The guard
+    script must run, and run BEFORE `git push`, so the same wall fails
+    loudly inside the step instead of at the remote — and the step must
+    actually abort when the guard finds a problem, not merely invoke it.
+
+    Parsed: the check script is named on an earlier line of the block than
+    `git push`. Executed: with every `python`/`python3` call failing (which
+    includes the guard script, since it has no special-cased stub), the
+    step must exit non-zero and `git` must never be invoked with `push`.
+    """
+    step = _gameday_step("Publish to the card-feed branch")
+    block = step["run"]
+    lines = commands(block)
+    check_lines = [i for i, line in enumerate(lines) if PUSH_SIZE_SCRIPT in line]
+    push_lines = [i for i, line in enumerate(lines) if "git push" in line]
+    assert check_lines, f"the publish step never names {PUSH_SIZE_SCRIPT}"
+    assert push_lines, "the publish step never calls git push"
+    assert max(check_lines) < min(push_lines), (
+        f"{PUSH_SIZE_SCRIPT} must be checked before git push, found at lines "
+        f"{check_lines} against push at {push_lines}"
+    )
+
+    with tempfile.TemporaryDirectory() as directory:
+        clean = run_block_under_stubs(block, set(), Path(directory))
+    assert not clean.unmodelled, clean.unmodelled
+    reached = [
+        call for call in clean.invocations
+        if call.word in {"python", "python3"}
+        and call.arguments.split()[:1] == [f"scripts/{PUSH_SIZE_SCRIPT}"]
+    ]
+    assert reached, (
+        f"the publish step names {PUSH_SIZE_SCRIPT} and never runs it. "
+        f"Invoked: {[(c.word, c.arguments) for c in clean.invocations]}"
+    )
+
+    with tempfile.TemporaryDirectory() as directory:
+        refused = run_block_under_stubs(
+            block, {"python", "python3"}, Path(directory), append_colon=False,
+        )
+    assert refused.exit_code != 0, (
+        "the publish step exited 0 with the push-size guard failing."
+    )
+    pushed = [
+        call for call in refused.invocations
+        if call.word == "git" and call.arguments.split()[:1] == ["push"]
+    ]
+    assert not pushed, (
+        f"git push ran even though the size guard failed: {pushed}"
+    )
+
+
 def test_the_standdown_guard_honours_an_automated_dispatch(tmp_path: Path) -> None:
     """Parsed: the input exists and defaults to false. Observed: with a
     dispatch that asks for the standdown, the block reads the feed before

@@ -388,6 +388,18 @@ jobs:
             SNAP_TREE=$(git mktree < "$SNAP_INPUT")
             printf '040000 tree %s\tsnapshots\n' "$SNAP_TREE" >> "$ROOT_INPUT"
           fi
+          # Fail here, loudly, with the file and its size named — never at
+          # `git push`, where GitHub's answer is a bare "pre-receive hook
+          # declined" after the commit is already built. Checked against
+          # every NEW blob this run is about to add; a blob only carried
+          # forward unchanged from the tip was already small enough to have
+          # reached the branch in the first place.
+          python scripts/check_push_blob_sizes.py \
+            latest_status.json \
+            data/outputs/nfl_gameday_card.md \
+            data/archive/priced_snapshots/*.csv \
+            ledger.csv.gz \
+            carried_ledger.csv.gz
           TREE=$(git mktree < "$ROOT_INPUT")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
