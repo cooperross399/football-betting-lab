@@ -457,3 +457,59 @@ def test_the_card_selects_nothing_under_a_policy_with_no_approvals() -> None:
     )
 
     assert picks == []
+
+
+def test_a_card_never_backs_both_sides_of_one_game(tmp_path: Path) -> None:
+    """Cooper, 2026-10-09: the model has to pick a side. The 2026-10-04 card
+    backed Jacksonville by 7+ beside Cincinnati by 9+ on one game."""
+    rows = [
+        dict(market="alternate_spread", selection="away", line=-7.0, american_odds=360),
+        dict(market="alternate_spread", selection="away", line=-4.0, american_odds=225),
+        dict(market="alternate_spread", selection="home", line=-8.5, american_odds=280),
+        dict(market="total_points", selection="under", line=47.5, american_odds=-110),
+    ]
+    prices = pd.concat([_prices(**row) for row in rows], ignore_index=True)
+    model = {("away", -7.0): 0.272, ("away", -4.0): 0.349, ("home", -8.5): 0.302,
+             ("under", 47.5): 0.60}
+    probabilities = {
+        selection_key(row, market=row.market, selection=row.selection,
+                      line=row.line, league=NFL): model[(row.selection, row.line)]
+        for row in prices.itertuples()
+    }
+    policy = _policy(tmp_path, ["alternate_spread", "total_points"])
+
+    picks, _ = select(prices, probabilities, NFL, policy=policy, now=NOW)
+    assert {(p["market"], p["selection"]) for p in picks} == {
+        ("alternate_spread", "away"), ("total_points", "under"),
+    }
+
+    card = build_card(
+        prices, NFL, policy=policy, diagnostics=PricingDiagnostics(),
+        now=NOW, slate_date="2026-09-13", preseason_excluded=[],
+        probabilities=probabilities,
+    )
+    assert [(p["selection"], p["line"]) for p in card.opposite_side] == [("home", -8.5)]
+    assert "One side per game" in render(card)
+
+
+def test_one_side_per_game_reads_team_totals_per_team_and_segments_apart() -> None:
+    from football_betting_lab.reports.gameday_card import one_side_per_game
+
+    picks = [
+        dict(game="B @ A", market="team_total", selection="home_over", edge=0.05),
+        dict(game="B @ A", market="team_total", selection="away_under", edge=0.04),
+        dict(game="B @ A", market="alternate_team_total", selection="home_under", edge=0.06),
+        dict(game="B @ A", market="spread", selection="home", edge=0.04),
+        dict(game="B @ A", market="spread_h1", selection="away", edge=0.04),
+        dict(game="B @ A", market="moneyline", selection="away", edge=0.03),
+    ]
+    kept, dropped = one_side_per_game(picks)
+    reversed_kept, _ = one_side_per_game(list(reversed(picks)))
+    assert sorted(map(id, kept)) == sorted(map(id, reversed_kept))
+    # home over and away under agree; home under contradicts home over and wins
+    # on edge; a first-half spread is a different question from the full game.
+    assert {(p["market"], p["selection"]) for p in kept} == {
+        ("team_total", "away_under"), ("alternate_team_total", "home_under"),
+        ("spread", "home"), ("spread_h1", "away"),
+    }
+    assert len(kept) + len(dropped) == len(picks)

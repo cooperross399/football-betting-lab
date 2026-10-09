@@ -107,6 +107,9 @@ class CardResult:
     frozen_rows: int = 0
     ledger_rows: int = 0
     notes: list[str] = field(default_factory=list)
+    #: Selections that cleared every bar and were dropped because the card
+    #: had already taken the other side of the same question.
+    opposite_side: list[dict] = field(default_factory=list)
 
     @property
     def decision(self) -> str:
@@ -118,7 +121,119 @@ class CardResult:
         return "no-selections"
 
 
+#: The question each team market asks, before any segment suffix. A moneyline,
+#: a spread and every alternate-spread rung all ask who wins and by how much; a
+#: featured total and its ladder ask how many. A first-half spread asks about
+#: a different afternoon from a full-game one, so the segment stays in the key.
+_QUESTION_BY_BASE: dict[str, str] = {
+    "moneyline": "margin",
+    "moneyline_3_way": "margin",
+    "spread": "margin",
+    "alternate_spread": "margin",
+    "total_points": "total",
+    "alternate_total_points": "total",
+    "team_total": "team_total",
+    "alternate_team_total": "team_total",
+}
+_SEGMENTS = ("_h1", "_h2", "_q1", "_q2", "_q3", "_q4")
+
+
+def _side(pick: Mapping) -> tuple[tuple, str] | None:
+    """`(question, side)` for a pick, or None for a market with no opposing side.
+
+    A team total is one question per team, so the question carries the team
+    and the side is over or under: `home_over` and `away_under` agree (both
+    lean home), while `home_over` and `home_under` contradict. A player prop
+    is one question per player and market, ladder included.
+    """
+    market = str(pick.get("market", ""))
+    selection = str(pick.get("selection", "")).lower()
+    game = pick.get("game")
+    if pick.get("player"):
+        base = market.removeprefix("alternate_")
+        return (game, "player", base, pick.get("player")), selection
+    segment = next((s for s in _SEGMENTS if market.endswith(s)), "")
+    question = _QUESTION_BY_BASE.get(market.removesuffix(segment) if segment else market)
+    if question is None:
+        return None
+    if question == "team_total":
+        team, _, side = selection.rpartition("_")
+        return (game, question + segment, team), side
+    return (game, question + segment), selection
+
+
+def one_side_per_game(selections: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Keep one side of each game's question; return `(kept, dropped)`.
+
+    **Why this exists.** On 2026-10-04 the card backed both sides of the
+    spread ladder on Jacksonville @ Cincinnati and on Kansas City @ Las Vegas:
+    Jacksonville by 7+ beside Cincinnati by 9+, and so on. When a model's
+    margin distribution is wider than a book's alternate ladder, both tails
+    clear the edge bar at once, and a card holding both is not an opinion
+    about the game. The sibling college lab's card did the same on
+    2026-10-08 and 2026-10-09, and Cooper asked for the model to pick a side.
+
+    **The rule.** For each game and question, the side whose single best
+    selection carries the larger edge is kept, and every selection on the
+    other side is dropped and counted on the card. Ties go to the larger
+    summed edge, then to the side named first alphabetically, so the result
+    never depends on row order.
+
+    The forward ledger is unaffected: it freezes every opinion, both sides,
+    whether or not the card selects it.
+    """
+    groups: dict[tuple, dict[str, list[dict]]] = {}
+    for pick in selections:
+        side = _side(pick)
+        if side is None:
+            continue
+        question, name = side
+        groups.setdefault(question, {}).setdefault(name, []).append(pick)
+
+    losers: set[int] = set()
+    for sides in groups.values():
+        if len(sides) < 2:
+            continue
+        ranked = sorted(
+            sides.items(),
+            key=lambda item: (
+                -max(p["edge"] for p in item[1]),
+                -sum(p["edge"] for p in item[1]),
+                item[0],
+            ),
+        )
+        for _, picks in ranked[1:]:
+            losers.update(id(p) for p in picks)
+
+    kept = [p for p in selections if id(p) not in losers]
+    dropped = [p for p in selections if id(p) in losers]
+    return kept, dropped
+
+
 def select(
+    prices: pd.DataFrame,
+    probabilities: Mapping[tuple, float],
+    league: League,
+    *,
+    policy: StagingProviderPolicy,
+    now: datetime,
+    undesignated_allowed: bool = False,
+    availability: Mapping[str, Availability] | None = None,
+) -> tuple[list[dict], list[tuple[str, str]]]:
+    """Every bet that clears every bar, one side per game, and what was pulled.
+
+    The bars are `_candidates`'. The one-side rule runs here rather than in the
+    caller, so no path reaches a card with both answers to one question on it.
+    """
+    candidates, quarantined = _candidates(
+        prices, probabilities, league, policy=policy, now=now,
+        undesignated_allowed=undesignated_allowed, availability=availability,
+    )
+    kept, _ = one_side_per_game(candidates)
+    return kept, quarantined
+
+
+def _candidates(
     prices: pd.DataFrame,
     probabilities: Mapping[tuple, float],
     league: League,
@@ -152,6 +267,8 @@ def select(
        `availability` existed, and a single boolean cannot tell a player
        listed Out from one nobody filed a report on;
     6. the kickoff guard confirms the game has not started.
+
+    `select` then keeps one side per game and question (`one_side_per_game`).
 
     `availability` is the map `gates.assess_slate` returns, keyed by
     `player_key`. **`None` means no player prop may select**, whatever the
@@ -295,7 +412,7 @@ def build_card(
     ]
 
     if probabilities:
-        selections, pulled = select(
+        candidates, pulled = _candidates(
             prices,
             probabilities,
             league,
@@ -304,7 +421,7 @@ def build_card(
             undesignated_allowed=undesignated_allowed,
             availability=availability,
         )
-        result.selections = selections
+        result.selections, result.opposite_side = one_side_per_game(candidates)
         result.quarantined.extend(pulled)
     return result
 
@@ -392,6 +509,16 @@ def render(result: CardResult) -> str:
                 f"{player}{pick['selection']} | {line} | "
                 f"{int(pick['odds']):+d} | {pick['book']} | "
                 f"{pick['edge']:+.1%} |"
+            )
+        if result.opposite_side:
+            games = sorted({p["game"] for p in result.opposite_side})
+            add("")
+            add(
+                f"**One side per game.** {len(result.opposite_side)} "
+                "selection(s) also cleared the bars on the other side of "
+                f"{len(games)} game(s) ({', '.join(games)}) and were dropped. "
+                "The side kept is the one whose best price carries the larger "
+                "edge."
             )
     elif allowlisted:
         add(
