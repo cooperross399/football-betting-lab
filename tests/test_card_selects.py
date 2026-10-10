@@ -469,7 +469,8 @@ def test_a_card_never_backs_both_sides_of_one_game(tmp_path: Path) -> None:
         dict(market="total_points", selection="under", line=47.5, american_odds=-110),
     ]
     prices = pd.concat([_prices(**row) for row in rows], ignore_index=True)
-    model = {("away", -7.0): 0.272, ("away", -4.0): 0.349, ("home", -8.5): 0.302,
+    # away -7 edge +8.3%, away -4 +4.1% (under the 6% floor), home -8.5 +3.9%.
+    model = {("away", -7.0): 0.30, ("away", -4.0): 0.349, ("home", -8.5): 0.302,
              ("under", 47.5): 0.60}
     probabilities = {
         selection_key(row, market=row.market, selection=row.selection,
@@ -489,7 +490,12 @@ def test_a_card_never_backs_both_sides_of_one_game(tmp_path: Path) -> None:
         probabilities=probabilities,
     )
     assert [(p["selection"], p["line"]) for p in card.opposite_side] == [("home", -8.5)]
-    assert "One side per game" in render(card)
+    assert [(p["selection"], p["line"]) for p in card.below_floor] == [("away", -4.0)]
+    assert {(p["market"], p["line"]) for p in card.selections} == {
+        ("total_points", 47.5), ("alternate_spread", -7.0),
+    }
+    text = render(card)
+    assert "One side per game" in text and "Edge floor" in text
 
 
 def test_one_side_per_game_reads_team_totals_per_team_and_segments_apart() -> None:
@@ -513,3 +519,13 @@ def test_one_side_per_game_reads_team_totals_per_team_and_segments_apart() -> No
         ("spread", "home"), ("spread_h1", "away"),
     }
     assert len(kept) + len(dropped) == len(picks)
+
+
+def test_the_edge_floor_is_strictly_above_six_percent() -> None:
+    from football_betting_lab.reports.gameday_card import above_floor
+
+    picks = [dict(game="B @ A", market="spread", selection="home", edge=e)
+             for e in (0.0599, 0.06, 0.0601)]
+    selected, below = above_floor(picks)
+    assert [p["edge"] for p in selected] == [0.0601]
+    assert [p["edge"] for p in below] == [0.0599, 0.06]

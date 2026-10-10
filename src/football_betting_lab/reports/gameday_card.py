@@ -53,6 +53,7 @@ from datetime import datetime
 import pandas as pd
 
 from football_betting_lab.config import (
+    CARD_EDGE_FLOOR,
     MAX_DEFAULT_JUICE,
     MAX_DEFAULT_PRICE,
     MIN_EDGE,
@@ -110,6 +111,8 @@ class CardResult:
     #: Selections that cleared every bar and were dropped because the card
     #: had already taken the other side of the same question.
     opposite_side: list[dict] = field(default_factory=list)
+    #: Selections on the kept side whose edge did not clear `CARD_EDGE_FLOOR`.
+    below_floor: list[dict] = field(default_factory=list)
 
     @property
     def decision(self) -> str:
@@ -230,7 +233,15 @@ def select(
         undesignated_allowed=undesignated_allowed, availability=availability,
     )
     kept, _ = one_side_per_game(candidates)
-    return kept, quarantined
+    selected, _ = above_floor(kept)
+    return selected, quarantined
+
+
+def above_floor(selections: list[dict]) -> tuple[list[dict], list[dict]]:
+    """`(selected, below)`: only an edge strictly above `CARD_EDGE_FLOOR` selects."""
+    selected = [p for p in selections if p["edge"] > CARD_EDGE_FLOOR]
+    below = [p for p in selections if not p["edge"] > CARD_EDGE_FLOOR]
+    return selected, below
 
 
 def _candidates(
@@ -421,7 +432,8 @@ def build_card(
             undesignated_allowed=undesignated_allowed,
             availability=availability,
         )
-        result.selections, result.opposite_side = one_side_per_game(candidates)
+        kept, result.opposite_side = one_side_per_game(candidates)
+        result.selections, result.below_floor = above_floor(kept)
         result.quarantined.extend(pulled)
     return result
 
@@ -510,16 +522,6 @@ def render(result: CardResult) -> str:
                 f"{int(pick['odds']):+d} | {pick['book']} | "
                 f"{pick['edge']:+.1%} |"
             )
-        if result.opposite_side:
-            games = sorted({p["game"] for p in result.opposite_side})
-            add("")
-            add(
-                f"**One side per game.** {len(result.opposite_side)} "
-                "selection(s) also cleared the bars on the other side of "
-                f"{len(games)} game(s) ({', '.join(games)}) and were dropped. "
-                "The side kept is the one whose best price carries the larger "
-                "edge."
-            )
     elif allowlisted:
         add(
             "**None.** Markets are approved, but nothing cleared every bar "
@@ -532,6 +534,24 @@ def render(result: CardResult) -> str:
             "**None.** Not a pass, not an avoid, and not a no-value call — no "
             "market has a reviewed approval, so the card is not permitted to "
             "select from any of them."
+        )
+    if result.opposite_side:
+        games = sorted({p["game"] for p in result.opposite_side})
+        add("")
+        add(
+            f"**One side per game.** {len(result.opposite_side)} "
+            "selection(s) also cleared the bars on the other side of "
+            f"{len(games)} game(s) ({', '.join(games)}) and were dropped. "
+            "The side kept is the one whose best price carries the larger "
+            "edge."
+        )
+    if result.below_floor:
+        add("")
+        add(
+            f"**Edge floor.** {len(result.below_floor)} selection(s) on the "
+            "kept side cleared their market's threshold but not "
+            f"{CARD_EDGE_FLOOR:.0%}, and were not selected: the card selects "
+            f"only edges strictly above {CARD_EDGE_FLOOR:.0%}."
         )
     add("")
     # NOT unconditional, and it used to be — outside the if/elif/else above,
