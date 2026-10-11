@@ -553,6 +553,36 @@
         2025
       ],
       "outcome": "joint accurate; not monetizable without parlay prices"
+    },
+    {
+      "search": "td-due-list",
+      "name": "TD due list hit rate vs not due",
+      "tested_on": "2026-10-11",
+      "seasons": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "outcome": "due -10.6 points vs not due (723 vs 4,716 games), interval excludes zero"
+    },
+    {
+      "search": "td-due-list",
+      "name": "TD due list over at best price",
+      "tested_on": "2026-10-11",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "-3.6% over 241 bets, no demonstrated edge"
     }
   ]
 }

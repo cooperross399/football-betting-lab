@@ -31,4 +31,25 @@ Due minus not due: **-10.6%** (95% -14.1% to -7.3%, bootstrap over season-weeks)
 
 ## 2. Against the price
 
-**Did not run here**: the bought prices are not in this checkout. The `TD Due List Backtest` workflow restores them from the Historical Purchase artifact.
+Bought anytime prices 2023-25, card-time snapshot, over 0.5, flat 1u stake. A player who did not appear is a void. Intervals clustered by game.
+
+| Wagers | Bets | Games | Scored | Price implied | ROI | 95% | Verdict |
+|:--|--:|--:|--:|--:|--:|:--|:--|
+| Listed, best price | 241 | 220 | 30.3% | 31.8% | -3.6% | -24.2% to +17.0% | no demonstrated edge |
+| Listed, median book | 241 | 220 | 30.3% | 34.4% | -11.8% | -30.3% to +6.7% | no demonstrated edge |
+| Qualifiers not due, best price | 1,523 | 712 | 41.5% | 43.4% | -4.6% | -11.0% to +1.8% | no demonstrated edge |
+| Every priced anytime over, best price | 23,716 | 813 | 13.8% | 14.8% | -22.1% | -26.2% to -17.9% | interval excludes zero, negative |
+
+| Listed, by season | Bets | ROI | 95% |
+|:--|--:|--:|:--|
+| 2023 | 82 | -2.8% | -37.2% to +31.6% |
+| 2024 | 79 | +1.2% | -31.7% to +34.1% |
+| 2025 | 80 | -9.1% | -48.8% to +30.5% |
+
+| Listed, by band | Bets | ROI | 95% |
+|:--|--:|--:|:--|
+| 12+ | 99 | -32.5% | -55.5% to -9.5% |
+| 10-11 | 51 | +13.6% | -39.4% to +66.5% |
+| 8-9 | 91 | +18.3% | -20.9% to +57.4% |
+
+Price names the roster could not resolve: 5,133.

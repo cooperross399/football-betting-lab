@@ -2,7 +2,7 @@
 
 **A search that runs every week is not twelve tests. It is twelve tests a week, forever.** Correcting today's findings across today's twelve is a lie if twelve more were tested last week. At a nominal 5% threshold roughly one look in twenty clears by chance, so an automated edge-hunter without a cumulative tally does not find edges — it manufactures them on a schedule, with clean intervals and good prose.
 
-**53 distinct hypotheses tested.** Any new 95% interval must be widened by **x1.69** before it means what it says.
+**55 distinct hypotheses tested.** Any new 95% interval must be widened by **x1.69** before it means what it says.
 
 | Search | Hypotheses |
 |:---|---:|
@@ -12,6 +12,7 @@
 | team-markets | 7 |
 | joint-distribution | 4 |
 | model-variants | 3 |
+| td-due-list | 2 |
 
 | # | Search | Hypothesis | Seasons | Tested | Outcome |
 |---:|:---|:---|:---|:---|:---|
@@ -68,6 +69,8 @@
 | 51 | joint-distribution | reception_yards x reception_longest correlation | 2025 | 2026-08-31 | joint accurate; not monetizable without parlay prices |
 | 52 | joint-distribution | rush_attempts x rush_yards correlation | 2025 | 2026-08-31 | joint accurate; not monetizable without parlay prices |
 | 53 | joint-distribution | rush_yards x rush_longest correlation | 2025 | 2026-08-31 | joint accurate; not monetizable without parlay prices |
+| 54 | td-due-list | TD due list hit rate vs not due | 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 | 2026-10-11 | due -10.6 points vs not due (723 vs 4,716 games), interval excludes zero |
+| 55 | td-due-list | TD due list over at best price | 2023, 2024, 2025 | 2026-10-11 | -3.6% over 241 bets, no demonstrated edge |
 
 The correction is Bonferroni on the cumulative count — conservative on purpose. Holm and Benjamini-Hochberg need every p-value in hand at once, and this lab's tests arrive one week at a time over a season. A correction that can be computed incrementally and is slightly too wide beats one that is exactly right and cannot be computed until the season is over.
 
