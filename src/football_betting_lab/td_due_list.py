@@ -396,25 +396,38 @@ def render_section(rows: list[DueRow], *, headline: dict[str, Any] | None, note:
 
 
 def slate_fixtures(games: pd.DataFrame, *, season: int, slate_date: str) -> tuple[int | None, list[tuple[str, str, str]]]:
-    """(week, [(home, away, "HH:MM ET")]) for one league date, from the schedule table."""
+    """(week, [(home, away, kickoff)]) for one league date, from the schedule table.
+
+    On a Sunday slate the list is the weekly report Cooper asked for
+    (2026-10-11, "every sunday just send a report of everyone who is on the
+    list with our weekly NFL card"), so it also takes the rest of that week's
+    games after Sunday — Monday night — with the day on the kickoff. The
+    week's Thursday game has already been played by then, and its players'
+    droughts have moved, so it is never included.
+    """
     needed = {"season", "week", "game_date", "home_team", "away_team"}
     if games is None or games.empty or not needed <= set(games.columns):
         return None, []
-    rows = games[
-        (pd.to_numeric(games["season"], errors="coerce") == int(season))
-        & (games["game_date"].astype(str).str[:10] == slate_date)
-    ]
+    in_season = games[pd.to_numeric(games["season"], errors="coerce") == int(season)]
+    dates = in_season["game_date"].astype(str).str[:10]
+    rows = in_season[dates == slate_date]
     if rows.empty:
         return None, []
     week = int(pd.to_numeric(rows["week"], errors="coerce").max())
-    fixtures = [
-        (
-            str(row.home_team),
-            str(row.away_team),
-            f"{row.gametime} ET" if isinstance(getattr(row, "gametime", None), str) else "",
-        )
-        for row in rows.itertuples()
-    ]
+    if pd.Timestamp(slate_date).dayofweek == 6:
+        rows = in_season[
+            (pd.to_numeric(in_season["week"], errors="coerce") == week) & (dates >= slate_date)
+        ]
+        rows = rows.assign(_date=rows["game_date"].astype(str).str[:10]).sort_values("_date", kind="stable")
+
+    def kickoff(row: Any) -> str:
+        time = f"{row.gametime} ET" if isinstance(getattr(row, "gametime", None), str) else ""
+        day = str(row.game_date)[:10]
+        if day == slate_date:
+            return time
+        return f"{pd.Timestamp(day):%a} {time}".strip()
+
+    fixtures = [(str(row.home_team), str(row.away_team), kickoff(row)) for row in rows.itertuples()]
     return week, fixtures
 
 

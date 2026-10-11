@@ -1672,6 +1672,11 @@ not restate them here beyond the direction.
   reach a selection, the snapshot or the ledger, and a fault in it costs the
   section, never the card. It sits after `## Selections`, so the hub's play
   tracker, which reads only that section, never grades it.
+- **On a Sunday it is the weekly report.** Cooper, 2026-10-11: *"every
+  sunday just send a report of everyone who is on the list with our weekly
+  NFL card"*. A Sunday card's section covers that day and the rest of the
+  week (Monday night, its kickoff marked `Mon`); the week's Thursday game is
+  already played and is left out. Other days list their own slate only.
 
 ## The metrics disagree with the line by three points a game, and the disagreement is noise
 
