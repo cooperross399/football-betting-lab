@@ -1659,9 +1659,14 @@ not restate them here beyond the direction.
   qualifiers when not due, an interval clear of zero on the losing side, and
   every extra game of drought lowers the rate. A long drought is evidence of
   a smaller role, an injury or a new club, not of a touchdown owed.
-- **The price test** runs in the `TD Due List Backtest` workflow (manual,
-  spends no credits) because the bought 2023-25 prices live in the Historical
-  Purchase artifact, not in git, and that artifact expires 2026-11-26.
+- **The price already knows.** Betting every listed over at the best price
+  over 2023-25 is **no demonstrated edge** (241 bets; the report has the
+  interval), and the books priced those players about where they landed. It
+  ran in the `TD Due List Backtest` workflow (run 38139634965, manual, no
+  credits) because the bought prices live in the Historical Purchase
+  artifact, not in git; that artifact expires 2026-11-26, so a re-run must
+  happen before then. Two hypotheses are in the experiment ledger under
+  `td-due-list`.
 - **It is a list on the card, never a selection.** `run_gameday_card.py`
   appends it after the card is rendered and the snapshot frozen, so it cannot
   reach a selection, the snapshot or the ledger, and a fault in it costs the
