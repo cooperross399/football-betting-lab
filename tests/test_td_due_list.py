@@ -86,7 +86,7 @@ def test_the_list_uses_the_current_club_and_never_invents_a_price() -> None:
     row = rows[0]
     assert (row.team, row.opponent, row.drought, row.bar) == ("BUF", "NE", 3, 3)
     assert row.price is None
-    assert "not posted" in due.render_section(rows, headline=None)
+    assert "not posted (books may have pulled him)" in due.render_section(rows, headline=None)
     # A club not on the slate lists nobody.
     assert due.build_due_list(logs, season=2026, week=4, teams={"A": "KC"}, fixtures=fixtures) == []
 
@@ -164,3 +164,53 @@ def test_a_sunday_card_lists_the_whole_rest_of_the_week() -> None:
     logs = _logs(_season("A", 2025, [1] * 12) + _season("A", 2026, [0] * 5), name="Monday Back")
     rows = due.build_due_list(logs, season=2026, week=6, teams={"A": "NYG"}, fixtures=fixtures)
     assert [(r.team, r.kickoff) for r in rows] == [("NYG", "Mon 20:15 ET")]
+
+
+def _injuries(rows: list[tuple[str, str, str]]) -> pd.DataFrame:
+    """(gsis_id, report_status, injury) for 2026 week 4."""
+    return pd.DataFrame(
+        {"season": 2026, "week": 4, "gsis_id": [r[0] for r in rows],
+         "report_status": [r[1] for r in rows], "report_primary_injury": [r[2] for r in rows]}
+    )
+
+
+def test_a_player_who_is_not_playing_is_removed_and_named() -> None:
+    # Cooper, 2026-10-11: four of the first Sunday list were Out or on IR.
+    seasons = []
+    for pid in "ABCDE":
+        seasons += _season(pid, 2025, [1] * 12) + _season(pid, 2026, [0, 0, 0])
+    logs = _logs(seasons)
+    teams = {pid: "BUF" for pid in "ABCDE"}
+    injuries = _injuries([("A", "Out", "Hamstring"), ("B", "Doubtful", "Knee"),
+                          ("C", "Questionable", "Ankle"), ("D", None, None)])
+    roster = pd.DataFrame({"season": 2026, "week": 4, "gsis_id": ["E", "D"], "status": ["RES", "ACT"]})
+    available = due.availability(injuries, roster, season=2026, week=4)
+    removed: list = []
+    rows = due.build_due_list(logs, season=2026, week=4, teams=teams, fixtures=[("NE", "BUF", "")],
+                              available=available, removed_out=removed)
+    assert sorted(r.player_id for r in rows) == ["C", "D"]
+    assert {r.player_id: r.status for r in rows} == {"C": "Questionable, ankle", "D": ""}
+    assert [(r.player_id, why) for r, why in removed] == [
+        ("A", "ruled Out, hamstring"), ("B", "ruled Doubtful, knee"),
+        ("E", "on a reserve list (injured reserve or similar)"),
+    ]
+    text = due.render_section(rows, headline=None, removed=removed)
+    assert "Removed, not playing this week" in text and "- A (BUF): ruled Out, hamstring" in text
+    assert "| Questionable, ankle |" in text
+
+
+def test_another_weeks_report_removes_nobody() -> None:
+    injuries = _injuries([("A", "Out", "Hamstring")]).assign(week=3)
+    assert due.availability(injuries, None, season=2026, week=4) == due.Availability({}, {})
+
+
+def test_the_section_says_when_availability_could_not_be_checked(tmp_path: Path) -> None:
+    logs = _logs(_season("A", 2025, [1] * 12) + _season("A", 2026, [0, 0, 0]))
+    games = pd.DataFrame({"season": [2026], "week": [4], "game_date": ["2026-10-01"],
+                          "home_team": ["NE"], "away_team": ["BUF"], "gametime": ["20:15"]})
+    kwargs = dict(season=2026, slate_date="2026-10-01", outputs_dir=tmp_path, league=NFL)
+    blind = due.card_section(logs, games, {"A": "BUF"}, None, **kwargs)
+    assert "Availability not checked" in blind
+    checked = due.card_section(logs, games, {"A": "BUF"}, None, injuries=_injuries([("A", "Out", "Chest")]), **kwargs)
+    assert "Availability checked against the injury report" in checked
+    assert "- A (BUF): ruled Out, chest" in checked

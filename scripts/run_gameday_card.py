@@ -487,6 +487,12 @@ def _td_due_list_section(logs, games, prices, *, league, season: int, slate_date
             slate_date=slate_date,
             outputs_dir=OUTPUTS_DIR,
             league=league,
+            injuries=_read(
+                RAW_DIR / league.data_dir_segment / "injuries" / INJURIES_FILENAME.format(season=season)
+            ),
+            weekly_roster=_read(
+                RAW_DIR / league.data_dir_segment / "weekly_rosters" / f"roster_weekly_{season}.csv"
+            ),
         )
     except Exception as error:  # noqa: BLE001 - the card must publish regardless
         print(f"::warning::TD Due List not built: {error!r}")

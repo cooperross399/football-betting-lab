@@ -1677,6 +1677,14 @@ not restate them here beyond the direction.
   NFL card"*. A Sunday card's section covers that day and the rest of the
   week (Monday night, its kickoff marked `Mon`); the week's Thursday game is
   already played and is left out. Other days list their own slate only.
+- **Nobody who is not playing is listed.** Cooper, 2026-10-11: *"make sure
+  players on the due list are not injured/not playing"* — the first Sunday
+  list carried four who were Out or on injured reserve. The section reads the
+  week's nflverse injury report and weekly roster: Out, Doubtful and any
+  roster status but active removes a player, and the section names him and
+  why; Questionable is flagged. When neither file is readable the section
+  says availability was not checked rather than implying it was. A missing
+  anytime price is printed as possibly pulled by the books.
 
 ## The metrics disagree with the line by three points a game, and the disagreement is noise
 

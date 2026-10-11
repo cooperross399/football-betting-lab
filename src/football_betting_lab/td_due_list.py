@@ -219,6 +219,7 @@ class DueRow:
     one_in: int | None
     price: float | None
     book: str
+    status: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -260,6 +261,88 @@ def best_prices(prices: pd.DataFrame) -> dict[str, tuple[float, str]]:
     return out
 
 
+# Who is not playing. Cooper, 2026-10-11: "make sure players on the due list
+# are not injured/not playing" -- the first Sunday list carried four players
+# who were Out or on injured reserve, and a list of players due a touchdown
+# who will not take the field is worse than no list. A long drought is
+# itself often an injury (see the backtest), so this is not a rare case.
+REMOVED_REPORT_STATUSES = ("out", "doubtful")
+FLAGGED_REPORT_STATUSES = ("questionable",)
+ACTIVE_ROSTER_STATUS = "ACT"
+ROSTER_STATUS_WORDS = {
+    "RES": "on a reserve list (injured reserve or similar)",
+    "INA": "inactive",
+    "CUT": "released",
+    "DEV": "on the practice squad",
+    "RET": "retired",
+    "SUS": "suspended",
+    "EXE": "exempt",
+    "UFA": "a free agent",
+    "TRD": "traded",
+}
+
+
+@dataclass(frozen=True)
+class Availability:
+    """Why a player is off the list, or flagged on it. Empty means nothing known against him."""
+
+    removed: dict[str, str]
+    flagged: dict[str, str]
+
+
+def availability(
+    injuries: pd.DataFrame | None,
+    weekly_roster: pd.DataFrame | None,
+    *,
+    season: int,
+    week: int,
+) -> Availability:
+    """Read the week's injury report and roster status into removals and flags.
+
+    Removed: listed Out or Doubtful on this week's report, or on the weekly
+    roster with any status but active (reserve, inactive, released, practice
+    squad). Flagged: Questionable. A missing file removes nobody: it is not a
+    clean bill of health either, and the section says which sources it read.
+    """
+    removed: dict[str, str] = {}
+    flagged: dict[str, str] = {}
+    if weekly_roster is not None and not weekly_roster.empty and {
+        "gsis_id", "season", "week", "status"
+    } <= set(weekly_roster.columns):
+        rows = weekly_roster[
+            (pd.to_numeric(weekly_roster["season"], errors="coerce") == int(season))
+            & (pd.to_numeric(weekly_roster["week"], errors="coerce") == int(week))
+        ]
+        for row in rows.itertuples():
+            status = str(row.status or "").strip().upper()
+            if row.gsis_id and isinstance(row.gsis_id, str) and status and status != ACTIVE_ROSTER_STATUS:
+                removed[row.gsis_id] = ROSTER_STATUS_WORDS.get(status, f"roster status {status}")
+    if injuries is not None and not injuries.empty and {
+        "gsis_id", "season", "week", "report_status"
+    } <= set(injuries.columns):
+        rows = injuries[
+            (pd.to_numeric(injuries["season"], errors="coerce") == int(season))
+            & (pd.to_numeric(injuries["week"], errors="coerce") == int(week))
+        ]
+        for row in rows.itertuples():
+            pid = row.gsis_id if isinstance(row.gsis_id, str) else ""
+            status = str(row.report_status).strip().lower() if isinstance(row.report_status, str) else ""
+            if not pid or not status:
+                continue
+            injury = getattr(row, "report_primary_injury", None)
+            detail = f"{status.capitalize()}" + (f", {str(injury).lower()}" if isinstance(injury, str) and injury else "")
+            if status in REMOVED_REPORT_STATUSES:
+                # The report's reason beats the roster's bare "inactive"; a
+                # reserve list is the stronger fact and stays.
+                if removed.get(pid, "") in ("", ROSTER_STATUS_WORDS["INA"]):
+                    removed[pid] = f"ruled {detail}"
+            elif status in FLAGGED_REPORT_STATUSES and pid not in removed:
+                flagged[pid] = detail
+    for pid in removed:
+        flagged.pop(pid, None)
+    return Availability(removed=removed, flagged=flagged)
+
+
 def build_due_list(
     logs: pd.DataFrame,
     *,
@@ -268,8 +351,14 @@ def build_due_list(
     teams: dict[str, str],
     fixtures: list[tuple[str, str, str]],
     prices: pd.DataFrame | None = None,
+    available: Availability | None = None,
+    removed_out: list[tuple[DueRow, str]] | None = None,
 ) -> list[DueRow]:
     """Tonight's listed players.
+
+    A player `available` says is not playing is left off; when `removed_out`
+    is given, he is appended there with the reason, so the card can say who
+    was dropped rather than drop him silently.
 
     `teams` maps player id to his CURRENT club (from the roster, never from his
     last logged game: players move). `fixtures` is (home, away, kickoff) for
@@ -307,8 +396,15 @@ def build_due_list(
                 one_in=one_in(record.prior_rate, int(record.drought)),
                 price=price,
                 book=book,
+                status=(available.flagged.get(str(record.player_id), "") if available else ""),
             )
         )
+        if available and str(record.player_id) in available.removed:
+            row = rows.pop()
+            if removed_out is not None:
+                removed_out.append((row, available.removed[row.player_id]))
+    if removed_out is not None:
+        removed_out.sort(key=lambda pair: pair[0].player)
     return sorted(rows, key=lambda r: (-(r.one_in or 0), -r.drought, r.player))
 
 
@@ -329,7 +425,7 @@ def load_headline(outputs_dir: Path, league: League) -> dict[str, Any] | None:
 
 def _price_text(price: float | None, book: str) -> str:
     if price is None or (isinstance(price, float) and math.isnan(price)):
-        return "not posted"
+        return "not posted (books may have pulled him)"
     sign = "+" if price > 0 else ""
     return f"{sign}{price:.0f}" + (f" ({book})" if book else "")
 
@@ -364,7 +460,13 @@ def headline_sentence(headline: dict[str, Any] | None) -> str:
     return "; ".join(parts) + "."
 
 
-def render_section(rows: list[DueRow], *, headline: dict[str, Any] | None, note: str = "") -> str:
+def render_section(
+    rows: list[DueRow],
+    *,
+    headline: dict[str, Any] | None,
+    note: str = "",
+    removed: list[tuple[DueRow, str]] | None = None,
+) -> str:
     """The card section. A list beside the card, never a selection."""
     out = [f"## {SECTION_TITLE}", ""]
     out.append(
@@ -382,16 +484,20 @@ def render_section(rows: list[DueRow], *, headline: dict[str, Any] | None, note:
         out += [note, ""]
     if not rows:
         out.append("Nobody playing on this slate is due.")
-        return "\n".join(out) + "\n"
-    out.append("| Player | Team | Opp | Kickoff | Last season | Drought (bar) | 1 in N for him | Best price |")
-    out.append("|:--|:--|:--|:--|--:|:--|--:|:--|")
-    for row in rows:
-        rarity = f"1 in {row.one_in:,}" if row.one_in else "—"
-        out.append(
-            f"| {row.player} | {row.team} | {row.opponent} | {row.kickoff} | "
-            f"{row.prior_tds} TD, {row.prior_rate:.0%} of games | {row.drought} ({row.bar}) | "
-            f"{rarity} | {_price_text(row.price, row.book)} |"
-        )
+    else:
+        out.append("| Player | Team | Opp | Kickoff | Last season | Drought (bar) | 1 in N for him | Status | Best price |")
+        out.append("|:--|:--|:--|:--|--:|:--|--:|:--|:--|")
+        for row in rows:
+            rarity = f"1 in {row.one_in:,}" if row.one_in else "—"
+            out.append(
+                f"| {row.player} | {row.team} | {row.opponent} | {row.kickoff} | "
+                f"{row.prior_tds} TD, {row.prior_rate:.0%} of games | {row.drought} ({row.bar}) | "
+                f"{rarity} | {row.status or '—'} | {_price_text(row.price, row.book)} |"
+            )
+    if removed:
+        out += ["", "Removed, not playing this week (injury report and weekly roster):", ""]
+        for row, reason in removed:
+            out.append(f"- {row.player} ({row.team}): {reason}")
     return "\n".join(out) + "\n"
 
 
@@ -441,6 +547,8 @@ def card_section(
     slate_date: str,
     outputs_dir: Path,
     league: League,
+    injuries: pd.DataFrame | None = None,
+    weekly_roster: pd.DataFrame | None = None,
 ) -> str:
     """The section the gameday card appends, or an empty string on a day with no NFL games."""
     if logs is None or logs.empty:
@@ -448,7 +556,19 @@ def card_section(
     week, fixtures = slate_fixtures(games, season=season, slate_date=slate_date)
     if week is None or not fixtures:
         return ""
+    available = availability(injuries, weekly_roster, season=season, week=week)
+    removed: list[tuple[DueRow, str]] = []
     rows = build_due_list(
-        logs, season=season, week=week, teams=roster_teams, fixtures=fixtures, prices=prices
+        logs, season=season, week=week, teams=roster_teams, fixtures=fixtures, prices=prices,
+        available=available, removed_out=removed,
     )
-    return render_section(rows, headline=load_headline(outputs_dir, league))
+    read = [name for name, frame in (("injury report", injuries), ("weekly roster", weekly_roster))
+            if frame is not None and not frame.empty]
+    note = (
+        "Availability checked against the " + " and ".join(read) + "; Out, Doubtful and "
+        "reserve-list players are removed, Questionable ones flagged."
+        if read else
+        "**Availability not checked: no injury report or weekly roster was readable this run.** "
+        "A listed player may not be playing."
+    )
+    return render_section(rows, headline=load_headline(outputs_dir, league), note=note, removed=removed)
