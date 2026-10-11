@@ -1639,6 +1639,35 @@ retractions of its own headline findings in four days — is the product.
   approval was **withdrawn**. It got there by buying more data; this lab got
   there by finding defects in its own harness. Two labs, two routes, one
   answer.
+## The TD Due List: being due means scoring less, not more
+
+**Added 2026-10-11 on Cooper's ask**: the NHL lab's Due List applied to NFL
+anytime touchdown scorers, parameters Claude's to choose.
+`src/football_betting_lab/td_due_list.py` holds the rule and its reasoning;
+`scripts/run_td_due_list_backtest.py` measures it, and
+`data/outputs/nfl_td_due_list_backtest.md` is the source for every number. Do
+not restate them here beyond the direction.
+
+- **The rule.** 8+ touchdowns scored last regular season (scored, as
+  `anytime_td` settles, never thrown), listed when the drought of games he
+  appeared in without one reaches 3 (12+), 4 (10-11) or 5 (8-9), carried
+  across the season boundary. Each bar is about a one-in-sixteen streak for a
+  typical player in the band, the level the NHL tiers sit at, and was fixed
+  from prior-season hit rates before any listed row met an outcome or a price.
+- **The hit rate says the opposite of "due".** Over 2016 onward, listed
+  players scored in about 30% of their games against about 40% for the same
+  qualifiers when not due, an interval clear of zero on the losing side, and
+  every extra game of drought lowers the rate. A long drought is evidence of
+  a smaller role, an injury or a new club, not of a touchdown owed.
+- **The price test** runs in the `TD Due List Backtest` workflow (manual,
+  spends no credits) because the bought 2023-25 prices live in the Historical
+  Purchase artifact, not in git, and that artifact expires 2026-11-26.
+- **It is a list on the card, never a selection.** `run_gameday_card.py`
+  appends it after the card is rendered and the snapshot frozen, so it cannot
+  reach a selection, the snapshot or the ledger, and a fault in it costs the
+  section, never the card. It sits after `## Selections`, so the hub's play
+  tracker, which reads only that section, never grades it.
+
 ## The metrics disagree with the line by three points a game, and the disagreement is noise
 
 **Measured 2026-09-10.** `scripts/run_market_scan.py`,

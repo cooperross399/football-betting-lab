@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from football_betting_lab import gates
+from football_betting_lab import gates, td_due_list
 from football_betting_lab.config import (
     ARCHIVE_DIR,
     OUTPUTS_DIR,
@@ -452,6 +452,9 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     report = gameday_card.render(card)
+    report += _td_due_list_section(
+        logs, games, prices, league=league, season=args.season, slate_date=slate_date
+    )
     if args.rehearsal:
         report = "> **REHEARSAL — not a card.**\n\n" + report
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -462,6 +465,33 @@ def main(argv: list[str] | None = None) -> int:
     print(report)
     print(f"decision={'rehearsal' if args.rehearsal else card.decision}")
     return 0
+
+
+def _td_due_list_section(logs, games, prices, *, league, season: int, slate_date: str) -> str:
+    """The TD Due List, appended after every card section as context.
+
+    It is built after the snapshot is frozen and the card is rendered, so it
+    cannot reach a selection, the frozen opinions or the ledger. A fault in it
+    costs the section, never the card: the card is the evidence, the list is
+    reading matter.
+    """
+    try:
+        rosters = Rosters.load(league, RAW_DIR, season=season)
+        teams = {entry.player_id: entry.team for entry in rosters.entries if entry.player_id}
+        section = td_due_list.card_section(
+            logs,
+            games,
+            teams,
+            prices,
+            season=season,
+            slate_date=slate_date,
+            outputs_dir=OUTPUTS_DIR,
+            league=league,
+        )
+    except Exception as error:  # noqa: BLE001 - the card must publish regardless
+        print(f"::warning::TD Due List not built: {error!r}")
+        return f"\n## {td_due_list.SECTION_TITLE}\n\nNot built this run ({type(error).__name__}).\n"
+    return "\n" + section if section else ""
 
 
 def _read(path: Path) -> pd.DataFrame:
