@@ -64,3 +64,8 @@ CARD_EDGE_FLOOR = 0.06
 CARD_EDGE_CEILING = 0.15
 
 BANKROLL_UNIT_DOLLARS = 25.0
+
+
+#: Cooper, 2026-10-11: "no more than 3 picks per game". After one pick per
+#: question, a game keeps at most this many selections, the largest edges.
+CARD_PICKS_PER_GAME = 3
