@@ -113,7 +113,7 @@ def test_an_approved_market_with_a_real_edge_produces_a_selection(
     prices = _prices()
     picks, _ = select(
         prices,
-        _probabilities(prices, 0.75),
+        _probabilities(prices, 0.62),
         NFL,
         policy=_policy(tmp_path, ["moneyline"]),
         now=NOW,
@@ -182,7 +182,7 @@ def test_a_started_game_is_quarantined_rather_than_selected(
 ) -> None:
     prices = _prices(commence_time=STARTED)
     picks, quarantined = select(
-        prices, _probabilities(prices, 0.75), NFL,
+        prices, _probabilities(prices, 0.62), NFL,
         policy=_policy(tmp_path, ["moneyline"]), now=NOW,
     )
 
@@ -221,7 +221,7 @@ def test_a_player_prop_cannot_select_without_the_verdict(tmp_path: Path) -> None
     """
     prices = _prop_prices()
     policy = _policy(tmp_path, ["rush_yards"])
-    probabilities = _probabilities(prices, 0.75)
+    probabilities = _probabilities(prices, 0.62)
 
     blocked, _ = select(prices, probabilities, NFL, policy=policy, now=NOW)
     no_map, _ = select(
@@ -255,7 +255,7 @@ def test_the_verdict_opens_one_state_and_not_the_other_five(
     policy = _policy(tmp_path, ["rush_yards"])
 
     picks, _ = select(
-        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        prices, _probabilities(prices, 0.62), NFL, policy=policy, now=NOW,
         undesignated_allowed=True, availability=_availability(state),
     )
 
@@ -278,7 +278,7 @@ def test_the_two_halves_of_the_gate_are_in_series_not_either_or(
     policy = _policy(tmp_path, ["rush_yards"])
 
     picks, _ = select(
-        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        prices, _probabilities(prices, 0.62), NFL, policy=policy, now=NOW,
         undesignated_allowed=False,
         availability=_availability(),  # built with the verdict in force
     )
@@ -294,7 +294,7 @@ def test_a_player_the_map_does_not_hold_cannot_select(tmp_path: Path) -> None:
     policy = _policy(tmp_path, ["rush_yards"])
 
     picks, _ = select(
-        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        prices, _probabilities(prices, 0.62), NFL, policy=policy, now=NOW,
         undesignated_allowed=True,
         availability=_availability(key="somebody else"),
     )
@@ -317,7 +317,7 @@ def test_the_map_is_read_with_the_key_the_rest_of_the_lab_builds(
     policy = _policy(tmp_path, ["rush_yards"])
 
     picks, _ = select(
-        prices, _probabilities(prices, 0.75), NFL, policy=policy, now=NOW,
+        prices, _probabilities(prices, 0.62), NFL, policy=policy, now=NOW,
         undesignated_allowed=True, availability=_availability(),
     )
 
@@ -334,7 +334,7 @@ def test_a_team_market_never_consults_the_availability_map(
     prices = _prices()
 
     picks, _ = select(
-        prices, _probabilities(prices, 0.75), NFL,
+        prices, _probabilities(prices, 0.62), NFL,
         policy=_policy(tmp_path, ["moneyline"]), now=NOW, availability={},
     )
 
@@ -349,7 +349,7 @@ def test_the_best_price_is_taken_after_every_bar_not_before(
     a shorter number."""
     rows = pd.concat([_prices(american_odds=-110, book="a"),
                       _prices(american_odds=120, book="b")], ignore_index=True)
-    probabilities = _probabilities(rows, 0.75)
+    probabilities = _probabilities(rows, 0.59)
 
     picks, _ = select(rows, probabilities, NFL,
                       policy=_policy(tmp_path, ["moneyline"]), now=NOW)
@@ -367,7 +367,7 @@ def test_the_card_stops_saying_nothing_is_allowlisted_once_something_is(
     card = build_card(
         prices, NFL, policy=_policy(tmp_path, ["moneyline"]),
         diagnostics=PricingDiagnostics(), now=NOW, slate_date="2026-09-13",
-        preseason_excluded=[], probabilities=_probabilities(prices, 0.75),
+        preseason_excluded=[], probabilities=_probabilities(prices, 0.62),
     )
 
     text = render(card)
@@ -411,7 +411,7 @@ def test_a_card_that_selected_a_prop_does_not_say_props_cannot_select(
     card = build_card(
         prices, NFL, policy=_policy(tmp_path, ["rush_yards"]),
         diagnostics=PricingDiagnostics(), now=NOW, slate_date="2026-09-13",
-        preseason_excluded=[], probabilities=_probabilities(prices, 0.75),
+        preseason_excluded=[], probabilities=_probabilities(prices, 0.62),
         undesignated_allowed=True, availability=_availability(),
     )
 
@@ -436,7 +436,7 @@ def test_a_card_with_no_prop_selection_still_says_why_props_are_blocked(
     card = build_card(
         prices, NFL, policy=_policy(tmp_path, ["moneyline"]),
         diagnostics=PricingDiagnostics(), now=NOW, slate_date="2026-09-13",
-        preseason_excluded=[], probabilities=_probabilities(prices, 0.75),
+        preseason_excluded=[], probabilities=_probabilities(prices, 0.62),
     )
 
     text = render(card)
@@ -529,3 +529,66 @@ def test_the_edge_floor_is_strictly_above_six_percent() -> None:
     selected, below = above_floor(picks)
     assert [p["edge"] for p in selected] == [0.0601]
     assert [p["edge"] for p in below] == [0.0599, 0.06]
+
+
+def test_a_question_the_model_is_far_from_every_book_on_selects_nothing(
+    tmp_path: Path,
+) -> None:
+    """2026-10-11, London: every book had Jacksonville about -7.5 and the
+    model had a coin flip, so its Philadelphia +2 carried an edge near 29%.
+    The whole margin question goes, both sides; the total on the same game
+    is a different question and still selects."""
+    rows = [
+        dict(market="alternate_spread", selection="away", line=2.0, american_odds=265),
+        dict(market="alternate_spread", selection="away", line=-1.5, american_odds=304),
+        dict(market="alternate_spread", selection="home", line=-10.5, american_odds=150),
+        dict(market="total_points", selection="over", line=41.5, american_odds=-108),
+    ]
+    prices = pd.concat([_prices(**row) for row in rows], ignore_index=True)
+    # away +2 edge +28.9%, away -1.5 +21.2%, home -10.5 +6.5%, over +7.0%.
+    model = {("away", 2.0): 0.563, ("away", -1.5): 0.460,
+             ("home", -10.5): 0.465, ("over", 41.5): 0.589}
+    probabilities = {
+        selection_key(row, market=row.market, selection=row.selection,
+                      line=row.line, league=NFL): model[(row.selection, row.line)]
+        for row in prices.itertuples()
+    }
+    policy = _policy(tmp_path, ["alternate_spread", "total_points"])
+
+    picks, _ = select(prices, probabilities, NFL, policy=policy, now=NOW)
+    assert [(p["market"], p["selection"]) for p in picks] == [("total_points", "over")]
+
+    card = build_card(
+        prices, NFL, policy=policy, diagnostics=PricingDiagnostics(),
+        now=NOW, slate_date="2026-09-13", preseason_excluded=[],
+        probabilities=probabilities,
+    )
+    assert {(p["selection"], p["line"]) for p in card.beyond_ceiling} == {
+        ("away", 2.0), ("away", -1.5), ("home", -10.5),
+    }
+    assert card.opposite_side == []
+    assert [p["market"] for p in card.selections] == ["total_points"]
+    assert "Too far from the market" in render(card)
+
+
+def test_the_edge_ceiling_is_strictly_above_fifteen_percent() -> None:
+    from football_betting_lab.config import CARD_EDGE_CEILING
+    from football_betting_lab.reports.gameday_card import within_ceiling
+
+    assert CARD_EDGE_CEILING == 0.15
+    at = [dict(game="B @ A", market="spread", selection="home", edge=0.15),
+          dict(game="B @ A", market="spread", selection="away", edge=0.04)]
+    kept, dropped = within_ceiling(at)
+    assert len(kept) == 2 and dropped == []
+
+    over = [dict(game="B @ A", market="spread", selection="home", edge=0.1501),
+            dict(game="B @ A", market="alternate_spread", selection="away", edge=0.07),
+            dict(game="B @ A", market="team_total", selection="home_over", edge=0.07),
+            dict(game="D @ C", market="spread", selection="home", edge=0.07)]
+    kept, dropped = within_ceiling(over)
+    # the margin question on B @ A goes, both sides; a team total is its own
+    # question and another game is untouched.
+    assert {(p["game"], p["market"]) for p in kept} == {
+        ("B @ A", "team_total"), ("D @ C", "spread"),
+    }
+    assert len(kept) + len(dropped) == len(over)

@@ -53,6 +53,7 @@ from datetime import datetime
 import pandas as pd
 
 from football_betting_lab.config import (
+    CARD_EDGE_CEILING,
     CARD_EDGE_FLOOR,
     MAX_DEFAULT_JUICE,
     MAX_DEFAULT_PRICE,
@@ -113,6 +114,9 @@ class CardResult:
     opposite_side: list[dict] = field(default_factory=list)
     #: Selections on the kept side whose edge did not clear `CARD_EDGE_FLOOR`.
     below_floor: list[dict] = field(default_factory=list)
+    #: Selections dropped because some answer to the same question carried an
+    #: edge above `CARD_EDGE_CEILING`: the model was too far from every book.
+    beyond_ceiling: list[dict] = field(default_factory=list)
 
     @property
     def decision(self) -> str:
@@ -232,9 +236,39 @@ def select(
         prices, probabilities, league, policy=policy, now=now,
         undesignated_allowed=undesignated_allowed, availability=availability,
     )
-    kept, _ = one_side_per_game(candidates)
+    plausible, _ = within_ceiling(candidates)
+    kept, _ = one_side_per_game(plausible)
     selected, _ = above_floor(kept)
     return selected, quarantined
+
+
+def within_ceiling(selections: list[dict]) -> tuple[list[dict], list[dict]]:
+    """`(kept, dropped)`: drop every answer to a question the model is too far on.
+
+    When any selection on a game's question carries an edge strictly above
+    `CARD_EDGE_CEILING`, every selection on that question goes, both sides and
+    every rung, because the fault is where the model is centred, not which
+    rung it liked. A selection with no opposing side is judged on its own.
+    Other questions on the same game are untouched: a stale margin does not
+    by itself say the total is stale.
+    """
+    far_questions: set[tuple] = set()
+    far_alone: set[int] = set()
+    for pick in selections:
+        if pick["edge"] > CARD_EDGE_CEILING:
+            side = _side(pick)
+            if side is None:
+                far_alone.add(id(pick))
+            else:
+                far_questions.add(side[0])
+
+    def is_far(pick: Mapping) -> bool:
+        side = _side(pick)
+        return id(pick) in far_alone or (side is not None and side[0] in far_questions)
+
+    kept = [p for p in selections if not is_far(p)]
+    dropped = [p for p in selections if is_far(p)]
+    return kept, dropped
 
 
 def above_floor(selections: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -279,7 +313,9 @@ def _candidates(
        listed Out from one nobody filed a report on;
     6. the kickoff guard confirms the game has not started.
 
-    `select` then keeps one side per game and question (`one_side_per_game`).
+    `select` then drops any question the model is too far on
+    (`within_ceiling`) and keeps one side per game and question
+    (`one_side_per_game`).
 
     `availability` is the map `gates.assess_slate` returns, keyed by
     `player_key`. **`None` means no player prop may select**, whatever the
@@ -432,7 +468,8 @@ def build_card(
             undesignated_allowed=undesignated_allowed,
             availability=availability,
         )
-        kept, result.opposite_side = one_side_per_game(candidates)
+        plausible, result.beyond_ceiling = within_ceiling(candidates)
+        kept, result.opposite_side = one_side_per_game(plausible)
         result.selections, result.below_floor = above_floor(kept)
         result.quarantined.extend(pulled)
     return result
@@ -534,6 +571,17 @@ def render(result: CardResult) -> str:
             "**None.** Not a pass, not an avoid, and not a no-value call — no "
             "market has a reviewed approval, so the card is not permitted to "
             "select from any of them."
+        )
+    if result.beyond_ceiling:
+        games = sorted({p["game"] for p in result.beyond_ceiling})
+        add("")
+        add(
+            f"**Too far from the market.** {len(result.beyond_ceiling)} "
+            f"selection(s) on {len(games)} game(s) ({', '.join(games)}) were "
+            "dropped because an answer to the same question carried an edge "
+            f"above {CARD_EDGE_CEILING:.0%}. The model sits far from every book "
+            "there, which usually means news it does not have, so the card "
+            "takes no side on that question."
         )
     if result.opposite_side:
         games = sorted({p["game"] for p in result.opposite_side})

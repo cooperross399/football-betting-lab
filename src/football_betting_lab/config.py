@@ -50,4 +50,17 @@ MIN_PROP_EDGE = 0.06
 #: one-side choice, so the side a game keeps does not depend on this bar.
 CARD_EDGE_FLOOR = 0.06
 
+#: The card's sanity ceiling, applied before the one-side choice. An edge this
+#: large means the model sits far from every book at once, and on 2026-10-11
+#: that was news it did not have: every book had Jacksonville about -7.5 over
+#: Philadelphia in London while the model, fitted on results alone, had the
+#: game near a coin flip, so its two "best" picks carried edges near 29%
+#: against about 6% for everything else. A team model with no injury input
+#: cannot tell a mispriced game from a game it knows nothing about, so the
+#: card drops the whole question (both sides, every rung) rather than back
+#: the model against the market. Strictly greater: 0.15 itself still selects.
+#: This is a guard, not a finding: it removes picks, and nothing in the
+#: priced history says picks above or below it make money.
+CARD_EDGE_CEILING = 0.15
+
 BANKROLL_UNIT_DOLLARS = 25.0
