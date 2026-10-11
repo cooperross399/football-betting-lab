@@ -592,3 +592,31 @@ def test_the_edge_ceiling_is_strictly_above_fifteen_percent() -> None:
         ("B @ A", "team_total"), ("D @ C", "spread"),
     }
     assert len(kept) + len(dropped) == len(over)
+
+
+def test_each_question_keeps_only_its_best_rung() -> None:
+    """Cooper, 2026-10-11: fewer picks. One answer per game question: the
+    margin ladder, the total and each team's total keep their largest edge,
+    and a tie goes to the better price whatever the row order."""
+    from football_betting_lab.reports.gameday_card import best_rung_per_question
+
+    picks = [
+        dict(game="B @ A", market="alternate_spread", selection="home", line=-3.5, odds=120, edge=0.07),
+        dict(game="B @ A", market="alternate_spread", selection="home", line=-7.5, odds=250, edge=0.09),
+        dict(game="B @ A", market="spread", selection="home", line=-2.5, odds=-110, edge=0.065),
+        dict(game="B @ A", market="alternate_total_points", selection="over", line=44.5, odds=110, edge=0.08),
+        dict(game="B @ A", market="alternate_total_points", selection="over", line=47.5, odds=180, edge=0.08),
+        dict(game="B @ A", market="team_total", selection="home_over", line=24.5, odds=-105, edge=0.07),
+        dict(game="B @ A", market="alternate_team_total", selection="away_under", line=17.5, odds=140, edge=0.075),
+        dict(game="D @ C", market="alternate_spread", selection="away", line=6.5, odds=-120, edge=0.07),
+    ]
+    for order in (picks, list(reversed(picks))):
+        kept, dropped = best_rung_per_question(order)
+        assert sorted((p["game"], p["market"], p["line"]) for p in kept) == [
+            ("B @ A", "alternate_spread", -7.5),
+            ("B @ A", "alternate_team_total", 17.5),
+            ("B @ A", "alternate_total_points", 47.5),
+            ("B @ A", "team_total", 24.5),
+            ("D @ C", "alternate_spread", 6.5),
+        ]
+        assert len(dropped) == 3

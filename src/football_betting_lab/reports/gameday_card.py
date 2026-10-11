@@ -117,6 +117,9 @@ class CardResult:
     #: Selections dropped because some answer to the same question carried an
     #: edge above `CARD_EDGE_CEILING`: the model was too far from every book.
     beyond_ceiling: list[dict] = field(default_factory=list)
+    #: Selections that cleared every bar but were not their question's best
+    #: rung: the card carries one answer per question.
+    other_rungs: list[dict] = field(default_factory=list)
 
     @property
     def decision(self) -> str:
@@ -238,7 +241,8 @@ def select(
     )
     plausible, _ = within_ceiling(candidates)
     kept, _ = one_side_per_game(plausible)
-    selected, _ = above_floor(kept)
+    floored, _ = above_floor(kept)
+    selected, _ = best_rung_per_question(floored)
     return selected, quarantined
 
 
@@ -268,6 +272,37 @@ def within_ceiling(selections: list[dict]) -> tuple[list[dict], list[dict]]:
 
     kept = [p for p in selections if not is_far(p)]
     dropped = [p for p in selections if is_far(p)]
+    return kept, dropped
+
+
+def best_rung_per_question(selections: list[dict]) -> tuple[list[dict], list[dict]]:
+    """`(kept, dropped)`: one selection per game question, its largest edge.
+
+    **Why this exists.** Cooper, 2026-10-11: fewer picks, still finding edges.
+    After the one-side rule a card could still carry a dozen rungs of one
+    ladder on one game, each a restatement of the same opinion at a different
+    line. Replayed on the 2023-25 ladder backtest, keeping only the best rung
+    took 23,930 bets to 1,308 and moved the return from -8.9% to -5.1%; the
+    interval includes zero either way, so that is **no demonstrated edge**,
+    and the rule is a way of stating one opinion once rather than a profit.
+
+    Ties go to the better price, then the line, so row order never decides.
+    A selection with no question (`_side` is None) is kept on its own.
+    """
+    def rank(pick: Mapping) -> tuple:
+        return (pick["edge"], pick.get("odds", 0), str(pick.get("line")))
+
+    best: dict[tuple, dict] = {}
+    for pick in selections:
+        side = _side(pick)
+        if side is None:
+            continue
+        incumbent = best.get(side[0])
+        if incumbent is None or rank(pick) > rank(incumbent):
+            best[side[0]] = pick
+    winners = {id(p) for p in best.values()}
+    kept = [p for p in selections if _side(p) is None or id(p) in winners]
+    dropped = [p for p in selections if _side(p) is not None and id(p) not in winners]
     return kept, dropped
 
 
@@ -470,7 +505,8 @@ def build_card(
         )
         plausible, result.beyond_ceiling = within_ceiling(candidates)
         kept, result.opposite_side = one_side_per_game(plausible)
-        result.selections, result.below_floor = above_floor(kept)
+        floored, result.below_floor = above_floor(kept)
+        result.selections, result.other_rungs = best_rung_per_question(floored)
         result.quarantined.extend(pulled)
     return result
 
@@ -600,6 +636,14 @@ def render(result: CardResult) -> str:
             "kept side cleared their market's threshold but not "
             f"{CARD_EDGE_FLOOR:.0%}, and were not selected: the card selects "
             f"only edges strictly above {CARD_EDGE_FLOOR:.0%}."
+        )
+    if result.other_rungs:
+        add("")
+        add(
+            f"**One pick per question.** {len(result.other_rungs)} "
+            "selection(s) cleared every bar but were other rungs of a question "
+            "the card already answers, and were not selected: each game's "
+            "margin, total and team totals carry only their largest edge."
         )
     add("")
     # NOT unconditional, and it used to be — outside the if/elif/else above,
