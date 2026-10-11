@@ -140,3 +140,27 @@ def test_a_day_without_nfl_games_adds_nothing(tmp_path: Path) -> None:
     assert due.card_section(pd.DataFrame(), games, {}, None, slate_date="2026-09-09", **kwargs) == ""
     text = due.card_section(logs, games, {"A": "SEA"}, None, slate_date="2026-09-09", **kwargs)
     assert text.startswith(f"## {due.SECTION_TITLE}")
+
+
+def test_a_sunday_card_lists_the_whole_rest_of_the_week() -> None:
+    # Week 6 of 2026: Thursday 10-15, Sunday 10-18, Monday 10-19.
+    games = pd.DataFrame(
+        {
+            "season": [2026] * 3,
+            "week": [6] * 3,
+            "game_date": ["2026-10-15", "2026-10-18", "2026-10-19"],
+            "home_team": ["KC", "BUF", "DAL"],
+            "away_team": ["LV", "NE", "NYG"],
+            "gametime": ["20:15", "13:00", "20:15"],
+        }
+    )
+    week, fixtures = due.slate_fixtures(games, season=2026, slate_date="2026-10-18")
+    assert week == 6
+    # Thursday is already played; Monday night is in, with its day shown.
+    assert fixtures == [("BUF", "NE", "13:00 ET"), ("DAL", "NYG", "Mon 20:15 ET")]
+    # Any other day stays its own slate.
+    assert due.slate_fixtures(games, season=2026, slate_date="2026-10-15")[1] == [("KC", "LV", "20:15 ET")]
+
+    logs = _logs(_season("A", 2025, [1] * 12) + _season("A", 2026, [0] * 5), name="Monday Back")
+    rows = due.build_due_list(logs, season=2026, week=6, teams={"A": "NYG"}, fixtures=fixtures)
+    assert [(r.team, r.kickoff) for r in rows] == [("NYG", "Mon 20:15 ET")]
