@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "regions": 1,
-  "monthly_quota": 100000,
+  "monthly_quota": 5000000,
   "nhl_season_by_month": {
     "2026-09": {
       "games": 8,
@@ -125,8 +125,8 @@
       "worst_day_games": 16,
       "worst_day_credits": 5,
       "daily_cap_needed": 100,
-      "spare_in_worst_month": 95441,
-      "total_spare_over_the_overlap": 773254
+      "spare_in_worst_month": 4995441,
+      "total_spare_over_the_overlap": 39973254
     },
     {
       "scenario": "tier 1",
@@ -215,8 +215,8 @@
       "worst_day_games": 16,
       "worst_day_credits": 741,
       "daily_cap_needed": 800,
-      "spare_in_worst_month": 92543,
-      "total_spare_over_the_overlap": 760742
+      "spare_in_worst_month": 4992543,
+      "total_spare_over_the_overlap": 39960742
     },
     {
       "scenario": "tier 1 + 2",
@@ -305,8 +305,8 @@
       "worst_day_games": 16,
       "worst_day_credits": 1333,
       "daily_cap_needed": 1400,
-      "spare_in_worst_month": 89916,
-      "total_spare_over_the_overlap": 750678
+      "spare_in_worst_month": 4989916,
+      "total_spare_over_the_overlap": 39950678
     },
     {
       "scenario": "full documented catalogue",
@@ -395,8 +395,8 @@
       "worst_day_games": 16,
       "worst_day_credits": 1781,
       "daily_cap_needed": 1800,
-      "spare_in_worst_month": 87928,
-      "total_spare_over_the_overlap": 743062
+      "spare_in_worst_month": 4987928,
+      "total_spare_over_the_overlap": 39943062
     }
   ]
 }

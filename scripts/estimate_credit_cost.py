@@ -70,12 +70,12 @@ SEASON = 2026
 #: the number is named here rather than appearing inline in a URL.
 REGIONS = 1
 
-#: The quota, **per calendar month**. Confirmed by Cooper on 2026-08-28.
-#: The reset day itself is not yet known and is not assumed: the lab detects
-#: it by watching `x-requests-used` fall in the response headers, which costs
-#: nothing. Until it is known, a purchase that needs most of a month is
-#: planned as though the reset were the least convenient day it could be.
-MONTHLY_QUOTA = 100_000
+#: The quota, **per calendar month**, shared by every lab on the account.
+#: 5,000,000 from 2026-11-11, when Cooper upgraded the plan ("i updated my
+#: subscription to 5 million credits"); it was 100,000 (confirmed 2026-08-28)
+#: and, briefly, 20,000. The counter reset to just under the full plan on
+#: 2026-11-01, so the month starts on the 1st.
+MONTHLY_QUOTA = 5_000_000
 
 #: The NHL lab's asked per-event market count, from its own operating file
 #: (`nhl-betting-lab/CLAUDE.md`, "Current operating state").
