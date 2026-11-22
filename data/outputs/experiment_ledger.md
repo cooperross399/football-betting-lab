@@ -2,7 +2,7 @@
 
 **A search that runs every week is not twelve tests. It is twelve tests a week, forever.** Correcting today's findings across today's twelve is a lie if twelve more were tested last week. At a nominal 5% threshold roughly one look in twenty clears by chance, so an automated edge-hunter without a cumulative tally does not find edges — it manufactures them on a schedule, with clean intervals and good prose.
 
-**55 distinct hypotheses tested.** Any new 95% interval must be widened by **x1.69** before it means what it says.
+**59 distinct hypotheses tested.** Any new 95% interval must be widened by **x1.70** before it means what it says.
 
 | Search | Hypotheses |
 |:---|---:|
@@ -11,6 +11,7 @@
 | feature-search | 9 |
 | team-markets | 7 |
 | joint-distribution | 4 |
+| pick-selection-2026-11 | 4 |
 | model-variants | 3 |
 | td-due-list | 2 |
 
@@ -71,6 +72,10 @@
 | 53 | joint-distribution | rush_yards x rush_longest correlation | 2025 | 2026-08-31 | joint accurate; not monetizable without parlay prices |
 | 54 | td-due-list | TD due list hit rate vs not due | 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 | 2026-10-11 | due -10.6 points vs not due (723 vs 4,716 games), interval excludes zero |
 | 55 | td-due-list | TD due list over at best price | 2023, 2024, 2025 | 2026-10-11 | -3.6% over 241 bets, no demonstrated edge |
+| 56 | pick-selection-2026-11 | Recalibrate card probabilities toward the devigged market (fitted 2023-24) | 2025 | 2026-11-22 | model weight 0.000 beside market 1.118 on 224,258 rungs; selects nothing on 2025; +36.91u vs baseline by abstaining, 95% -0.112 to +0.384 per game, no demonstrated improvement |
+| 57 | pick-selection-2026-11 | Shrink card probabilities halfway to the devigged market | 2023, 2024, 2025 | 2026-11-22 | -5.5% over 1,224 bets vs baseline -5.2% over 1,282; -1.07u paired, no demonstrated improvement |
+| 58 | pick-selection-2026-11 | Skip games where either club starts a new quarterback | 2023, 2024, 2025 | 2026-11-22 | wrong direction: flagged games +7.9% over 289 bets, others -9.0% over 993; skipping costs 22.84u, no demonstrated improvement |
+| 59 | pick-selection-2026-11 | Closing-line movement toward card picks (diagnostic) | 2023, 2024, 2025 | 2026-11-22 | not measurable: no closing team-market prices matched any baseline pick |
 
 The correction is Bonferroni on the cumulative count — conservative on purpose. Holm and Benjamini-Hochberg need every p-value in hand at once, and this lab's tests arrive one week at a time over a season. A correction that can be computed incrementally and is slightly too wide beats one that is exactly right and cannot be computed until the season is over.
 

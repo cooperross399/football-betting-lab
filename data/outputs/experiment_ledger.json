@@ -583,6 +583,48 @@
         2025
       ],
       "outcome": "-3.6% over 241 bets, no demonstrated edge"
+    },
+    {
+      "search": "pick-selection-2026-11",
+      "name": "Recalibrate card probabilities toward the devigged market (fitted 2023-24)",
+      "tested_on": "2026-11-22",
+      "seasons": [
+        2025
+      ],
+      "outcome": "model weight 0.000 beside market 1.118 on 224,258 rungs; selects nothing on 2025; +36.91u vs baseline by abstaining, 95% -0.112 to +0.384 per game, no demonstrated improvement"
+    },
+    {
+      "search": "pick-selection-2026-11",
+      "name": "Shrink card probabilities halfway to the devigged market",
+      "tested_on": "2026-11-22",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "-5.5% over 1,224 bets vs baseline -5.2% over 1,282; -1.07u paired, no demonstrated improvement"
+    },
+    {
+      "search": "pick-selection-2026-11",
+      "name": "Skip games where either club starts a new quarterback",
+      "tested_on": "2026-11-22",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "wrong direction: flagged games +7.9% over 289 bets, others -9.0% over 993; skipping costs 22.84u, no demonstrated improvement"
+    },
+    {
+      "search": "pick-selection-2026-11",
+      "name": "Closing-line movement toward card picks (diagnostic)",
+      "tested_on": "2026-11-22",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "outcome": "not measurable: no closing team-market prices matched any baseline pick"
     }
   ]
 }
