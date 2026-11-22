@@ -8,9 +8,6 @@ name: Pick Selection Experiments
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "claude/project-thread-1uzitl"
 
 permissions:
   contents: read
