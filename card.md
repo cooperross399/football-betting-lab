@@ -1,18 +1,34 @@
-# NFL card — 2026-11-25
+# NFL card — 2026-11-26
 
 This card is **accumulating evidence, not making recommendations.**
 
 **28 market(s) have a reviewed approval**: `alternate_spread`, `alternate_team_total`, `alternate_total_points`, `anytime_td`, `defensive_interceptions`, `field_goals`, `kicking_points`, `moneyline`, `moneyline_h1`, `pass_attempts`, `pass_completions`, `pass_interceptions`, `pass_longest_completion`, `pass_tds`, `pass_yards`, `reception_longest`, `reception_yards`, `receptions`, `rush_attempts`, `rush_longest`, `rush_yards`, `sacks`, `spread`, `spread_h1`, `tackles_assists`, `team_total`, `total_points`, `total_points_h1`. Every other market is priced, frozen into the forward ledger, and excluded from selection with a stated reason.
 
-## Slate (1 game(s))
+## Slate (3 game(s))
 
-- Green Bay Packers @ Los Angeles Rams
+- Chicago Bears @ Detroit Lions
+- Kansas City Chiefs @ Buffalo Bills
+- Philadelphia Eagles @ Dallas Cowboys
 
 ## Selections
 
-**None.** Markets are approved, but nothing cleared every bar today. That is a genuine model judgement about markets that were priced and modelled — unlike an excluded market, which is a different thing entirely.
+Every one of these cleared an approved market, a modelled opinion, its edge threshold, the juice and price bars, the availability gate and the kickoff guard. **A cleared bar is not a prediction.**
 
-**Edge floor.** 4 selection(s) on the kept side cleared their market's threshold but not 6%, and were not selected: the card selects only edges strictly above 6%.
+**Bet down to** is the worst price at which a pick still clears the card's 6% edge bar, never worse than -160. Below it, the pick is no longer a selection.
+
+| Game | Market | Selection | Line | Price | Book | Edge | Bet down to |
+|:-----|:-------|:----------|-----:|------:|:-----|-----:|------------:|
+| Chicago Bears @ Detroit Lions | `alternate_total_points` | under | 50.5 | +176 | fanduel | +14.3% | +125 |
+| Philadelphia Eagles @ Dallas Cowboys | `alternate_team_total` | home_under | 23.5 | +250 | fanduel | +13.0% | +181 |
+| Kansas City Chiefs @ Buffalo Bills | `alternate_spread` | home | -8 | +235 | fanatics | +11.0% | +188 |
+| Philadelphia Eagles @ Dallas Cowboys | `alternate_total_points` | over | 55.5 | +235 | circasports | +6.6% | +229 |
+| Chicago Bears @ Detroit Lions | `alternate_team_total` | home_over | 33.5 | +250 | fanduel | +6.4% | +246 |
+
+**Too far from the market.** 107 selection(s) on 2 game(s) (Chicago Bears @ Detroit Lions, Philadelphia Eagles @ Dallas Cowboys) were dropped because an answer to the same question carried an edge above 15%. The model sits far from every book there, which usually means news it does not have, so the card takes no side on that question.
+
+**Edge floor.** 57 selection(s) on the kept side cleared their market's threshold but not 6%, and were not selected: the card selects only edges strictly above 6%.
+
+**One pick per question.** 82 selection(s) cleared every bar but were other rungs of a question the card already answers, and were not selected: each game's margin, total and team totals carry only their largest edge.
 
 Player props are priced and tracked and **cannot produce a selection**. Inactives are declared about ninety minutes before kickoff and no available feed publishes them, so no player can be confirmed active. This is a missing source, not a judgement about any market's value.
 
@@ -27,28 +43,30 @@ An excluded market is never a pass, an avoid, or a no-value call. Those are genu
 
 ## The accounting identity
 
-`priced 4,040 = no_opinion 234 + unparseable 0 + ambiguous 0 + opinions 3,806 — reconciles.`
+`priced 16,048 = no_opinion 1,189 + unparseable 0 + ambiguous 0 + opinions 14,859 — reconciles.`
 
 Where the opinions did not go:
 
-- 63 x no fitted rate for `reception_yards`
-- 37 x no fitted rate for `receptions`
-- 22 x no fitted rate for `anytime_td`
-- 18 x player not on a current roster
-- 16 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 16 x `spread_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 16 x `total_points_h1` needs the first-half model, which is not in force — see the recorded verdict
-- 10 x no fitted rate for `kicking_points`
-- 10 x no fitted rate for `reception_longest`
-- 10 x no fitted rate for `tackles_assists`
+- 357 x no fitted rate for `reception_yards`
+- 214 x no fitted rate for `receptions`
+- 143 x no fitted rate for `rush_yards`
+- 98 x no fitted rate for `anytime_td`
+- 54 x `moneyline_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 54 x `spread_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 54 x `total_points_h1` needs the first-half model, which is not in force — see the recorded verdict
+- 48 x no fitted rate for `rush_attempts`
+- 46 x no fitted rate for `reception_longest`
+- 43 x no fitted rate for `tackles_assists`
 
 ## Forward evidence
 
-3,806 opinion(s) frozen for 2026-11-25; 643,332 row(s) in the settled ledger.
+14,859 opinion(s) frozen for 2026-11-26; 647,138 row(s) in the settled ledger.
 
 Frozen before kickoff, settled after, never repriced. Historical prices can be bought later; forward evidence cannot be back-dated.
 
 > Calibration fitted on 2023-2025, covering 17 market(s), frozen beside every raw probability.
+
+> Settled 1 snapshot day(s) into the ledger this run.
 
 ## TD Due List
 
@@ -58,4 +76,6 @@ Since 2016, listed players scored in 29.9% of 723 games against 40.5% for the sa
 
 Availability checked against the injury report and weekly roster; Out, Doubtful and reserve-list players are removed, Questionable ones flagged.
 
-Nobody playing on this slate is due.
+| Player | Team | Opp | Kickoff | Last season | Drought (bar) | 1 in N for him | Status | Best price |
+|:--|:--|:--|:--|--:|:--|--:|:--|:--|
+| Dallas Goedert | PHI | DAL | 16:30 ET | 11 TD, 53% of games | 7 (4) | 1 in 207 | — | +350 (circasports) |
